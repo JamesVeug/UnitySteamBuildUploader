@@ -4,7 +4,7 @@ This package is designed to help automate the process of uploading builds to Ste
 
 
 ## Setup
-- Add the package to your project
+- Add the package to your project in package manager using giturl `https://github.com/JamesVeug/UnitySteamBuildUploader.git`
 - Add the `editorcoroutine` package to your project
 - Add the `newtonsoft package` to your project https://github.com/applejag/Newtonsoft.Json-for-Unity/wiki/Install-official-via-UPM
 - Go to the SteamSDK tab and setup your game

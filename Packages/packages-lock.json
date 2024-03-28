@@ -196,7 +196,7 @@
       }
     },
     "com.veugeljame.steambuilduploader": {
-      "version": "file:com.jamesgames.wireframe.steambuilduploader",
+      "version": "file:com.veugeljame.steambuilduploader",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

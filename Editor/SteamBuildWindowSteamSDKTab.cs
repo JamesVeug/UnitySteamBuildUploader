@@ -54,15 +54,13 @@ namespace Wireframe
                 // Steam username
                 using (new GUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Steam Username:", GUILayout.Width(100));
-                    SteamSDK.Instance.UserName = GUILayout.TextField(SteamSDK.Instance.UserName);
+                    SteamSDK.Instance.UserName = PasswordField.Draw("Steam Username:", 100, SteamSDK.Instance.UserName);
                 }
 
                 // Steam password
                 using (new GUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Steam password:", GUILayout.Width(100));
-                    SteamSDK.Instance.UserPassword = DrawPassword(SteamSDK.Instance.UserPassword);
+                    SteamSDK.Instance.UserPassword = PasswordField.Draw("Steam password:", 100, SteamSDK.Instance.UserPassword);
                 }
             }
 
@@ -270,17 +268,6 @@ namespace Wireframe
         {
             SteamBuildWindowUtil.Save();
             SteamBuildWindowUtil.BranchPopup.Refresh();
-        }
-
-        private string DrawPassword(string password)
-        {
-            if (password == null)
-            {
-                password = "";
-            }
-
-            string newPassword = GUILayout.PasswordField(password, '*');
-            return newPassword;
         }
     }
 }

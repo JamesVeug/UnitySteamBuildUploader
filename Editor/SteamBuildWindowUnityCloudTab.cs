@@ -281,20 +281,17 @@ namespace Wireframe
                 GUILayout.Label("Settings", m_titleStyle);
                 using (new GUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Organization:", GUILayout.Width(100));
-                    UnityCloud.Instance.Organization = GUILayout.TextField(UnityCloud.Instance.Organization);
+                    UnityCloud.Instance.Organization = PasswordField.Draw("Organization:", 100,UnityCloud.Instance.Organization);
                 }
 
                 using (new GUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Project:", GUILayout.Width(100));
-                    UnityCloud.Instance.Project = GUILayout.TextField(UnityCloud.Instance.Project);
+                    UnityCloud.Instance.Project = PasswordField.Draw("Project:", 100,UnityCloud.Instance.Project);
                 }
 
                 using (new GUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Secret:", GUILayout.Width(100));
-                    UnityCloud.Instance.Secret = GUILayout.TextField(UnityCloud.Instance.Secret);
+                    UnityCloud.Instance.Secret = PasswordField.Draw("Secret:", 100,UnityCloud.Instance.Secret);
                 }
             }
         }

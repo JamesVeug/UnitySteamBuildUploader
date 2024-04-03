@@ -8,17 +8,17 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class SteamBuildWindowSyncTab : SteamBuildWindowTab
+    public class SteamBuildWindowUploadTab : SteamBuildWindowTab
     {
-        private static readonly string FilePath = Application.persistentDataPath + "/SteamBuilder/WindowSyncTab.json";
+        private static readonly string FilePath = Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json";
 
         [Serializable]
-        public class SyncTabData
+        public class UploadTabData
         {
             [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         }
 
-        private List<SteamBuild> m_buildsToSync;
+        private List<SteamBuild> m_buildsToUpload;
 
         private GUIStyle m_titleStyle;
         private Vector2 m_scrollPosition;
@@ -33,7 +33,7 @@ namespace Wireframe
                 fontStyle = FontStyle.Bold
             };
 
-            if (m_buildsToSync == null)
+            if (m_buildsToUpload == null)
                 Load();
         }
 
@@ -48,32 +48,32 @@ namespace Wireframe
                     Save();
                 }
 
-                GUILayout.Label("Builds to sync", m_titleStyle);
+                GUILayout.Label("Builds to Upload", m_titleStyle);
 
                 if (GUILayout.Button("New"))
                 {
                     SteamBuild buildSetup = new SteamBuild(window);
                     buildSetup.Collapsed = true;
-                    m_buildsToSync.Add(buildSetup);
+                    m_buildsToUpload.Add(buildSetup);
                 }
 
-                // Builds to sync
+                // Builds to upload
                 m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
-                for (int i = 0; i < m_buildsToSync.Count; i++)
+                for (int i = 0; i < m_buildsToUpload.Count; i++)
                 {
                     using (new GUILayout.HorizontalScope())
                     {
                         if (GUILayout.Button("X"))
                         {
                             if (EditorUtility.DisplayDialog("Remove Build",
-                                    "Are you sure you want to remove this build to sync?", "Yes"))
+                                    "Are you sure you want to remove this build config?", "Yes"))
                             {
-                                m_buildsToSync.RemoveAt(i--);
+                                m_buildsToUpload.RemoveAt(i--);
                                 continue;
                             }
                         }
 
-                        SteamBuild steamBuild = m_buildsToSync[i];
+                        SteamBuild steamBuild = m_buildsToUpload[i];
                         steamBuild.Enabled = EditorGUILayout.Toggle(steamBuild.Enabled, GUILayout.Width(20));
 
                         using (new GUILayout.VerticalScope())
@@ -109,21 +109,20 @@ namespace Wireframe
                     if (GUILayout.Button("Download and Upload all", GUILayout.Height(100)))
                     {
                         if (EditorUtility.DisplayDialog("Download and Upload all",
-                                "Are you sure you want to sync all builds?",
+                                "Are you sure you want to upload all enabled builds?",
                                 "Yes", "Cancel"))
                         {
-                            EditorCoroutineUtility.StartCoroutine(SyncAndUpload(), window);
+                            EditorCoroutineUtility.StartCoroutine(DownloadAndUpload(), window);
                         }
                     }
                 }
             }
         }
 
-        private IEnumerator SyncAndUpload()
+        private IEnumerator DownloadAndUpload()
         {
             // Start uploading
-            SteamWindowBuildProgressWindow buildProgressWindow =
-                new SteamWindowBuildProgressWindow(m_buildsToSync, m_buildDescription);
+            SteamWindowBuildProgressWindow buildProgressWindow = new (m_buildsToUpload, m_buildDescription);
             IEnumerator startProgress = buildProgressWindow.StartProgress();
             yield return startProgress;
         }
@@ -135,18 +134,18 @@ namespace Wireframe
                 return false;
             }
 
-            if (m_buildsToSync == null)
+            if (m_buildsToUpload == null)
             {
                 return false;
             }
 
             int validBuilds = 0;
-            for (int i = 0; i < m_buildsToSync.Count; i++)
+            for (int i = 0; i < m_buildsToUpload.Count; i++)
             {
-                if (!m_buildsToSync[i].Enabled)
+                if (!m_buildsToUpload[i].Enabled)
                     continue;
 
-                if (!m_buildsToSync[i].CanStartBuild())
+                if (!m_buildsToUpload[i].CanStartBuild())
                 {
                     return false;
                 }
@@ -160,15 +159,15 @@ namespace Wireframe
 
         public override void Save()
         {
-            if (m_buildsToSync == null)
+            if (m_buildsToUpload == null)
             {
-                m_buildsToSync = new List<SteamBuild>();
+                m_buildsToUpload = new List<SteamBuild>();
             }
 
-            SyncTabData data = new SyncTabData();
-            for (int i = 0; i < m_buildsToSync.Count; i++)
+            UploadTabData data = new UploadTabData();
+            for (int i = 0; i < m_buildsToUpload.Count; i++)
             {
-                data.Data.Add(m_buildsToSync[i].Serialize());
+                data.Data.Add(m_buildsToUpload[i].Serialize());
             }
 
             string directory = Path.GetDirectoryName(FilePath);
@@ -192,30 +191,30 @@ namespace Wireframe
             if (File.Exists(FilePath))
             {
                 string json = File.ReadAllText(FilePath);
-                SyncTabData config = JsonUtility.FromJson<SyncTabData>(json);
+                UploadTabData config = JsonUtility.FromJson<UploadTabData>(json);
                 if (config == null)
                 {
                     Debug.Log("Config is null. Creating new config");
-                    m_buildsToSync = new List<SteamBuild>();
+                    m_buildsToUpload = new List<SteamBuild>();
                     Save();
                 }
                 else
                 {
-                    m_buildsToSync = new List<SteamBuild>();
+                    m_buildsToUpload = new List<SteamBuild>();
                     for (int i = 0; i < config.Data.Count; i++)
                     {
                         SteamBuild steamBuild = new SteamBuild(window);
                         steamBuild.Collapsed = true;
                         var jObject = config.Data[i];
                         steamBuild.Deserialize(jObject);
-                        m_buildsToSync.Add(steamBuild);
+                        m_buildsToUpload.Add(steamBuild);
                     }
                 }
             }
             else
             {
                 Debug.Log("SteamBuildData does not exist. Creating new file");
-                m_buildsToSync = new List<SteamBuild>();
+                m_buildsToUpload = new List<SteamBuild>();
                 Save();
             }
         }

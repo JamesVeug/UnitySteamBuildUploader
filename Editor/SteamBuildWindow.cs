@@ -13,16 +13,14 @@ namespace Wireframe
         {
             SteamSDK,
             UnityCloud,
-            Sync,
-            Build,
+            Upload,
         }
 
-        public Tabs CurrentTab = Tabs.Sync;
+        public Tabs CurrentTab = Tabs.Upload;
 
         private SteamBuildWindowSteamSDKTab m_steamSDKTab;
         private SteamBuildWindowUnityCloudTab m_unityCloudTab;
-        private SteamBuildWindowBuildTab m_buildTab;
-        private SteamBuildWindowSyncTab m_syncTab;
+        private SteamBuildWindowUploadTab m_uploadTab;
 
         private float m_nextSaveDelta;
         private float m_lastEditDelta;
@@ -42,8 +40,7 @@ namespace Wireframe
             RefreshTabs();
             m_steamSDKTab.Update();
             m_unityCloudTab.Update();
-            m_buildTab.Update();
-            m_syncTab.Update();
+            m_uploadTab.Update();
 
             // Save
             if (m_saveQueued)
@@ -80,16 +77,10 @@ namespace Wireframe
                 m_unityCloudTab.Initialize(this);
             }
 
-            if (m_buildTab == null)
+            if (m_uploadTab == null)
             {
-                m_buildTab = new SteamBuildWindowBuildTab();
-                m_buildTab.Initialize(this);
-            }
-
-            if (m_syncTab == null)
-            {
-                m_syncTab = new SteamBuildWindowSyncTab();
-                m_syncTab.Initialize(this);
+                m_uploadTab = new SteamBuildWindowUploadTab();
+                m_uploadTab.Initialize(this);
             }
         }
 
@@ -109,13 +100,9 @@ namespace Wireframe
                 if (GUILayout.Button("UnityCloud"))
                     CurrentTab = Tabs.UnityCloud;
 
-                GUI.backgroundColor = CurrentTab == Tabs.Sync ? Color.gray : Color.white;
-                if (GUILayout.Button("Sync"))
-                    CurrentTab = Tabs.Sync;
-
-                GUI.backgroundColor = CurrentTab == Tabs.Build ? Color.gray : Color.white;
-                if (GUILayout.Button("Build"))
-                    CurrentTab = Tabs.Build;
+                GUI.backgroundColor = CurrentTab == Tabs.Upload ? Color.gray : Color.white;
+                if (GUILayout.Button("Upload"))
+                    CurrentTab = Tabs.Upload;
             }
 
             GUI.backgroundColor = defaultColor;
@@ -130,11 +117,8 @@ namespace Wireframe
                     case Tabs.UnityCloud:
                         m_unityCloudTab.OnGUI();
                         break;
-                    case Tabs.Build:
-                        m_buildTab.OnGUI();
-                        break;
-                    case Tabs.Sync:
-                        m_syncTab.OnGUI();
+                    case Tabs.Upload:
+                        m_uploadTab.OnGUI();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -150,7 +134,6 @@ namespace Wireframe
         private void ImmediateSave()
         {
             m_steamSDKTab?.Save();
-            m_buildTab?.Save();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             m_nextSaveDelta = 0;

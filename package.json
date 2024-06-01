@@ -7,7 +7,12 @@
   "keywords": [
     "steam",
     "build",
-    "uloud"
+    "cloud",
+    "unitycloud",
+    "upload",
+    "pipeline",
+    "steampipe",
+    "depot"
   ],
   "version": "1.0.0",
   "dependencies": {

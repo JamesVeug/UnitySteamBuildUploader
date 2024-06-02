@@ -7,11 +7,11 @@ namespace Wireframe
 {
     public class SteamWindowBuildProgressWindow
     {
-        private List<SteamBuild> steamBuilds;
+        private List<BuildConfig> steamBuilds;
         private int progressId;
         private string buildDescription;
 
-        public SteamWindowBuildProgressWindow(List<SteamBuild> steamBuilds, string buildDescription)
+        public SteamWindowBuildProgressWindow(List<BuildConfig> steamBuilds, string buildDescription)
         {
             this.steamBuilds = steamBuilds;
             this.buildDescription = buildDescription;

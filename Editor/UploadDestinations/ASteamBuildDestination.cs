@@ -26,8 +26,8 @@ namespace Wireframe
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);
 
-        public abstract void OnGUIExpanded();
-        public abstract void OnGUICollapsed();
+        public abstract void OnGUIExpanded(ref bool isDirty);
+        public abstract void OnGUICollapsed(ref bool isDirty);
 
         public virtual void CleanUp()
         {

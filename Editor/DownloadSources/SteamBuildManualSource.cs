@@ -17,7 +17,7 @@ namespace Wireframe
         {
         }
 
-        public override void OnGUIExpanded()
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -37,17 +37,19 @@ namespace Wireframe
                 if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))
                 {
                     m_enteredFilePath = newPath;
+                    isDirty = true;
                 }
             }
         }
 
-        public override void OnGUICollapsed()
+        public override void OnGUICollapsed(ref bool isDirty)
         {
             if (GUILayout.Button(m_enteredFilePath, GUILayout.Width(50), GUILayout.MaxWidth(500)))
             {
                 string newPath = EditorUtility.OpenFilePanel("Build Folder", "", "");
                 if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))
                 {
+                    isDirty = true;
                     m_enteredFilePath = newPath;
                 }
             }

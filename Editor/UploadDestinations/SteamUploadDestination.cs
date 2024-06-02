@@ -24,54 +24,54 @@ namespace Wireframe
 
         }
 
-        public override void OnGUIExpanded()
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             // Config
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Config:", GUILayout.Width(120));
-                SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref m_currentConfig);
+                isDirty |= SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref m_currentConfig);
             }
 
             // Depot
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Depot:", GUILayout.Width(120));
-                SteamBuildWindowUtil.DepotPopup.DrawPopup(m_currentConfig, ref m_buildDepot);
+                isDirty |= SteamBuildWindowUtil.DepotPopup.DrawPopup(m_currentConfig, ref m_buildDepot);
             }
 
             // Branch
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Branch:", GUILayout.Width(120));
-                SteamBuildWindowUtil.BranchPopup.DrawPopup(m_currentConfig, ref m_destinationBranch);
+                isDirty |= SteamBuildWindowUtil.BranchPopup.DrawPopup(m_currentConfig, ref m_destinationBranch);
             }
 
             // Tools
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Create AppFile:", GUILayout.Width(120));
-                m_createAppFile = EditorGUILayout.Toggle(m_createAppFile);
+                isDirty |= CustomToggle.DrawToggle(ref m_createAppFile);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Create DepotFile:", GUILayout.Width(120));
-                m_createDepotFile = EditorGUILayout.Toggle(m_createDepotFile);
+                isDirty |= CustomToggle.DrawToggle(ref m_createDepotFile);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Upload To Steam:", GUILayout.Width(120));
-                m_uploadToSteam = EditorGUILayout.Toggle(m_uploadToSteam);
+                isDirty |= CustomToggle.DrawToggle(ref m_uploadToSteam);
             }
         }
 
-        public override void OnGUICollapsed()
+        public override void OnGUICollapsed(ref bool isDirty)
         {
-            SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref m_currentConfig);
-            SteamBuildWindowUtil.DepotPopup.DrawPopup(m_currentConfig, ref m_buildDepot);
-            SteamBuildWindowUtil.BranchPopup.DrawPopup(m_currentConfig, ref m_destinationBranch);
+            isDirty |= SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref m_currentConfig);
+            isDirty |= SteamBuildWindowUtil.DepotPopup.DrawPopup(m_currentConfig, ref m_buildDepot);
+            isDirty |= SteamBuildWindowUtil.BranchPopup.DrawPopup(m_currentConfig, ref m_destinationBranch);
         }
 
         public override IEnumerator Upload(string filePath, string buildDescription)

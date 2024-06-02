@@ -27,12 +27,12 @@ namespace Wireframe
             window = steamBuildWindow;
         }
 
-        public override void OnGUIExpanded()
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Target:", GUILayout.Width(120));
-                UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget);
+                isDirty |= UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget);
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -66,6 +66,7 @@ namespace Wireframe
                                     if (GUILayout.Button(build.CreateBuildName()))
                                     {
                                         sourceBuild = build;
+                                        isDirty = true;
                                     }
                                 }
                             }
@@ -77,10 +78,17 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed()
+        public override void OnGUICollapsed(ref bool isDirty)
         {
-            UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget);
-            UnityCloudAPIEditorUtil.BuildPopup.DrawPopup(sourceTarget, ref sourceBuild);
+            if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget))
+            {
+                isDirty = true;
+            }
+
+            if (UnityCloudAPIEditorUtil.BuildPopup.DrawPopup(sourceTarget, ref sourceBuild))
+            {
+                isDirty = true;
+            }
         }
 
         public override IEnumerator GetSource()

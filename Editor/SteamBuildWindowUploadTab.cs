@@ -18,11 +18,12 @@ namespace Wireframe
             [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         }
 
-        private List<SteamBuild> m_buildsToUpload;
+        private List<BuildConfig> m_buildsToUpload;
 
         private GUIStyle m_titleStyle;
         private Vector2 m_scrollPosition;
         private string m_buildDescription;
+        private bool m_isDirty;
 
         private void Setup()
         {
@@ -43,18 +44,15 @@ namespace Wireframe
 
             using (new GUILayout.VerticalScope("box"))
             {
-                if (GUILayout.Button("Save"))
-                {
-                    Save();
-                }
-
                 GUILayout.Label("Builds to Upload", m_titleStyle);
+                DrawSaveButton();
 
                 if (GUILayout.Button("New"))
                 {
-                    SteamBuild buildSetup = new SteamBuild(window);
-                    buildSetup.Collapsed = true;
-                    m_buildsToUpload.Add(buildSetup);
+                    BuildConfig buildConfigSetup = new BuildConfig(window);
+                    buildConfigSetup.Collapsed = true;
+                    m_buildsToUpload.Add(buildConfigSetup);
+                    m_isDirty = true;
                 }
 
                 // Builds to upload
@@ -69,22 +67,28 @@ namespace Wireframe
                                     "Are you sure you want to remove this build config?", "Yes"))
                             {
                                 m_buildsToUpload.RemoveAt(i--);
+                                m_isDirty = true;
                                 continue;
                             }
                         }
 
-                        SteamBuild steamBuild = m_buildsToUpload[i];
-                        steamBuild.Enabled = EditorGUILayout.Toggle(steamBuild.Enabled, GUILayout.Width(20));
+                        BuildConfig buildConfig = m_buildsToUpload[i];
+                        bool e = EditorGUILayout.Toggle(buildConfig.Enabled, GUILayout.Width(20));
+                        if (e != buildConfig.Enabled)
+                        {
+                            buildConfig.Enabled = e;
+                            m_isDirty = true;
+                        }
 
                         using (new GUILayout.VerticalScope())
                         {
-                            steamBuild.OnGUI();
+                            buildConfig.OnGUI(ref m_isDirty);
                         }
 
-                        bool collapse = steamBuild.Collapsed;
+                        bool collapse = buildConfig.Collapsed;
                         if (GUILayout.Button(collapse ? "+" : "-"))
                         {
-                            steamBuild.Collapsed = !steamBuild.Collapsed;
+                            buildConfig.Collapsed = !buildConfig.Collapsed;
                         }
                     }
                 }
@@ -116,6 +120,15 @@ namespace Wireframe
                         }
                     }
                 }
+            }
+        }
+
+        private void DrawSaveButton()
+        {
+            string text = m_isDirty ? "Save*" : "Save";
+            if (GUILayout.Button(text))
+            {
+                Save();
             }
         }
 
@@ -159,9 +172,10 @@ namespace Wireframe
 
         public override void Save()
         {
+            m_isDirty = false;
             if (m_buildsToUpload == null)
             {
-                m_buildsToUpload = new List<SteamBuild>();
+                m_buildsToUpload = new List<BuildConfig>();
             }
 
             UploadTabData data = new UploadTabData();
@@ -195,26 +209,26 @@ namespace Wireframe
                 if (config == null)
                 {
                     Debug.Log("Config is null. Creating new config");
-                    m_buildsToUpload = new List<SteamBuild>();
+                    m_buildsToUpload = new List<BuildConfig>();
                     Save();
                 }
                 else
                 {
-                    m_buildsToUpload = new List<SteamBuild>();
+                    m_buildsToUpload = new List<BuildConfig>();
                     for (int i = 0; i < config.Data.Count; i++)
                     {
-                        SteamBuild steamBuild = new SteamBuild(window);
-                        steamBuild.Collapsed = true;
+                        BuildConfig buildConfig = new BuildConfig(window);
+                        buildConfig.Collapsed = true;
                         var jObject = config.Data[i];
-                        steamBuild.Deserialize(jObject);
-                        m_buildsToUpload.Add(steamBuild);
+                        buildConfig.Deserialize(jObject);
+                        m_buildsToUpload.Add(buildConfig);
                     }
                 }
             }
             else
             {
                 Debug.Log("SteamBuildData does not exist. Creating new file");
-                m_buildsToUpload = new List<SteamBuild>();
+                m_buildsToUpload = new List<BuildConfig>();
                 Save();
             }
         }

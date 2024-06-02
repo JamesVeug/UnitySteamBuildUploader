@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class SteamBuild
+    public class BuildConfig
     {
         private enum SourceType
         {
@@ -32,7 +32,7 @@ namespace Wireframe
         private GUIStyle m_titleStyle;
         private SteamBuildWindow m_window;
 
-        public SteamBuild(SteamBuildWindow window)
+        public BuildConfig(SteamBuildWindow window)
         {
             m_window = window;
         }
@@ -55,7 +55,7 @@ namespace Wireframe
             }
         }
 
-        public void OnGUI()
+        public void OnGUI(ref bool isDirty)
         {
             Setup();
 
@@ -63,16 +63,16 @@ namespace Wireframe
             {
                 if (Collapsed)
                 {
-                    OnGUICollapsed();
+                    OnGUICollapsed(ref isDirty);
                 }
                 else
                 {
-                    OnGUIExpanded();
+                    OnGUIExpanded(ref isDirty);
                 }
             }
         }
 
-        private void OnGUICollapsed()
+        private void OnGUICollapsed(ref bool isDirty)
         {
             // Draw the build but on one line
             using (new GUILayout.HorizontalScope())
@@ -81,6 +81,11 @@ namespace Wireframe
                 SourceType sourceType = (SourceType)EditorGUILayout.EnumPopup(m_currentSourceType);
                 if (sourceType != m_currentSourceType || m_buildSource == null)
                 {
+                    if (m_buildSource != null)
+                    {
+                        isDirty = true;
+                    }
+
                     m_currentSourceType = sourceType;
                     CreateSourceFromType(sourceType);
                 }
@@ -93,7 +98,7 @@ namespace Wireframe
                 float sourceWidth = parts;
                 using (new GUILayout.HorizontalScope(GUILayout.MaxWidth(sourceWidth)))
                 {
-                    m_buildSource.OnGUICollapsed();
+                    m_buildSource.OnGUICollapsed(ref isDirty);
                 }
 
 
@@ -113,6 +118,10 @@ namespace Wireframe
                 DestinationType destinationType = (DestinationType)EditorGUILayout.EnumPopup(m_currentDestinationType);
                 if (destinationType != m_currentDestinationType || m_buildDestination == null)
                 {
+                    if (m_buildDestination != null)
+                    {
+                        isDirty = true;
+                    }
                     m_currentDestinationType = destinationType;
                     CreateDestinationFromType(destinationType);
                 }
@@ -121,12 +130,12 @@ namespace Wireframe
                 float destinationWidth = parts;
                 using (new GUILayout.HorizontalScope(GUILayout.MaxWidth(destinationWidth)))
                 {
-                    m_buildDestination.OnGUICollapsed();
+                    m_buildDestination.OnGUICollapsed(ref isDirty);
                 }
             }
         }
 
-        private void OnGUIExpanded()
+        private void OnGUIExpanded(ref bool isDirty)
         {
             float windowWidth = m_window.position.width;
             using (new GUILayout.HorizontalScope())
@@ -140,18 +149,19 @@ namespace Wireframe
                         SourceType type = (SourceType)EditorGUILayout.EnumPopup(m_currentSourceType);
                         if (type != m_currentSourceType || m_buildSource == null)
                         {
+                            isDirty = true;
                             m_currentSourceType = type;
                             CreateSourceFromType(type);
                         }
                     }
 
-                    m_buildSource.OnGUIExpanded();
+                    m_buildSource.OnGUIExpanded(ref isDirty);
                 }
 
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth)))
                 {
                     GUILayout.Label("Destination", m_titleStyle);
-                    m_buildDestination.OnGUIExpanded();
+                    m_buildDestination.OnGUIExpanded(ref isDirty);
                 }
             }
         }

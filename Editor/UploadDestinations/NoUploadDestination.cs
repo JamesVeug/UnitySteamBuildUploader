@@ -10,12 +10,12 @@ namespace Wireframe
 
         }
 
-        public override void OnGUIExpanded()
+        public override void OnGUIExpanded(ref bool isDirty)
         {
 
         }
 
-        public override void OnGUICollapsed()
+        public override void OnGUICollapsed(ref bool isDirty)
         {
 
         }

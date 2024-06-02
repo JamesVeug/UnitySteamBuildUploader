@@ -221,7 +221,7 @@ namespace Wireframe
                 return;
             }
 
-            string[] lines = text.Split("\n");
+            string[] lines = text.Split('\n');
 
             if (!ContainsText(lines, "Loading Steam API", "OK"))
             {

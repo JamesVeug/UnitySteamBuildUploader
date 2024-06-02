@@ -79,8 +79,11 @@ namespace Wireframe
 
                     if (GUILayout.Button("New", GUILayout.Width(100)))
                     {
-                        SteamBuildWindowUtil.GetSteamBuildData().Configs.Add(new SteamBuildConfig());
+                        SteamBuildConfig config = new SteamBuildConfig();
+                        SteamBuildWindowUtil.GetSteamBuildData().Configs.Add(config);
                         SteamBuildWindowUtil.Save();
+                        SteamBuildWindowUtil.ConfigPopup.Refresh();
+                        currentConfig = config;
                     }
 
                     if (GUILayout.Button("Browse Builds", GUILayout.Width(200)))

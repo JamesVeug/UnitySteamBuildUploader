@@ -28,9 +28,25 @@ namespace Wireframe
 
         public async Task StartProgress(Action tick = null)
         {
-            await GetSource(tick);
-            await Upload(tick);
+            this.progressId = Progress.Start("Steam Build Window", "Getting Sources...");
+            
+            Task task = GetSources();
+            while (!task.IsCompleted)
+            {
+                tick?.Invoke();
+                await Task.Delay(10);
+            }
+            
+            Progress.Report(progressId, 0.33f, "Uploading...");
+            
+            Task uploadTask = Upload();
+            while (!uploadTask.IsCompleted)
+            {
+                tick?.Invoke();
+                await Task.Delay(10);
+            }
 
+            Progress.Report(progressId, 0.66f, "Cleaning up...");
             for (int i = 0; i < steamBuilds.Count; i++)
             {
                 if (steamBuilds[i].Enabled)
@@ -39,20 +55,16 @@ namespace Wireframe
                     steamBuilds[i].Destination().CleanUp();
                 }
             }
+            
+            Progress.Remove(progressId);
             Debug.Log("StartProgress complete!");
         }
 
-        private async Task ProcessSource(Task source, AsyncOperation op)
+        private async Task GetSources(Action tick = null)
         {
-            await source;
-            op.Successful = true;
-        }
+            int sourceID = Progress.Start("Get Sources", "Starting...");
 
-        private async Task GetSource(Action tick = null)
-        {
-            this.progressId = Progress.Start("Steam Build Window", "Starting...");
-
-            List<AsyncOperation<ASteamBuildSource>> coroutines = new List<AsyncOperation<ASteamBuildSource>>();
+            List<Tuple<ASteamBuildSource, Task>> tasks = new List<Tuple<ASteamBuildSource, Task>>();
             for (int j = 0; j < steamBuilds.Count; j++)
             {
                 if (!steamBuilds[j].Enabled)
@@ -60,24 +72,22 @@ namespace Wireframe
                     continue;
                 }
 
-                Task source = steamBuilds[j].Source().GetSource();
-
-                AsyncOperation<ASteamBuildSource> op = new AsyncOperation<ASteamBuildSource>();
-                op.Data = steamBuilds[j].Source();
-                op.SetIterator(ProcessSource(source, op));
-                coroutines.Add(op);
+                ASteamBuildSource buildSource = steamBuilds[j].Source();
+                Task task = buildSource.GetSource();
+                tasks.Add(new Tuple<ASteamBuildSource, Task>(buildSource, task));
             }
 
             while (true)
             {
                 bool done = true;
                 float completionAmount = 0.0f;
-                for (int j = 0; j < coroutines.Count; j++)
+                for (int j = 0; j < tasks.Count; j++)
                 {
-                    if (!coroutines[j].Successful)
+                    Tuple<ASteamBuildSource,Task> tuple = tasks[j];
+                    if (!tuple.Item2.IsCompleted)
                     {
                         done = false;
-                        completionAmount += coroutines[j].Data.DownloadProgress();
+                        completionAmount += tuple.Item1.DownloadProgress();
                         break;
                     }
                     else
@@ -91,21 +101,19 @@ namespace Wireframe
                     break;
                 }
 
-                float progress = completionAmount / coroutines.Count;
-                Progress.Report(progressId, progress, "Getting Sources");
-                tick?.Invoke();
+                float progress = completionAmount / tasks.Count;
+                Progress.Report(sourceID, progress, "Getting Sources");
                 await Task.Delay(10);
             }
 
-            Progress.Remove(progressId);
+            Progress.Remove(sourceID);
         }
 
-        private async Task Upload(Action tick)
+        private async Task Upload()
         {
-            this.progressId = Progress.Start("Uploading", "Starting...");
+            int uploadID = Progress.Start("Uploading", "Starting...");
 
             int totalBuilds = GetEnabledBuildCount();
-            float completionAmount = 0.0f;
             for (int i = 0; i < steamBuilds.Count; i++)
             {
                 if (!steamBuilds[i].Enabled)
@@ -118,17 +126,21 @@ namespace Wireframe
                 string sourceFilePath = buildSource.SourceFilePath();
 
                 ASteamBuildDestination destination = steamBuilds[i].Destination();
-                await destination.Upload(sourceFilePath, description);
-                completionAmount++;
+                Progress.Report(uploadID, (float)i/totalBuilds, $"Uploading {i+1}/{steamBuilds.Count}");
+                
+                int destinationID = Progress.Start(destination.ProgressTitle(), destination.ProgressDescription());
+                Task upload = destination.Upload(sourceFilePath, description);
+                while (!upload.IsCompleted)
+                {
+                    await Task.Delay(10);
+                    Progress.Report(destinationID, destination.UploadProgress(), destination.ProgressDescription());
+                }
+                Progress.Remove(destinationID);
+                
                 Debug.Log("Uploaded to destination complete: " + i);
-
-                float progress = completionAmount / totalBuilds;
-                Progress.Report(progressId, progress, "Uploading");
-                tick?.Invoke();
-                await Task.Delay(10);
             }
 
-            Progress.Remove(progressId);
+            Progress.Remove(uploadID);
             Debug.Log("Upload Complete!");
         }
 

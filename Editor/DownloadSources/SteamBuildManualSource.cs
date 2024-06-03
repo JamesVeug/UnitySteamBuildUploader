@@ -117,9 +117,22 @@ namespace Wireframe
             return m_progressDescription;
         }
 
-        public override bool IsSetup()
+        public override bool IsSetup(out string reason)
         {
-            return !string.IsNullOrEmpty(m_enteredFilePath);
+            if (string.IsNullOrEmpty(m_enteredFilePath))
+            {
+                reason = "No file path set";
+                return false;
+            }
+
+            if (!File.Exists(m_enteredFilePath))
+            {
+                reason = "File does not exist";
+                return false;
+            }
+            
+            reason = "";
+            return true;
         }
 
         public override string GetBuildDescription()

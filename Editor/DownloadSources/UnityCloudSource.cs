@@ -206,9 +206,22 @@ namespace Wireframe
             return m_progressDescription;
         }
 
-        public override bool IsSetup()
+        public override bool IsSetup(out string reason)
         {
-            return sourceTarget != null && sourceBuild != null;
+            if (sourceTarget == null)
+            {
+                reason = "No target selected";
+                return false;
+            }
+            
+            if (sourceBuild == null)
+            {
+                reason = "No build selected";
+                return false;
+            }
+
+            reason = "";
+            return true;
         }
 
         public override string GetBuildDescription()

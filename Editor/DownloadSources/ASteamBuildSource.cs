@@ -18,7 +18,7 @@ namespace Wireframe
         public abstract float DownloadProgress();
         public abstract string ProgressTitle();
         public abstract string ProgressDescription();
-        public abstract bool IsSetup();
+        public abstract bool IsSetup(out string reason);
         public abstract string GetBuildDescription();
 
         public virtual void CleanUp()

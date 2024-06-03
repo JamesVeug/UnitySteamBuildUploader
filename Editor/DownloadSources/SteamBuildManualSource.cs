@@ -9,6 +9,12 @@ namespace Wireframe
 {
     public class SteamBuildManualSource : ASteamBuildSource
     {
+        private GUIStyle m_pathButtonExistsStyle;
+        private GUIStyle m_pathButtonDoesNotExistStyle;
+        private GUIStyle m_pathInputFieldExistsStyle;
+        private GUIStyle m_pathInputFieldDoesNotExistStyle;
+        
+        
         private string m_finalSourcePath;
         private string m_enteredFilePath;
         private string m_unzipDirectory;
@@ -17,12 +23,28 @@ namespace Wireframe
         {
         }
 
+        private void Setup()
+        {
+            m_pathButtonExistsStyle = new GUIStyle(GUI.skin.button);
+            m_pathButtonDoesNotExistStyle = new GUIStyle(GUI.skin.button);
+            m_pathButtonDoesNotExistStyle.normal.textColor = Color.red;
+            
+            m_pathInputFieldExistsStyle = new GUIStyle(GUI.skin.textField);
+            m_pathInputFieldDoesNotExistStyle = new GUIStyle(GUI.skin.textField);
+            m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.red;
+        }
+
         public override void OnGUIExpanded(ref bool isDirty)
         {
+            Setup();
+            
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("File Path:", GUILayout.Width(120));
-                string newPath = GUILayout.TextField(m_enteredFilePath);
+                
+                bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && File.Exists(m_enteredFilePath);
+                GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
+                string newPath = GUILayout.TextField(m_enteredFilePath, style);
 
                 if (GUILayout.Button("...", GUILayout.Width(50), GUILayout.MaxWidth(500)))
                 {
@@ -44,7 +66,11 @@ namespace Wireframe
 
         public override void OnGUICollapsed(ref bool isDirty)
         {
-            if (GUILayout.Button(m_enteredFilePath, GUILayout.Width(50), GUILayout.MaxWidth(500)))
+            Setup();
+            
+            bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && File.Exists(m_enteredFilePath);
+            GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
+            if (GUILayout.Button(m_enteredFilePath, style))
             {
                 string newPath = EditorUtility.OpenFilePanel("Build Folder", "", "");
                 if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))

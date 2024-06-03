@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Wireframe
 {
@@ -13,7 +14,7 @@ namespace Wireframe
 
         public abstract void OnGUIExpanded(ref bool isDirty);
         public abstract void OnGUICollapsed(ref bool isDirty);
-        public abstract IEnumerator GetSource();
+        public abstract Task GetSource();
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();
         public abstract string ProgressTitle();

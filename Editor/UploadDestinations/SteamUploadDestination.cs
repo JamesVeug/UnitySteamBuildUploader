@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -74,7 +75,7 @@ namespace Wireframe
             isDirty |= SteamBuildWindowUtil.BranchPopup.DrawPopup(m_currentConfig, ref m_destinationBranch);
         }
 
-        public override IEnumerator Upload(string filePath, string buildDescription)
+        public override async Task Upload(string filePath, string buildDescription)
         {
             m_filePath = filePath;
             Debug.Log("Uploading " + m_filePath);
@@ -87,26 +88,37 @@ namespace Wireframe
                 Debug.Log("Creating new app file");
                 m_progressDescription = "Creating App Files";
                 m_uploadProgress = 0;
-                yield return SteamSDK.Instance.CreateAppFiles(m_currentConfig.App, m_buildDepot.Depot,
+                await SteamSDK.Instance.CreateAppFiles(m_currentConfig.App, m_buildDepot.Depot,
                     m_destinationBranch,
                     buildDescription, m_filePath);
+            }
+            else
+            {
+                Debug.Log("Create App File is disabled. Not creating.");
             }
 
             if (m_createDepotFile)
             {
                 Debug.Log("Creating new depot file");
                 m_progressDescription = "Creating Depot File";
-                m_uploadProgress = 0;
-                yield return SteamSDK.Instance.CreateDepotFiles(m_buildDepot.Depot);
+                m_uploadProgress = 0.33f;
+                await SteamSDK.Instance.CreateDepotFiles(m_buildDepot.Depot);
+            }
+            else
+            {
+                Debug.Log("Create Depot File is disabled. Not creating.");
             }
 
             if (m_uploadToSteam)
             {
                 Debug.Log("Uploading to steam");
                 m_progressDescription = "Uploading to Steam";
-                m_uploadProgress = 0;
-                yield return SteamSDK.Instance.Upload(m_currentConfig.App,
-                    successful => m_wasBuildSuccessful = successful);
+                m_uploadProgress = 0.66f;
+                m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_currentConfig.App);
+            }
+            else
+            {
+                Debug.Log("Upload to Steam is disabled. Not uploading.");
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Wireframe
 {
@@ -20,11 +21,11 @@ namespace Wireframe
 
         }
 
-        public override IEnumerator Upload(string filePath, string buildDescription)
+        public override Task Upload(string filePath, string buildDescription)
         {
             m_uploadInProgress = true;
             m_uploadProgress = 1;
-            yield return true;
+            return Task.CompletedTask;
         }
 
         public override string ProgressTitle()

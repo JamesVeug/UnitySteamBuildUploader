@@ -1,7 +1,8 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using Unity.EditorCoroutines.Editor;
+using System.Threading.Tasks;
 using UnityEditor;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -25,10 +26,10 @@ namespace Wireframe
             }
         }
 
-        public IEnumerator StartProgress()
+        public async Task StartProgress(Action tick = null)
         {
-            yield return GetSource();
-            yield return Upload();
+            await GetSource(tick);
+            await Upload(tick);
 
             for (int i = 0; i < steamBuilds.Count; i++)
             {
@@ -38,15 +39,16 @@ namespace Wireframe
                     steamBuilds[i].Destination().CleanUp();
                 }
             }
+            Debug.Log("StartProgress complete!");
         }
 
-        private IEnumerator ProcessSource(IEnumerator source, AsyncOperation op)
+        private async Task ProcessSource(Task source, AsyncOperation op)
         {
-            yield return source;
+            await source;
             op.Successful = true;
         }
 
-        private IEnumerator GetSource()
+        private async Task GetSource(Action tick = null)
         {
             this.progressId = Progress.Start("Steam Build Window", "Starting...");
 
@@ -58,12 +60,11 @@ namespace Wireframe
                     continue;
                 }
 
-                IEnumerator source = steamBuilds[j].Source().GetSource();
+                Task source = steamBuilds[j].Source().GetSource();
 
                 AsyncOperation<ASteamBuildSource> op = new AsyncOperation<ASteamBuildSource>();
                 op.Data = steamBuilds[j].Source();
                 op.SetIterator(ProcessSource(source, op));
-                EditorCoroutineUtility.StartCoroutine(op, this);
                 coroutines.Add(op);
             }
 
@@ -92,39 +93,43 @@ namespace Wireframe
 
                 float progress = completionAmount / coroutines.Count;
                 Progress.Report(progressId, progress, "Getting Sources");
-                yield return null;
+                tick?.Invoke();
+                await Task.Delay(10);
             }
 
             Progress.Remove(progressId);
         }
 
-        private IEnumerator Upload()
+        private async Task Upload(Action tick)
         {
             this.progressId = Progress.Start("Uploading", "Starting...");
 
             int totalBuilds = GetEnabledBuildCount();
             float completionAmount = 0.0f;
-            for (int j = 0; j < steamBuilds.Count; j++)
+            for (int i = 0; i < steamBuilds.Count; i++)
             {
-                if (!steamBuilds[j].Enabled)
+                if (!steamBuilds[i].Enabled)
                 {
                     continue;
                 }
 
-                ASteamBuildSource buildSource = steamBuilds[j].Source();
+                ASteamBuildSource buildSource = steamBuilds[i].Source();
                 string description = GetBuildDescription(buildSource);
                 string sourceFilePath = buildSource.SourceFilePath();
 
-                ASteamBuildDestination destination = steamBuilds[j].Destination();
-                yield return destination.Upload(sourceFilePath, description);
+                ASteamBuildDestination destination = steamBuilds[i].Destination();
+                await destination.Upload(sourceFilePath, description);
                 completionAmount++;
+                Debug.Log("Uploaded to destination complete: " + i);
 
                 float progress = completionAmount / totalBuilds;
                 Progress.Report(progressId, progress, "Uploading");
-                yield return null;
+                tick?.Invoke();
+                await Task.Delay(10);
             }
 
             Progress.Remove(progressId);
+            Debug.Log("Upload Complete!");
         }
 
         private int GetEnabledBuildCount()

@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Unity.EditorCoroutines.Editor;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -57,28 +57,28 @@ namespace Wireframe
         public static void SyncBuilds(Action callback = null)
         {
             IsSyncing = true;
-            EditorCoroutineUtility.StartCoroutineOwnerless(SyncCoroutine(callback));
+            SyncCoroutine(callback);
         }
 
-        public static IEnumerator SyncCoroutine(Action callback)
+        public static async Task SyncCoroutine(Action callback)
         {
-            yield return SyncTargetsCoroutine(null);
-            yield return SyncBuildsCoroutine(null);
+            await SyncTargetsCoroutine(null);
+            await SyncBuildsCoroutine(null);
             callback?.Invoke();
         }
 
-        public static IEnumerator SyncTargetsCoroutine(Action callback)
+        public static async Task SyncTargetsCoroutine(Action callback)
         {
             IsSyncing = true;
             List<UnityCloudTarget> allTargets = new List<UnityCloudTarget>();
 
             // Send request
             UnityWebRequest www = GetAllTargets();
-            yield return www.SendWebRequest();
+            UnityWebRequestAsyncOperation webRequest = www.SendWebRequest();
 
             // Wait request
-            while (www.isDone == false)
-                yield return null;
+            while (webRequest.isDone == false)
+                await Task.Delay(10);
 
             string downloadHandlerText = www.downloadHandler.text;
             if (www.isHttpError || www.isNetworkError)
@@ -87,19 +87,19 @@ namespace Wireframe
                                downloadHandlerText);
                 if (downloadHandlerText.Contains("Rate limit exceeded"))
                 {
-                    yield return new WaitForSeconds(10);
+                    await Task.Delay(10_000);
                 }
                 else if (downloadHandlerText.Contains("Not authorized"))
                 {
-                    yield return new WaitForSeconds(60);
+                    await Task.Delay(60_000);
                 }
                 else
                 {
-                    yield return new WaitForSeconds(1);
+                    await Task.Delay(1_000);
                 }
 
                 IsSyncing = false;
-                yield break;
+                return;
             }
 
             // Populate list
@@ -120,7 +120,7 @@ namespace Wireframe
             IsSyncing = false;
         }
 
-        public static IEnumerator SyncBuildsCoroutine(Action callback)
+        public static async Task SyncBuildsCoroutine(Action callback)
         {
             IsSyncing = true;
             List<UnityCloudBuild> allBuilds = new List<UnityCloudBuild>();
@@ -147,7 +147,7 @@ namespace Wireframe
             {
                 while (!requests[i].isDone)
                 {
-                    yield return null;
+                    await Task.Delay(10);
                 }
             }
 
@@ -158,7 +158,7 @@ namespace Wireframe
                 List<UnityCloudBuild> builds = targets[i].Item2;
                 UnityWebRequest www = requests[i].webRequest;
                 while (www.isDone == false)
-                    yield return null;
+                    await Task.Delay(10);
 
                 string downloadHandlerText = www.downloadHandler.text;
                 if (www.isHttpError || www.isNetworkError)
@@ -168,19 +168,19 @@ namespace Wireframe
                         downloadHandlerText);
                     if (downloadHandlerText.Contains("Rate limit exceeded"))
                     {
-                        yield return new WaitForSeconds(10);
+                        await Task.Delay(10_000);
                     }
                     else if (downloadHandlerText.Contains("Not authorized"))
                     {
-                        yield return new WaitForSeconds(60);
+                        await Task.Delay(60_000);
                     }
                     else
                     {
-                        yield return new WaitForSeconds(1);
+                        await Task.Delay(1_000);
                     }
 
                     IsSyncing = false;
-                    yield break;
+                    return;
                 }
 
                 // Populate list
@@ -246,7 +246,7 @@ namespace Wireframe
             return www;
         }
 
-        public static IEnumerator DownloadBuildArtifacts(UnityCloudBuild build, string directory)
+        public static async Task DownloadBuildArtifacts(UnityCloudBuild build, string directory)
         {
             List<UnityCloudBuild.Artifact> artifacts = build.GetAllArtifacts();
 
@@ -270,16 +270,15 @@ namespace Wireframe
 
             for (int i = 0; i < operations.Count; i++)
             {
-                yield return operations[i];
                 while (!operations[i].isDone)
                 {
-                    yield return null;
+                    await Task.Delay(10);
                 }
 
                 // Save to disk
                 string path = directories[i];
                 Debug.Log("Saving to " + path);
-                File.WriteAllBytes(path, operations[i].webRequest.downloadHandler.data);
+                await File.WriteAllBytesAsync(path, operations[i].webRequest.downloadHandler.data);
             }
         }
 

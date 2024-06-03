@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Unity.EditorCoroutines.Editor;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -91,7 +91,7 @@ namespace Wireframe
             }
         }
 
-        public override IEnumerator GetSource()
+        public override async Task GetSource()
         {
             m_getSourceInProgress = true;
             m_downloadProgress = 0.0f;
@@ -117,7 +117,7 @@ namespace Wireframe
                     if (downloadUrl == null)
                     {
                         Debug.Log("Could not download UnityCloudBuild. No artifacts in build!");
-                        yield break;
+                        return;
                     }
                 }
 
@@ -125,19 +125,19 @@ namespace Wireframe
 
                 m_progressDescription = "Fetching...";
                 UnityWebRequest request = UnityWebRequest.Get(downloadUrl);
-                EditorCoroutineUtility.StartCoroutineOwnerless(WaitForRequestToFinish(request));
+                UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
 
                 // Wait for it to be downloaded?
-                while (request.isDone == false)
+                while (!webRequest.isDone)
                 {
-                    yield return null;
+                    await Task.Delay(10);
                     m_downloadProgress = request.downloadProgress / 2.0f; // 50% is downloading, other 50% is unpacking
                     m_progressDescription = "Downloading from UnityCloud...";
                 }
 
                 // Save
                 m_progressDescription = "Saving locally...";
-                File.WriteAllBytes(fullFilePath, request.downloadHandler.data);
+                await File.WriteAllBytesAsync(fullFilePath, request.downloadHandler.data);
             }
             else
             {
@@ -263,11 +263,6 @@ namespace Wireframe
                     }
                 }
             }
-        }
-
-        private IEnumerator WaitForRequestToFinish(UnityWebRequest request)
-        {
-            yield return request.SendWebRequest();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -81,7 +82,7 @@ namespace Wireframe
             }
         }
 
-        public override IEnumerator GetSource()
+        public override async Task GetSource()
         {
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
@@ -96,7 +97,7 @@ namespace Wireframe
             string copyPath = directoryPath + "/" + Path.GetFileName(m_enteredFilePath);
             if (!File.Exists(copyPath))
             {
-                File.Copy(m_enteredFilePath, copyPath);
+                await CopyFileAsync(m_enteredFilePath, copyPath);
             }
 
             // NOTE:
@@ -120,7 +121,17 @@ namespace Wireframe
             Debug.Log("Retrieved Build: " + m_finalSourcePath);
 
             m_progressDescription = "Done!";
-            yield return null;
+        }
+
+        private static async Task CopyFileAsync(string sourceFile, string destinationFile)
+        {
+            using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            {
+                using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                {
+                    await sourceStream.CopyToAsync(destinationStream);
+                }
+            }
         }
 
         public override string SourceFilePath()

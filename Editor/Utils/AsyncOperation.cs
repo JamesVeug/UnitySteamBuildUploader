@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Threading.Tasks;
 
 namespace Wireframe
 {
@@ -11,23 +12,23 @@ namespace Wireframe
     {
         public bool Successful { get; set; }
 
-        private IEnumerator iterator;
+        private Task iterator;
 
-        public void SetIterator(IEnumerator iterator)
+        public void SetIterator(Task iterator)
         {
             this.iterator = iterator;
         }
 
         public bool MoveNext()
         {
-            return iterator.MoveNext();
+            return iterator.IsCompleted;
         }
 
         public void Reset()
         {
-            iterator.Reset();
+            // iterator.Reset();
         }
 
-        public object Current => iterator.Current;
+        public object Current => null;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Wireframe
@@ -19,7 +20,7 @@ namespace Wireframe
 
         public bool IsRunning => m_uploadInProgress;
 
-        public abstract IEnumerator Upload(string filePath, string buildDescription);
+        public abstract Task Upload(string filePath, string buildDescription);
         public abstract string ProgressTitle();
         public abstract bool IsSetup(out string reason);
         public abstract bool WasUploadSuccessful();

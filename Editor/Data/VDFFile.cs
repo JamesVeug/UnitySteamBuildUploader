@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Wireframe
@@ -14,7 +15,7 @@ namespace Wireframe
         public abstract string FileName { get; }
 
 
-        public static void Save<T>(T t, string path) where T : VDFFile, new()
+        public static async Task Save<T>(T t, string path) where T : VDFFile, new()
         {
             string content = ConvertToString(t, "\"" + t.FileName + "\"", "");
             Debug.Log("Created content: \n" + content);
@@ -24,7 +25,8 @@ namespace Wireframe
                 File.Create(path);
             }
 
-            File.WriteAllText(path, content);
+            Debug.Log("Writing content to: " + path);
+            await File.WriteAllTextAsync(path, content);
             Debug.Log("Saved VDFFile to: " + path);
         }
 

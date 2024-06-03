@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using UnityEditor;
@@ -129,7 +130,7 @@ namespace Wireframe
             m_initialized = true;
         }
 
-        public IEnumerator CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch, string description,
+        public async Task CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch, string description,
             string sourceFilePath)
         {
             appFile.desc = description;
@@ -140,11 +141,10 @@ namespace Wireframe
             appFile.setlive = branch == "none" ? "" : branch;
 
             string fullPath = GetAppScriptOutputPath(appFile);
-            VDFFile.Save(appFile, fullPath);
-            yield return null;
+            await VDFFile.Save(appFile, fullPath);
         }
 
-        public IEnumerator CreateDepotFiles(DepotVDFFile depot)
+        public async Task CreateDepotFiles(DepotVDFFile depot)
         {
             depot.FileExclusion = "*.pdb";
             depot.FileMapping = new DepotFileMapping
@@ -155,8 +155,7 @@ namespace Wireframe
             };
 
             string fullPath = GetDepotScriptOutputPath(depot);
-            VDFFile.Save(depot, fullPath);
-            yield return null;
+            await VDFFile.Save(depot, fullPath);
         }
 
         public string GetAppScriptOutputPath(AppVDFFile appFile)
@@ -173,8 +172,9 @@ namespace Wireframe
             return fullPath;
         }
 
-        public IEnumerator Upload(AppVDFFile appFile, Action<bool> callback)
+        public async Task<bool> Upload(AppVDFFile appFile)
         {
+            bool result = false;
             try
             {
                 m_uploadProcess = new Process();
@@ -187,18 +187,20 @@ namespace Wireframe
                 m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                 m_uploadProcess.EnableRaisingEvents = true;
                 m_uploadProcess.Start();
-                string login = m_uploadProcess.StandardOutput.ReadToEnd();
-                Debug.Log(login);
-                LogOutSteamResult(login, callback);
+                string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
+                Debug.Log(textDump);
+                result = LogOutSteamResult(textDump);
                 m_uploadProcess.WaitForExit();
                 m_uploadProcess.Close();
             }
             catch (Exception e)
             {
                 Debug.LogException(e);
+                result = false;
             }
 
-            yield return null;
+            await Task.Delay(10);
+            return result;
         }
 
         private string CreateSteamArguments(AppVDFFile appFile)
@@ -209,7 +211,7 @@ namespace Wireframe
             return arguments;
         }
 
-        private void LogOutSteamResult(string text, Action<bool> callback)
+        private bool LogOutSteamResult(string text)
         {
             int errorTextStartIndex = text.IndexOf("Error!", StringComparison.CurrentCultureIgnoreCase);
             if (errorTextStartIndex >= 0)
@@ -217,8 +219,7 @@ namespace Wireframe
                 int errorNewLine = text.IndexOf('\n', errorTextStartIndex);
                 string errorText = text.Substring(errorTextStartIndex, errorNewLine - errorTextStartIndex);
                 Debug.LogError("Failed to log to steam: " + errorText);
-                callback(false);
-                return;
+                return false;
             }
 
             string[] lines = text.Split('\n');
@@ -226,22 +227,19 @@ namespace Wireframe
             if (!ContainsText(lines, "Loading Steam API", "OK"))
             {
                 Debug.LogError("Failed to load API.");
-                callback(false);
-                return;
+                return false;
             }
 
             if (!ContainsText(lines, "Logging in user", "OK"))
             {
                 Debug.LogError("Failed to log into User account");
-                callback(false);
-                return;
+                return false;
             }
 
             if (!ContainsText(lines, "Uploading content...", ""))
             {
                 Debug.LogError("Failed to scan content...");
-                callback(false);
-                return;
+                return false;
             }
 
             string uploadFailed = "Fail";
@@ -249,12 +247,11 @@ namespace Wireframe
             if (uploadingFailed)
             {
                 Debug.LogError("Failed to upload to steam. Check logs for info.");
-                callback(false);
-                return;
+                return false;
             }
 
             Debug.Log("Upload successful.");
-            callback(true);
+            return true;
         }
 
         private bool ContainsText(string[] lines, string startsWith, string endsWith)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.EditorCoroutines.Editor;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -241,27 +241,31 @@ namespace Wireframe
 
         public void DownloadArtifacts(string directory)
         {
-            EditorCoroutineUtility.StartCoroutineOwnerless(DownloadArtifactsCoroutine(directory));
+            DownloadArtifactsCoroutine(directory);
         }
 
-        private IEnumerator DownloadArtifactsCoroutine(string directory)
+        private async Task DownloadArtifactsCoroutine(string directory)
         {
             downloading = true;
-            yield return UnityCloudAPI.DownloadBuildArtifacts(build, directory);
+            await UnityCloudAPI.DownloadBuildArtifacts(build, directory);
             downloading = false;
         }
 
         public void CancelBuild()
         {
-            EditorCoroutineUtility.StartCoroutineOwnerless(CancelBuildCoroutine());
+            CancelBuildCoroutine();
         }
 
-        private IEnumerator CancelBuildCoroutine()
+        private async Task CancelBuildCoroutine()
         {
             cancelling = true;
 
             UnityWebRequest request = UnityCloudAPI.CancelBuild(build.buildtargetid, build.build);
-            yield return request.SendWebRequest();
+            UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
+            while (!webRequest.isDone)
+            {
+                await Task.Delay(10);
+            }
 
             if (request.isHttpError || request.isNetworkError)
             {
@@ -270,7 +274,7 @@ namespace Wireframe
                     downloadHandlerText);
                 Debug.LogError(message);
                 EditorUtility.DisplayDialog("Cancelled Build Failed", message, "OK");
-                yield break;
+                return;
             }
 
             Debug.Log("Build Cancelled");

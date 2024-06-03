@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.EditorCoroutines.Editor;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -219,13 +218,17 @@ namespace Wireframe
 
         private void StartTargetBuild(string buildTargetID)
         {
-            EditorCoroutineUtility.StartCoroutineOwnerless(StartTargetBuildCoroutine(buildTargetID));
+            StartTargetBuildCoroutine(buildTargetID);
         }
 
-        private IEnumerator StartTargetBuildCoroutine(string buildTargetID)
+        private async Task StartTargetBuildCoroutine(string buildTargetID)
         {
             UnityWebRequest request = UnityCloudAPI.StartBuild(buildTargetID);
-            yield return request.SendWebRequest();
+            UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
+            while (!webRequest.isDone)
+            {
+                await Task.Delay(10);
+            }
 
             string downloadHandlerText = request.downloadHandler.text;
             if (request.isHttpError || request.isNetworkError)
@@ -234,7 +237,7 @@ namespace Wireframe
                     buildTargetID, downloadHandlerText);
                 Debug.LogError(message);
                 EditorUtility.DisplayDialog("Start new Build Failed", message, "OK");
-                yield break;
+                return;
             }
 
             Debug.Log("Started build successfully: " + downloadHandlerText);

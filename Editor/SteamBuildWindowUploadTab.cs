@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Unity.EditorCoroutines.Editor;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
@@ -118,7 +118,7 @@ namespace Wireframe
                                 "Are you sure you want to upload all enabled builds?",
                                 "Yes", "Cancel"))
                         {
-                            EditorCoroutineUtility.StartCoroutine(DownloadAndUpload(), window);
+                            DownloadAndUpload();
                         }
                     }
                 }
@@ -134,12 +134,12 @@ namespace Wireframe
             }
         }
 
-        private IEnumerator DownloadAndUpload()
+        private async Task DownloadAndUpload()
         {
             // Start uploading
             SteamWindowBuildProgressWindow buildProgressWindow = new (m_buildsToUpload, m_buildDescription);
-            IEnumerator startProgress = buildProgressWindow.StartProgress();
-            yield return startProgress;
+            await buildProgressWindow.StartProgress(()=> window.Repaint());
+            window.Repaint();
         }
 
         private bool CanStartBuild(out string reason)

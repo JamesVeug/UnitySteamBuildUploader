@@ -240,6 +240,7 @@ namespace Wireframe
                     depot.Depot.DepotID = 999999;
                     currentConfig.Depots.Add(depot);
                     window.QueueSave();
+                    SteamBuildWindowUtil.DepotPopup.Refresh();
                 }
 
                 using (new GUILayout.VerticalScope())

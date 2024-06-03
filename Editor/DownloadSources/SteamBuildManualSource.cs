@@ -207,6 +207,17 @@ namespace Wireframe
             return description;
         }
 
+        public override void CleanUp()
+        {
+            base.CleanUp();
+            
+            if(File.Exists(m_finalSourcePath) && m_finalSourcePath != m_enteredFilePath)
+            {
+                Debug.Log("Deleting cached file: " + m_finalSourcePath);
+                File.Delete(m_finalSourcePath);
+            }
+        }
+
         public override Dictionary<string, object> Serialize()
         {
             return new Dictionary<string, object>()

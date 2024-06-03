@@ -202,9 +202,15 @@ namespace Wireframe
 
         public bool CanStartBuild(out string reason)
         {
-            if (m_buildSource == null || !m_buildSource.IsSetup())
+            if (m_buildSource == null)
             {
                 reason = "Source is not setup";
+                return false;
+            }
+
+            if (!m_buildSource.IsSetup(out string sourceReason))
+            {
+                reason = "Source: " + sourceReason;
                 return false;
             }
 
@@ -213,8 +219,9 @@ namespace Wireframe
                 reason = "No Destination specified";
                 return false;
             }
-            if (!m_buildDestination.IsSetup(out reason))
+            if (!m_buildDestination.IsSetup(out string destinationReason))
             {
+                reason = "Destination: " + destinationReason;
                 return false;
             }
 

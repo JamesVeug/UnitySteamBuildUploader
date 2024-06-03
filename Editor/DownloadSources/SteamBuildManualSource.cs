@@ -172,12 +172,18 @@ namespace Wireframe
 
         public override Dictionary<string, object> Serialize()
         {
-            return new Dictionary<string, object>();
+            return new Dictionary<string, object>()
+            {
+                { "enteredFilePath", m_enteredFilePath }
+            };
         }
 
         public override void Deserialize(Dictionary<string, object> data)
         {
-
+            if (data.TryGetValue("enteredFilePath", out object p))
+            {
+                m_enteredFilePath = (string)p;
+            }
         }
     }
 }

@@ -14,7 +14,7 @@
     "steampipe",
     "depot"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   }

@@ -21,7 +21,7 @@ namespace Wireframe
 
         public abstract IEnumerator Upload(string filePath, string buildDescription);
         public abstract string ProgressTitle();
-        public abstract bool IsSetup();
+        public abstract bool IsSetup(out string reason);
         public abstract bool WasUploadSuccessful();
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);

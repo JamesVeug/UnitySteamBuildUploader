@@ -200,29 +200,38 @@ namespace Wireframe
             return m_buildDestination;
         }
 
-        public bool CanStartBuild()
+        public bool CanStartBuild(out string reason)
         {
             if (m_buildSource == null || !m_buildSource.IsSetup())
             {
+                reason = "Source is not setup";
                 return false;
             }
 
-            if (m_buildDestination == null || !m_buildDestination.IsSetup())
+            if (m_buildDestination == null)
+            {
+                reason = "No Destination specified";
+                return false;
+            }
+            if (!m_buildDestination.IsSetup(out reason))
             {
                 return false;
             }
 
             if (!SteamSDK.Instance.IsInitialized)
             {
+                reason = "Steam SDK is not initialized";
                 return false;
             }
 
             if (string.IsNullOrEmpty(SteamSDK.Instance.UserName) ||
                 string.IsNullOrEmpty(SteamSDK.Instance.UserPassword))
             {
+                reason = "Steam SDK credentials are not set";
                 return false;
             }
 
+            reason = "";
             return true;
         }
 

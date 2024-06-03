@@ -107,10 +107,11 @@ namespace Wireframe
                 }
 
                 // Upload all
-                bool startButtonDisabled = !CanStartBuild();
+                bool startButtonDisabled = !CanStartBuild(out string reason);
                 using (new EditorGUI.DisabledScope(startButtonDisabled))
                 {
-                    if (GUILayout.Button("Download and Upload all", GUILayout.Height(100)))
+                    string text = startButtonDisabled ? ("Cannot continue: \nReason: " + reason) : "Download and Upload all";
+                    if (GUILayout.Button(text, GUILayout.Height(100)))
                     {
                         if (EditorUtility.DisplayDialog("Download and Upload all",
                                 "Are you sure you want to upload all enabled builds?",
@@ -140,15 +141,17 @@ namespace Wireframe
             yield return startProgress;
         }
 
-        private bool CanStartBuild()
+        private bool CanStartBuild(out string reason)
         {
             if (string.IsNullOrEmpty(m_buildDescription))
             {
+                reason = "No Description";
                 return false;
             }
 
             if (m_buildsToUpload == null)
             {
+                reason = "No builds to upload!";
                 return false;
             }
 
@@ -158,8 +161,9 @@ namespace Wireframe
                 if (!m_buildsToUpload[i].Enabled)
                     continue;
 
-                if (!m_buildsToUpload[i].CanStartBuild())
+                if (!m_buildsToUpload[i].CanStartBuild(out string buildReason))
                 {
+                    reason = $"Build {i+1}: {buildReason}";
                     return false;
                 }
 
@@ -167,7 +171,10 @@ namespace Wireframe
             }
 
             // Make sure there is at least 1 build to build
-            return validBuilds > 0;
+            bool canStartBuild = validBuilds > 0;
+            reason = !canStartBuild ? "No builds set up!" : "";
+            
+            return canStartBuild;
         }
 
         public override void Save()

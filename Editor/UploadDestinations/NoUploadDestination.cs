@@ -32,8 +32,9 @@ namespace Wireframe
             return "Uploading nowhere";
         }
 
-        public override bool IsSetup()
+        public override bool IsSetup(out string reason)
         {
+            reason = "";
             return true;
         }
 

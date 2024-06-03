@@ -115,9 +115,28 @@ namespace Wireframe
             return "Uploading to Steamworks";
         }
 
-        public override bool IsSetup()
+        public override bool IsSetup(out string reason)
         {
-            return m_currentConfig != null && m_buildDepot != null && !string.IsNullOrEmpty(m_destinationBranch);
+            if (m_currentConfig == null)
+            {
+                reason = "Steam Game not selected";
+                return false;
+            }
+
+            if (m_buildDepot == null)
+            {
+                reason = "No depot selected";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(m_destinationBranch))
+            {
+                reason = "No branch selected";
+                return false;
+            }
+
+            reason = "";
+            return true;
         }
 
         public override bool WasUploadSuccessful()

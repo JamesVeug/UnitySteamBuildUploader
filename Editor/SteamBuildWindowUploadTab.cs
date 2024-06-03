@@ -87,7 +87,7 @@ namespace Wireframe
                         }
 
                         bool collapse = buildConfig.Collapsed;
-                        if (GUILayout.Button(collapse ? "+" : "-"))
+                        if (GUILayout.Button(collapse ? ">" : "\\/"))
                         {
                             buildConfig.Collapsed = !buildConfig.Collapsed;
                         }

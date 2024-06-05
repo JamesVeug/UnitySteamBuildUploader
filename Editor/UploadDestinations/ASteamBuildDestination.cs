@@ -18,7 +18,12 @@ namespace Wireframe
 
         public bool IsRunning => m_uploadInProgress;
 
-        public abstract Task Upload(string filePath, string buildDescription);
+        public Task<bool> Prepare()
+        {
+            return Task.FromResult(true);
+        }
+        
+        public abstract Task<bool> Upload(string filePath, string buildDescription);
         public abstract string ProgressTitle();
         public abstract bool IsSetup(out string reason);
         public abstract bool WasUploadSuccessful();

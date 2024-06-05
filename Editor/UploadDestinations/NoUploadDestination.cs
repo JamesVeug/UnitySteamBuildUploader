@@ -20,11 +20,11 @@ namespace Wireframe
 
         }
 
-        public override Task Upload(string filePath, string buildDescription)
+        public override Task<bool> Upload(string filePath, string buildDescription)
         {
             m_uploadInProgress = true;
             m_uploadProgress = 1;
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
 
         public override string ProgressTitle()

@@ -14,7 +14,7 @@ namespace Wireframe
 
         public abstract void OnGUIExpanded(ref bool isDirty);
         public abstract void OnGUICollapsed(ref bool isDirty);
-        public abstract Task GetSource();
+        public abstract Task<bool> GetSource();
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();
         public abstract string ProgressTitle();

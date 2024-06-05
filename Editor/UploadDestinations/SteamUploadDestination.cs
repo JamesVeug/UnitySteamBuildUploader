@@ -73,7 +73,7 @@ namespace Wireframe
             isDirty |= SteamBuildWindowUtil.BranchPopup.DrawPopup(m_currentConfig, ref m_destinationBranch);
         }
 
-        public override async Task Upload(string filePath, string buildDescription)
+        public override async Task<bool> Upload(string filePath, string buildDescription)
         {
             m_filePath = filePath;
             Debug.Log("Uploading " + m_filePath);
@@ -118,6 +118,8 @@ namespace Wireframe
             {
                 Debug.Log("Upload to Steam is disabled. Not uploading.");
             }
+
+            return m_wasBuildSuccessful;
         }
 
         public override string ProgressTitle()

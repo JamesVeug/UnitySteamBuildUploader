@@ -18,7 +18,6 @@ namespace Wireframe
         
         private string m_finalSourcePath;
         private string m_enteredFilePath;
-        private string m_unzipDirectory;
 
         public SteamBuildManualSource(SteamBuildWindow steamBuildWindow)
         {
@@ -82,7 +81,7 @@ namespace Wireframe
             }
         }
 
-        public override async Task GetSource()
+        public override async Task<bool> GetSource()
         {
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
@@ -100,27 +99,11 @@ namespace Wireframe
                 await CopyFileAsync(m_enteredFilePath, copyPath);
             }
 
-            // NOTE:
-            // Originally this tool would allow uploading folders and would zip them but that required a different package.
-            // Then it was made to unzip and rezip in order to proceed which is stupid
-            // SO only accept .zip since that's what steam needs
-
-            if (Path.GetExtension(copyPath) == ".zip")
-            {
-                // Given zipped file. Unzip it
-                m_unzipDirectory = copyPath;
-                Debug.Log("copyPath " + copyPath);
-            }
-            else
-            {
-                throw new Exception(string.Format("Unable to parse extension: {0}. Give .zip!",
-                    Path.GetExtension(copyPath)));
-            }
-
-            m_finalSourcePath = m_unzipDirectory;
+            m_finalSourcePath = copyPath;
             Debug.Log("Retrieved Build: " + m_finalSourcePath);
 
             m_progressDescription = "Done!";
+            return true;
         }
 
         private static async Task CopyFileAsync(string sourceFile, string destinationFile)

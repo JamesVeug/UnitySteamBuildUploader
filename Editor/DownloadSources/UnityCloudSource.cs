@@ -91,7 +91,7 @@ namespace Wireframe
             }
         }
 
-        public override async Task GetSource()
+        public override async Task<bool> GetSource()
         {
             m_getSourceInProgress = true;
             m_downloadProgress = 0.0f;
@@ -117,7 +117,7 @@ namespace Wireframe
                     if (downloadUrl == null)
                     {
                         Debug.Log("Could not download UnityCloudBuild. No artifacts in build!");
-                        return;
+                        return false;
                     }
                 }
 
@@ -131,7 +131,7 @@ namespace Wireframe
                 while (!webRequest.isDone)
                 {
                     await Task.Delay(10);
-                    m_downloadProgress = request.downloadProgress / 2.0f; // 50% is downloading, other 50% is unpacking
+                    m_downloadProgress = request.downloadProgress;
                     m_progressDescription = "Downloading from UnityCloud...";
                 }
 
@@ -144,46 +144,13 @@ namespace Wireframe
                 Debug.Log("Skipping downloading form UnityCloud since it already exists: " + fullFilePath);
             }
 
-
-
-            // Decide where we want to download to
-            // unzipDirectory = directoryPath + "/" + buildName;
-            // if (!Directory.Exists(unzipDirectory))
-            // {
-            //     m_progressDescription = "Unzipping...";
-            //
-            //     Debug.Log("Unzipping to '" + unzipDirectory + "'");
-            //     byte[] fileBytes = null;
-            //     try
-            //     {
-            //         fileBytes = File.ReadAllBytes(fullFilePath);
-            //     }
-            //     catch (Exception e)
-            //     {
-            //         Debug.LogError("Error trying to get file byes: " + e.ToString());
-            //     }
-            //
-            //     UnZipResult result = new UnZipResult();
-            //     IEnumerator extractZipFile = ExtractZipFile(fileBytes, unzipDirectory, 256 * 1024, result);
-            //     while (extractZipFile.MoveNext())
-            //     {
-            //         m_downloadProgress = 0.5f + result.unzipPercentage / 2.0f;
-            //         yield return null;
-            //     }
-            //
-            //     Debug.Log("Unzipped");
-            // }
-            // else
-            // {
-            //     Debug.Log("Skipping unzipping as directory already exists: " + unzipDirectory);
-            // }
-
             m_progressDescription = "Done!";
             Debug.Log("Retrieved UnityCloud Build: " + fullFilePath);
 
             // Record where the game is saved to
             sourceFilePath = fullFilePath;
             m_downloadProgress = 1.0f;
+            return true;
         }
 
         public override string SourceFilePath()

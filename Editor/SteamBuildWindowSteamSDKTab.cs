@@ -8,6 +8,9 @@ namespace Wireframe
         private SteamBuildConfig currentConfig;
         private GUIStyle m_titleStyle;
 
+        private ReorderableListOfStrings m_branchesList = new ReorderableListOfStrings();
+        private ReorderableListOfDepots m_depotsList = new ReorderableListOfDepots();
+
         private void Setup()
         {
             m_titleStyle = new GUIStyle(GUI.skin.label)
@@ -75,7 +78,11 @@ namespace Wireframe
                 {
                     EditorGUILayout.LabelField("Config:", GUILayout.Width(100));
 
-                    SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref currentConfig);
+                    if (SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref currentConfig))
+                    {
+                        m_branchesList.Initialize(currentConfig.Branches, "Branches");
+                        m_depotsList.Initialize(currentConfig.Depots, "Depots", d=>currentConfig.Depots.Add(d));
+                    }
 
                     if (GUILayout.Button("New", GUILayout.Width(100)))
                     {
@@ -195,76 +202,21 @@ namespace Wireframe
 
         public void DrawBranches()
         {
-            using (new GUILayout.HorizontalScope())
+            if (m_branchesList.OnGUI())
             {
-                GUILayout.Label("Branches:", GUILayout.Width(150));
-                if (GUILayout.Button("Add", GUILayout.Width(50)))
-                {
-                    currentConfig.Branches.Add("example_name");
-                    window.QueueSave();
-                }
-
-                using (new GUILayout.VerticalScope())
-                {
-                    for (int i = 0; i < currentConfig.Branches.Count; i++)
-                    {
-                        if (i == 0)
-                        {
-                            // None specifies the build will not auto upload to this branch
-                            currentConfig.Branches[i] = "none";
-                            GUILayout.Label("none");
-                        }
-                        else
-                        {
-                            string newBranchName = GUILayout.TextField(currentConfig.Branches[i], GUILayout.Width(100));
-                            if (newBranchName != currentConfig.App.local)
-                            {
-                                currentConfig.Branches[i] = newBranchName;
-                                window.QueueSave();
-                                SteamBuildWindowUtil.BranchPopup.Refresh();
-                            }
-                        }
-                    }
-                }
+                window.QueueSave();
+                SteamBuildWindowUtil.BranchPopup.Refresh();
+                Debug.Log("Branches updated");
             }
         }
 
         public void DrawDepots()
         {
-            using (new GUILayout.HorizontalScope())
+            if (m_depotsList.OnGUI())
             {
-                GUILayout.Label("Depots:", GUILayout.Width(150));
-                if (GUILayout.Button("Add", GUILayout.Width(50)))
-                {
-                    SteamBuildDepot depot = new SteamBuildDepot();
-                    depot.Depot.DepotID = 999999;
-                    currentConfig.Depots.Add(depot);
-                    window.QueueSave();
-                    SteamBuildWindowUtil.DepotPopup.Refresh();
-                }
-
-                using (new GUILayout.VerticalScope())
-                {
-                    for (int i = 0; i < currentConfig.Depots.Count; i++)
-                    {
-                        DrawDepot(currentConfig.Depots[i]);
-                    }
-                }
-            }
-        }
-
-        private void DrawDepot(SteamBuildDepot depot)
-        {
-            using (new GUILayout.HorizontalScope())
-            {
-                depot.Name = GUILayout.TextField(depot.Name, GUILayout.Width(100));
-
-                int depotId = EditorGUILayout.IntField(depot.Depot.DepotID, GUILayout.Width(150));
-                if (depotId != depot.Depot.DepotID)
-                {
-                    depot.Depot.DepotID = depotId;
-                    window.QueueSave();
-                }
+                window.QueueSave();
+                SteamBuildWindowUtil.DepotPopup.Refresh();
+                Debug.Log("Depots updated");
             }
         }
 

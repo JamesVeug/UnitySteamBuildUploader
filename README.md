@@ -37,4 +37,4 @@ Specify where you want builds to come from adn where you want them to go.
 - Set a description to appear on steam
 - Click Downlaod and Upload all
 
-**NOTE: You can not upload to the none branch (default branch everyone uses). This is on purpose to avoid uploading the wrong build. Also the SKD does not allow this.**
+**NOTE: You can not upload to the default branch (default branch everyone uses). This is on purpose to avoid uploading the wrong build. Also the SKD does not allow this.**

@@ -66,12 +66,16 @@ namespace Wireframe
                         currentConfig = config;
                     }
 
-                    if (GUILayout.Button("Browse Builds", GUILayout.Width(200)))
+                    if (currentConfig != null)
                     {
-                        if (currentConfig != null)
+                        if (GUILayout.Button("Store Page", GUILayout.Width(200)))
                         {
-                            Application.OpenURL("https://partner.steamgames.com/apps/builds/" +
-                                                currentConfig.App.appid);
+                            Application.OpenURL("https://store.steampowered.com/app/" + currentConfig.App.appid);
+                        }
+
+                        if (GUILayout.Button("Browse Builds", GUILayout.Width(200)))
+                        {
+                            Application.OpenURL("https://partner.steamgames.com/apps/builds/" + currentConfig.App.appid);
                         }
                     }
                 }

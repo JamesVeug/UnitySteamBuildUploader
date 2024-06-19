@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -69,17 +67,35 @@ namespace Wireframe
         {
             Setup();
             
-            bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && File.Exists(m_enteredFilePath);
+            bool exists = FileExists();
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
             if (GUILayout.Button(m_enteredFilePath, style))
             {
-                string newPath = EditorUtility.OpenFilePanel("Build Folder", "", "");
+                string newPath = EditorUtility.OpenFilePanel("Select build to upload", "", "zip,exe");
                 if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))
                 {
                     isDirty = true;
-                    m_enteredFilePath = newPath;
+                    if (newPath.EndsWith(".exe"))
+                    {
+                        // Use path of exe instead
+                        m_enteredFilePath = Path.GetDirectoryName(newPath);
+                    }
+                    else
+                    {
+                        m_enteredFilePath = newPath;
+                    }
                 }
             }
+        }
+
+        private bool FileExists()
+        {
+            if (string.IsNullOrEmpty(m_enteredFilePath))
+            {
+                return false;
+            }
+            
+            return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);
         }
 
         public override async Task GetSource()
@@ -95,29 +111,33 @@ namespace Wireframe
 
             // Make copy to avoid sharing conflicts
             string copyPath = directoryPath + "/" + Path.GetFileName(m_enteredFilePath);
-            if (!File.Exists(copyPath))
+            if (Directory.Exists(m_enteredFilePath))
             {
+                // Given a directory that is not cached yet
+                if (!Directory.Exists(copyPath))
+                {
+                    Directory.CreateDirectory(copyPath);
+                    await Task.Run(() =>
+                    {
+                        foreach (string dirPath in Directory.GetDirectories(m_enteredFilePath, "*", SearchOption.AllDirectories))
+                        {
+                            Directory.CreateDirectory(dirPath.Replace(m_enteredFilePath, copyPath));
+                        }
+
+                        foreach (string newPath in Directory.GetFiles(m_enteredFilePath, "*.*", SearchOption.AllDirectories))
+                        {
+                            File.Copy(newPath, newPath.Replace(m_enteredFilePath, copyPath), true);
+                        }
+                    });
+                }
+            }
+            else if (!File.Exists(copyPath))
+            {
+                // Given File that is not cached yet
                 await CopyFileAsync(m_enteredFilePath, copyPath);
             }
 
-            // NOTE:
-            // Originally this tool would allow uploading folders and would zip them but that required a different package.
-            // Then it was made to unzip and rezip in order to proceed which is stupid
-            // SO only accept .zip since that's what steam needs
-
-            if (Path.GetExtension(copyPath) == ".zip")
-            {
-                // Given zipped file. Unzip it
-                m_unzipDirectory = copyPath;
-                Debug.Log("copyPath " + copyPath);
-            }
-            else
-            {
-                throw new Exception(string.Format("Unable to parse extension: {0}. Give .zip!",
-                    Path.GetExtension(copyPath)));
-            }
-
-            m_finalSourcePath = m_unzipDirectory;
+            m_finalSourcePath = copyPath;
             Debug.Log("Retrieved Build: " + m_finalSourcePath);
 
             m_progressDescription = "Done!";
@@ -162,7 +182,7 @@ namespace Wireframe
                 return false;
             }
 
-            if (!File.Exists(m_enteredFilePath))
+            if (!File.Exists(m_enteredFilePath) && !Directory.Exists(m_enteredFilePath))
             {
                 reason = "File does not exist";
                 return false;

@@ -84,7 +84,7 @@ namespace Wireframe
             m_uploadInProgress = true;
             
             
-            if (filePath.EndsWith(".zip"))
+            if (File.Exists(filePath) && filePath.EndsWith(".zip"))
             {
                 Debug.Log("Unzipping file...");
                 m_progressDescription = "Unzipped file...";

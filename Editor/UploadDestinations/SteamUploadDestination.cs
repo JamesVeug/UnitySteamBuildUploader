@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
+using Directory = UnityEngine.Windows.Directory;
 
 namespace Wireframe
 {
@@ -15,6 +17,7 @@ namespace Wireframe
 
         private string m_destinationBranch;
         private string m_filePath;
+        private string m_unzippedfilePath;
         private bool m_wasBuildSuccessful;
 
 
@@ -76,16 +79,52 @@ namespace Wireframe
         public override async Task Upload(string filePath, string buildDescription)
         {
             m_filePath = filePath;
-            Debug.Log("Uploading " + m_filePath);
-
+            m_unzippedfilePath = "";
             m_wasBuildSuccessful = false;
             m_uploadInProgress = true;
+            
+            
+            if (filePath.EndsWith(".zip"))
+            {
+                Debug.Log("Unzipping file...");
+                m_progressDescription = "Unzipped file...";
+                    
+                // We need to unzip!
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+                m_unzippedfilePath = Application.persistentDataPath + "/ManualBuilds/SteamBuilds/" + fileName;
+                
+                await Task.Yield(); // Show UI
+
+                if (Directory.Exists(m_unzippedfilePath))
+                {
+                    Directory.Delete(m_unzippedfilePath);
+                }
+                
+                if (!Directory.Exists(m_unzippedfilePath))
+                {
+                    Directory.CreateDirectory(m_unzippedfilePath);
+                }
+                    
+                // System.IO.Compression.ZipFile.CreateFromDirectory(startPath, zipPath);
+                try
+                {
+                    System.IO.Compression.ZipFile.ExtractToDirectory(m_filePath, m_unzippedfilePath);
+                }
+                catch (IOException e)
+                {
+                    Debug.LogException(e);
+                    m_uploadInProgress = false;
+                    return;
+                }
+
+                m_filePath = m_unzippedfilePath;
+            }
 
             if (m_createAppFile)
             {
                 Debug.Log("Creating new app file");
                 m_progressDescription = "Creating App Files";
-                m_uploadProgress = 0;
+                m_uploadProgress = 0.25f;
                 await SteamSDK.Instance.CreateAppFiles(m_currentConfig.App, m_buildDepot.Depot,
                     m_destinationBranch,
                     buildDescription, m_filePath);
@@ -99,7 +138,7 @@ namespace Wireframe
             {
                 Debug.Log("Creating new depot file");
                 m_progressDescription = "Creating Depot File";
-                m_uploadProgress = 0.33f;
+                m_uploadProgress = 0.5f;
                 await SteamSDK.Instance.CreateDepotFiles(m_buildDepot.Depot);
             }
             else
@@ -111,12 +150,21 @@ namespace Wireframe
             {
                 Debug.Log("Uploading to steam");
                 m_progressDescription = "Uploading to Steam";
-                m_uploadProgress = 0.66f;
+                m_uploadProgress = 0.75f;
                 m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_currentConfig.App);
             }
             else
             {
                 Debug.Log("Upload to Steam is disabled. Not uploading.");
+            }
+        }
+
+        public override void CleanUp()
+        {
+            base.CleanUp();
+            if (!string.IsNullOrEmpty(m_unzippedfilePath) && Directory.Exists(m_unzippedfilePath))
+            {
+                Directory.Delete(m_unzippedfilePath);
             }
         }
 

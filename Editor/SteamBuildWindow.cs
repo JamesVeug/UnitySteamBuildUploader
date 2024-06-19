@@ -31,6 +31,13 @@ namespace Wireframe
         {
             // Get existing open window or if none, make a new one:
             SteamBuildWindow window = (SteamBuildWindow)GetWindow(typeof(SteamBuildWindow));
+            
+            var iconPath = "Packages/com.veugeljame.steambuilduploader/Icon.png";
+            Debug.Log(iconPath);
+            UnityEngine.Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(UnityEngine.Object));
+            Debug.Log(loadAssetAtPath);
+            var icon = loadAssetAtPath as Texture;
+            window.titleContent = new GUIContent("Build Uploader", icon);
             window.RefreshTabs();
             window.Show();
         }

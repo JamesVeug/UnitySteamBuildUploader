@@ -152,7 +152,15 @@ namespace Wireframe
 
                 if (timeSpan.TotalDays >= 365)
                 {
-                    timeString = "1+ years ago";
+                    int years = (int)(timeSpan.TotalDays / 365);
+                    if (years == 1)
+                    {
+                        timeString = "1 year ago";
+                    }
+                    else
+                    {
+                        timeString = years + " years ago";
+                    }
                 }
                 else if (timeSpan.TotalDays >= 7)
                 {

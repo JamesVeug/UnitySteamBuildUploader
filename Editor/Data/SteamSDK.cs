@@ -272,5 +272,15 @@ namespace Wireframe
 
             return false;
         }
+
+        public void ShowConsole()
+        {
+            var process = new Process();
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            process.StartInfo.FileName = m_exePath;
+            process.StartInfo.Arguments = "";
+            process.EnableRaisingEvents = true;
+            process.Start();
+        }
     }
 }

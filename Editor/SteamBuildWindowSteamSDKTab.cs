@@ -47,6 +47,11 @@ namespace Wireframe
                         EditorUtility.RevealInFinder(SteamSDK.Instance.SteamSDKPath);
                     }
 
+                    if (GUILayout.Button("CMD", GUILayout.Width(50)))
+                    {
+                        SteamSDK.Instance.ShowConsole();
+                    }
+
                     if (newPath != SteamSDK.Instance.SteamSDKPath && !string.IsNullOrEmpty(newPath))
                     {
                         SteamSDK.Instance.SteamSDKPath = newPath;

@@ -33,7 +33,7 @@ namespace Wireframe
                 {
                     Color temp = GUI.color;
                     GUI.color = SteamSDK.Instance.IsInitialized ? Color.green : Color.red;
-                    GUILayout.Label("SteamSDKPath", GUILayout.Width(100));
+                    GUILayout.Label("SteamSDKPath:", GUILayout.Width(105));
                     GUI.color = temp;
                     
                     
@@ -72,13 +72,13 @@ namespace Wireframe
                 // Steam username
                 using (new GUILayout.HorizontalScope())
                 {
-                    SteamSDK.Instance.UserName = PasswordField.Draw("Steam Username:", 100, SteamSDK.Instance.UserName);
+                    SteamSDK.Instance.UserName = PasswordField.Draw("Steam Username:", 105, SteamSDK.Instance.UserName);
                 }
 
                 // Steam password
                 using (new GUILayout.HorizontalScope())
                 {
-                    SteamSDK.Instance.UserPassword = PasswordField.Draw("Steam password:", 100, SteamSDK.Instance.UserPassword);
+                    SteamSDK.Instance.UserPassword = PasswordField.Draw("Steam password:", 105, SteamSDK.Instance.UserPassword);
                 }
             }
 

@@ -2,7 +2,7 @@
   "displayName": "Steam Builder Uploader",
   "name": "com.veugeljame.steambuilduploader",
   "unity": "2022.3",
-  "description": "Editor tool that streamlines uploading builds to steam.\nHas built-in unity cloud support too",
+  "description": "Editor tool that streamlines uploading builds to Steam.\nHas built-in Unity Cloud support too",
   "category": "Tool",
   "keywords": [
     "steam",
@@ -14,7 +14,7 @@
     "steampipe",
     "depot"
   ],
-  "version": "1.0.1",
+  "version": "1.1.0",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   }

@@ -231,8 +231,8 @@ namespace Wireframe
                 return false;
             }
 
-            if (string.IsNullOrEmpty(SteamSDK.Instance.UserName) ||
-                string.IsNullOrEmpty(SteamSDK.Instance.UserPassword))
+            if (string.IsNullOrEmpty(SteamSDK.UserName) ||
+                string.IsNullOrEmpty(SteamSDK.UserPassword))
             {
                 reason = "Steam SDK credentials are not set";
                 return false;

@@ -25,64 +25,22 @@ namespace Wireframe
         {
             Setup();
 
-            // Content Path
-            using (new GUILayout.VerticalScope("box"))
+            if (!SteamSDK.Instance.IsInitialized)
             {
-                GUILayout.Label("Settings", m_titleStyle);
-                using (new GUILayout.HorizontalScope())
+                SteamSDK.Instance.Initialize();
+                if(!SteamSDK.Instance.IsInitialized)
                 {
-                    Color temp = GUI.color;
-                    GUI.color = SteamSDK.Instance.IsInitialized ? Color.green : Color.red;
-                    GUILayout.Label("SteamSDKPath:", GUILayout.Width(105));
-                    GUI.color = temp;
-                    
-                    
-                    if (!SteamSDK.Instance.IsInitialized)
-                    {
-                        if (GUILayout.Button("?", GUILayout.Width(20)))
-                        {
-                            Application.OpenURL("https://partner.steamgames.com/doc/sdk");
-                        }
-                    }
-                    
-                    string newPath = GUILayout.TextField(SteamSDK.Instance.SteamSDKPath);
-
-                    if (GUILayout.Button("...", GUILayout.Width(50)))
-                    {
-                        newPath = EditorUtility.OpenFolderPanel("SteamSDK Folder", ".", "");
-                    }
-
-                    if (GUILayout.Button("Show", GUILayout.Width(50)))
-                    {
-                        EditorUtility.RevealInFinder(SteamSDK.Instance.SteamSDKPath);
-                    }
-
-                    if (GUILayout.Button("CMD", GUILayout.Width(50)))
-                    {
-                        SteamSDK.Instance.ShowConsole();
-                    }
-
-                    if (newPath != SteamSDK.Instance.SteamSDKPath && !string.IsNullOrEmpty(newPath))
-                    {
-                        SteamSDK.Instance.SteamSDKPath = newPath;
-                        SteamSDK.Instance.Initialize();
-                    }
-                }
-
-                // Steam username
-                using (new GUILayout.HorizontalScope())
-                {
-                    SteamSDK.Instance.UserName = PasswordField.Draw("Steam Username:", 105, SteamSDK.Instance.UserName);
-                }
-
-                // Steam password
-                using (new GUILayout.HorizontalScope())
-                {
-                    SteamSDK.Instance.UserPassword = PasswordField.Draw("Steam password:", 105, SteamSDK.Instance.UserPassword);
+                    GUILayout.Label("Steamworks not found! Change in Edit->Preferences->Steam Build Uploader.");
+                    return;
                 }
             }
 
-            EditorGUILayout.Space(20);
+            if (string.IsNullOrEmpty(SteamSDK.UserName) || string.IsNullOrEmpty(SteamSDK.UserPassword))
+            {
+                GUILayout.Label("Steamworks credentials are missing! Change in Edit->Preferences->Steam Build Uploader.");
+                EditorGUILayout.Space(20);
+            }
+
 
             using (new GUILayout.VerticalScope("box"))
             {

@@ -83,9 +83,10 @@ namespace Wireframe
         {
             Setup();
 
-            DrawSettings();
-
-            EditorGUILayout.Space(20);
+            if (!DrawSettings())
+            {
+                return;
+            }
 
             DrawConfigs();
 
@@ -277,26 +278,25 @@ namespace Wireframe
             }
         }
 
-        private void DrawSettings()
+        private bool DrawSettings()
         {
-            using (new GUILayout.VerticalScope("box"))
+            if (string.IsNullOrEmpty(UnityCloud.Instance.Organization))
             {
-                GUILayout.Label("Settings", m_titleStyle);
-                using (new GUILayout.HorizontalScope())
-                {
-                    UnityCloud.Instance.Organization = PasswordField.Draw("Organization:", 100,UnityCloud.Instance.Organization);
-                }
-
-                using (new GUILayout.HorizontalScope())
-                {
-                    UnityCloud.Instance.Project = PasswordField.Draw("Project:", 100,UnityCloud.Instance.Project);
-                }
-
-                using (new GUILayout.HorizontalScope())
-                {
-                    UnityCloud.Instance.Secret = PasswordField.Draw("Secret:", 100,UnityCloud.Instance.Secret);
-                }
+                GUILayout.Label("No Organization set in settings. Please set this in Edit->Preferences->Steam Build Uploader");
+                return false;
             }
+            else if (string.IsNullOrEmpty(UnityCloud.Instance.Project))
+            {
+                GUILayout.Label("No Project set in settings. Please set this in Edit->Preferences->Steam Build Uploader");
+                return false;
+            }
+            else if (string.IsNullOrEmpty(UnityCloud.Instance.Secret))
+            {
+                GUILayout.Label("No Secret set in settings. Please set this in Edit->Preferences->Steam Build Uploader");
+                return false;
+            }
+
+            return true;
         }
 
         private void DrawBuildTarget()

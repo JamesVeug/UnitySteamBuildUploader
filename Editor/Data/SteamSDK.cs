@@ -24,19 +24,19 @@ namespace Wireframe
             }
         }
 
-        public string SteamSDKPath
+        public static string SteamSDKPath
         {
             get => PlayerPrefs.GetString("steambuild_SDKPath");
             set => PlayerPrefs.SetString("steambuild_SDKPath", value);
         }
 
-        public string UserName
+        public static string UserName
         {
             get => EditorPrefs.GetString("steambuild_SDKUser");
             set => EditorPrefs.SetString("steambuild_SDKUser", value);
         }
 
-        public string UserPassword
+        public static string UserPassword
         {
             get => EditorPrefs.GetString("steambuild_SDKPass");
             set => EditorPrefs.SetString("steambuild_SDKPass", value);

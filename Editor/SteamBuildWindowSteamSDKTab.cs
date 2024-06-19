@@ -35,6 +35,16 @@ namespace Wireframe
                     GUI.color = SteamSDK.Instance.IsInitialized ? Color.green : Color.red;
                     GUILayout.Label("SteamSDKPath", GUILayout.Width(100));
                     GUI.color = temp;
+                    
+                    
+                    if (!SteamSDK.Instance.IsInitialized)
+                    {
+                        if (GUILayout.Button("?", GUILayout.Width(20)))
+                        {
+                            Application.OpenURL("https://partner.steamgames.com/doc/sdk");
+                        }
+                    }
+                    
                     string newPath = GUILayout.TextField(SteamSDK.Instance.SteamSDKPath);
 
                     if (GUILayout.Button("...", GUILayout.Width(50)))

@@ -41,7 +41,7 @@ namespace Wireframe
             {
                 GUILayout.Label("File Path:", GUILayout.Width(120));
                 
-                bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && File.Exists(m_enteredFilePath);
+                bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && (File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath));
                 GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
                 string newPath = GUILayout.TextField(m_enteredFilePath, style);
 

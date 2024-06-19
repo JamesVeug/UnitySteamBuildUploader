@@ -118,6 +118,7 @@ namespace Wireframe
                 {
                     currentConfig.Name = newConfigName;
                     window.QueueSave();
+                    SteamBuildWindowUtil.ConfigPopup.Refresh();
                 }
             }
 
@@ -183,7 +184,6 @@ namespace Wireframe
             {
                 window.QueueSave();
                 SteamBuildWindowUtil.BranchPopup.Refresh();
-                Debug.Log("Branches updated");
             }
         }
 
@@ -193,7 +193,6 @@ namespace Wireframe
             {
                 window.QueueSave();
                 SteamBuildWindowUtil.DepotPopup.Refresh();
-                Debug.Log("Depots updated");
             }
         }
 

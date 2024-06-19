@@ -148,7 +148,7 @@ namespace Wireframe
 
             if (m_uploadToSteam)
             {
-                Debug.Log("Uploading to steam");
+                Debug.Log("Uploading to steam. Grab a coffee... this will take a while.");
                 m_progressDescription = "Uploading to Steam";
                 m_uploadProgress = 0.75f;
                 m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_currentConfig.App);

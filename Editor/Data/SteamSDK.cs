@@ -69,6 +69,10 @@ namespace Wireframe
         public void Initialize()
         {
             m_initialized = false;
+            if (!Directory.Exists(SteamSDKPath))
+            {
+                return;
+            }
 
             string contentBuilderPath = null;
             foreach (string directory in Directory.GetDirectories(SteamSDKPath, "*", SearchOption.AllDirectories))
@@ -218,58 +222,69 @@ namespace Wireframe
             {
                 int errorNewLine = text.IndexOf('\n', errorTextStartIndex);
                 string errorText = text.Substring(errorTextStartIndex, errorNewLine - errorTextStartIndex);
-                Debug.LogError("Failed to log to steam: " + errorText);
+                Debug.LogError("[STEAM] " + errorText);
                 return false;
             }
 
             string[] lines = text.Split('\n');
-
-            if (!ContainsText(lines, "Loading Steam API", "OK"))
+            int index = -1;
+            
+            if (!ContainsText(lines, "Loading Steam API", "OK", out index))
             {
-                Debug.LogError("Failed to load API.");
+                Debug.LogError("[STEAM] Failed to load API.");
                 return false;
             }
 
-            if (!ContainsText(lines, "Logging in user", "OK"))
+            if (!ContainsText(lines, "Logging in user", "OK", out index))
             {
-                Debug.LogError("Failed to log into User account");
+                string context = "";
+                if (index != -1)
+                {
+                    context = lines[index + 1];
+                }
+
+                if (string.IsNullOrEmpty(context))
+                {
+                    Debug.LogError("[STEAM] Failed to log into User account: " + context);
+                }
+                else
+                {
+                    Debug.LogError("[STEAM] Failed to log into User account: ");
+                }
+
                 return false;
             }
 
-            if (!ContainsText(lines, "Uploading content...", ""))
+            if (!ContainsText(lines, "Uploading content...", "", out index))
             {
-                Debug.LogError("Failed to scan content...");
+                Debug.LogError("[STEAM] Failed to scan content to upload...");
                 return false;
             }
 
-            string uploadFailed = "Fail";
-            bool uploadingFailed = text.Contains(uploadFailed);
-            if (uploadingFailed)
+            if (text.Contains("Fail"))
             {
-                Debug.LogError("Failed to upload to steam. Check logs for info.");
+                Debug.LogError("[STEAM] Failed to upload to steam. Check logs for info!");
                 return false;
             }
 
-            Debug.Log("Upload successful.");
+            Debug.Log("[STEAM] Upload successful.");
             return true;
         }
 
-        private bool ContainsText(string[] lines, string startsWith, string endsWith)
+        private bool ContainsText(string[] lines, string startsWith, string endsWith, out int startsWithIndex)
         {
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i].Trim();
                 if (line.StartsWith(startsWith))
                 {
-                    if (!string.IsNullOrEmpty(endsWith) && !line.EndsWith(endsWith))
-                    {
-                        return false;
-                    }
-
+                    bool success = string.IsNullOrEmpty(endsWith) || line.EndsWith(endsWith);
+                    startsWithIndex = i;
                     return true;
                 }
             }
 
+            startsWithIndex = -1;
             return false;
         }
 

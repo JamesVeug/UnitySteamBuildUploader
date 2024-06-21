@@ -13,7 +13,7 @@ namespace Wireframe
 
         public SteamBuildConfig()
         {
-            Branches.Add("default");
+            Branches.Add("none");
         }
     }
 

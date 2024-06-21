@@ -19,6 +19,8 @@ namespace Wireframe
         private string m_filePath;
         private string m_unzippedfilePath;
         private bool m_wasBuildSuccessful;
+        private SteamBuildConfig m_uploadConfig;
+        private SteamBuildDepot m_uploadDepot;
 
 
         public SteamUploadDestination(SteamBuildWindow window) : base(window)
@@ -83,6 +85,9 @@ namespace Wireframe
             m_wasBuildSuccessful = false;
             m_uploadInProgress = true;
             
+            m_uploadConfig = new SteamBuildConfig(m_currentConfig);
+            m_uploadDepot = new SteamBuildDepot(m_buildDepot);
+            
             
             if (File.Exists(filePath) && filePath.EndsWith(".zip"))
             {
@@ -125,9 +130,12 @@ namespace Wireframe
                 Debug.Log("Creating new app file");
                 m_progressDescription = "Creating App Files";
                 m_uploadProgress = 0.25f;
-                await SteamSDK.Instance.CreateAppFiles(m_currentConfig.App, m_buildDepot.Depot,
-                    m_destinationBranch,
-                    buildDescription, m_filePath);
+                if (!await SteamSDK.Instance.CreateAppFiles(m_uploadConfig.App, m_uploadDepot.Depot,
+                        m_destinationBranch,
+                        buildDescription, m_filePath))
+                {
+                    return;
+                }
             }
             else
             {
@@ -139,7 +147,10 @@ namespace Wireframe
                 Debug.Log("Creating new depot file");
                 m_progressDescription = "Creating Depot File";
                 m_uploadProgress = 0.5f;
-                await SteamSDK.Instance.CreateDepotFiles(m_buildDepot.Depot);
+                if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot))
+                {
+                    return;
+                }
             }
             else
             {
@@ -151,7 +162,7 @@ namespace Wireframe
                 Debug.Log("Uploading to steam. Grab a coffee... this will take a while.");
                 m_progressDescription = "Uploading to Steam";
                 m_uploadProgress = 0.75f;
-                m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_currentConfig.App);
+                m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_uploadConfig.App);
             }
             else
             {

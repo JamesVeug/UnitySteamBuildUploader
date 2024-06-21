@@ -15,7 +15,7 @@ namespace Wireframe
         public abstract string FileName { get; }
 
 
-        public static async Task Save<T>(T t, string path) where T : VDFFile, new()
+        public static async Task<bool> Save<T>(T t, string path) where T : VDFFile, new()
         {
             string content = ConvertToString(t, "\"" + t.FileName + "\"", "");
             Debug.Log("Created content: \n" + content);
@@ -26,8 +26,17 @@ namespace Wireframe
             }
 
             Debug.Log("Writing content to: " + path);
-            await File.WriteAllTextAsync(path, content);
-            Debug.Log("Saved VDFFile to: " + path);
+            try
+            {
+                await File.WriteAllTextAsync(path, content);
+                Debug.Log("Saved VDFFile to: " + path);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Failed to write to file: " + e.Message);
+                return false;
+            }
         }
 
         private static string ConvertToString(object data, string dataLabel, string indent)

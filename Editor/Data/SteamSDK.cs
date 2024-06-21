@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using UnityEditor;
+using UnityEngine.Networking;
 
 namespace Wireframe
 {
@@ -296,6 +296,75 @@ namespace Wireframe
             process.StartInfo.Arguments = "";
             process.EnableRaisingEvents = true;
             process.Start();
+        }
+
+        /// <summary>
+        /// Looks for Readme.txt in Steam SDK path and tries to find the version number.
+        /// The version number is listed in the Readme like so:
+        /// ----------------------------------------------------------------
+        /// v1.59 9th February 2024
+        /// ----------------------------------------------------------------
+        /// </summary>
+        /// <param name="version">Version we currently have otherwise an error message why we couldn't get it.</param>
+        /// <returns>True if we retrievwed it</returns>
+        public static bool TryCurrentVersion(out string version)
+        {
+            // Find Readme.txt in SteamSDKPath
+            FileInfo[] files = new DirectoryInfo(SteamSDKPath).GetFiles("Readme.txt", SearchOption.AllDirectories);
+            if (files.Length == 0)
+            {
+                version = $"Could not find Readme.txt in Steam SDK path. ({SteamSDKPath})";
+                return false;
+            }
+
+            foreach (FileInfo file in files)
+            {
+                // Read and check for "Welcome to the Steamworks SDK" line
+                string[] lines = File.ReadAllLines(file.FullName);
+                foreach (string line in lines)
+                {
+                    if (line.Contains("Welcome to the Steamworks SDK"))
+                    {
+                        for (var i = 0; i < lines.Length; i++)
+                        {
+                            var line2 = lines[i];
+                            if (line2.StartsWith("----------------------------------------------------------------"))
+                            {
+                                version = lines[i + 1].Split(" ")[0];
+                                return true ;
+                            }
+                        }
+
+                        version = "Found the right Readme.mexe but unable to find version in Readme.txt";
+                        return false;
+                    }
+                }
+            }
+            
+            version = "Could not find a Readme.txt that has \"Welcome to the Steamworks SDK\" in it.";
+            return false;
+        }
+
+        [Obsolete("Does not work. Takes you to the steam partners page to login. I don't know how to handle this properly but its a paint to write so leaving it here.")]
+        private static async Task<Tuple<bool, string>> TryGetLatestOnlineVersion()
+        {
+            Debug.Log("Getting latest version from Steam SDK website...");
+            string url = "https://partner.steamgames.com/downloads/list";
+            UnityWebRequest html = UnityWebRequest.Get(url);
+            UnityWebRequestAsyncOperation operation = html.SendWebRequest();
+            while (!operation.isDone)
+            {
+                await Task.Delay(10);
+            }
+            
+            if (html.isNetworkError || html.isHttpError)
+            {
+                return new Tuple<bool, string>(false, $"Failed to get latest version from {url}. Error: {html.error}");
+            }
+            
+            string text = html.downloadHandler.text;
+            Debug.Log(text);
+            return new Tuple<bool, string>(true, text);
         }
     }
 }

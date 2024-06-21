@@ -15,6 +15,15 @@ namespace Wireframe
         {
             Branches.Add("none");
         }
+
+        public SteamBuildConfig(SteamBuildConfig currentConfig)
+        {
+            Name = currentConfig.Name;
+            App = new AppVDFFile(currentConfig.App);
+            
+            Depots = new List<SteamBuildDepot>(currentConfig.Depots);
+            Branches = new List<string>(currentConfig.Branches);
+        }
     }
 
     [Serializable]
@@ -22,5 +31,15 @@ namespace Wireframe
     {
         public string Name = "Template";
         public DepotVDFFile Depot = new DepotVDFFile();
+        
+        public SteamBuildDepot()
+        {
+        }
+        
+        public SteamBuildDepot(SteamBuildDepot currentDepot)
+        {
+            Name = currentDepot.Name;
+            Depot = new DepotVDFFile(currentDepot.Depot);
+        }
     }
 }

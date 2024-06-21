@@ -133,16 +133,16 @@ namespace Wireframe
                 }
             }
 
-            using (new GUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Default Description:", GUILayout.Width(150));
-                string description = EditorGUILayout.TextField(currentConfig.App.desc);
-                if (description != currentConfig.App.desc)
-                {
-                    currentConfig.App.desc = description;
-                    window.QueueSave();
-                }
-            }
+            // using (new GUILayout.HorizontalScope())
+            // {
+            //     GUILayout.Label("Default Description:", GUILayout.Width(150));
+            //     string description = EditorGUILayout.TextField(currentConfig.App.desc);
+            //     if (description != currentConfig.App.desc)
+            //     {
+            //         currentConfig.App.desc = description;
+            //         window.QueueSave();
+            //     }
+            // }
 
             using (new GUILayout.HorizontalScope())
             {
@@ -155,27 +155,16 @@ namespace Wireframe
                 }
             }
 
-            using (new GUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Is Preview Build:", GUILayout.Width(150));
-                bool previewBuild = EditorGUILayout.Toggle(currentConfig.App.preview);
-                if (previewBuild != currentConfig.App.preview)
-                {
-                    currentConfig.App.preview = previewBuild;
-                    window.QueueSave();
-                }
-            }
-
-            using (new GUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Local Content Server:", GUILayout.Width(150));
-                string serverContent = EditorGUILayout.TextField(currentConfig.App.local);
-                if (serverContent != currentConfig.App.local)
-                {
-                    currentConfig.App.local = serverContent;
-                    window.QueueSave();
-                }
-            }
+            // using (new GUILayout.HorizontalScope())
+            // {
+            //     GUILayout.Label("Local Content Server:", GUILayout.Width(150));
+            //     string serverContent = EditorGUILayout.TextField(currentConfig.App.local);
+            //     if (serverContent != currentConfig.App.local)
+            //     {
+            //         currentConfig.App.local = serverContent;
+            //         window.QueueSave();
+            //     }
+            // }
         }
 
         public void DrawBranches()

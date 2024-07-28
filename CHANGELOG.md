@@ -1,3 +1,12 @@
+# 1.1.1
+- General
+  - New configs start with none instead of default
+  - CloudBuildManifest can now be used in builds
+- Steam tab
+  - Removed Description, IsPreviewBuild and LocalContent server. They did nothing.
+  - Any failed steps now stop attempting to upload
+  - Changing upload settings while uploading no longer changes the existing upload sequence.
+
 # 1.1.0
 - General
   - Moved all login credentials to `Edit->Preferences->Steam Build Uploader`

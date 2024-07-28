@@ -134,7 +134,7 @@ namespace Wireframe
             m_initialized = true;
         }
 
-        public async Task CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch, string description,
+        public async Task<bool> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch, string description,
             string sourceFilePath)
         {
             appFile.desc = description;
@@ -145,10 +145,10 @@ namespace Wireframe
             appFile.setlive = branch == "none" ? "" : branch;
 
             string fullPath = GetAppScriptOutputPath(appFile);
-            await VDFFile.Save(appFile, fullPath);
+            return await VDFFile.Save(appFile, fullPath);
         }
 
-        public async Task CreateDepotFiles(DepotVDFFile depot)
+        public async Task<bool> CreateDepotFiles(DepotVDFFile depot)
         {
             depot.FileExclusion = "*.pdb";
             depot.FileMapping = new DepotFileMapping
@@ -159,7 +159,7 @@ namespace Wireframe
             };
 
             string fullPath = GetDepotScriptOutputPath(depot);
-            await VDFFile.Save(depot, fullPath);
+            return await VDFFile.Save(depot, fullPath);
         }
 
         public string GetAppScriptOutputPath(AppVDFFile appFile)

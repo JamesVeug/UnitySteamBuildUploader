@@ -6,6 +6,18 @@ namespace Wireframe
     [Serializable]
     public class DepotList : VdfMap<int, string>
     {
+        public DepotList()
+        {
+            
+        }
+        
+        public DepotList(DepotList depots)
+        {
+            foreach (var depot in depots.GetData())
+            {
+                Add(depot.Key, depot.Value);
+            }
+        }
     }
 
     public interface IVdfMap
@@ -110,5 +122,22 @@ namespace Wireframe
 
         // The list of depots included in this build.
         public DepotList depots = new DepotList();
+
+        public AppVDFFile()
+        {
+            
+        }
+        
+        public AppVDFFile(AppVDFFile currentConfigApp)
+        {
+            appid = currentConfigApp.appid;
+            desc = currentConfigApp.desc;
+            buildoutput = currentConfigApp.buildoutput;
+            contentroot = currentConfigApp.contentroot;
+            setlive = currentConfigApp.setlive;
+            preview = currentConfigApp.preview;
+            local = currentConfigApp.local;
+            depots = new DepotList(currentConfigApp.depots);
+        }
     }
 }

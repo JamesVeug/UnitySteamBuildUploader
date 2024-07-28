@@ -27,7 +27,7 @@ namespace Wireframe
         private ASteamBuildSource m_buildSource;
         private ASteamBuildDestination m_buildDestination;
 
-        private SourceType m_currentSourceType = SourceType.UnityCloud;
+        private SourceType m_currentSourceType = SourceType.Manual;
         private DestinationType m_currentDestinationType = DestinationType.SteamWorks;
         private GUIStyle m_titleStyle;
         private SteamBuildWindow m_window;
@@ -231,8 +231,8 @@ namespace Wireframe
                 return false;
             }
 
-            if (string.IsNullOrEmpty(SteamSDK.Instance.UserName) ||
-                string.IsNullOrEmpty(SteamSDK.Instance.UserPassword))
+            if (string.IsNullOrEmpty(SteamSDK.UserName) ||
+                string.IsNullOrEmpty(SteamSDK.UserPassword))
             {
                 reason = "Steam SDK credentials are not set";
                 return false;

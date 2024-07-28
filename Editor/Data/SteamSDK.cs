@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using UnityEditor;
+using UnityEngine.Networking;
 
 namespace Wireframe
 {
@@ -24,19 +24,19 @@ namespace Wireframe
             }
         }
 
-        public string SteamSDKPath
+        public static string SteamSDKPath
         {
             get => PlayerPrefs.GetString("steambuild_SDKPath");
             set => PlayerPrefs.SetString("steambuild_SDKPath", value);
         }
 
-        public string UserName
+        public static string UserName
         {
             get => EditorPrefs.GetString("steambuild_SDKUser");
             set => EditorPrefs.SetString("steambuild_SDKUser", value);
         }
 
-        public string UserPassword
+        public static string UserPassword
         {
             get => EditorPrefs.GetString("steambuild_SDKPass");
             set => EditorPrefs.SetString("steambuild_SDKPass", value);
@@ -69,6 +69,10 @@ namespace Wireframe
         public void Initialize()
         {
             m_initialized = false;
+            if (!Directory.Exists(SteamSDKPath))
+            {
+                return;
+            }
 
             string contentBuilderPath = null;
             foreach (string directory in Directory.GetDirectories(SteamSDKPath, "*", SearchOption.AllDirectories))
@@ -218,59 +222,149 @@ namespace Wireframe
             {
                 int errorNewLine = text.IndexOf('\n', errorTextStartIndex);
                 string errorText = text.Substring(errorTextStartIndex, errorNewLine - errorTextStartIndex);
-                Debug.LogError("Failed to log to steam: " + errorText);
+                Debug.LogError("[STEAM] " + errorText);
                 return false;
             }
 
             string[] lines = text.Split('\n');
-
-            if (!ContainsText(lines, "Loading Steam API", "OK"))
+            int index = -1;
+            
+            if (!ContainsText(lines, "Loading Steam API", "OK", out index))
             {
-                Debug.LogError("Failed to load API.");
+                Debug.LogError("[STEAM] Failed to load API.");
                 return false;
             }
 
-            if (!ContainsText(lines, "Logging in user", "OK"))
+            if (!ContainsText(lines, "Logging in user", "OK", out index))
             {
-                Debug.LogError("Failed to log into User account");
+                string context = "";
+                if (index != -1)
+                {
+                    context = lines[index + 1];
+                }
+
+                if (string.IsNullOrEmpty(context))
+                {
+                    Debug.LogError("[STEAM] Failed to log into User account: " + context);
+                }
+                else
+                {
+                    Debug.LogError("[STEAM] Failed to log into User account: ");
+                }
+
                 return false;
             }
 
-            if (!ContainsText(lines, "Uploading content...", ""))
+            if (!ContainsText(lines, "Uploading content...", "", out index))
             {
-                Debug.LogError("Failed to scan content...");
+                Debug.LogError("[STEAM] Failed to scan content to upload...");
                 return false;
             }
 
-            string uploadFailed = "Fail";
-            bool uploadingFailed = text.Contains(uploadFailed);
-            if (uploadingFailed)
+            if (text.Contains("Fail"))
             {
-                Debug.LogError("Failed to upload to steam. Check logs for info.");
+                Debug.LogError("[STEAM] Failed to upload to steam. Check logs for info!");
                 return false;
             }
 
-            Debug.Log("Upload successful.");
+            Debug.Log("[STEAM] Upload successful.");
             return true;
         }
 
-        private bool ContainsText(string[] lines, string startsWith, string endsWith)
+        private bool ContainsText(string[] lines, string startsWith, string endsWith, out int startsWithIndex)
         {
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i].Trim();
                 if (line.StartsWith(startsWith))
                 {
-                    if (!string.IsNullOrEmpty(endsWith) && !line.EndsWith(endsWith))
-                    {
-                        return false;
-                    }
-
+                    bool success = string.IsNullOrEmpty(endsWith) || line.EndsWith(endsWith);
+                    startsWithIndex = i;
                     return true;
                 }
             }
 
+            startsWithIndex = -1;
             return false;
+        }
+
+        public void ShowConsole()
+        {
+            var process = new Process();
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            process.StartInfo.FileName = m_exePath;
+            process.StartInfo.Arguments = "";
+            process.EnableRaisingEvents = true;
+            process.Start();
+        }
+
+        /// <summary>
+        /// Looks for Readme.txt in Steam SDK path and tries to find the version number.
+        /// The version number is listed in the Readme like so:
+        /// ----------------------------------------------------------------
+        /// v1.59 9th February 2024
+        /// ----------------------------------------------------------------
+        /// </summary>
+        /// <param name="version">Version we currently have otherwise an error message why we couldn't get it.</param>
+        /// <returns>True if we retrievwed it</returns>
+        public static bool TryCurrentVersion(out string version)
+        {
+            // Find Readme.txt in SteamSDKPath
+            FileInfo[] files = new DirectoryInfo(SteamSDKPath).GetFiles("Readme.txt", SearchOption.AllDirectories);
+            if (files.Length == 0)
+            {
+                version = $"Could not find Readme.txt in Steam SDK path. ({SteamSDKPath})";
+                return false;
+            }
+
+            foreach (FileInfo file in files)
+            {
+                // Read and check for "Welcome to the Steamworks SDK" line
+                string[] lines = File.ReadAllLines(file.FullName);
+                foreach (string line in lines)
+                {
+                    if (line.Contains("Welcome to the Steamworks SDK"))
+                    {
+                        for (var i = 0; i < lines.Length; i++)
+                        {
+                            var line2 = lines[i];
+                            if (line2.StartsWith("----------------------------------------------------------------"))
+                            {
+                                version = lines[i + 1].Split(" ")[0];
+                                return true ;
+                            }
+                        }
+
+                        version = "Found the right Readme.mexe but unable to find version in Readme.txt";
+                        return false;
+                    }
+                }
+            }
+            
+            version = "Could not find a Readme.txt that has \"Welcome to the Steamworks SDK\" in it.";
+            return false;
+        }
+
+        [Obsolete("Does not work. Takes you to the steam partners page to login. I don't know how to handle this properly but its a paint to write so leaving it here.")]
+        private static async Task<Tuple<bool, string>> TryGetLatestOnlineVersion()
+        {
+            Debug.Log("Getting latest version from Steam SDK website...");
+            string url = "https://partner.steamgames.com/downloads/list";
+            UnityWebRequest html = UnityWebRequest.Get(url);
+            UnityWebRequestAsyncOperation operation = html.SendWebRequest();
+            while (!operation.isDone)
+            {
+                await Task.Delay(10);
+            }
+            
+            if (html.isNetworkError || html.isHttpError)
+            {
+                return new Tuple<bool, string>(false, $"Failed to get latest version from {url}. Error: {html.error}");
+            }
+            
+            string text = html.downloadHandler.text;
+            Debug.Log(text);
+            return new Tuple<bool, string>(true, text);
         }
     }
 }

@@ -8,6 +8,9 @@ namespace Wireframe
         private SteamBuildConfig currentConfig;
         private GUIStyle m_titleStyle;
 
+        private ReorderableListOfStrings m_branchesList = new ReorderableListOfStrings();
+        private ReorderableListOfDepots m_depotsList = new ReorderableListOfDepots();
+
         private void Setup()
         {
             m_titleStyle = new GUIStyle(GUI.skin.label)
@@ -22,49 +25,22 @@ namespace Wireframe
         {
             Setup();
 
-            // Content Path
-            using (new GUILayout.VerticalScope("box"))
+            if (!SteamSDK.Instance.IsInitialized)
             {
-                GUILayout.Label("Settings", m_titleStyle);
-                using (new GUILayout.HorizontalScope())
+                SteamSDK.Instance.Initialize();
+                if(!SteamSDK.Instance.IsInitialized)
                 {
-                    Color temp = GUI.color;
-                    GUI.color = SteamSDK.Instance.IsInitialized ? Color.green : Color.red;
-                    GUILayout.Label("SteamSDKPath", GUILayout.Width(100));
-                    GUI.color = temp;
-                    string newPath = GUILayout.TextField(SteamSDK.Instance.SteamSDKPath);
-
-                    if (GUILayout.Button("...", GUILayout.Width(50)))
-                    {
-                        newPath = EditorUtility.OpenFolderPanel("SteamSDK Folder", ".", "");
-                    }
-
-                    if (GUILayout.Button("Show", GUILayout.Width(50)))
-                    {
-                        EditorUtility.RevealInFinder(SteamSDK.Instance.SteamSDKPath);
-                    }
-
-                    if (newPath != SteamSDK.Instance.SteamSDKPath && !string.IsNullOrEmpty(newPath))
-                    {
-                        SteamSDK.Instance.SteamSDKPath = newPath;
-                        SteamSDK.Instance.Initialize();
-                    }
-                }
-
-                // Steam username
-                using (new GUILayout.HorizontalScope())
-                {
-                    SteamSDK.Instance.UserName = PasswordField.Draw("Steam Username:", 100, SteamSDK.Instance.UserName);
-                }
-
-                // Steam password
-                using (new GUILayout.HorizontalScope())
-                {
-                    SteamSDK.Instance.UserPassword = PasswordField.Draw("Steam password:", 100, SteamSDK.Instance.UserPassword);
+                    GUILayout.Label("Steamworks not found! Change in Edit->Preferences->Steam Build Uploader.");
+                    return;
                 }
             }
 
-            EditorGUILayout.Space(20);
+            if (string.IsNullOrEmpty(SteamSDK.UserName) || string.IsNullOrEmpty(SteamSDK.UserPassword))
+            {
+                GUILayout.Label("Steamworks credentials are missing! Change in Edit->Preferences->Steam Build Uploader.");
+                EditorGUILayout.Space(20);
+            }
+
 
             using (new GUILayout.VerticalScope("box"))
             {
@@ -75,7 +51,11 @@ namespace Wireframe
                 {
                     EditorGUILayout.LabelField("Config:", GUILayout.Width(100));
 
-                    SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref currentConfig);
+                    if (SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref currentConfig))
+                    {
+                        m_branchesList.Initialize(currentConfig.Branches, "Branches");
+                        m_depotsList.Initialize(currentConfig.Depots, "Depots", d=>currentConfig.Depots.Add(d));
+                    }
 
                     if (GUILayout.Button("New", GUILayout.Width(100)))
                     {
@@ -86,12 +66,16 @@ namespace Wireframe
                         currentConfig = config;
                     }
 
-                    if (GUILayout.Button("Browse Builds", GUILayout.Width(200)))
+                    if (currentConfig != null)
                     {
-                        if (currentConfig != null)
+                        if (GUILayout.Button("Store Page", GUILayout.Width(200)))
                         {
-                            Application.OpenURL("https://partner.steamgames.com/apps/builds/" +
-                                                currentConfig.App.appid);
+                            Application.OpenURL("https://store.steampowered.com/app/" + currentConfig.App.appid);
+                        }
+
+                        if (GUILayout.Button("Browse Builds", GUILayout.Width(200)))
+                        {
+                            Application.OpenURL("https://partner.steamgames.com/apps/builds/" + currentConfig.App.appid);
                         }
                     }
                 }
@@ -134,6 +118,7 @@ namespace Wireframe
                 {
                     currentConfig.Name = newConfigName;
                     window.QueueSave();
+                    SteamBuildWindowUtil.ConfigPopup.Refresh();
                 }
             }
 
@@ -195,76 +180,19 @@ namespace Wireframe
 
         public void DrawBranches()
         {
-            using (new GUILayout.HorizontalScope())
+            if (m_branchesList.OnGUI())
             {
-                GUILayout.Label("Branches:", GUILayout.Width(150));
-                if (GUILayout.Button("Add", GUILayout.Width(50)))
-                {
-                    currentConfig.Branches.Add("example_name");
-                    window.QueueSave();
-                }
-
-                using (new GUILayout.VerticalScope())
-                {
-                    for (int i = 0; i < currentConfig.Branches.Count; i++)
-                    {
-                        if (i == 0)
-                        {
-                            // None specifies the build will not auto upload to this branch
-                            currentConfig.Branches[i] = "none";
-                            GUILayout.Label("none");
-                        }
-                        else
-                        {
-                            string newBranchName = GUILayout.TextField(currentConfig.Branches[i], GUILayout.Width(100));
-                            if (newBranchName != currentConfig.App.local)
-                            {
-                                currentConfig.Branches[i] = newBranchName;
-                                window.QueueSave();
-                                SteamBuildWindowUtil.BranchPopup.Refresh();
-                            }
-                        }
-                    }
-                }
+                window.QueueSave();
+                SteamBuildWindowUtil.BranchPopup.Refresh();
             }
         }
 
         public void DrawDepots()
         {
-            using (new GUILayout.HorizontalScope())
+            if (m_depotsList.OnGUI())
             {
-                GUILayout.Label("Depots:", GUILayout.Width(150));
-                if (GUILayout.Button("Add", GUILayout.Width(50)))
-                {
-                    SteamBuildDepot depot = new SteamBuildDepot();
-                    depot.Depot.DepotID = 999999;
-                    currentConfig.Depots.Add(depot);
-                    window.QueueSave();
-                    SteamBuildWindowUtil.DepotPopup.Refresh();
-                }
-
-                using (new GUILayout.VerticalScope())
-                {
-                    for (int i = 0; i < currentConfig.Depots.Count; i++)
-                    {
-                        DrawDepot(currentConfig.Depots[i]);
-                    }
-                }
-            }
-        }
-
-        private void DrawDepot(SteamBuildDepot depot)
-        {
-            using (new GUILayout.HorizontalScope())
-            {
-                depot.Name = GUILayout.TextField(depot.Name, GUILayout.Width(100));
-
-                int depotId = EditorGUILayout.IntField(depot.Depot.DepotID, GUILayout.Width(150));
-                if (depotId != depot.Depot.DepotID)
-                {
-                    depot.Depot.DepotID = depotId;
-                    window.QueueSave();
-                }
+                window.QueueSave();
+                SteamBuildWindowUtil.DepotPopup.Refresh();
             }
         }
 

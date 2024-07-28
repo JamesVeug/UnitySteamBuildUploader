@@ -30,6 +30,7 @@ namespace Wireframe
          {
             case "standalonewindows64":
                return Platform.Windows;
+            case "standaloneosx":
             case "standaloneosxuniversal":
                return Platform.Mac;
             default:

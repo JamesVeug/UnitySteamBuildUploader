@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -42,7 +40,7 @@ namespace Wireframe
             {
                 GUILayout.Label("File Path:", GUILayout.Width(120));
                 
-                bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && File.Exists(m_enteredFilePath);
+                bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && (File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath));
                 GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
                 string newPath = GUILayout.TextField(m_enteredFilePath, style);
 
@@ -68,20 +66,38 @@ namespace Wireframe
         {
             Setup();
             
-            bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && File.Exists(m_enteredFilePath);
+            bool exists = FileExists();
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
             if (GUILayout.Button(m_enteredFilePath, style))
             {
-                string newPath = EditorUtility.OpenFilePanel("Build Folder", "", "");
+                string newPath = EditorUtility.OpenFilePanel("Select build to upload", "", "zip,exe");
                 if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))
                 {
                     isDirty = true;
-                    m_enteredFilePath = newPath;
+                    if (newPath.EndsWith(".exe"))
+                    {
+                        // Use path of exe instead
+                        m_enteredFilePath = Path.GetDirectoryName(newPath);
+                    }
+                    else
+                    {
+                        m_enteredFilePath = newPath;
+                    }
                 }
             }
         }
 
-        public override async Task<bool> GetSource()
+        private bool FileExists()
+        {
+            if (string.IsNullOrEmpty(m_enteredFilePath))
+            {
+                return false;
+            }
+            
+            return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);
+        }
+
+        public override async Task GetSource()
         {
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
@@ -94,8 +110,29 @@ namespace Wireframe
 
             // Make copy to avoid sharing conflicts
             string copyPath = directoryPath + "/" + Path.GetFileName(m_enteredFilePath);
-            if (!File.Exists(copyPath))
+            if (Directory.Exists(m_enteredFilePath))
             {
+                // Given a directory that is not cached yet
+                if (!Directory.Exists(copyPath))
+                {
+                    Directory.CreateDirectory(copyPath);
+                    await Task.Run(() =>
+                    {
+                        foreach (string dirPath in Directory.GetDirectories(m_enteredFilePath, "*", SearchOption.AllDirectories))
+                        {
+                            Directory.CreateDirectory(dirPath.Replace(m_enteredFilePath, copyPath));
+                        }
+
+                        foreach (string newPath in Directory.GetFiles(m_enteredFilePath, "*.*", SearchOption.AllDirectories))
+                        {
+                            File.Copy(newPath, newPath.Replace(m_enteredFilePath, copyPath), true);
+                        }
+                    });
+                }
+            }
+            else if (!File.Exists(copyPath))
+            {
+                // Given File that is not cached yet
                 await CopyFileAsync(m_enteredFilePath, copyPath);
             }
 
@@ -145,7 +182,7 @@ namespace Wireframe
                 return false;
             }
 
-            if (!File.Exists(m_enteredFilePath))
+            if (!File.Exists(m_enteredFilePath) && !Directory.Exists(m_enteredFilePath))
             {
                 reason = "File does not exist";
                 return false;

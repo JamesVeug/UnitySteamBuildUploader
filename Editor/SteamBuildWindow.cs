@@ -11,7 +11,7 @@ namespace Wireframe
 
         public enum Tabs
         {
-            SteamSDK,
+            SteamWorks,
             UnityCloud,
             Upload,
         }
@@ -31,6 +31,11 @@ namespace Wireframe
         {
             // Get existing open window or if none, make a new one:
             SteamBuildWindow window = (SteamBuildWindow)GetWindow(typeof(SteamBuildWindow));
+            
+            var iconPath = "Packages/com.veugeljame.steambuilduploader/Icon.png";
+            UnityEngine.Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(UnityEngine.Object));
+            var icon = loadAssetAtPath as Texture;
+            window.titleContent = new GUIContent("Build Uploader", icon);
             window.RefreshTabs();
             window.Show();
         }
@@ -92,9 +97,9 @@ namespace Wireframe
             Color defaultColor = GUI.backgroundColor;
             using (new GUILayout.HorizontalScope())
             {
-                GUI.backgroundColor = CurrentTab == Tabs.SteamSDK ? Color.gray : Color.white;
-                if (GUILayout.Button("SteamSDK"))
-                    CurrentTab = Tabs.SteamSDK;
+                GUI.backgroundColor = CurrentTab == Tabs.SteamWorks ? Color.gray : Color.white;
+                if (GUILayout.Button("Steamworks"))
+                    CurrentTab = Tabs.SteamWorks;
 
                 GUI.backgroundColor = CurrentTab == Tabs.UnityCloud ? Color.gray : Color.white;
                 if (GUILayout.Button("UnityCloud"))
@@ -111,7 +116,7 @@ namespace Wireframe
             {
                 switch (CurrentTab)
                 {
-                    case Tabs.SteamSDK:
+                    case Tabs.SteamWorks:
                         m_steamSDKTab.OnGUI();
                         break;
                     case Tabs.UnityCloud:

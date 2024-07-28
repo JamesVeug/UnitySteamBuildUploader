@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -81,10 +82,23 @@ namespace Wireframe
             Progress.Report(progressId, 0.7f, "Cleaning up...");
             for (int i = 0; i < steamBuilds.Count; i++)
             {
-                if (steamBuilds[i].Enabled)
+                Progress.Report(progressId, 0.33f, "Uploading...");
+            
+                Task uploadTask = Upload();
+                while (!uploadTask.IsCompleted)
                 {
-                    steamBuilds[i].Source().CleanUp();
-                    steamBuilds[i].Destination().CleanUp();
+                    tick?.Invoke();
+                    await Task.Delay(10);
+                }
+
+                Progress.Report(progressId, 0.66f, "Cleaning up...");
+                for (int i = 0; i < steamBuilds.Count; i++)
+                {
+                    if (steamBuilds[i].Enabled)
+                    {
+                        steamBuilds[i].Source().CleanUp();
+                        steamBuilds[i].Destination().CleanUp();
+                    }
                 }
             }
 
@@ -94,7 +108,7 @@ namespace Wireframe
             }
 
             Progress.Remove(progressId);
-            Debug.Log("StartProgress complete!");
+            Debug.Log("Complete!");
         }
 
         private async Task<bool> PrepareDestinations()
@@ -193,6 +207,25 @@ namespace Wireframe
                 Progress.Report(sourceID, progress, "Getting Sources");
                 await Task.Delay(10);
 
+            }
+
+            bool allPathsExist = true;
+            for (var i = 0; i < steamBuilds.Count; i++)
+            {
+                var build = steamBuilds[i];
+                if (!build.Enabled)
+                {
+                    continue;
+                }
+                
+                ASteamBuildSource source = build.Source();
+                string path = source.SourceFilePath();
+                if (!File.Exists(path) && !Directory.Exists(path))
+                {
+                    allPathsExist = false;
+                    Debug.LogError($"Build {i+1} failed to get source. Path does not exist: " + path);
+                    break;
+                }
             }
 
             Progress.Remove(sourceID);

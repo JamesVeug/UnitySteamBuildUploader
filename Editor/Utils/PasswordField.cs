@@ -6,7 +6,7 @@ namespace Wireframe
     public static class PasswordField
     {
         private static Dictionary<string, bool> m_passwordFieldToggles = new Dictionary<string, bool>();
-        public static string Draw(string label, int labelLength, string password)
+        public static string Draw(string label, int labelLength, string password, char mask = '*')
         {
             using (new GUILayout.HorizontalScope())
             {
@@ -30,7 +30,7 @@ namespace Wireframe
                 }
                 else
                 {
-                    newPassword = GUILayout.PasswordField(password, '*');
+                    newPassword = GUILayout.PasswordField(password, mask);
                 }
                 
                 if (GUILayout.Button(showPassword ? "Hide" : "Show", GUILayout.Width(50)))

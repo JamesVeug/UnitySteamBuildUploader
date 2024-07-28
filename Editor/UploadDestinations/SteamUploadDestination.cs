@@ -134,7 +134,7 @@ namespace Wireframe
                         m_destinationBranch,
                         buildDescription, m_filePath))
                 {
-                    return;
+                    return false;
                 }
             }
             else
@@ -149,7 +149,7 @@ namespace Wireframe
                 m_uploadProgress = 0.5f;
                 if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot))
                 {
-                    return;
+                    return false;
                 }
             }
             else

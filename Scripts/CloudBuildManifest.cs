@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Wireframe
 {
     /// <summary>
-    /// Manifest containing all the information about the build make on UnityCloud
-    /// UnityCloud makes one of these for every build
+    /// Manifest containing all the information about the build if it was made using UnityCloud
+    /// UnityCloud makes one of these for every build and puts it saves it as Resources/UnityCloudBuildManifest.json
     /// </summary>
     [Serializable]
     public class CloudBuildManifest
@@ -18,9 +18,7 @@ namespace Wireframe
                 if (m_instance == null)
                 {
                     // Get Manifest created by Unity Cloud
-                    var manifest =
-                        Resources.Load<TextAsset>(
-                            "UnityCloudBuildManifest"); // UnityCloud puts this in Resources when it builds
+                    var manifest = Resources.Load<TextAsset>("UnityCloudBuildManifest"); // UnityCloud default
                     if (manifest != null)
                     {
                         Debug.Log("[CloudUtil] Found Manifest");
@@ -117,8 +115,7 @@ namespace Wireframe
         public void Save()
         {
             string json = JsonUtility.ToJson(m_instance);
-            File.WriteAllText($"{Application.dataPath}/Resources/UnityCloudBuildManifest.json",
-                json); // UnityCloud puts this in Resources when it builds
+            File.WriteAllText($"{Application.dataPath}/Resources/UnityCloudBuildManifest.json", json);
         }
     }
 }

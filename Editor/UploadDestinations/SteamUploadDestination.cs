@@ -114,7 +114,7 @@ namespace Wireframe
                 {
                     Debug.LogException(e);
                     m_uploadInProgress = false;
-                    return;
+                    return false;
                 }
 
                 m_filePath = m_unzippedfilePath;

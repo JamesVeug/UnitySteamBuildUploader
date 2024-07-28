@@ -92,12 +92,12 @@ namespace Wireframe
                 }
 
                 Progress.Report(progressId, 0.66f, "Cleaning up...");
-                for (int i = 0; i < steamBuilds.Count; i++)
+                for (int j = 0; j < steamBuilds.Count; j++)
                 {
-                    if (steamBuilds[i].Enabled)
+                    if (steamBuilds[j].Enabled)
                     {
-                        steamBuilds[i].Source().CleanUp();
-                        steamBuilds[i].Destination().CleanUp();
+                        steamBuilds[j].Source().CleanUp();
+                        steamBuilds[j].Destination().CleanUp();
                     }
                 }
             }

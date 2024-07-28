@@ -97,7 +97,7 @@ namespace Wireframe
             return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);
         }
 
-        public override async Task GetSource()
+        public override async Task<bool> GetSource()
         {
             // Decide where we want to download to
             m_progressDescription = "Preparing...";

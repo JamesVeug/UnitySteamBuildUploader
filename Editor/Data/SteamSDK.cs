@@ -283,7 +283,14 @@ namespace Wireframe
                 Debug.LogError("[STEAM] Failed to scan content to upload...");
                 return false;
             }
-
+            
+            if (ContainsText(lines, "ERROR! Failed to commit build", "", out index))
+            {
+                Debug.LogError("[STEAM] The build may have uploaded but the settings your provided were incorrect. Check Steamworks if the build is there.\n" +
+                               "Possible reasons: Your branch does not exist on Steamworks.");
+                return false;
+            }
+            
             if (text.Contains("Fail"))
             {
                 Debug.LogError("[STEAM] Failed to upload to steam. Check logs for info!");

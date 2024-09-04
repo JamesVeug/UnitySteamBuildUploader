@@ -41,6 +41,11 @@ namespace Wireframe
             get => EditorPrefs.GetString("steambuild_SDKPass");
             set => EditorPrefs.SetString("steambuild_SDKPass", value);
         }
+        
+        public static string SteamSDKEXEPath
+        {
+            get => Instance.m_exePath;
+        }
 
         public bool IsInitialized => m_initialized;
 
@@ -186,14 +191,14 @@ namespace Wireframe
                 m_uploadProcess.StartInfo.CreateNoWindow = true;
                 m_uploadProcess.StartInfo.UseShellExecute = false;
                 m_uploadProcess.StartInfo.FileName = m_exePath;
-                m_uploadProcess.StartInfo.Arguments = CreateSteamArguments(appFile);
+                m_uploadProcess.StartInfo.Arguments = CreateSteamArguments(appFile, false, true);
                 m_uploadProcess.StartInfo.RedirectStandardError = true;
                 m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                 m_uploadProcess.EnableRaisingEvents = true;
                 m_uploadProcess.Start();
                 string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
                 Debug.Log(textDump);
-                result = LogOutSteamResult(textDump);
+                result = LogOutSteamResult(textDump, appFile);
                 m_uploadProcess.WaitForExit();
                 m_uploadProcess.Close();
             }
@@ -207,15 +212,23 @@ namespace Wireframe
             return result;
         }
 
-        private string CreateSteamArguments(AppVDFFile appFile)
+        private string CreateSteamArguments(AppVDFFile appFile, bool emptyLogin, bool quitOnComplete)
         {
             string fullDirectory = GetAppScriptOutputPath(appFile);
-            string arguments = string.Format("+login \"{0}\" \"{1}\" +run_app_build \"{2}\" +quit", UserName,
-                UserPassword, fullDirectory);
+            
+            string username = emptyLogin ? "<steam_username>" : UserName;
+            string password = emptyLogin ? "<steam_password>" : UserPassword;
+            string arguments = string.Format("+login \"{0}\" \"{1}\" +run_app_build \"{2}\"", username,
+                password, fullDirectory);
+            
+            if (quitOnComplete)
+            {
+                arguments += " +quit";
+            }
             return arguments;
         }
 
-        private bool LogOutSteamResult(string text)
+        private bool LogOutSteamResult(string text, AppVDFFile appFile)
         {
             int errorTextStartIndex = text.IndexOf("Error!", StringComparison.CurrentCultureIgnoreCase);
             if (errorTextStartIndex >= 0)
@@ -251,6 +264,16 @@ namespace Wireframe
                 {
                     Debug.LogError("[STEAM] Failed to log into User account: ");
                 }
+ 
+                return false;
+            }
+            
+            if (ContainsText(lines, "Steam Guard code:FAILED", "", out index))
+            {
+                Debug.LogError("[STEAM] Failed to login. Steam guard code required to log into account!");
+                
+                string args = CreateSteamArguments(appFile, true, false);
+                SteamGuardWindow.Show(args);
 
                 return false;
             }

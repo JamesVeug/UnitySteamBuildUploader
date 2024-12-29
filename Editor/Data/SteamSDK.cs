@@ -208,6 +208,7 @@ namespace Wireframe
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
+                    result = outputResults.successful;
                     if (!outputResults.successful)
                     {
                         retry = outputResults.retry;

@@ -25,9 +25,9 @@ public class SteamGuardTwoFactorWindow : EditorWindow
     public static async Task ShowAsync(Action<bool> confirmed, Action<string> codeCallback)
     {
         var window = GetWindow<SteamGuardTwoFactorWindow>();
-        window.titleContent = new GUIContent("Steam Guard Two Factor");
+        window.titleContent = new GUIContent("Steam Guard Two-Factor");
         Rect windowPosition = window.position;
-        windowPosition.size = new Vector2(400, 250);
+        windowPosition.size = new Vector2(400, 320);
         windowPosition.center = new Rect(0f, 0f, Screen.currentResolution.width, Screen.currentResolution.height).center;
         window.position = windowPosition;
         
@@ -57,6 +57,14 @@ public class SteamGuardTwoFactorWindow : EditorWindow
         GUILayout.Label("Looks like you have Two-Factor verification enabled!\n" +
                         "Open the Steam app on your device and do one of the following.");
         
+        GUILayout.Space(10);
+        
+        // bold style
+        var boldStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold };
+        GUILayout.Label("NOTE: Two-Factor authentication does not save.\n" +
+                        "So you will need to do this every time you upload a build.\n" +
+                        "I am sorry :(", boldStyle);
+        
         GUILayout.Space(20);
 
         GUILayout.Label("1. Enter the Steam Guard Code");
@@ -80,6 +88,7 @@ public class SteamGuardTwoFactorWindow : EditorWindow
 
         GUILayout.Label("2. Accept the request that appears on your phone.\n" +
                         "Then click the button below.");
+        GUILayout.Label("NOTE: If this does not work then try the Guard Code above.");
         if (GUILayout.Button("Confirmed!", GUILayout.Height(50)))
         {
             confirmationCallback?.Invoke(true);

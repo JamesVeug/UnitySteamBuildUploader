@@ -1,4 +1,7 @@
 # 1.1.2
+- General
+  - Removed EditorCoroutine dependency
+  - Fixed CloudBuildManifest breaking builds
 - Upload tab
   - Fixed uploading occuring more than once
   - Fixed Sharing violation exception when uploading a build to a new depot 

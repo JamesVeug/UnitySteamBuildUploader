@@ -18,11 +18,10 @@ namespace Wireframe
         public static async Task<bool> Save<T>(T t, string path) where T : VDFFile, new()
         {
             string content = ConvertToString(t, "\"" + t.FileName + "\"", "");
-            Debug.Log("Created content: \n" + content);
-
             if (!File.Exists(path))
             {
-                File.Create(path);
+                FileStream stream = File.Create(path);
+                await stream.DisposeAsync();
             }
 
             Debug.Log("Writing content to: " + path);

@@ -51,19 +51,16 @@ namespace Wireframe
                 
                 if (prepareTask.Result)
                 {
-                    for (int i = 0; i < steamBuilds.Count; i++)
-                    {
-                        Progress.Report(progressId, 0.33f, "Uploading...");
+                    Progress.Report(progressId, 0.33f, "Uploading...");
 
-                        Task<bool> uploadTask = Upload();
-                        while (!uploadTask.IsCompleted)
-                        {
-                            tick?.Invoke();
-                            await Task.Delay(10);
-                        }
-                        
-                        successful = uploadTask.Result;
+                    Task<bool> uploadTask = Upload();
+                    while (!uploadTask.IsCompleted)
+                    {
+                        tick?.Invoke();
+                        await Task.Delay(10);
                     }
+                    
+                    successful = uploadTask.Result;
                 }
                 else
                 {

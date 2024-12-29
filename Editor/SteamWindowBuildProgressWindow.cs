@@ -48,30 +48,45 @@ namespace Wireframe
                     tick?.Invoke();
                     await Task.Delay(10);
                 }
-
+                
                 if (prepareTask.Result)
                 {
-                    Progress.Report(progressId, 0.5f, "Uploading...");
+                    for (int i = 0; i < steamBuilds.Count; i++)
+                    {
+                        Progress.Report(progressId, 0.33f, "Uploading...");
 
-                    Task<bool> uploadTask = Upload();
-                    while (!uploadTask.IsCompleted)
-                    {
-                        tick?.Invoke();
-                        await Task.Delay(10);
-                    }
-
-                    if (uploadTask.Result)
-                    {
-                        successful = true;
-                    }
-                    else
-                    {
-                        DisplayDialog("Failed to upload builds!\n\nSee logs for more info.", "Okay");
+                        Task<bool> uploadTask = Upload();
+                        while (!uploadTask.IsCompleted)
+                        {
+                            tick?.Invoke();
+                            await Task.Delay(10);
+                        }
+                        
+                        successful = uploadTask.Result;
                     }
                 }
                 else
                 {
                     DisplayDialog("Failed to prepare Destinations! Not uploading any builds.\n\nSee logs for more info.", "Okay");
+                }
+                
+                for (int i = 0; i < steamBuilds.Count; i++)
+                {
+                    Progress.Report(progressId, 0.66f, "Cleaning up...");
+                    for (int j = 0; j < steamBuilds.Count; j++)
+                    {
+                        if (steamBuilds[j].Enabled)
+                        {
+                            steamBuilds[j].Source().CleanUp();
+                            steamBuilds[j].Destination().CleanUp();
+                        }
+                    }
+                }
+                
+                
+                if (successful)
+                {
+                    DisplayDialog("Uploads complete!", "yay!");
                 }
             }
             else
@@ -79,36 +94,7 @@ namespace Wireframe
                 DisplayDialog("Failed to get Sources! Not uploading any builds.\n\nSee logs for more info.", "Okay");
             }
 
-            Progress.Report(progressId, 0.7f, "Cleaning up...");
-            for (int i = 0; i < steamBuilds.Count; i++)
-            {
-                Progress.Report(progressId, 0.33f, "Uploading...");
-            
-                Task uploadTask = Upload();
-                while (!uploadTask.IsCompleted)
-                {
-                    tick?.Invoke();
-                    await Task.Delay(10);
-                }
-
-                Progress.Report(progressId, 0.66f, "Cleaning up...");
-                for (int j = 0; j < steamBuilds.Count; j++)
-                {
-                    if (steamBuilds[j].Enabled)
-                    {
-                        steamBuilds[j].Source().CleanUp();
-                        steamBuilds[j].Destination().CleanUp();
-                    }
-                }
-            }
-
-            if (successful)
-            {
-                DisplayDialog("Uploads complete!", "yay!");
-            }
-
             Progress.Remove(progressId);
-            Debug.Log("Complete!");
         }
 
         private async Task<bool> PrepareDestinations()

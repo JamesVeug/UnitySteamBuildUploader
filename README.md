@@ -23,7 +23,7 @@ Utilize the SteamSDK to connect to steam. Setup your individual games with the r
 Download and extract the SteamSDK to a folder on your computer: https://partner.steamgames.com/doc/sdk
 
 
-## Unity Cloud Tab
+## Unity Cloud Tab (Optional)
 ![Alt Text](https://github.com/JamesVeug/UnitySteamBuildUploader/blob/main/Git_UnityCloudPic.png?raw=true)
 
 Utilize Unity Cloud to automate make builds of your project.
@@ -42,3 +42,6 @@ Specify where you want builds to come from adn where you want them to go.
 - Click Download and Upload all
 
 **NOTE: You can not upload to the default branch (default branch everyone uses). This is on purpose to avoid uploading the wrong build. Also the SDD does not allow this.**
+
+## Known Issues
+- Two-Factor authentication does not save between sessions. Don't know why.

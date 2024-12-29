@@ -1,3 +1,14 @@
+# 1.1.2
+- Upload tab
+  - Fixed uploading occuring more than once
+  - Fixed Sharing violation exception when uploading a build to a new depot 
+- Steam
+  - Added window to verify Steam Guard during uploads. **NOTE: Two-Factor authentication does not save between sessions. Don't know why.**
+  - Added more errors logs indicating the reason an upload failed
+- Preferences
+  - Fixed Steam credentials hiding/showing when entering password
+  - Tidy up of UI
+
 # 1.1.1
 - General
   - New configs start with none instead of default

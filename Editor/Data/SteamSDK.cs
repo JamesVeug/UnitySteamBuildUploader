@@ -365,6 +365,12 @@ namespace Wireframe
                 return result;
             }
 
+            if (text.Contains("Invalid Password"))
+            {
+                Debug.LogError("[STEAM] Incorrect username or password.");
+                return result;
+            }
+
             if (uploading && !ContainsText(lines, "Uploading content...", "", out index))
             {
                 Debug.LogError("[STEAM] Failed to scan content to upload...");

@@ -4,13 +4,16 @@ using UnityEditor;
 using UnityEngine;
 using Wireframe;
 
+/// <summary>
+/// SteamGuard has an option to email/text you a verification code for new logins.
+/// </summary>
 public class SteamGuardWindow : EditorWindow
 {
     private Action<string> guardCodeCallback;
     private string enteredText;
     private bool waitingForCode;
     
-    [MenuItem("Window/Steam Guard")]
+    // [MenuItem("Window/Steam Guard")]
     public static void ShowWindow()
     {
         ShowAsync((S) => { });
@@ -53,7 +56,7 @@ public class SteamGuardWindow : EditorWindow
 
         // Draw TextField with large text to emphasise the steam guard
         var largeText = new GUIStyle(GUI.skin.textField) {fontSize = 40};
-        enteredText = GUILayout.TextField(enteredText, largeText);
+        enteredText = GUILayout.TextField(enteredText, largeText).ToUpper();
         
         GUILayout.FlexibleSpace();
 

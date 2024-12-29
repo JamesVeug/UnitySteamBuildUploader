@@ -6,7 +6,7 @@ namespace Wireframe
     internal static class SteamBuildUploaderPreferences
     {
         private static string steamPasswordConfirmation;
-        private static bool steamPasswordAssigned = !string.IsNullOrEmpty(SteamSDK.UserPassword);
+        private static bool steamPasswordAssigned = false;
 
         [PreferenceItem("Steam Build Uploader")]
         private static void OnPreferencesGUI()
@@ -16,16 +16,23 @@ namespace Wireframe
 
             GUILayout.Space(20);
 
-            DrawSteamworks();
+            GUILayout.Label("Steamworks", EditorStyles.boldLabel);
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                DrawSteamworks();
+            }
 
             GUILayout.Space(20);
 
-            DrawUnityCloud();
+            GUILayout.Label("Unity Cloud", EditorStyles.boldLabel);
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                DrawUnityCloud();
+            }
         }
 
         private static void DrawUnityCloud()
         {
-            GUILayout.Label("Unity Cloud", EditorStyles.boldLabel);
 
             using (new GUILayout.HorizontalScope())
             {
@@ -46,8 +53,6 @@ namespace Wireframe
 
         private static void DrawSteamworks()
         {
-            GUILayout.Label("Steamworks", EditorStyles.boldLabel);
-
             using (new EditorGUILayout.HorizontalScope())
             {
                 Color temp = GUI.color;
@@ -88,9 +93,8 @@ namespace Wireframe
                 }
             }
 
-            steamPasswordConfirmation = PasswordField.Draw("Confirm Password:", 105, steamPasswordConfirmation);
 
-            if (!steamPasswordAssigned || steamPasswordConfirmation == SteamSDK.UserPassword)
+            if (steamPasswordAssigned || steamPasswordConfirmation == SteamSDK.UserPassword)
             {
                 // Steam username
                 using (new GUILayout.HorizontalScope())
@@ -101,18 +105,23 @@ namespace Wireframe
                 // Steam password
                 using (new GUILayout.HorizontalScope())
                 {
-                    SteamSDK.UserPassword = PasswordField.Draw("Steam password:", 105, SteamSDK.UserPassword);
+                    SteamSDK.UserPassword = PasswordField.Draw("Steam Password:", 105, SteamSDK.UserPassword);
                 }
             }
-
-            if (GUILayout.Button("Reset"))
+            else
             {
-                if (EditorUtility.DisplayDialog("Reset Steam Build Uplaoder Preferences",
-                        "Are you sure you want to reset all preferences?", "Yes", "No"))
+                steamPasswordConfirmation = PasswordField.Draw("Password:", 105, steamPasswordConfirmation);
+            }
+
+            if (GUILayout.Button("Reset login details"))
+            {
+                if (EditorUtility.DisplayDialog("Reset Steam Build Uploader Preferences",
+                        "Are you sure you want to reset your steam login details?", "Yes", "No"))
                 {
                     SteamSDK.UserName = "";
                     SteamSDK.UserPassword = "";
-                    steamPasswordAssigned = false;
+                    steamPasswordConfirmation = "";
+                    steamPasswordAssigned = true;
                 }
             }
         }

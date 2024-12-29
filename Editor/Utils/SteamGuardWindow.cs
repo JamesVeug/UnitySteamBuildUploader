@@ -1,58 +1,45 @@
 ﻿using System;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Wireframe;
 
 public class SteamGuardWindow : EditorWindow
 {
-    private static string providedText;
+    private Action<string> guardCodeCallback;
+    private string enteredText;
+    private bool waitingForCode;
+    
 
-    private string text;
-    
-    public static void Show(string text)
+    public static async Task ShowAsync(Action<string> codeCallback)
     {
-        providedText = text;
-        
         var window = GetWindow<SteamGuardWindow>();
-        window.text = $"login <steam_username> <steam_password> <steam_guard_code>";
-        OpenSteamCMD();
+        window.enteredText = "";
+        window.guardCodeCallback = codeCallback;
+        window.waitingForCode = true;
+        while (window.waitingForCode)
+        {
+            await Task.Delay(100);
+        }
     }
-    
+
+    private void OnDisable()
+    {
+        guardCodeCallback = null;
+        waitingForCode = false;
+    }
+
     private void OnGUI()
     {
         GUILayout.Label("Looks like you need to verify Steam Guard!\n" +
-                        "You will need to do this only once so Steam allows access to your Steam account!\n" +
-                        "The Steam CMD will automatically open in a few seconds. \n" +
-                        "Please fill out the information below and copy+paste it into the console.");
+                        "Enter the Steam Guard code below to continue.");
 
-        // Login details
-        using (new EditorGUILayout.HorizontalScope())
-        {
-            text = GUILayout.TextField(text);
-            if (GUILayout.Button("Copy To Clipboard"))
-            {
-                EditorGUIUtility.systemCopyBuffer = text;
-            }
-        }
+        enteredText = GUILayout.TextField(enteredText);
         
-        // upload details
-        // using (new EditorGUILayout.HorizontalScope())
-        // {
-        //     text = GUILayout.TextField(text);
-        //     if (GUILayout.Button("Reset Text"))
-        //     {
-        //         text = providedText;
-        //     }
-        // }
-
-        if(GUILayout.Button("Open Steam CMD"))
+        if (GUILayout.Button("Retry login"))
         {
-            OpenSteamCMD();
+            guardCodeCallback?.Invoke(enteredText);
+            Close();
         }
-    }
-
-    private static void OpenSteamCMD()
-    {
-        System.Diagnostics.Process.Start(SteamSDK.SteamSDKEXEPath);
     }
 }

@@ -181,26 +181,39 @@ namespace Wireframe
             return fullPath;
         }
 
-        public async Task<bool> Upload(AppVDFFile appFile)
+        public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam)
         {
             bool result = false;
             try
             {
-                m_uploadProcess = new Process();
-                m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                m_uploadProcess.StartInfo.CreateNoWindow = true;
-                m_uploadProcess.StartInfo.UseShellExecute = false;
-                m_uploadProcess.StartInfo.FileName = m_exePath;
-                m_uploadProcess.StartInfo.Arguments = CreateSteamArguments(appFile, false, true);
-                m_uploadProcess.StartInfo.RedirectStandardError = true;
-                m_uploadProcess.StartInfo.RedirectStandardOutput = true;
-                m_uploadProcess.EnableRaisingEvents = true;
-                m_uploadProcess.Start();
-                string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
-                Debug.Log(textDump);
-                result = LogOutSteamResult(textDump, appFile);
-                m_uploadProcess.WaitForExit();
-                m_uploadProcess.Close();
+                bool retry = true;
+                string steamGuardCode = "";
+                while (retry)
+                {
+                    retry = false;
+                    
+                    m_uploadProcess = new Process();
+                    m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    m_uploadProcess.StartInfo.CreateNoWindow = true;
+                    m_uploadProcess.StartInfo.UseShellExecute = false;
+                    m_uploadProcess.StartInfo.FileName = m_exePath;
+                    m_uploadProcess.StartInfo.Arguments = CreateSteamArguments(appFile, true, uploadeToSteam, steamGuardCode);
+                    m_uploadProcess.StartInfo.RedirectStandardError = true;
+                    m_uploadProcess.StartInfo.RedirectStandardOutput = true;
+                    m_uploadProcess.EnableRaisingEvents = true;
+                    m_uploadProcess.Start();
+                    string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
+                    Debug.Log(textDump);
+                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam);
+                    m_uploadProcess.WaitForExit();
+                    m_uploadProcess.Close();
+
+                    if (!outputResults.successful)
+                    {
+                        retry = outputResults.retry;
+                        steamGuardCode = outputResults.steamGuardCode;
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -212,14 +225,20 @@ namespace Wireframe
             return result;
         }
 
-        private string CreateSteamArguments(AppVDFFile appFile, bool emptyLogin, bool quitOnComplete)
+        private string CreateSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload, string steamGuardCode)
         {
             string fullDirectory = GetAppScriptOutputPath(appFile);
             
-            string username = emptyLogin ? "<steam_username>" : UserName;
-            string password = emptyLogin ? "<steam_password>" : UserPassword;
-            string arguments = string.Format("+login \"{0}\" \"{1}\" +run_app_build \"{2}\"", username,
-                password, fullDirectory);
+            string username = UserName;
+            string password = UserPassword;
+            string guard = string.IsNullOrEmpty(steamGuardCode) ? "" : " " + steamGuardCode;
+            if (!upload)
+            {
+                Debug.Log("Upload to Steam is disabled. Not but still attempting login.");
+            }
+            
+            string uploadArg = upload ? $" +run_app_build \"{fullDirectory}\"" : "";
+            string arguments = string.Format("+login \"{0}\" \"{1}\" {2} {3}", username, password, guard, uploadArg);
             
             if (quitOnComplete)
             {
@@ -228,15 +247,24 @@ namespace Wireframe
             return arguments;
         }
 
-        private bool LogOutSteamResult(string text, AppVDFFile appFile)
+        private class OutputResultArgs
         {
+            public bool successful = false;
+            public bool retry = false;
+            public string steamGuardCode = "";
+        }
+        
+        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading)
+        {
+            OutputResultArgs result = new OutputResultArgs();
+            
             int errorTextStartIndex = text.IndexOf("Error!", StringComparison.CurrentCultureIgnoreCase);
             if (errorTextStartIndex >= 0)
             {
                 int errorNewLine = text.IndexOf('\n', errorTextStartIndex);
                 string errorText = text.Substring(errorTextStartIndex, errorNewLine - errorTextStartIndex);
                 Debug.LogError("[STEAM] " + errorText);
-                return false;
+                return result;
             }
 
             string[] lines = text.Split('\n');
@@ -245,7 +273,7 @@ namespace Wireframe
             if (!ContainsText(lines, "Loading Steam API", "OK", out index))
             {
                 Debug.LogError("[STEAM] Failed to load API.");
-                return false;
+                return result;
             }
 
             if (!ContainsText(lines, "Logging in user", "OK", out index))
@@ -265,40 +293,54 @@ namespace Wireframe
                     Debug.LogError("[STEAM] Failed to log into User account: ");
                 }
  
-                return false;
+                return result;
             }
             
             if (ContainsText(lines, "Steam Guard code:FAILED", "", out index))
             {
                 Debug.LogError("[STEAM] Failed to login. Steam guard code required to log into account!");
                 
-                string args = CreateSteamArguments(appFile, true, false);
-                SteamGuardWindow.Show(args);
+                Debug.Log("Steam Guard code required. Please enter the code in the Steam Guard window.");
+                await SteamGuardWindow.ShowAsync((c) =>
+                {
+                    result.steamGuardCode = c;
+                    result.retry = !string.IsNullOrEmpty(c);
+                    if (result.retry)
+                    {
+                        Debug.Log("Steam Guard code entered: " + c);
+                    }
+                    else
+                    {
+                        Debug.LogError("Steam Guard code was not entered. Cannot continue.");
+                    }
+                });
+                Debug.Log("Finished waiting for steam guard code");
 
-                return false;
+                return result;
             }
 
-            if (!ContainsText(lines, "Uploading content...", "", out index))
+            if (uploading && !ContainsText(lines, "Uploading content...", "", out index))
             {
                 Debug.LogError("[STEAM] Failed to scan content to upload...");
-                return false;
+                return result;
             }
             
             if (ContainsText(lines, "ERROR! Failed to commit build", "", out index))
             {
                 Debug.LogError("[STEAM] The build may have uploaded but the settings your provided were incorrect. Check Steamworks if the build is there.\n" +
                                "Possible reasons: Your branch does not exist on Steamworks.");
-                return false;
+                return result;
             }
             
             if (text.Contains("Fail"))
             {
                 Debug.LogError("[STEAM] Failed to upload to steam. Check logs for info!");
-                return false;
+                return result;
             }
 
             Debug.Log("[STEAM] Upload successful.");
-            return true;
+            result.successful = true;
+            return result;
         }
 
         private bool ContainsText(string[] lines, string startsWith, string endsWith, out int startsWithIndex)

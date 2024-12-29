@@ -157,17 +157,10 @@ namespace Wireframe
                 Debug.Log("Create Depot File is disabled. Not creating.");
             }
 
-            if (m_uploadToSteam)
-            {
-                Debug.Log("Uploading to steam. Grab a coffee... this will take a while.");
-                m_progressDescription = "Uploading to Steam";
-                m_uploadProgress = 0.75f;
-                m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_uploadConfig.App);
-            }
-            else
-            {
-                Debug.Log("Upload to Steam is disabled. Not uploading.");
-            }
+            Debug.Log("Uploading to steam. Grab a coffee... this will take a while.");
+            m_progressDescription = "Uploading to Steam";
+            m_uploadProgress = 0.75f;
+            m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_uploadConfig.App, m_uploadToSteam);
 
             return m_wasBuildSuccessful;
         }

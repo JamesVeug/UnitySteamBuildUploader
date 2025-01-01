@@ -5,58 +5,47 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public abstract class CustomDropdown<T>
+    public interface DropdownElement
+    {
+        public int Id { get; }
+        public string DisplayName { get; }
+    }
+    
+    public abstract class CustomDropdown<T> where T : DropdownElement
     {
         private const string firstEntryText = "Choose from Dropdown";
 
         public abstract List<T> GetAllData();
-        public abstract string ItemDisplayName(T y);
 
         private string[] names = null;
         private T[] values = null;
 
         public void Refresh()
         {
-            List<T> data = GetAllData();
-            names = new string[data.Count + 1];
-            values = new T[data.Count + 1];
-
-            names[0] = firstEntryText;
-            values[0] = default(T);
-            for (var i = 0; i < data.Count; i++)
-            {
-                T definition = data[i];
-                string name = ItemDisplayName(definition);
-                names[i + 1] = name;
-            }
-
-            Array.Sort(names, SortNames);
-            for (int i = 1; i < names.Length; i++)
-            {
-                for (var j = 0; j < data.Count; j++)
-                {
-                    string name = ItemDisplayName(data[j]);
-                    if (names[i] == name)
-                    {
-                        values[i] = data[j];
-                        break;
-                    }
-                }
-            }
+            List<T> data = new List<T>(GetAllData());
+            data.Sort(SortNames);
+            
+            names = data.ConvertAll(x => x.Id + ". " + x.DisplayName).ToArray();
+            values = data.ToArray();
         }
 
-        private int SortNames(string x, string y)
+        private static int SortNames(T a, T b)
         {
-            if (x == firstEntryText)
+            if (a.DisplayName == firstEntryText)
             {
                 return -1;
             }
-            else if (y == firstEntryText)
+            else if (b.DisplayName == firstEntryText)
             {
                 return 1;
             }
-
-            return String.Compare(x, y, StringComparison.Ordinal);
+                
+            int compareTo = a.DisplayName.CompareTo(b.DisplayName);
+            if (compareTo != 0)
+            {
+                return compareTo;
+            }
+            return a.Id.CompareTo(b.Id);
         }
 
         public bool DrawPopup(ref T initial, params GUILayoutOption[] options)

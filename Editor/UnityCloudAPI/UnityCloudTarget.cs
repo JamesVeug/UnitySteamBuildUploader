@@ -40,7 +40,7 @@ namespace Wireframe
    }
 
    [Serializable]
-   public class UnityCloudTarget
+   public class UnityCloudTarget : DropdownElement
    {
       [Serializable]
       public class LastBuilt
@@ -48,6 +48,10 @@ namespace Wireframe
          public string unityVersion;
       }
 
+      public int Id => ID;
+      public string DisplayName => name;
+
+      public int ID;
       public string name;
       public string platform;
       public string buildtargetid;

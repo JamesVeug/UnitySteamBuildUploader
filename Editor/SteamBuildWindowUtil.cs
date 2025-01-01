@@ -29,11 +29,6 @@ namespace Wireframe
                 GetSteamBuildData();
                 return data.Configs;
             }
-
-            public override string ItemDisplayName(SteamBuildConfig y)
-            {
-                return y.Name;
-            }
         }
 
         public class SteamBranchPopup : CustomMultiDropdown<SteamBuildConfig, string>
@@ -65,6 +60,15 @@ namespace Wireframe
                         Debug.Log("Config is null. Creating new config");
                         data = new SteamBuildData();
                         Save();
+                    }
+
+                    // v1.1.3 added IDs so we need to add them for previous users
+                    for (var i = 0; i < data.Configs.Count; i++)
+                    {
+                        var config = data.Configs[i];
+                        if (config.ID == 0){
+                            config.ID = i + 1;
+                        }
                     }
                 }
                 else

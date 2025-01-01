@@ -10,11 +10,6 @@ namespace Wireframe
             {
                 return UnityCloudAPI.CloudBuildTargets;
             }
-
-            public override string ItemDisplayName(UnityCloudTarget y)
-            {
-                return y.name;
-            }
         }
 
         public class UnityCloudBuildPopup : CustomMultiDropdown<UnityCloudTarget, UnityCloudBuild>

@@ -102,6 +102,14 @@ namespace Wireframe
 
             // Populate list
             List<UnityCloudTarget> downloadedBuilds = JSON.DeserializeObject<List<UnityCloudTarget>>(downloadHandlerText);
+            
+            // v1.1.3 added IDs so we need to add them for previous users
+            for (var i = 0; i < downloadedBuilds.Count; i++)
+            {
+                if (downloadedBuilds[i].ID == 0){
+                    downloadedBuilds[i].ID = i + 1;
+                }
+            }
 
             allTargets.AddRange(downloadedBuilds);
             //Debug.Log(targets[0].Item1.Name + " has " + b.Count + " builds.");

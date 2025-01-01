@@ -68,7 +68,9 @@ namespace Wireframe
                     if (GUILayout.Button("New", GUILayout.Width(100)))
                     {
                         SteamBuildConfig config = new SteamBuildConfig();
-                        SteamBuildWindowUtil.GetSteamBuildData().Configs.Add(config);
+                        List<SteamBuildConfig> configs = SteamBuildWindowUtil.GetSteamBuildData().Configs;
+                        config.ID = configs.Count > 0 ? configs[configs.Count - 1].Id + 1 : 1;
+                        configs.Add(config);
                         SteamBuildWindowUtil.Save();
                         SteamBuildWindowUtil.ConfigPopup.Refresh();
                         currentConfig = config;

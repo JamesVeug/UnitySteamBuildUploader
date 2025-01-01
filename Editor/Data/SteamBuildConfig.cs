@@ -4,8 +4,12 @@ using System.Collections.Generic;
 namespace Wireframe
 {
     [Serializable]
-    public class SteamBuildConfig
+    public class SteamBuildConfig : DropdownElement
     {
+        public int Id => ID;
+        public string DisplayName => Name;
+        
+        public int ID = 0;
         public string Name = "Template";
         public AppVDFFile App = new AppVDFFile();
         public List<SteamBuildDepot> Depots = new List<SteamBuildDepot>();

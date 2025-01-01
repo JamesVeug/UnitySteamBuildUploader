@@ -15,11 +15,6 @@ namespace Wireframe
                 GetSteamBuildData();
                 return data.ConfigToDepots();
             }
-
-            public override string ItemDisplayName(SteamBuildDepot y)
-            {
-                return y.Name;
-            }
         }
 
         public class SteamConfigPopup : CustomDropdown<SteamBuildConfig>
@@ -31,17 +26,12 @@ namespace Wireframe
             }
         }
 
-        public class SteamBranchPopup : CustomMultiDropdown<SteamBuildConfig, string>
+        public class SteamBranchPopup : CustomMultiDropdown<SteamBuildConfig, SteamBuildBranch>
         {
-            public override List<(SteamBuildConfig, List<string>)> GetAllData()
+            public override List<(SteamBuildConfig, List<SteamBuildBranch>)> GetAllData()
             {
                 GetSteamBuildData();
                 return data.ConfigToBranches();
-            }
-
-            public override string ItemDisplayName(string y)
-            {
-                return y;
             }
         }
 
@@ -62,13 +52,26 @@ namespace Wireframe
                         Save();
                     }
 
-                    // v1.1.3 added IDs so we need to add them for previous users
+                    // v1.1.3 added IDs and changed branches to a class so we need to migrate them for previous users
                     for (var i = 0; i < data.Configs.Count; i++)
                     {
                         var config = data.Configs[i];
                         if (config.ID == 0){
                             config.ID = i + 1;
                         }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                        if (config.Branches != null)
+                        {
+                            config.ConfigBranches = new List<SteamBuildBranch>();
+                            for (var j = 0; j < config.Branches.Count; j++)
+                            {
+                                config.ConfigBranches.Add(new SteamBuildBranch(j + 1, config.Branches[j]));
+                            }
+
+                            config.Branches = null;
+                        }
+#pragma warning restore CS0618 // Type or member is obsolete
                     }
                 }
                 else

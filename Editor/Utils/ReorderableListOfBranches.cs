@@ -5,30 +5,30 @@ using UnityEditorInternal;
 using UnityEngine;
 using Wireframe;
 
-public class ReorderableListOfDepots
+public class ReorderableListOfBranches
 {
     private class Container : ScriptableObject
     {
-        public List<SteamBuildDepot> depots;
+        public List<SteamBuildBranch> branches;
     }
     
 	private Container container;
     private ReorderableList list;
     private SerializedObject serializedObject;
-    private SerializedProperty depotsProperty;
+    private SerializedProperty branchesProperty;
     private string header = "";
-    private Action<SteamBuildDepot> onAddCallback;
+    private Action<SteamBuildBranch> onAddCallback;
 
-	public void Initialize(List<SteamBuildDepot> listReference, string listHeader, Action<SteamBuildDepot> onAddCallback)
+	public void Initialize(List<SteamBuildBranch> listReference, string listHeader, Action<SteamBuildBranch> onAddCallback)
     {
         header = listHeader;
         container = ScriptableObject.CreateInstance<Container>();
-        container.depots = listReference;
+        container.branches = listReference;
 
 		serializedObject = new SerializedObject(container);
-        depotsProperty = serializedObject.FindProperty("depots");
+        branchesProperty = serializedObject.FindProperty("branches");
 	
-        list = new ReorderableList(serializedObject, depotsProperty, true, true, true, true);
+        list = new ReorderableList(serializedObject, branchesProperty, true, true, true, true);
         list.drawElementCallback = StringsDrawListItems;
         list.drawHeaderCallback = StringsDrawHeader;
         list.onAddCallback = AddCallback;
@@ -48,22 +48,14 @@ public class ReorderableListOfDepots
     protected virtual void StringsDrawListItems(Rect rect, int index, bool isActive, bool isFocused)
     {
         // your GUI code here for list content
-        SerializedProperty arrayElementAtIndex = depotsProperty.GetArrayElementAtIndex(index);
-        SteamBuildDepot element = (SteamBuildDepot)arrayElementAtIndex.boxedValue;
+        SerializedProperty arrayElementAtIndex = branchesProperty.GetArrayElementAtIndex(index);
+        SteamBuildBranch element = (SteamBuildBranch)arrayElementAtIndex.boxedValue;
         
         Rect rect1 = new Rect(rect.x, rect.y, Mathf.Min(100, rect.width / 2), rect.height);
-        string n = GUI.TextField(rect1, element.Name);
-        if (n != element.Name)
+        string n = GUI.TextField(rect1, element.name);
+        if (n != element.name)
         {
-            element.Name = n;
-            arrayElementAtIndex.boxedValue = element;
-        }
-
-        rect1.x += rect1.width;
-        string textField = GUI.TextField(rect1, element.Depot.DepotID.ToString());
-        if (int.TryParse(textField, out int value) && value != element.Depot.DepotID)
-        {
-            element.Depot.DepotID = value;
+            element.name = n;
             arrayElementAtIndex.boxedValue = element;
         }
     }
@@ -76,11 +68,11 @@ public class ReorderableListOfDepots
 
     private void AddCallback(ReorderableList l)
     {
-        depotsProperty.arraySize++;
-        l.index = depotsProperty.arraySize - 1;
-        SerializedProperty arrayElementAtIndex = depotsProperty.GetArrayElementAtIndex(l.index);
+        branchesProperty.arraySize++;
+        l.index = branchesProperty.arraySize - 1;
+        SerializedProperty arrayElementAtIndex = branchesProperty.GetArrayElementAtIndex(l.index);
 
-        SteamBuildDepot buildDepot = new SteamBuildDepot(depotsProperty.arraySize, "");
+        SteamBuildBranch buildDepot = new SteamBuildBranch(branchesProperty.arraySize, "");
         arrayElementAtIndex.boxedValue = buildDepot;
         serializedObject.ApplyModifiedProperties();
         

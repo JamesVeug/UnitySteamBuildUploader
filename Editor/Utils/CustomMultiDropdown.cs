@@ -5,12 +5,11 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public abstract class CustomMultiDropdown<T, Y>
+    public abstract class CustomMultiDropdown<T, Y> where Y : DropdownElement
     {
         private const string firstEntryText = "Choose from Dropdown";
 
         public abstract List<(T, List<Y>)> GetAllData();
-        public abstract string ItemDisplayName(Y y);
 
         private static Dictionary<T, string[]> nameLookup;
         private static Dictionary<T, Y[]> valueLookup;
@@ -18,11 +17,6 @@ namespace Wireframe
         public virtual bool IsItemValid(Y y)
         {
             return true;
-        }
-
-        public virtual int CompareTo(Y a, Y b)
-        {
-            return ItemDisplayName(a).CompareTo(ItemDisplayName(b));
         }
 
         public bool DrawPopup(T target, ref Y initial, params GUILayoutOption[] options)
@@ -75,20 +69,6 @@ namespace Wireframe
             return edited;
         }
 
-        private int SortNames(string x, string y)
-        {
-            if (x == firstEntryText)
-            {
-                return -1;
-            }
-            else if (y == firstEntryText)
-            {
-                return 1;
-            }
-
-            return String.Compare(x, y, StringComparison.Ordinal);
-        }
-
         public void Refresh()
         {
             nameLookup = new Dictionary<T, string[]>();
@@ -101,27 +81,45 @@ namespace Wireframe
             for (int i = 0; i < currentBuilds.Count; i++)
             {
                 List<Y> builds = new List<Y>(currentBuilds[i].Item2);
-                builds.Sort(CompareTo);
+                builds.Sort(SortByName);
 
                 List<string> names = new List<string>();
                 List<Y> values = new List<Y>();
 
                 names.Add(firstEntryText);
-                values.Add(default(Y));
+                values.Add(default);
 
                 for (var j = 0; j < builds.Count; j++)
                 {
                     if (IsItemValid(builds[j]))
                     {
                         values.Add(builds[j]);
-                        names.Add(ItemDisplayName(builds[j]));
+                        names.Add(builds[j].Id + ". " + builds[j].DisplayName);
                     }
                 }
-
-
+                
                 nameLookup[currentBuilds[i].Item1] = names.ToArray();
                 valueLookup[currentBuilds[i].Item1] = values.ToArray();
             }
+        }
+
+        public virtual int SortByName(Y a, Y b)
+        {
+            if (a.DisplayName == firstEntryText)
+            {
+                return -1;
+            }
+            else if (b.DisplayName == firstEntryText)
+            {
+                return 1;
+            }
+                
+            int compareTo = a.DisplayName.CompareTo(b.DisplayName);
+            if (compareTo != 0)
+            {
+                return compareTo;
+            }
+            return a.Id.CompareTo(b.Id);
         }
     }
 }

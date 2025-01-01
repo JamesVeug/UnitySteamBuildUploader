@@ -4,8 +4,11 @@ using UnityEngine;
 
 namespace Wireframe
 {
-	public class UnityCloudBuild
+	public class UnityCloudBuild : DropdownElement
 	{
+		public int Id => build;
+		public string DisplayName => CreateBuildName();
+		
 		public int build;
 		public string buildtargetid;
 		public string buildTargetName;

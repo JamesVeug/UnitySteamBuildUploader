@@ -25,7 +25,12 @@ namespace Wireframe
             List<T> data = new List<T>(GetAllData());
             data.Sort(SortNames);
             
-            names = data.ConvertAll(x => x.Id + ". " + x.DisplayName).ToArray();
+            List<string> namesTemp = new List<string>(data.Count + 1);
+            namesTemp.Add(firstEntryText);
+            namesTemp.AddRange(data.ConvertAll(x => x.Id + ". " + x.DisplayName));
+            names = namesTemp.ToArray();
+            
+            data.Insert(0, default);
             values = data.ToArray();
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace Wireframe
         private SteamBuildConfig currentConfig;
         private GUIStyle m_titleStyle;
 
-        private ReorderableListOfStrings m_branchesList = new ReorderableListOfStrings();
+        private ReorderableListOfBranches m_branchesList = new ReorderableListOfBranches();
         private ReorderableListOfDepots m_depotsList = new ReorderableListOfDepots();
 
         private SteamBuildUploaderSettingsIMGUIRegister(string path, SettingsScope scopes,
@@ -61,7 +62,7 @@ namespace Wireframe
 
                     if (SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref currentConfig))
                     {
-                        m_branchesList.Initialize(currentConfig.Branches, "Branches");
+                        m_branchesList.Initialize(currentConfig.ConfigBranches, "Branches", b => currentConfig.ConfigBranches.Add(b));
                         m_depotsList.Initialize(currentConfig.Depots, "Depots", d => currentConfig.Depots.Add(d));
                     }
 
@@ -142,9 +143,10 @@ namespace Wireframe
             {
                 GUILayout.Label("Default Branch:", GUILayout.Width(150));
                 string newBranch = currentConfig.App.setlive;
-                if (SteamBuildWindowUtil.BranchPopup.DrawPopup(currentConfig, ref newBranch))
+                var chosenBranch = currentConfig.ConfigBranches.FirstOrDefault(b => b.name == newBranch);
+                if (SteamBuildWindowUtil.BranchPopup.DrawPopup(currentConfig, ref chosenBranch))
                 {
-                    currentConfig.App.setlive = newBranch;
+                    currentConfig.App.setlive = chosenBranch?.name;
                     Save();
                 }
             }

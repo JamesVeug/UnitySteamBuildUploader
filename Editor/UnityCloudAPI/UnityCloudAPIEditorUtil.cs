@@ -19,17 +19,12 @@ namespace Wireframe
                 return UnityCloudAPI.CurrentBuilds;
             }
 
-            public override string ItemDisplayName(UnityCloudBuild y)
-            {
-                return y.CreateBuildName();
-            }
-
             public override bool IsItemValid(UnityCloudBuild y)
             {
                 return y.IsSuccessful;
             }
 
-            public override int CompareTo(UnityCloudBuild a, UnityCloudBuild b)
+            public override int SortByName(UnityCloudBuild a, UnityCloudBuild b)
             {
                 return b.build.CompareTo(a.build);
             }

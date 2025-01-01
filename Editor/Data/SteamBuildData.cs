@@ -42,35 +42,13 @@ namespace Wireframe
             return dataConfigToDepotOptionValues;
         }
 
-        public List<(SteamBuildConfig, List<string>)> ConfigToBranches()
+        public List<(SteamBuildConfig, List<SteamBuildBranch>)> ConfigToBranches()
         {
-            var dataConfigToDepotOptionValues = new List<(SteamBuildConfig, List<string>)>();
+            var dataConfigToDepotOptionValues = new List<(SteamBuildConfig, List<SteamBuildBranch>)>();
             for (int i = 0; i < Configs.Count; i++)
             {
                 SteamBuildConfig config = Configs[i];
-                string[] names = new string[config.Branches.Count];
-                List<string> values = new List<string>(config.Branches.Count);
-
-                for (var j = 0; j < config.Branches.Count; j++)
-                {
-                    names[j] = config.Branches[j];
-                }
-
-                Array.Sort(names);
-                for (int j = 0; j < names.Length; j++)
-                {
-                    for (var k = 0; k < config.Branches.Count; k++)
-                    {
-                        string depotName = config.Branches[k];
-                        if (names[j] == depotName)
-                        {
-                            values.Add(config.Branches[k]);
-                            break;
-                        }
-                    }
-                }
-
-                dataConfigToDepotOptionValues.Add((config, values));
+                dataConfigToDepotOptionValues.Add((config, config.ConfigBranches));
             }
 
             return dataConfigToDepotOptionValues;

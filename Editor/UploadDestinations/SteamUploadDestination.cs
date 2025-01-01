@@ -14,13 +14,14 @@ namespace Wireframe
 
         private SteamBuildConfig m_currentConfig;
         private SteamBuildDepot m_buildDepot;
-
-        private string m_destinationBranch;
+        private SteamBuildBranch m_destinationBranch;
+        
         private string m_filePath;
         private string m_unzippedfilePath;
         private bool m_wasBuildSuccessful;
         private SteamBuildConfig m_uploadConfig;
         private SteamBuildDepot m_uploadDepot;
+        private SteamBuildBranch m_uploadBranch;
 
 
         public SteamUploadDestination(SteamBuildWindow window) : base(window)
@@ -87,6 +88,7 @@ namespace Wireframe
             
             m_uploadConfig = new SteamBuildConfig(m_currentConfig);
             m_uploadDepot = new SteamBuildDepot(m_buildDepot);
+            m_uploadBranch = new SteamBuildBranch(m_destinationBranch);
             
             
             if (File.Exists(filePath) && filePath.EndsWith(".zip"))
@@ -131,7 +133,7 @@ namespace Wireframe
                 m_progressDescription = "Creating App Files";
                 m_uploadProgress = 0.25f;
                 if (!await SteamSDK.Instance.CreateAppFiles(m_uploadConfig.App, m_uploadDepot.Depot,
-                        m_destinationBranch,
+                        m_destinationBranch.name,
                         buildDescription, m_filePath))
                 {
                     return false;
@@ -193,7 +195,7 @@ namespace Wireframe
                 return false;
             }
 
-            if (string.IsNullOrEmpty(m_destinationBranch))
+            if (m_destinationBranch == null)
             {
                 reason = "No branch selected";
                 return false;
@@ -228,25 +230,35 @@ namespace Wireframe
             m_createAppFile = (bool)data["m_createAppFile"];
             m_createDepotFile = (bool)data["m_createDepotFile"];
             m_uploadToSteam = (bool)data["m_uploadToSteam"];
-            m_destinationBranch = (string)data["m_destinationBranch"];
 
             List<SteamBuildConfig> buildConfigs = SteamBuildWindowUtil.ConfigPopup.GetAllData();
             for (int i = 0; i < buildConfigs.Count; i++)
             {
-                if (buildConfigs[i].Name == (string)data["m_currentConfig"])
+                if (buildConfigs[i].Name != (string)data["m_currentConfig"])
                 {
-                    m_currentConfig = buildConfigs[i];
-                    for (int j = 0; j < m_currentConfig.Depots.Count; j++)
-                    {
-                        if (m_currentConfig.Depots[j].Name == (string)data["m_buildDepot"])
-                        {
-                            m_buildDepot = m_currentConfig.Depots[j];
-                            break;
-                        }
-                    }
-
-                    break;
+                    continue;
                 }
+                
+                m_currentConfig = buildConfigs[i];
+                for (int j = 0; j < m_currentConfig.Depots.Count; j++)
+                {
+                    if (m_currentConfig.Depots[j].Name == (string)data["m_buildDepot"])
+                    {
+                        m_buildDepot = m_currentConfig.Depots[j];
+                        break;
+                    }
+                }
+
+                for (int j = 0; j < m_currentConfig.ConfigBranches.Count; j++)
+                {
+                    if(m_currentConfig.ConfigBranches[j].name == (string)data["m_destinationBranch"])
+                    {
+                        m_destinationBranch = m_currentConfig.ConfigBranches[j];
+                        break;
+                    }
+                }
+
+                break;
             }
         }
     }

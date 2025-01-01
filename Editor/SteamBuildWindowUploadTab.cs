@@ -17,6 +17,8 @@ namespace Wireframe
             [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         }
 
+        public override string TabName => "Upload";
+        
         private List<BuildConfig> m_buildsToUpload;
 
         private GUIStyle m_titleStyle;

@@ -11,6 +11,8 @@ namespace Wireframe
     {
         private const int AutoRefreshTime = 60;
 
+        public override string TabName => "UnityCloud";
+        
         private UnityCloudTarget currentTarget;
 
         private GUIStyle m_titleStyle;
@@ -69,7 +71,7 @@ namespace Wireframe
             double timeSinceLastRefresh = (DateTime.UtcNow - UnityCloudAPI.LastSyncDateTime).TotalSeconds;
             if (timeSinceLastRefresh > AutoRefreshTime || UnityCloudAPI.TotalSyncs == 0) // 5 minutes
             {
-                if (window.CurrentTab == SteamBuildWindow.Tabs.UnityCloud || UnityCloudAPI.CloudBuildTargets == null)
+                if (window.CurrentTab == this || UnityCloudAPI.CloudBuildTargets == null)
                 {
                     if (!UnityCloudAPI.IsSyncing)
                     {
@@ -78,6 +80,7 @@ namespace Wireframe
                 }
             }
         }
+
 
         public override void OnGUI()
         {

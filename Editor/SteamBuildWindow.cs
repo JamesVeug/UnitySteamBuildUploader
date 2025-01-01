@@ -9,18 +9,10 @@ namespace Wireframe
         private const float SAVE_TIME_DELAY = 60 * 5; // 5 minutes 
         private const float EDIT_TIME_BEFORE_SAVE = 10; // 10 seconds 
 
-        public enum Tabs
-        {
-            SteamWorks,
-            UnityCloud,
-            Upload,
-        }
+        public SteamBuildWindowTab CurrentTab => currentTab;
 
-        public Tabs CurrentTab = Tabs.Upload;
-
-        private SteamBuildWindowSteamSDKTab m_steamSDKTab;
-        private SteamBuildWindowUnityCloudTab m_unityCloudTab;
-        private SteamBuildWindowUploadTab m_uploadTab;
+        private SteamBuildWindowTab currentTab;
+        private SteamBuildWindowTab[] m_tabs;
 
         private float m_nextSaveDelta;
         private float m_lastEditDelta;
@@ -36,16 +28,18 @@ namespace Wireframe
             UnityEngine.Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(UnityEngine.Object));
             var icon = loadAssetAtPath as Texture;
             window.titleContent = new GUIContent("Build Uploader", icon);
-            window.RefreshTabs();
+            window.InitializeTabs();
             window.Show();
         }
 
         private void Update()
         {
-            RefreshTabs();
-            m_steamSDKTab.Update();
-            m_unityCloudTab.Update();
-            m_uploadTab.Update();
+            InitializeTabs();
+            
+            foreach (SteamBuildWindowTab tab in m_tabs)
+            {
+                tab.Update();
+            }
 
             // Save
             if (m_saveQueued)
@@ -68,66 +62,46 @@ namespace Wireframe
             }
         }
 
-        private void RefreshTabs()
+        private void InitializeTabs()
         {
-            if (m_steamSDKTab == null)
+            if (m_tabs == null)
             {
-                m_steamSDKTab = new SteamBuildWindowSteamSDKTab();
-                m_steamSDKTab.Initialize(this);
-            }
+                m_tabs = new SteamBuildWindowTab[]
+                {
+                    new SteamBuildWindowSteamSDKTab(),
+                    new SteamBuildWindowUnityCloudTab(),
+                    new SteamBuildWindowUploadTab(),
+                };
 
-            if (m_unityCloudTab == null)
-            {
-                m_unityCloudTab = new SteamBuildWindowUnityCloudTab();
-                m_unityCloudTab.Initialize(this);
-            }
-
-            if (m_uploadTab == null)
-            {
-                m_uploadTab = new SteamBuildWindowUploadTab();
-                m_uploadTab.Initialize(this);
+                foreach (SteamBuildWindowTab tab in m_tabs)
+                {
+                    tab.Initialize(this);
+                }
+                
+                currentTab = m_tabs[0];
             }
         }
 
         private void OnGUI()
         {
-            RefreshTabs();
+            InitializeTabs();
 
             // Tabs
             Color defaultColor = GUI.backgroundColor;
             using (new GUILayout.HorizontalScope())
             {
-                GUI.backgroundColor = CurrentTab == Tabs.SteamWorks ? Color.gray : Color.white;
-                if (GUILayout.Button("Steamworks"))
-                    CurrentTab = Tabs.SteamWorks;
-
-                GUI.backgroundColor = CurrentTab == Tabs.UnityCloud ? Color.gray : Color.white;
-                if (GUILayout.Button("UnityCloud"))
-                    CurrentTab = Tabs.UnityCloud;
-
-                GUI.backgroundColor = CurrentTab == Tabs.Upload ? Color.gray : Color.white;
-                if (GUILayout.Button("Upload"))
-                    CurrentTab = Tabs.Upload;
+                foreach (SteamBuildWindowTab tab in m_tabs)
+                {
+                    GUI.backgroundColor = CurrentTab == tab ? Color.gray : Color.white;
+                    if (GUILayout.Button(tab.TabName))
+                        currentTab = tab;
+                }
             }
-
             GUI.backgroundColor = defaultColor;
 
             using (new EditorGUILayout.VerticalScope("box"))
             {
-                switch (CurrentTab)
-                {
-                    case Tabs.SteamWorks:
-                        m_steamSDKTab.OnGUI();
-                        break;
-                    case Tabs.UnityCloud:
-                        m_unityCloudTab.OnGUI();
-                        break;
-                    case Tabs.Upload:
-                        m_uploadTab.OnGUI();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                CurrentTab.OnGUI();
             }
         }
 
@@ -138,7 +112,10 @@ namespace Wireframe
 
         private void ImmediateSave()
         {
-            m_steamSDKTab?.Save();
+            foreach (SteamBuildWindowTab tab in m_tabs)
+            {
+                tab.Save();
+            }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             m_nextSaveDelta = 0;

@@ -5,6 +5,8 @@ namespace Wireframe
 {
     public class SteamBuildWindowSteamSDKTab : SteamBuildWindowTab
     {
+        public override string TabName => "Steamworks";
+        
         private SteamBuildConfig currentConfig;
         private GUIStyle m_titleStyle;
 
@@ -20,6 +22,7 @@ namespace Wireframe
                 fontStyle = FontStyle.Bold
             };
         }
+
 
         public override void OnGUI()
         {

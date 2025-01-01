@@ -1,8 +1,11 @@
-﻿namespace Wireframe
+﻿using UnityEngine;
+
+namespace Wireframe
 {
     public abstract class SteamBuildWindowTab
     {
         protected SteamBuildWindow window;
+        public abstract string TabName { get; }
 
         public void Initialize(SteamBuildWindow window)
         {

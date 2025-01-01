@@ -1,18 +1,35 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
 {
-    public class SteamBuildWindowSteamSDKTab : SteamBuildWindowTab
+    class SteamBuildUploaderSettingsIMGUIRegister : SettingsProvider
     {
-        public override string TabName => "Steamworks";
-        public override bool Enabled => SteamSDK.Enabled;
+        [SettingsProvider]
+        public static SettingsProvider CreateSteamBuildUploaderSettingsProvider()
+        {
+            var provider =
+                new SteamBuildUploaderSettingsIMGUIRegister("Project/SteamBuildUploader", SettingsScope.Project)
+                {
+                    label = "Steam Build Uploader",
+                    keywords = new HashSet<string>(new[] { "Steam", "Build", "Upload", "Pipe", "line" })
+                };
+
+            return provider;
+        }
+
 
         private SteamBuildConfig currentConfig;
         private GUIStyle m_titleStyle;
 
         private ReorderableListOfStrings m_branchesList = new ReorderableListOfStrings();
         private ReorderableListOfDepots m_depotsList = new ReorderableListOfDepots();
+
+        private SteamBuildUploaderSettingsIMGUIRegister(string path, SettingsScope scopes,
+            IEnumerable<string> keywords = null) : base(path, scopes, keywords)
+        {
+        }
 
         private void Setup()
         {
@@ -24,27 +41,14 @@ namespace Wireframe
             };
         }
 
-
-        public override void OnGUI()
+        public override void OnGUI(string searchContext)
         {
-            Setup();
+            base.OnGUI(searchContext);
 
-            if (!SteamSDK.Instance.IsInitialized)
+            if (m_titleStyle == null)
             {
-                SteamSDK.Instance.Initialize();
-                if(!SteamSDK.Instance.IsInitialized)
-                {
-                    GUILayout.Label("Steamworks not found! Change in Edit->Preferences->Steam Build Uploader.");
-                    return;
-                }
+                Setup();
             }
-
-            if (string.IsNullOrEmpty(SteamSDK.UserName) || string.IsNullOrEmpty(SteamSDK.UserPassword))
-            {
-                GUILayout.Label("Steamworks credentials are missing! Change in Edit->Preferences->Steam Build Uploader.");
-                EditorGUILayout.Space(20);
-            }
-
 
             using (new GUILayout.VerticalScope("box"))
             {
@@ -58,7 +62,7 @@ namespace Wireframe
                     if (SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref currentConfig))
                     {
                         m_branchesList.Initialize(currentConfig.Branches, "Branches");
-                        m_depotsList.Initialize(currentConfig.Depots, "Depots", d=>currentConfig.Depots.Add(d));
+                        m_depotsList.Initialize(currentConfig.Depots, "Depots", d => currentConfig.Depots.Add(d));
                     }
 
                     if (GUILayout.Button("New", GUILayout.Width(100)))
@@ -104,11 +108,6 @@ namespace Wireframe
                 {
                     DrawBranches();
                 }
-
-                if (GUILayout.Button("Save"))
-                {
-                    Save();
-                }
             }
         }
 
@@ -121,7 +120,7 @@ namespace Wireframe
                 if (newConfigName != currentConfig.Name)
                 {
                     currentConfig.Name = newConfigName;
-                    window.QueueSave();
+                    Save();
                     SteamBuildWindowUtil.ConfigPopup.Refresh();
                 }
             }
@@ -133,20 +132,9 @@ namespace Wireframe
                 if (newAppId != currentConfig.App.appid)
                 {
                     currentConfig.App.appid = newAppId;
-                    window.QueueSave();
+                    Save();
                 }
             }
-
-            // using (new GUILayout.HorizontalScope())
-            // {
-            //     GUILayout.Label("Default Description:", GUILayout.Width(150));
-            //     string description = EditorGUILayout.TextField(currentConfig.App.desc);
-            //     if (description != currentConfig.App.desc)
-            //     {
-            //         currentConfig.App.desc = description;
-            //         window.QueueSave();
-            //     }
-            // }
 
             using (new GUILayout.HorizontalScope())
             {
@@ -155,27 +143,16 @@ namespace Wireframe
                 if (SteamBuildWindowUtil.BranchPopup.DrawPopup(currentConfig, ref newBranch))
                 {
                     currentConfig.App.setlive = newBranch;
-                    window.QueueSave();
+                    Save();
                 }
             }
-
-            // using (new GUILayout.HorizontalScope())
-            // {
-            //     GUILayout.Label("Local Content Server:", GUILayout.Width(150));
-            //     string serverContent = EditorGUILayout.TextField(currentConfig.App.local);
-            //     if (serverContent != currentConfig.App.local)
-            //     {
-            //         currentConfig.App.local = serverContent;
-            //         window.QueueSave();
-            //     }
-            // }
         }
 
         public void DrawBranches()
         {
             if (m_branchesList.OnGUI())
             {
-                window.QueueSave();
+                Save();
                 SteamBuildWindowUtil.BranchPopup.Refresh();
             }
         }
@@ -184,12 +161,12 @@ namespace Wireframe
         {
             if (m_depotsList.OnGUI())
             {
-                window.QueueSave();
+                Save();
                 SteamBuildWindowUtil.DepotPopup.Refresh();
             }
         }
 
-        public override void Save()
+        public void Save()
         {
             SteamBuildWindowUtil.Save();
             SteamBuildWindowUtil.BranchPopup.Refresh();

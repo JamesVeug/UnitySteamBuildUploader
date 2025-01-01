@@ -72,7 +72,6 @@ namespace Wireframe
             {
                 m_tabs = new SteamBuildWindowTab[]
                 {
-                    new SteamBuildWindowSteamSDKTab(),
                     new SteamBuildWindowUnityCloudTab(),
                     new SteamBuildWindowUploadTab(),
                 };

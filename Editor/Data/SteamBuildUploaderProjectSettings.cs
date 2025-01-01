@@ -62,8 +62,14 @@ namespace Wireframe
 
                     if (SteamBuildWindowUtil.ConfigPopup.DrawPopup(ref currentConfig))
                     {
-                        m_branchesList.Initialize(currentConfig.ConfigBranches, "Branches", b => currentConfig.ConfigBranches.Add(b));
-                        m_depotsList.Initialize(currentConfig.Depots, "Depots", d => currentConfig.Depots.Add(d));
+                        m_branchesList.Initialize(currentConfig.ConfigBranches, "Branches", _ =>
+                        {
+                            Save();
+                        });
+                        m_depotsList.Initialize(currentConfig.Depots, "Depots", _ =>
+                        {
+                            Save();
+                        });
                     }
 
                     if (GUILayout.Button("New", GUILayout.Width(100)))

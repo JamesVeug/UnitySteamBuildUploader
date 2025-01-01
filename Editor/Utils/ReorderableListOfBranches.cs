@@ -17,11 +17,12 @@ public class ReorderableListOfBranches
     private SerializedObject serializedObject;
     private SerializedProperty branchesProperty;
     private string header = "";
-    private Action<SteamBuildBranch> onAddCallback;
+    private Action<SteamBuildBranch> addCallback;
 
 	public void Initialize(List<SteamBuildBranch> listReference, string listHeader, Action<SteamBuildBranch> onAddCallback)
     {
         header = listHeader;
+        addCallback = onAddCallback;
         container = ScriptableObject.CreateInstance<Container>();
         container.branches = listReference;
 
@@ -76,6 +77,6 @@ public class ReorderableListOfBranches
         arrayElementAtIndex.boxedValue = buildDepot;
         serializedObject.ApplyModifiedProperties();
         
-        onAddCallback?.Invoke(buildDepot);
+        addCallback?.Invoke(buildDepot);
     }
 }

@@ -17,11 +17,12 @@ public class ReorderableListOfDepots
     private SerializedObject serializedObject;
     private SerializedProperty depotsProperty;
     private string header = "";
-    private Action<SteamBuildDepot> onAddCallback;
+    private Action<SteamBuildDepot> addCallback;
 
 	public void Initialize(List<SteamBuildDepot> listReference, string listHeader, Action<SteamBuildDepot> onAddCallback)
     {
         header = listHeader;
+        addCallback = onAddCallback;
         container = ScriptableObject.CreateInstance<Container>();
         container.depots = listReference;
 
@@ -84,6 +85,6 @@ public class ReorderableListOfDepots
         arrayElementAtIndex.boxedValue = buildDepot;
         serializedObject.ApplyModifiedProperties();
         
-        onAddCallback?.Invoke(buildDepot);
+        addCallback?.Invoke(buildDepot);
     }
 }

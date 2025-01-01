@@ -24,8 +24,12 @@ namespace Wireframe
                 }
                 if (type.IsPrimitive)
                 {
-                    Debug.Log("Primitive: " + type.Name);
                     return o.ToString().ToLowerInvariant();
+                }
+
+                if (type.IsEnum)
+                {
+                    return ((int)o).ToString();
                 }
                 
                 // List
@@ -67,9 +71,9 @@ namespace Wireframe
                     int count = dict.Count;
                     foreach (DictionaryEntry entry in dict)
                     {
-                        sb.Append(TOJSON(entry.Key, entry.Key.GetType(), indents));
+                        sb.Append(TOJSON(entry.Key, entry.Key?.GetType(), indents));
                         sb.Append(": ");
-                        sb.Append(TOJSON(entry.Value, entry.Value.GetType(), indents));
+                        sb.Append(TOJSON(entry.Value, entry.Value?.GetType(), indents));
                         if (--count > 0)
                         {
                             sb.Append(",");

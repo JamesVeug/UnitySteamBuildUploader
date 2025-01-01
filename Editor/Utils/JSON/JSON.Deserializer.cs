@@ -89,6 +89,11 @@ namespace Wireframe
                         return sbyte.Parse(json);
                     }
                 }
+                
+                if(type.IsEnum)
+                {
+                    return Enum.Parse(type, json);
+                }
 
                 if (type == typeof(object))
                 {
@@ -98,7 +103,7 @@ namespace Wireframe
                         return boolValue;
                     }
 
-                    if (int.TryParse(json, out int intValue))
+                    if (long.TryParse(json, out long intValue))
                     {
                         return intValue;
                     }
@@ -189,7 +194,7 @@ namespace Wireframe
 
                         // "value",
 
-                        List<object> listData = new List<object>();
+                        List<string> listData = new List<string>();
                         int entryStart = startIndex;
                         int entryEnd = startIndex;
                         int depth = 0;
@@ -214,12 +219,13 @@ namespace Wireframe
                         }
 
                         listData.Add(json.Substring(entryStart, endIndex - entryStart).Trim());
-
+                        listData.RemoveAll(string.IsNullOrEmpty);
+                        
                         Type listType = type.GetGenericArguments()[0];
                         IList list = (IList)Activator.CreateInstance(type);
-                        foreach (object item in listData)
+                        foreach (string item in listData)
                         {
-                            list.Add(FromJSON(item?.ToString(), listType));
+                            list.Add(FromJSON(item, listType));
                         }
 
                         return list;
@@ -259,6 +265,7 @@ namespace Wireframe
                         }
 
                         entries.Add(json.Substring(entryStart, endIndex - entryStart).Trim());
+                        entries.RemoveAll(string.IsNullOrEmpty);
 
 
                         Type keyType = type.GetGenericArguments()[0];
@@ -377,6 +384,11 @@ namespace Wireframe
 
                     Debug.LogError("Primitive Type not supported: " + type.Name);
                     return null;
+                }
+
+                if (type.IsEnum)
+                {
+                    return Enum.Parse(type, obj.ToString());
                 }
 
                 // List

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Wireframe
@@ -172,8 +171,7 @@ namespace Wireframe
 				return null;
 			}
 
-			JArray jArray = (JArray)artifactData;
-			List<Artifact> artifactList = jArray.ToObject<List<Artifact>>();
+			List<Artifact> artifactList = (List<Artifact>)artifactData;
 			m_artifacts = artifactList;
 			return m_artifacts;
 		}

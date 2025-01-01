@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -103,7 +101,7 @@ namespace Wireframe
             }
 
             // Populate list
-            List<UnityCloudTarget> downloadedBuilds = JsonConvert.DeserializeObject<List<UnityCloudTarget>>(downloadHandlerText);
+            List<UnityCloudTarget> downloadedBuilds = JSON.DeserializeObject<List<UnityCloudTarget>>(downloadHandlerText);
 
             allTargets.AddRange(downloadedBuilds);
             //Debug.Log(targets[0].Item1.Name + " has " + b.Count + " builds.");
@@ -184,8 +182,7 @@ namespace Wireframe
                 }
 
                 // Populate list
-                List<UnityCloudBuild> downloadedBuilds =
-                    JsonConvert.DeserializeObject<List<UnityCloudBuild>>(downloadHandlerText);
+                List<UnityCloudBuild> downloadedBuilds = JSON.DeserializeObject<List<UnityCloudBuild>>(downloadHandlerText);
 
                 builds.Clear();
                 builds.AddRange(downloadedBuilds);
@@ -295,7 +292,7 @@ namespace Wireframe
 
             string urlParsed = string.Format(url, UnityCloud.Instance.Organization, UnityCloud.Instance.Project,
                 buildTargetID);
-            string payload = JsonConvert.SerializeObject(data);
+            string payload = JSON.SerializeObject(data);
 
             UnityWebRequest www = new UnityWebRequest(urlParsed, "POST");
             byte[] bodyRaw = Encoding.UTF8.GetBytes(payload);

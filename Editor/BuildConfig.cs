@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -278,8 +277,7 @@ namespace Wireframe
             // Source
             m_currentSourceType = (SourceType)(long)data["sourceType"];
 
-            JObject sourceJson = (JObject)data["source"];
-            Dictionary<string, object> sourceDictionary = sourceJson.ToObject<Dictionary<string, object>>();
+            Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
 
             ASteamBuildSource source = CreateSourceFromType(m_currentSourceType);
             source.Deserialize(sourceDictionary);
@@ -295,8 +293,7 @@ namespace Wireframe
             m_currentDestinationType = (DestinationType)(long)t;
 
             // Destination
-            JObject destinationJson = (JObject)data["destination"];
-            Dictionary<string, object> destinationDictionary = destinationJson.ToObject<Dictionary<string, object>>();
+            Dictionary<string, object> destinationDictionary = (Dictionary<string, object>)data["destination"];
 
             ASteamBuildDestination destination = CreateDestinationFromType(m_currentDestinationType);
             destination.Deserialize(destinationDictionary);

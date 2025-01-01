@@ -15,7 +15,5 @@
     "depot"
   ],
   "version": "1.1.2",
-  "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.2.1"
-  }
+  "dependencies": {}
 }

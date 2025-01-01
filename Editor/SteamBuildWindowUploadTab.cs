@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -198,7 +196,7 @@ namespace Wireframe
                 Directory.CreateDirectory(directory);
             }
 
-            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            string json = JSON.SerializeObject(data);
             if (!File.Exists(FilePath))
             {
                 var stream = File.Create(FilePath);
@@ -213,7 +211,7 @@ namespace Wireframe
             if (File.Exists(FilePath))
             {
                 string json = File.ReadAllText(FilePath);
-                UploadTabData config = JsonConvert.DeserializeObject<UploadTabData>(json);
+                UploadTabData config = JSON.DeserializeObject<UploadTabData>(json);
                 if (config == null)
                 {
                     Debug.Log("Config is null. Creating new config");

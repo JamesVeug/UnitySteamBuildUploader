@@ -7,6 +7,8 @@ namespace Wireframe
         protected SteamBuildWindow window;
         public abstract string TabName { get; }
 
+        public virtual bool Enabled => true;
+
         public void Initialize(SteamBuildWindow window)
         {
             this.window = window;

@@ -12,6 +12,7 @@ namespace Wireframe
         private const int AutoRefreshTime = 60;
 
         public override string TabName => "UnityCloud";
+        public override bool Enabled => UnityCloud.Enabled;
         
         private UnityCloudTarget currentTarget;
 

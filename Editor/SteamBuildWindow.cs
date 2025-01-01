@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -38,7 +39,10 @@ namespace Wireframe
             
             foreach (SteamBuildWindowTab tab in m_tabs)
             {
-                tab.Update();
+                if (tab.Enabled)
+                {
+                    tab.Update();
+                }
             }
 
             // Save
@@ -86,15 +90,25 @@ namespace Wireframe
         {
             InitializeTabs();
 
+            if (!currentTab.Enabled)
+            {
+                currentTab = m_tabs.FirstOrDefault(a => a.Enabled);
+            }
+
             // Tabs
             Color defaultColor = GUI.backgroundColor;
             using (new GUILayout.HorizontalScope())
             {
                 foreach (SteamBuildWindowTab tab in m_tabs)
                 {
-                    GUI.backgroundColor = CurrentTab == tab ? Color.gray : Color.white;
-                    if (GUILayout.Button(tab.TabName))
-                        currentTab = tab;
+                    if (tab.Enabled)
+                    {
+                        GUI.backgroundColor = CurrentTab == tab ? Color.gray : Color.white;
+                        if (GUILayout.Button(tab.TabName))
+                        {
+                            currentTab = tab;
+                        }
+                    }
                 }
             }
             GUI.backgroundColor = defaultColor;
@@ -114,7 +128,10 @@ namespace Wireframe
         {
             foreach (SteamBuildWindowTab tab in m_tabs)
             {
-                tab.Save();
+                if (tab.Enabled)
+                {
+                    tab.Save();
+                }
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

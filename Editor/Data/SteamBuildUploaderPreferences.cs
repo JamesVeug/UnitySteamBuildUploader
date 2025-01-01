@@ -19,7 +19,11 @@ namespace Wireframe
             GUILayout.Label("Steamworks", EditorStyles.boldLabel);
             using (new EditorGUILayout.VerticalScope("box"))
             {
-                DrawSteamworks();
+                SteamSDK.Enabled = GUILayout.Toggle(SteamSDK.Enabled, "Enabled");
+                using (new EditorGUI.DisabledScope(!SteamSDK.Enabled))
+                {
+                    DrawSteamworks();
+                }
             }
 
             GUILayout.Space(20);
@@ -27,7 +31,11 @@ namespace Wireframe
             GUILayout.Label("Unity Cloud", EditorStyles.boldLabel);
             using (new EditorGUILayout.VerticalScope("box"))
             {
-                DrawUnityCloud();
+                UnityCloud.Enabled = GUILayout.Toggle(UnityCloud.Enabled, "Enabled");
+                using (new EditorGUI.DisabledScope(!UnityCloud.Enabled))
+                {
+                    DrawUnityCloud();
+                }
             }
         }
 

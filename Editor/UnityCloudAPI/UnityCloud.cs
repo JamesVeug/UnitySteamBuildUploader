@@ -18,6 +18,12 @@ namespace Wireframe
         }
 
         private static UnityCloud m_instance;
+        
+        public static bool Enabled
+        {
+            get => EditorPrefs.GetBool("unityCloud_enabled", false);
+            set => EditorPrefs.SetBool("unityCloud_enabled", value);
+        }
 
         public string Organization
         {

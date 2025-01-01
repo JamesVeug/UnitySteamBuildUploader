@@ -23,6 +23,12 @@ namespace Wireframe
                 return m_instance;
             }
         }
+        
+        public static bool Enabled
+        {
+            get => EditorPrefs.GetBool("steambuild_Enabled", true);
+            set => EditorPrefs.SetBool("steambuild_Enabled", value);
+        }
 
         public static string SteamSDKPath
         {

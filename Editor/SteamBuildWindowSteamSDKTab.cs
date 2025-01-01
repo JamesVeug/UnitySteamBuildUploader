@@ -6,7 +6,8 @@ namespace Wireframe
     public class SteamBuildWindowSteamSDKTab : SteamBuildWindowTab
     {
         public override string TabName => "Steamworks";
-        
+        public override bool Enabled => SteamSDK.Enabled;
+
         private SteamBuildConfig currentConfig;
         private GUIStyle m_titleStyle;
 

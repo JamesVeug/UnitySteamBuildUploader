@@ -3,37 +3,53 @@
 This package is designed to help automate the process of uploading builds to Steam. It is designed to work with the Unity Cloud Build system and the Steam SDK.
 
 
-## Setup
-- Add the package to your project in package manager using giturl `https://github.com/JamesVeug/UnitySteamBuildUploader.git`
-- Ensure newtonsoft package has installed
-  - **If not**: Add the `newtonsoft package` to your project https://github.com/applejag/Newtonsoft.Json-for-Unity/wiki/Install-official-via-UPM
+## How to install
 
-![Alt Text](https://raw.githubusercontent.com/JamesVeug/UnitySteamBuildUploader/main/Git_PreferencesPic.png)
-- Go to `Edit->Preferences->Steam Build Uploader` and enter your credentials.
-- Open the Steam Build Uploader window to begin setting up and uploading builds `Window->Steam Build Uploader`
+### Install
+- Add the package to your project in package manager using the git url `https://github.com/JamesVeug/UnitySteamBuildUploader.git`
+
+### Setup
+
+<a href="https://ibb.co/61JHPPn"><img src="https://i.ibb.co/9V3bTT8/Screenshot-2025-01-03-213527.png" alt="Screenshot-2025-01-03-213527" border="0"></a>
+- Go to `Edit->Preferences->Steam Build Uploader`
+  - Download SteamSDK and extract it to a folder on your computer
+    - Enter the path to the SteamSDK folder (https://partner.steamgames.com/downloads/list)
+  - Enter your steam login details
+  - Enter Unity Cloud details **(Optional)**
+
+<a href="https://ibb.co/9VMYd9p"><img src="https://i.ibb.co/s6B3Xvg/Screenshot-2025-01-03-212949.png" alt="Screenshot-2025-01-03-212949" border="0"></a>
+- Go to `Edit->ProjectSettings->Steam Build Uploader`
+  - Press `New`
+  - Enter the name of your game
+  - Enter the AppID of your game. (Found in the URL of your games store page. eg: `1141030`)
+  - Press `+` to create a new depot for your game
+    - Enter a name for the depot
+    - Enter the depot ID (Found in the Steamworks website eg: `1141031`)
+  - Add any more branches that you need (`none` is also known as default on steamworks)
+- Go to `Window->Steam Build Uploader`
+  - Press `New`
+  - Choose where your build will come from
+    - Choose Manual to choose a file from your computer then select the .zip or .exe of your game
+  - Choose where your build will go
+    - Choose Manual SteamWorks if you want to upload to steam
+    - Choose which game you want to upload it to
+    - Choose Depot
+    - Choose Branch
+  - Press `Save`
 
 
+### Upload
 
+- Go to `Window->Steam Build Uploader`
+  - Select which build you want to upload
+  - Choose where you want to upload it to
+  - Enter description of the build (eg: `v1.0.1 build 123 - Fixed jumping bug`)
+  - Press `Download and Upload all`
 
-## Steamworks Tab
-![Alt Text](https://raw.githubusercontent.com/JamesVeug/UnitySteamBuildUploader/main/Git_SteamSDKPic.png)
-
-Utilize the SteamSDK to connect to steam. Setup your individual games with the repos and branches you want to upload to.
-
-Download and extract the SteamSDK to a folder on your computer: https://partner.steamgames.com/doc/sdk
-
-
-## Unity Cloud Tab (Optional)
-![Alt Text](https://github.com/JamesVeug/UnitySteamBuildUploader/blob/main/Git_UnityCloudPic.png?raw=true)
-
-Utilize Unity Cloud to automate make builds of your project.
-- Tracks progress of current builds
-- Start a new build
-- Download builds
 
 
 ## Upload Tab
-![Alt Text](https://github.com/JamesVeug/UnitySteamBuildUploader/blob/main/Git_SyncTabPic.png?raw=true)
+<a href="https://ibb.co/7RSjdgL"><img src="https://i.ibb.co/3MT49fQ/Git-Sync-Tab-Pic.png" alt="Git-Sync-Tab-Pic" border="0"></a>
 
 Specify where you want builds to come from adn where you want them to go.
 - You can specify a file on your computer or choose from your UnityCloud builds.
@@ -42,6 +58,16 @@ Specify where you want builds to come from adn where you want them to go.
 - Click Download and Upload all
 
 **NOTE: You can not upload to the default branch (default branch everyone uses). This is on purpose to avoid uploading the wrong build. Also the SDD does not allow this.**
+
+
+## Unity Cloud Tab (Optional)
+<a href="https://ibb.co/6tcrXN3"><img src="https://i.ibb.co/s1pbWt0/Git-Unity-Cloud-Pic.png" alt="Git-Unity-Cloud-Pic" border="0"></a>
+
+Utilize Unity Cloud to automate make builds of your project.
+- Tracks progress of current builds
+- Start a new build
+- Download builds
+
 
 ## Known Issues
 - Two-Factor authentication does not save between sessions. Don't know why.

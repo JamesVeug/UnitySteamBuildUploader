@@ -81,6 +81,14 @@ namespace Wireframe
                         SteamBuildWindowUtil.Save();
                         SteamBuildWindowUtil.ConfigPopup.Refresh();
                         currentConfig = config;
+                        m_branchesList.Initialize(currentConfig.ConfigBranches, "Branches", _ =>
+                        {
+                            Save();
+                        });
+                        m_depotsList.Initialize(currentConfig.Depots, "Depots", _ =>
+                        {
+                            Save();
+                        });
                     }
 
                     if (currentConfig != null)

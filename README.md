@@ -1,12 +1,20 @@
 # Steam Build Uploader
 
-This package is designed to help automate the process of uploading builds to Steam. It is designed to work with the Unity Cloud Build system and the Steam SDK.
+This package is designed to help streamline the process of uploading builds to Steam. It is designed to work with the Steam SDK and optionally Unity Cloud.
+
+Contains no dependencies and is designed to work with Unity 2021 and above.
+
+Majority of code stripped from builds.
 
 
 ## How to install
 
-### Install
-- Add the package to your project in package manager using the git url `https://github.com/JamesVeug/UnitySteamBuildUploader.git`
+### Add package to your project
+- Open `Window->Package Manager`
+- Press the `+` button in the top left
+- Choose `Add package from git URL`
+- Enter the git url `https://github.com/JamesVeug/UnitySteamBuildUploader.git`
+- Press `Add`
 
 ### Setup
 
@@ -69,5 +77,24 @@ Utilize Unity Cloud to automate make builds of your project.
 - Download builds
 
 
+## Security
+This package does NOT distribute any personal information. Any information entered is stored locally on your computer and not in plain text format.
+
+Keeping your credentials safe is important to me!
+
+If you discover any security related issues, please email me, message on discord or create an issue on [github.](https://github.com/JamesVeug/UnitySteamBuildUploader)
+
+
+## Reporting bugs / suggesting changes
+
+If you find a bug or want to suggest a change, please create an issue on the [github page](https://github.com/JamesVeug/UnitySteamBuildUploader).
+
+
 ## Known Issues
 - Two-Factor authentication does not save between sessions. Don't know why.
+
+
+## License
+Creative Commons - CC0 1.0 Universal
+
+Use this package however you want - commercially or non-commercially.

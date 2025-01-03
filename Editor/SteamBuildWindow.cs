@@ -95,6 +95,19 @@ namespace Wireframe
             }
 
             // Tabs
+            if (m_tabs.Count(a=>a.Enabled) > 1)
+            {
+                DrawTabs();
+            }
+
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                CurrentTab.OnGUI();
+            }
+        }
+
+        private void DrawTabs()
+        {
             Color defaultColor = GUI.backgroundColor;
             using (new GUILayout.HorizontalScope())
             {
@@ -111,11 +124,6 @@ namespace Wireframe
                 }
             }
             GUI.backgroundColor = defaultColor;
-
-            using (new EditorGUILayout.VerticalScope("box"))
-            {
-                CurrentTab.OnGUI();
-            }
         }
 
         void OnDestroy()

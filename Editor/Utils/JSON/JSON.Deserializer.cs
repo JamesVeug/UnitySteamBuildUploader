@@ -198,6 +198,7 @@ namespace Wireframe
                         int entryStart = startIndex;
                         int entryEnd = startIndex;
                         int depth = 0;
+                        bool inString = false;
                         for (int i = startIndex; i < endIndex; i++)
                         {
                             if (json[i] == '{' || json[i] == '[')
@@ -210,7 +211,12 @@ namespace Wireframe
                                 depth--;
                             }
 
-                            if (json[i] == ',' && depth == 0)
+                            if (json[i] == '"')
+                            {
+                                inString = !inString;
+                            }
+                            
+                            if (json[i] == ',' && depth == 0 && !inString)
                             {
                                 entryEnd = i;
                                 listData.Add(json.Substring(entryStart, entryEnd - entryStart).Trim());
@@ -244,6 +250,7 @@ namespace Wireframe
                         int entryStart = startIndex;
                         int entryEnd = startIndex;
                         int depth = 0;
+                        bool inString = false;
                         for (int i = startIndex; i < endIndex; i++)
                         {
                             if (json[i] == '{' || json[i] == '[')
@@ -256,7 +263,12 @@ namespace Wireframe
                                 depth--;
                             }
 
-                            if (json[i] == ',' && depth == 0)
+                            if (json[i] == '"')
+                            {
+                                inString = !inString;
+                            }
+
+                            if (json[i] == ',' && depth == 0 && !inString)
                             {
                                 entryEnd = i;
                                 entries.Add(json.Substring(entryStart, entryEnd - entryStart).Trim());

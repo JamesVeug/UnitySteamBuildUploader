@@ -315,7 +315,7 @@ namespace Wireframe
                 return null;
             }
 
-            private static object ConvertType(object obj, Type type)
+            internal static object ConvertType(object obj, Type type)
             {
                 if (obj == null)
                 {

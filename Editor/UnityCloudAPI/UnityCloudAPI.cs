@@ -95,20 +95,36 @@ namespace Wireframe
             string downloadHandlerText = www.downloadHandler.text;
             if (www.isHttpError || www.isNetworkError)
             {
-                Debug.LogError("Could not sync builds with UnityCloud. Have you filled in the settings tab?:\nError: " +
-                               downloadHandlerText);
+                string message;
+                int delay;
                 if (downloadHandlerText.Contains("Rate limit exceeded"))
                 {
-                    await Task.Delay(10_000);
+                    message = "Rate limit exceeded. Retrying in 30 seconds.";
+                    delay = 30_000;
                 }
                 else if (downloadHandlerText.Contains("Not authorized"))
                 {
-                    await Task.Delay(60_000);
+                    message = "Not authorized. Incorrect secret entered.";
+                    delay = 10_000;
                 }
                 else
                 {
-                    await Task.Delay(1_000);
+                    Dictionary<string, object> error = JSON.DeserializeObject<Dictionary<string, object>>(downloadHandlerText);
+                    if(error != null && error.TryGetValue("error", out object errorObject))
+                    {
+                        message = errorObject.ToString();
+                    }
+                    else
+                    {
+                        message = downloadHandlerText;
+                    }
+                    
+                    delay = 10_000;
                 }
+                
+                Debug.LogError("Could not sync builds with UnityCloud. " + message);
+                
+                await Task.Delay(delay);
 
                 IsSyncing = false;
                 return;

@@ -296,19 +296,9 @@ namespace Wireframe
                     }
 
                     // Class
-                    object instance = Activator.CreateInstance(type);
-                    FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
                     Dictionary<string, object> dataDict = FromJSON<Dictionary<string, object>>(json);
-                    foreach (FieldInfo field in fields)
-                    {
-                        string fieldName = field.Name;
-                        object fieldValue = dataDict[fieldName];
-                        object convertedValue = ConvertType(fieldValue, field.FieldType);
-                        // SetField(instance, field, fieldValue);
-                        field.SetValue(instance, convertedValue);
-                    }
-
-                    return instance;
+                    object convertedValue = ConvertType(dataDict, type);
+                    return convertedValue;
                 }
 
                 Debug.LogError("Type not supported: " + type.Name);
@@ -437,9 +427,10 @@ namespace Wireframe
                     FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
                     foreach (FieldInfo field in fields)
                     {
-                        string fieldName = field.Name;
-                        object fieldValue = dataDict[fieldName];
-                        field.SetValue(instance, ConvertType(fieldValue, field.FieldType));
+                        if(dataDict.TryGetValue(field.Name, out object fieldValue))
+                        {
+                            field.SetValue(instance, ConvertType(fieldValue, field.FieldType));
+                        }
                     }
 
                     return instance;

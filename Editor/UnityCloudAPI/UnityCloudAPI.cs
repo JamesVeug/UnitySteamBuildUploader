@@ -60,8 +60,22 @@ namespace Wireframe
 
         public static async Task SyncCoroutine(Action callback)
         {
-            await SyncTargetsCoroutine(null);
-            await SyncBuildsCoroutine(null);
+            Task syncTargetsCoroutine = SyncTargetsCoroutine(null);
+            await syncTargetsCoroutine;
+            if (syncTargetsCoroutine.Exception != null)
+            {
+                Debug.LogError(syncTargetsCoroutine.Exception);
+                return;
+            }
+
+            Task syncBuildsCoroutine = SyncBuildsCoroutine(null);
+            await syncBuildsCoroutine;
+            if (syncBuildsCoroutine.Exception != null)
+            {
+                Debug.LogError(syncBuildsCoroutine.Exception);
+                return;
+            }
+            
             callback?.Invoke();
         }
 
@@ -101,7 +115,14 @@ namespace Wireframe
             }
 
             // Populate list
-            List<UnityCloudTarget> downloadedBuilds = JSON.DeserializeObject<List<UnityCloudTarget>>(downloadHandlerText);
+            List<UnityCloudTarget> downloadedBuilds = null;
+            try{
+                downloadedBuilds = JSON.DeserializeObject<List<UnityCloudTarget>>(downloadHandlerText);
+            } catch (Exception e){
+                Debug.LogError(e);
+                IsSyncing = false;
+                return;
+            }
             
             // v1.1.3 added IDs so we need to add them for previous users
             for (var i = 0; i < downloadedBuilds.Count; i++)

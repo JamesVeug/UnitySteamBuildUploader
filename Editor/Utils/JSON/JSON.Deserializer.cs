@@ -304,6 +304,11 @@ namespace Wireframe
                 Debug.LogError("Type not supported: " + type.Name);
                 return null;
             }
+            
+            internal static T ConvertType<T>(object data)
+            {
+                return (T)ConvertType(data, typeof(T));
+            }
 
             internal static object ConvertType(object obj, Type type)
             {

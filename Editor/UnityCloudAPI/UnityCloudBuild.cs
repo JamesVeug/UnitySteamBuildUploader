@@ -174,7 +174,7 @@ namespace Wireframe
 				return null;
 			}
 
-			List<Artifact> artifactList = (List<Artifact>)artifactData;
+			List<Artifact> artifactList = JSON.JSONDeserializer.ConvertType<List<Artifact>>(artifactData);
 			m_artifacts = artifactList;
 			return m_artifacts;
 		}

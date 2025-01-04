@@ -41,7 +41,6 @@ namespace Wireframe
 
         private static void DrawUnityCloud()
         {
-
             using (new GUILayout.HorizontalScope())
             {
                 UnityCloud.Instance.Organization =
@@ -50,12 +49,12 @@ namespace Wireframe
 
             using (new GUILayout.HorizontalScope())
             {
-                UnityCloud.Instance.Project = PasswordField.Draw("Project:", 105, UnityCloud.Instance.Project);
+                UnityCloud.Instance.Project = PasswordField.Draw("Project ID:", 105, UnityCloud.Instance.Project);
             }
 
             using (new GUILayout.HorizontalScope())
             {
-                UnityCloud.Instance.Secret = PasswordField.Draw("Secret:", 105, UnityCloud.Instance.Secret);
+                UnityCloud.Instance.Secret = PasswordField.Draw("Dev Ops API Key:", 105, UnityCloud.Instance.Secret);
             }
         }
 

@@ -266,6 +266,13 @@ namespace Wireframe
                 {
                     EditorGUILayout.LabelField("Target:", GUILayout.Width(100));
                     UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref currentTarget);
+                    using (new EditorGUI.DisabledScope(UnityCloudAPI.IsSyncing))
+                    {
+                        if (GUILayout.Button("Refresh", GUILayout.Width(100)))
+                        {
+                            UnityCloudAPI.SyncBuilds();
+                        }
+                    }
                 }
 
                 if (currentTarget != null)

@@ -1,3 +1,15 @@
+# 1.2.1
+- General
+  - All editor based classes are now internal
+  - All classes now have a namespace
+  - Fixed deserializing objects with missing fields
+- UnityCloud tab
+  - Fixed builds not showing up
+  - Added refresh button to sync configs
+  - Better error messaging when failing to get builds from the cloud
+- Project Settings
+  - Changed UnityCloud labels to be more representative of what they need
+
 # 1.2.0
 - General
   - Removed `com.unity.nuget.newtonsoft-json` dependency in favor of internal solution.

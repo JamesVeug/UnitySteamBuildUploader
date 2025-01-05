@@ -8,7 +8,7 @@ namespace Wireframe
     /// <summary>
     /// Plan is to show images in the UI so its prettier and exciting to upload builds
     /// </summary>
-    public class SteamPageInfo
+    internal class SteamPageInfo
     {
         // [MenuItem("Steam/Save Header Image")]
         // public static void SaveHeaderImage()
@@ -132,51 +132,51 @@ namespace Wireframe
         public object ratings;
     }
 
-    public class Pc_requirements
+    internal class Pc_requirements
     {
         public string minimum;
         public string recommended;
     }
 
-    public class Mac_requirements
+    internal class Mac_requirements
     {
         public string minimum;
         public string recommended;
     }
 
-    public class Linux_requirements
+    internal class Linux_requirements
     {
         public string minimum;
         public string recommended;
     }
 
-    public class Platforms
+    internal class Platforms
     {
         public bool windows;
         public bool mac;
         public bool linux;
     }
 
-    public class Categories
+    internal class Categories
     {
         public int id;
         public string description;
     }
 
-    public class Genres
+    internal class Genres
     {
         public string id;
         public string description;
     }
 
-    public class Screenshots
+    internal class Screenshots
     {
         public int id;
         public string path_thumbnail;
         public string path_full;
     }
 
-    public class Movies
+    internal class Movies
     {
         public int id;
         public string name;
@@ -186,43 +186,43 @@ namespace Wireframe
         public bool highlight;
     }
 
-    public class Webm
+    internal class Webm
     {
         public string _80;
         public string max;
     }
 
-    public class Mp4
+    internal class Mp4
     {
         public string _80;
         public string max;
     }
 
-    public class Achievements
+    internal class Achievements
     {
         public int total;
         public Highlighted[] highlighted;
     }
 
-    public class Highlighted
+    internal class Highlighted
     {
         public string name;
         public string path;
     }
 
-    public class Release_date
+    internal class Release_date
     {
         public bool coming_soon;
         public string date;
     }
 
-    public class Support_info
+    internal class Support_info
     {
         public string url;
         public string email;
     }
 
-    public class Content_descriptors
+    internal class Content_descriptors
     {
         public int[] ids;
         public string notes;

@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    public class UnityCloud
+    internal class UnityCloud
     {
         public static UnityCloud Instance
         {

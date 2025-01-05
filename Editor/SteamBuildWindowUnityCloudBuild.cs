@@ -8,7 +8,7 @@ using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    public class SteamBuildWindowUnityCloudBuild
+    internal class SteamBuildWindowUnityCloudBuild
     {
         private UnityCloudBuild build;
         private bool downloading;

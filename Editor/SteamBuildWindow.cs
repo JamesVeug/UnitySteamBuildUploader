@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class SteamBuildWindow : EditorWindow
+    internal class SteamBuildWindow : EditorWindow
     {
         private const float SAVE_TIME_DELAY = 60 * 5; // 5 minutes 
         private const float EDIT_TIME_BEFORE_SAVE = 10; // 10 seconds 

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public class NoUploadDestination : ASteamBuildDestination
+    internal class NoUploadDestination : ASteamBuildDestination
     {
         public NoUploadDestination(SteamBuildWindow window) : base(window)
         {

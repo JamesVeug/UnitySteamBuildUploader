@@ -9,7 +9,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Wireframe
 {
-    public class SteamBuildUnityCloudSource : ASteamBuildSource
+    internal class SteamBuildUnityCloudSource : ASteamBuildSource
     {
         private string sourceFilePath;
         private UnityCloudTarget sourceTarget;

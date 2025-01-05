@@ -6,7 +6,7 @@ using Directory = UnityEngine.Windows.Directory;
 
 namespace Wireframe
 {
-    public class SteamUploadDestination : ASteamBuildDestination
+    internal class SteamUploadDestination : ASteamBuildDestination
     {
         private bool m_createAppFile = true;
         private bool m_createDepotFile = true;

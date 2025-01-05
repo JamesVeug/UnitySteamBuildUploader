@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class SteamWindowBuildProgressWindow
+    internal class SteamWindowBuildProgressWindow
     {
         private List<BuildConfig> steamBuilds;
         private int progressId;

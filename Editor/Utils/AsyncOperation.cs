@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public class AsyncOperation<T> : AsyncOperation
+    internal class AsyncOperation<T> : AsyncOperation
     {
         public T Data { get; set; }
     }
 
-    public class AsyncOperation : IEnumerator
+    internal class AsyncOperation : IEnumerator
     {
         public bool Successful { get; set; }
 

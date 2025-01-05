@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-	public class UnityCloudBuild : DropdownElement
+	internal class UnityCloudBuild : DropdownElement
 	{
 		public int Id => build;
 		public string DisplayName => CreateBuildName();
@@ -40,14 +40,14 @@ namespace Wireframe
 		// #####################
 		// #####################
 
-		public class ArtifactChangeAuthor
+		internal class ArtifactChangeAuthor
 		{
 			public string fullName;
 			public string absoluteUrl;
 		}
 
 		[Serializable]
-		public class ArtifactChange
+		internal class ArtifactChange
 		{
 			public DateTime DateTime => DateTime.Parse(timestamp);
 
@@ -60,7 +60,7 @@ namespace Wireframe
 		}
 
 		[Serializable]
-		public class ArtifactBuild
+		internal class ArtifactBuild
 		{
 			public string filename;
 			public long size;
@@ -70,7 +70,7 @@ namespace Wireframe
 		}
 
 		[Serializable]
-		public class Artifact
+		internal class Artifact
 		{
 			public string key;
 			public string name;

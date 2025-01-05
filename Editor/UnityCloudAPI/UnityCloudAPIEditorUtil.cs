@@ -2,9 +2,9 @@
 
 namespace Wireframe
 {
-    public static class UnityCloudAPIEditorUtil
+    internal static class UnityCloudAPIEditorUtil
     {
-        public class UnityCloudTargetPopup : CustomDropdown<UnityCloudTarget>
+        internal class UnityCloudTargetPopup : CustomDropdown<UnityCloudTarget>
         {
             public override List<UnityCloudTarget> GetAllData()
             {
@@ -12,7 +12,7 @@ namespace Wireframe
             }
         }
 
-        public class UnityCloudBuildPopup : CustomMultiDropdown<UnityCloudTarget, UnityCloudBuild>
+        internal class UnityCloudBuildPopup : CustomMultiDropdown<UnityCloudTarget, UnityCloudBuild>
         {
             public override List<(UnityCloudTarget, List<UnityCloudBuild>)> GetAllData()
             {

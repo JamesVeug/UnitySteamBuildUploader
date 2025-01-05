@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public static class SteamBuildWindowUtil
+    internal static class SteamBuildWindowUtil
     {
         private static readonly string FilePath = Application.dataPath + "/../SteamBuilder/SteamWorksConfig.json";
 
-        public class SteamDepotPopup : CustomMultiDropdown<SteamBuildConfig, SteamBuildDepot>
+        internal class SteamDepotPopup : CustomMultiDropdown<SteamBuildConfig, SteamBuildDepot>
         {
             public override List<(SteamBuildConfig, List<SteamBuildDepot>)> GetAllData()
             {
@@ -17,7 +17,7 @@ namespace Wireframe
             }
         }
 
-        public class SteamConfigPopup : CustomDropdown<SteamBuildConfig>
+        internal class SteamConfigPopup : CustomDropdown<SteamBuildConfig>
         {
             public override List<SteamBuildConfig> GetAllData()
             {
@@ -26,7 +26,7 @@ namespace Wireframe
             }
         }
 
-        public class SteamBranchPopup : CustomMultiDropdown<SteamBuildConfig, SteamBuildBranch>
+        internal class SteamBranchPopup : CustomMultiDropdown<SteamBuildConfig, SteamBuildBranch>
         {
             public override List<(SteamBuildConfig, List<SteamBuildBranch>)> GetAllData()
             {

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class SteamBuildManualSource : ASteamBuildSource
+    internal class SteamBuildManualSource : ASteamBuildSource
     {
         private GUIStyle m_pathButtonExistsStyle;
         private GUIStyle m_pathButtonDoesNotExistStyle;

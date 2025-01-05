@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    public abstract class SteamBuildWindowTab
+    internal abstract class SteamBuildWindowTab
     {
         protected SteamBuildWindow window;
         public abstract string TabName { get; }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Wireframe
 {
     [Serializable]
-    public class DepotList : VdfMap<int, string>
+    internal class DepotList : VdfMap<int, string>
     {
         public DepotList()
         {
@@ -26,9 +26,9 @@ namespace Wireframe
     }
 
     [Serializable]
-    public abstract class VdfMap<T, Y> : IVdfMap
+   internal abstract class VdfMap<T, Y> : IVdfMap
     {
-        public class MapData
+        internal class MapData
         {
             public T Key;
             public Y Value;
@@ -84,7 +84,7 @@ namespace Wireframe
     }
 
     [Serializable]
-    public class AppVDFFile : VDFFile
+    internal class AppVDFFile : VDFFile
     {
         public override string FileName => "appbuild";
 

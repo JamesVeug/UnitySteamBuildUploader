@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class BuildConfig
+    internal class BuildConfig
     {
         private enum SourceType
         {

@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Wireframe
 {
     [Serializable]
-    public abstract class VDFFile
+   internal abstract class VDFFile
     {
         public abstract string FileName { get; }
 

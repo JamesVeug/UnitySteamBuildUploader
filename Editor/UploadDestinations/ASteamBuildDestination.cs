@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public abstract class ASteamBuildDestination
+   internal abstract class ASteamBuildDestination
     {
         protected float m_uploadProgress;
         protected string m_progressDescription;

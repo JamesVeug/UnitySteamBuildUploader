@@ -8,7 +8,7 @@ using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    public class UnityCloudAPI
+    internal class UnityCloudAPI
     {
         public static List<UnityCloudTarget> CloudBuildTargets { get; private set; } = new List<UnityCloudTarget>();
         public static List<(UnityCloudTarget, List<UnityCloudBuild>)> CurrentBuilds { get; private set; }

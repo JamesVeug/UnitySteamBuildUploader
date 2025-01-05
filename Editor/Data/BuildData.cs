@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Wireframe
 {
-    public class BuildData : ScriptableObject
+    internal class BuildData : ScriptableObject
     {
         public int BuildNumber;
 

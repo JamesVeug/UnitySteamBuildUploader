@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public abstract class ASteamBuildSource
+   internal abstract class ASteamBuildSource
     {
         protected float m_downloadProgress;
         protected string m_progressDescription;

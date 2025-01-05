@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    class SteamBuildUploaderSettingsIMGUIRegister : SettingsProvider
+    internal class SteamBuildUploaderSettingsIMGUIRegister : SettingsProvider
     {
         [SettingsProvider]
         public static SettingsProvider CreateSteamBuildUploaderSettingsProvider()

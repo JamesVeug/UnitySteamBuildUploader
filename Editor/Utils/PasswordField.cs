@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public static class PasswordField
+    internal static class PasswordField
     {
         private static Dictionary<string, bool> m_passwordFieldToggles = new Dictionary<string, bool>();
         public static string Draw(string label, int labelLength, string password, char mask = '*')

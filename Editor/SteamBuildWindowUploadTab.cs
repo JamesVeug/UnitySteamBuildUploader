@@ -7,12 +7,12 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class SteamBuildWindowUploadTab : SteamBuildWindowTab
+    internal class SteamBuildWindowUploadTab : SteamBuildWindowTab
     {
         private static readonly string FilePath = Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json";
 
         [Serializable]
-        public class UploadTabData
+        internal class UploadTabData
         {
             [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         }
@@ -43,7 +43,7 @@ namespace Wireframe
         {
             Setup();
 
-            using (new GUILayout.VerticalScope("box"))
+            using (new GUILayout.VerticalScope())
             {
                 GUILayout.Label("Builds to Upload", m_titleStyle);
                 DrawSaveButton();
@@ -60,7 +60,7 @@ namespace Wireframe
                 m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
                 for (int i = 0; i < m_buildsToUpload.Count; i++)
                 {
-                    using (new GUILayout.HorizontalScope())
+                    using (new GUILayout.HorizontalScope("box"))
                     {
                         if (GUILayout.Button("X"))
                         {

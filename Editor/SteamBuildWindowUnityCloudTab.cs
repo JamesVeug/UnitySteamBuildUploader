@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    public class SteamBuildWindowUnityCloudTab : SteamBuildWindowTab
+    internal class SteamBuildWindowUnityCloudTab : SteamBuildWindowTab
     {
         private const int AutoRefreshTime = 60;
 

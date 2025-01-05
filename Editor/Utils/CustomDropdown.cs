@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public interface DropdownElement
+    internal interface DropdownElement
     {
         public int Id { get; }
         public string DisplayName { get; }
     }
     
-    public abstract class CustomDropdown<T> where T : DropdownElement
+    internal abstract class CustomDropdown<T> where T : DropdownElement
     {
         private const string firstEntryText = "Choose from Dropdown";
 

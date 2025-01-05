@@ -9,7 +9,7 @@ namespace Wireframe
       Mac,
    }
 
-   public static class UnityCloudConfigExtensions
+   internal static class UnityCloudConfigExtensions
    {
       public static string ToPlatformString(this Platform p)
       {
@@ -40,10 +40,10 @@ namespace Wireframe
    }
 
    [Serializable]
-   public class UnityCloudTarget : DropdownElement
+   internal class UnityCloudTarget : DropdownElement
    {
       [Serializable]
-      public class LastBuilt
+      internal class LastBuilt
       {
          public string unityVersion;
       }

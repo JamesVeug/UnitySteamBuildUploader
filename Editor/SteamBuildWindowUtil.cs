@@ -61,7 +61,7 @@ namespace Wireframe
                         }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-                        if (config.Branches != null)
+                        if (config.Branches != null && config.Branches.Count > 0)
                         {
                             config.ConfigBranches = new List<SteamBuildBranch>();
                             for (var j = 0; j < config.Branches.Count; j++)

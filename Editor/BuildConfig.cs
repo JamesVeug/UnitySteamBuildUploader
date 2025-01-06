@@ -9,7 +9,7 @@ namespace Wireframe
     {
         private enum SourceType
         {
-            Manual,
+            File,
             UnityCloud
         }
 
@@ -26,7 +26,7 @@ namespace Wireframe
         private ASteamBuildSource m_buildSource;
         private ASteamBuildDestination m_buildDestination;
 
-        private SourceType m_currentSourceType = SourceType.Manual;
+        private SourceType m_currentSourceType = SourceType.File;
         private DestinationType m_currentDestinationType = DestinationType.SteamWorks;
         private GUIStyle m_titleStyle;
         private SteamBuildWindow m_window;
@@ -169,8 +169,8 @@ namespace Wireframe
         {
             switch (type)
             {
-                case SourceType.Manual:
-                    m_buildSource = new SteamBuildManualSource(m_window);
+                case SourceType.File:
+                    m_buildSource = new FileSource(m_window);
                     break;
                 case SourceType.UnityCloud:
                     m_buildSource = new SteamBuildUnityCloudSource(m_window);

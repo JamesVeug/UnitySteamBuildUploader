@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class SteamBuildManualSource : ASteamBuildSource
+    internal class FileSource : ASteamBuildSource
     {
         private GUIStyle m_pathButtonExistsStyle;
         private GUIStyle m_pathButtonDoesNotExistStyle;
@@ -17,7 +17,7 @@ namespace Wireframe
         private string m_finalSourcePath;
         private string m_enteredFilePath;
 
-        public SteamBuildManualSource(SteamBuildWindow steamBuildWindow)
+        public FileSource(SteamBuildWindow steamBuildWindow)
         {
         }
 
@@ -137,8 +137,6 @@ namespace Wireframe
             }
 
             m_finalSourcePath = copyPath;
-            Debug.Log("Retrieved Build: " + m_finalSourcePath);
-
             m_progressDescription = "Done!";
             return true;
         }
@@ -166,7 +164,7 @@ namespace Wireframe
 
         public override string ProgressTitle()
         {
-            return "Getting Local Source";
+            return "Getting File";
         }
 
         public override string ProgressDescription()

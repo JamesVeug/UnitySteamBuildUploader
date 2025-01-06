@@ -41,6 +41,12 @@ namespace Wireframe
             }
         }
 
+        private void OnEnable()
+        {
+            // Reset the entered text - fixes null when loading unity with this popup open
+            enteredText = "";
+        }
+
         private void OnDisable()
         {
             if (waitingForCode)

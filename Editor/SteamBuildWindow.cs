@@ -24,13 +24,19 @@ namespace Wireframe
         {
             // Get existing open window or if none, make a new one:
             SteamBuildWindow window = (SteamBuildWindow)GetWindow(typeof(SteamBuildWindow));
-            
-            var iconPath = "Packages/com.veugeljame.steambuilduploader/Icon.png";
-            UnityEngine.Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(UnityEngine.Object));
-            var icon = loadAssetAtPath as Texture;
-            window.titleContent = new GUIContent("Build Uploader", icon);
+            window.titleContent = new GUIContent("Build Uploader", WindowIcon);
             window.InitializeTabs();
             window.Show();
+        }
+        
+        public static Texture2D WindowIcon
+        {
+            get
+            {
+                var iconPath = "Packages/com.veugeljame.steambuilduploader/Icon.png";
+                UnityEngine.Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(UnityEngine.Object));
+                return loadAssetAtPath as Texture2D;
+            }
         }
 
         private void Update()

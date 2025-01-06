@@ -139,6 +139,12 @@ namespace Wireframe
 
         private void ImmediateSave()
         {
+            if (m_tabs == null)
+            {
+                // Docked and never initialized
+                return;
+            }
+            
             foreach (SteamBuildWindowTab tab in m_tabs)
             {
                 if (tab.Enabled)

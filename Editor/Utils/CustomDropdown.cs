@@ -45,12 +45,12 @@ namespace Wireframe
                 return 1;
             }
                 
-            int compareTo = a.DisplayName.CompareTo(b.DisplayName);
+            int compareTo = a.Id.CompareTo(b.Id);
             if (compareTo != 0)
             {
                 return compareTo;
             }
-            return a.Id.CompareTo(b.Id);
+            return a.DisplayName.CompareTo(b.DisplayName);
         }
 
         public bool DrawPopup(ref T initial, params GUILayoutOption[] options)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Directory = UnityEngine.Windows.Directory;
@@ -217,9 +218,9 @@ namespace Wireframe
                 ["m_createAppFile"] = m_createAppFile,
                 ["m_createDepotFile"] = m_createDepotFile,
                 ["m_uploadToSteam"] = m_uploadToSteam,
-                ["m_currentConfig"] = m_currentConfig?.Name,
-                ["m_buildDepot"] = m_buildDepot?.Name,
-                ["m_destinationBranch"] = m_destinationBranch
+                ["configID"] = m_currentConfig?.Id,
+                ["depotID"] = m_buildDepot?.Id,
+                ["branchID"] = m_destinationBranch?.Id
             };
 
             return data;
@@ -230,35 +231,44 @@ namespace Wireframe
             m_createAppFile = (bool)data["m_createAppFile"];
             m_createDepotFile = (bool)data["m_createDepotFile"];
             m_uploadToSteam = (bool)data["m_uploadToSteam"];
-
+            
+            // Note: In 1.2.2 the serialization data was changed from the Name to ID
+            
+            // Config
             List<SteamBuildConfig> buildConfigs = SteamBuildWindowUtil.ConfigPopup.GetAllData();
-            for (int i = 0; i < buildConfigs.Count; i++)
+            if (data.TryGetValue("configID", out object configIDString))
             {
-                if (buildConfigs[i].Name != (string)data["m_currentConfig"])
-                {
-                    continue;
-                }
-                
-                m_currentConfig = buildConfigs[i];
-                for (int j = 0; j < m_currentConfig.Depots.Count; j++)
-                {
-                    if (m_currentConfig.Depots[j].Name == (string)data["m_buildDepot"])
-                    {
-                        m_buildDepot = m_currentConfig.Depots[j];
-                        break;
-                    }
-                }
+                m_currentConfig = buildConfigs.FirstOrDefault(a=>a.Id == (long)configIDString);
+            }
+            else if (data.TryGetValue("m_currentConfig", out object m_currentConfigName))
+            {
+                m_currentConfig = buildConfigs.FirstOrDefault(a=>a.Name == m_currentConfigName.ToString());
+            }
 
-                for (int j = 0; j < m_currentConfig.ConfigBranches.Count; j++)
-                {
-                    if(m_currentConfig.ConfigBranches[j].name == (string)data["m_destinationBranch"])
-                    {
-                        m_destinationBranch = m_currentConfig.ConfigBranches[j];
-                        break;
-                    }
-                }
-
-                break;
+            if (m_currentConfig == null)
+            {
+                // No config found so don't continue.
+                return;
+            }
+            
+            // Depot
+            if(data.TryGetValue("depotID", out object depotIDString))
+            {
+                m_buildDepot = m_currentConfig.Depots.FirstOrDefault(a=>a.Id == (long)depotIDString);
+            }
+            else if (data.TryGetValue("m_buildDepot", out object m_buildDepotName))
+            {
+                m_buildDepot = m_currentConfig.Depots.FirstOrDefault(a=>a.Name == m_buildDepotName.ToString());
+            }
+            
+            // Branch
+            if (data.TryGetValue("branchID", out object branchIDString))
+            {
+                m_destinationBranch = m_currentConfig.ConfigBranches.FirstOrDefault(a=>a.Id == (long)branchIDString);
+            }
+            else if (data.TryGetValue("m_destinationBranch", out object m_destinationBranchName))
+            {
+                m_destinationBranch = m_currentConfig.ConfigBranches.FirstOrDefault(a=>a.name == m_destinationBranchName.ToString());
             }
         }
     }

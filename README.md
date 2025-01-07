@@ -1,22 +1,27 @@
 # Steam Build Uploader
 
 This package is designed to help streamline the process of uploading builds to Steam. It is designed to work with the Steam SDK and optionally Unity Cloud.
+- No dependencies
+- Unity 2020 and above.
+- Minimal build size impact
+- Open Source
 
-Contains no dependencies and is designed to work with Unity 2021 and above.
 
-Majority of code stripped from builds.
 
 
 ## How to install
 
-### Add package to your project
+<a href="https://youtu.be/w_ffKFQ5nh4?si=_bk7xMUItqdL1uUn"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Logo_of_YouTube_%282013-2015%29.svg/2560px-Logo_of_YouTube_%282013-2015%29.svg.png" alt="Git-Sync-Tab-Pic" border="0" width="81" height="32"></a>
+
+
+### 1. Add package to your project
 - Open `Window->Package Manager`
 - Press the `+` button in the top left
 - Choose `Add package from git URL`
 - Enter the git url `https://github.com/JamesVeug/UnitySteamBuildUploader.git`
 - Press `Add`
 
-### Setup
+### 2. Setup
 
 <a href="https://ibb.co/61JHPPn"><img src="https://i.ibb.co/9V3bTT8/Screenshot-2025-01-03-213527.png" alt="Screenshot-2025-01-03-213527" border="0"></a>
 - Go to `Edit->Preferences->Steam Build Uploader`
@@ -46,7 +51,7 @@ Majority of code stripped from builds.
   - Press `Save`
 
 
-### Upload
+### 3. Upload
 
 - Go to `Window->Steam Build Uploader`
   - Select which build you want to upload
@@ -89,6 +94,14 @@ If you discover any security related issues, please email me, message on discord
 
 If you find a bug or want to suggest a change, please create an issue on the [github page](https://github.com/JamesVeug/UnitySteamBuildUploader).
 
+
+## How to contribute
+- Fork the [repository](https://github.com/JamesVeug/UnitySteamBuildUploader)
+- Make your changes
+- Create a pull request to the `develop` branch
+  - Include detailed description of the changes you made
+  - Include what version of Unity you tested it on
+  - Include any concerns with the changes you made
 
 ## Known Issues
 - Two-Factor authentication does not save between sessions. Don't know why.

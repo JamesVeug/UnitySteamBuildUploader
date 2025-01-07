@@ -209,7 +209,6 @@ namespace Wireframe
                     m_uploadProcess.EnableRaisingEvents = true;
                     m_uploadProcess.Start();
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
-                    Debug.Log(textDump);
                     var outputResults = await LogOutSteamResult(textDump, uploadeToSteam);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
@@ -271,6 +270,14 @@ namespace Wireframe
         
         private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading)
         {
+            // Hide username
+            if (UserName != null && UserName.Length > 2)
+            {
+                text = text.Replace(UserName, "**********");
+            }
+
+            Debug.Log(text);
+            
             OutputResultArgs result = new OutputResultArgs();
             
             int errorTextStartIndex = text.IndexOf("Error!", StringComparison.CurrentCultureIgnoreCase);

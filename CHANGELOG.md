@@ -1,3 +1,15 @@
+# 1.2.2
+- General
+  - Dropdowns now appear in order of ID
+  - Renamed `Manual` to `File` in the Upload tab
+  - Display Window will now appear when failing to upload logs
+  - Fixed steam branches not save/loading
+  - Fixed some null refs
+  - Obfuscated steam username in logs
+- Steam
+  - Added missing icon for SteamGuard windows
+  - Improved logs
+
 # 1.2.1
 - General
   - All editor based classes are now internal

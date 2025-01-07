@@ -30,7 +30,6 @@ namespace Wireframe
         public async Task StartProgress(Action tick = null)
         {
             this.progressId = Progress.Start("Steam Build Window", "Getting Sources...");
-            bool successful = false;
             
             Task<bool> getSourcesTask = GetSources();
             while (!getSourcesTask.IsCompleted)
@@ -60,7 +59,14 @@ namespace Wireframe
                         await Task.Delay(10);
                     }
                     
-                    successful = uploadTask.Result;
+                    if (uploadTask.Result)
+                    {
+                        DisplayDialog("Uploads completed successfully!", "Yay!");
+                    }
+                    else
+                    {
+                        DisplayDialog("Failed to upload builds! \n\nSee logs for more info.", "Aw");
+                    }
                 }
                 else
                 {
@@ -78,12 +84,6 @@ namespace Wireframe
                             steamBuilds[j].Destination().CleanUp();
                         }
                     }
-                }
-                
-                
-                if (successful)
-                {
-                    DisplayDialog("Uploads complete!", "yay!");
                 }
             }
             else
@@ -139,7 +139,6 @@ namespace Wireframe
 
         private void DisplayDialog(string message, string buttonText)
         {
-            Debug.Log("[SteamBuildUploader] " + message);
             EditorUtility.DisplayDialog("Steam Build Uploader", message, buttonText);
         }
 

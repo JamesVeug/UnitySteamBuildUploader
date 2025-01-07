@@ -208,7 +208,15 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                     m_uploadProcess.EnableRaisingEvents = true;
                     m_uploadProcess.Start();
+                    
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
+                    
+                    // Hide username
+                    if (UserName != null && UserName.Length > 2)
+                    {
+                        textDump = textDump.Replace(UserName, "**********");
+                    }
+                    
                     var outputResults = await LogOutSteamResult(textDump, uploadeToSteam);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
@@ -216,6 +224,7 @@ namespace Wireframe
                     result = outputResults.successful;
                     if (!outputResults.successful)
                     {
+                        Debug.LogError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
                         retry = outputResults.retry;
                         if (!string.IsNullOrEmpty(outputResults.steamGuardCode))
                         {
@@ -225,6 +234,10 @@ namespace Wireframe
                         {
                             steamGuardCode = outputResults.steamTwoFactorCode;
                         }
+                    }
+                    else
+                    {
+                        Debug.Log("[Steam] Steam upload successful!\n\n" + textDump);
                     }
                 }
             }
@@ -266,26 +279,18 @@ namespace Wireframe
             public bool retry = false;
             public string steamGuardCode = "";
             public string steamTwoFactorCode = "";
+            public string errorText;
         }
         
         private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading)
         {
-            // Hide username
-            if (UserName != null && UserName.Length > 2)
-            {
-                text = text.Replace(UserName, "**********");
-            }
-
-            Debug.Log(text);
-            
             OutputResultArgs result = new OutputResultArgs();
             
             int errorTextStartIndex = text.IndexOf("Error!", StringComparison.CurrentCultureIgnoreCase);
             if (errorTextStartIndex >= 0)
             {
                 int errorNewLine = text.IndexOf('\n', errorTextStartIndex);
-                string errorText = text.Substring(errorTextStartIndex, errorNewLine - errorTextStartIndex);
-                Debug.LogError("[STEAM] " + errorText);
+                result.errorText = text.Substring(errorTextStartIndex, errorNewLine - errorTextStartIndex);
                 return result;
             }
 
@@ -294,7 +299,7 @@ namespace Wireframe
             
             if (!ContainsText(lines, "Loading Steam API", "OK", out index))
             {
-                Debug.LogError("[STEAM] Failed to load API.");
+                result.errorText = "Failed to load API.";
                 return result;
             }
 
@@ -308,11 +313,11 @@ namespace Wireframe
 
                 if (string.IsNullOrEmpty(context))
                 {
-                    Debug.LogError("[STEAM] Failed to log into User account: " + context);
+                    result.errorText = "Failed to log into User account: " + context;
                 }
                 else
                 {
-                    Debug.LogError("[STEAM] Failed to log into User account: ");
+                    result.errorText = "Failed to log into User account: ";
                 }
  
                 return result;
@@ -320,38 +325,35 @@ namespace Wireframe
             
             if (ContainsText(lines, "Steam Guard code:FAILED", "", out index))
             {
-                Debug.LogError("[STEAM] Failed to login. Steam guard code required to log into account!");
                 await SteamGuardWindow.ShowAsync((code) =>
                 {
                     result.steamGuardCode = code;
                     result.retry = !string.IsNullOrEmpty(code);
                     if (result.retry)
                     {
-                        Debug.Log("Steam Guard code entered: " + code);
+                        result.errorText = "Retrying Steam Guard with code";
                     }
                     else
                     {
-                        Debug.LogError("Steam Guard code was not entered. Cannot continue.");
+                        result.errorText = "Steam Guard code was not entered. Cannot continue.";
                     }
                 });
-                Debug.Log("Finished waiting for steam guard code");
 
                 return result;
             }
             
             if (ContainsText(lines, "Two-factor code:FAILED", "", out index))
             {
-                Debug.LogError("[STEAM] Failed to login. Two-factor code required!");
                 await SteamGuardTwoFactorWindow.ShowAsync((confirmed) =>
                 {
                     result.retry = confirmed;
                     if (result.retry)
                     {
-                        Debug.Log("Steam Guard two factor confirmed on device");
+                        result.errorText = "Retrying Steam Guard two factor after confirmation on device";
                     }
                     else
                     {
-                        Debug.LogError("Steam Guard code rejected.");
+                        result.errorText = "Steam Guard code rejected.";
                     }
                 },
                 (twoFactorCode) =>
@@ -360,50 +362,48 @@ namespace Wireframe
                     result.retry = !string.IsNullOrEmpty(twoFactorCode);
                     if (result.retry)
                     {
-                        Debug.Log("Steam Guard two factor code entered: " + twoFactorCode);
+                        result.errorText = "Retrying with entered Steam Guard two factor code";
                     }
                     else
                     {
-                        Debug.LogError("Steam Guard two factor code was not entered. Cannot continue.");
+                        result.errorText = "Steam Guard two factor code was not entered. Cannot continue.";
                     }
                 });
-                Debug.Log("Finished waiting for steam guard two factor code");
 
                 return result;
             }
 
             if (text.Contains("Rate Limit Exceeded"))
             {
-                Debug.LogError("[STEAM] You tried logging in too many times. Try again later.");
+                result.errorText = "You tried logging in too many times. Try again later.";
                 return result;
             }
 
             if (text.Contains("Invalid Password"))
             {
-                Debug.LogError("[STEAM] Incorrect username or password.");
+                result.errorText = "Incorrect username or password.";
                 return result;
             }
 
             if (uploading && !ContainsText(lines, "Uploading content...", "", out index))
             {
-                Debug.LogError("[STEAM] Failed to scan content to upload...");
+                result.errorText = "Failed to scan content to upload...";
                 return result;
             }
             
             if (ContainsText(lines, "ERROR! Failed to commit build", "", out index))
             {
-                Debug.LogError("[STEAM] The build may have uploaded but the settings your provided were incorrect. Check Steamworks if the build is there.\n" +
-                               "Possible reasons: Your branch does not exist on Steamworks.");
+                result.errorText = "The build may have uploaded but the settings your provided were incorrect. Check Steamworks if the build is there.\n" +
+                                   "Possible reasons: Your branch does not exist on Steamworks.";
                 return result;
             }
             
             if (text.Contains("Fail") || text.Contains("FAILED"))
             {
-                Debug.LogError("[STEAM] Failed to upload to steam. Check logs for info!");
+                result.errorText = "Failed to upload to steam. Check logs for info!";
                 return result;
             }
 
-            Debug.Log("[STEAM] Upload successful.");
             result.successful = true;
             return result;
         }

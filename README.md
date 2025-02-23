@@ -7,6 +7,9 @@ This package is designed to help streamline the process of uploading builds to S
 - Open Source
 
 
+## Links
+- Support Me: https://buymeacoffee.com/jamesgamesnz
+- Discord: https://discord.gg/R2UjXB6pQ8
 
 
 ## How to install

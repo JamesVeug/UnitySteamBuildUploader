@@ -99,7 +99,7 @@ namespace Wireframe
                     
                 // We need to unzip!
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
-                m_unzippedfilePath = Application.persistentDataPath + "/ManualBuilds/SteamBuilds/" + fileName;
+                m_unzippedfilePath = Application.persistentDataPath + "/BuildUploader/CachedBuilds/SteamBuilds/" + fileName;
                 
                 await Task.Yield(); // Show UI
 

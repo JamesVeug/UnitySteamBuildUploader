@@ -102,7 +102,7 @@ namespace Wireframe
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
             m_downloadProgress = 0;
-            string directoryPath = Application.persistentDataPath + "/ManualBuilds";
+            string directoryPath = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);

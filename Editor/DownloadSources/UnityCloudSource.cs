@@ -99,7 +99,7 @@ namespace Wireframe
             // Preparing
             m_progressDescription = "Preparing...";
             string buildName = sourceBuild.platform + "-" + sourceBuild.buildtargetid + "-" + sourceBuild.build;
-            string directoryPath = Application.persistentDataPath + "/UnityCloudBuilds";
+            string directoryPath = Application.persistentDataPath + "/BuildUploader/UnityCloudBuilds";
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);

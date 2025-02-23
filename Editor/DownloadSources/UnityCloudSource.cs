@@ -9,7 +9,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Wireframe
 {
-    internal class SteamBuildUnityCloudSource : ASteamBuildSource
+    internal class UnityCloudSource : ABuildSource
     {
         private string sourceFilePath;
         private UnityCloudTarget sourceTarget;
@@ -17,14 +17,14 @@ namespace Wireframe
 
         private Vector2 buildScrollPosition;
 
-        private SteamBuildWindow window;
+        private BuildUploaderWindow _uploaderWindow;
         private string unzipDirectory;
         private string fullFilePath;
 
-        public SteamBuildUnityCloudSource(SteamBuildWindow steamBuildWindow)
+        public UnityCloudSource(BuildUploaderWindow buildUploaderWindow)
         {
             sourceFilePath = null;
-            window = steamBuildWindow;
+            _uploaderWindow = buildUploaderWindow;
         }
 
         public override void OnGUIExpanded(ref bool isDirty)
@@ -44,7 +44,7 @@ namespace Wireframe
                     {
                         UnityCloudAPI.SyncBuilds();
                         //UnityCloudAPIEditorUtil.TargetPopup.Refresh();
-                        window.Repaint();
+                        _uploaderWindow.Repaint();
                     }
                 }
 

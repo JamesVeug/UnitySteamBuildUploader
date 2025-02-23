@@ -4,7 +4,7 @@ namespace Wireframe
 {
     /// <summary>
     /// Simple JSON class to serialize and deserialize objects.
-    /// Not really efficient, does not work for all cases but at least works for SteamBuildUploader.
+    /// Not really efficient, does not work for all cases but at least works for the Build Uploader.
     /// Using this instead of a library to avoid dependencies and JSONUtility does not work for what I need.
     /// </summary>
     internal static partial class JSON

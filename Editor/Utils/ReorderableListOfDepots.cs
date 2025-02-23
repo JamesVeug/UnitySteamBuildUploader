@@ -11,7 +11,7 @@ namespace Wireframe
     {
         private class Container : ScriptableObject
         {
-            public List<SteamBuildDepot> depots;
+            public List<SteamDepot> depots;
         }
 
         private Container container;
@@ -19,10 +19,10 @@ namespace Wireframe
         private SerializedObject serializedObject;
         private SerializedProperty depotsProperty;
         private string header = "";
-        private Action<SteamBuildDepot> addCallback;
+        private Action<SteamDepot> addCallback;
 
-        public void Initialize(List<SteamBuildDepot> listReference, string listHeader,
-            Action<SteamBuildDepot> onAddCallback)
+        public void Initialize(List<SteamDepot> listReference, string listHeader,
+            Action<SteamDepot> onAddCallback)
         {
             header = listHeader;
             addCallback = onAddCallback;
@@ -54,7 +54,7 @@ namespace Wireframe
         {
             // your GUI code here for list content
             SerializedProperty arrayElementAtIndex = depotsProperty.GetArrayElementAtIndex(index);
-            SteamBuildDepot element = (SteamBuildDepot)arrayElementAtIndex.boxedValue;
+            SteamDepot element = (SteamDepot)arrayElementAtIndex.boxedValue;
 
             Rect rect1 = new Rect(rect.x, rect.y, Mathf.Min(100, rect.width / 2), rect.height);
             string n = GUI.TextField(rect1, element.Name);
@@ -85,11 +85,11 @@ namespace Wireframe
             l.index = depotsProperty.arraySize - 1;
             SerializedProperty arrayElementAtIndex = depotsProperty.GetArrayElementAtIndex(l.index);
 
-            SteamBuildDepot buildDepot = new SteamBuildDepot(depotsProperty.arraySize, "");
-            arrayElementAtIndex.boxedValue = buildDepot;
+            SteamDepot depot = new SteamDepot(depotsProperty.arraySize, "");
+            arrayElementAtIndex.boxedValue = depot;
             serializedObject.ApplyModifiedProperties();
 
-            addCallback?.Invoke(buildDepot);
+            addCallback?.Invoke(depot);
         }
     }
 }

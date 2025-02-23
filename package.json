@@ -1,8 +1,8 @@
 {
-  "displayName": "Steam Builder Uploader",
-  "name": "com.veugeljame.steambuilduploader",
+  "displayName": "Build Uploader",
+  "name": "com.veugeljame.builduploader",
   "unity": "2022.3",
-  "description": "Open Source Editor tool that streamlines uploading builds to Steam.\nOptional Unity Cloud support.",
+  "description": "Open Source Editor tool that streamlines uploading builds to online services such as Steam.\nOptional Unity Cloud support.",
   "category": "Tool",
   "keywords": [
     "steam",

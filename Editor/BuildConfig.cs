@@ -23,15 +23,15 @@ namespace Wireframe
         public bool Enabled { get; set; } = true;
         public bool IsBuilding => m_buildSource.IsRunning || m_buildDestination.IsRunning;
 
-        private ASteamBuildSource m_buildSource;
-        private ASteamBuildDestination m_buildDestination;
+        private ABuildSource m_buildSource;
+        private ABuildDestination m_buildDestination;
 
         private SourceType m_currentSourceType = SourceType.File;
         private DestinationType m_currentDestinationType = DestinationType.SteamWorks;
         private GUIStyle m_titleStyle;
-        private SteamBuildWindow m_window;
+        private BuildUploaderWindow m_window;
 
-        public BuildConfig(SteamBuildWindow window)
+        public BuildConfig(BuildUploaderWindow window)
         {
             m_window = window;
         }
@@ -165,7 +165,7 @@ namespace Wireframe
             }
         }
 
-        private ASteamBuildSource CreateSourceFromType(SourceType type)
+        private ABuildSource CreateSourceFromType(SourceType type)
         {
             switch (type)
             {
@@ -173,7 +173,7 @@ namespace Wireframe
                     m_buildSource = new FileSource(m_window);
                     break;
                 case SourceType.UnityCloud:
-                    m_buildSource = new SteamBuildUnityCloudSource(m_window);
+                    m_buildSource = new UnityCloudSource(m_window);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -182,7 +182,7 @@ namespace Wireframe
             return m_buildSource;
         }
 
-        private ASteamBuildDestination CreateDestinationFromType(DestinationType type)
+        private ABuildDestination CreateDestinationFromType(DestinationType type)
         {
             switch (type)
             {
@@ -241,12 +241,12 @@ namespace Wireframe
             return true;
         }
 
-        public ASteamBuildDestination Destination()
+        public ABuildDestination Destination()
         {
             return m_buildDestination;
         }
 
-        public ASteamBuildSource Source()
+        public ABuildSource Source()
         {
             return m_buildSource;
         }
@@ -279,7 +279,7 @@ namespace Wireframe
 
             Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
 
-            ASteamBuildSource source = CreateSourceFromType(m_currentSourceType);
+            ABuildSource source = CreateSourceFromType(m_currentSourceType);
             source.Deserialize(sourceDictionary);
 
             // Destination
@@ -295,7 +295,7 @@ namespace Wireframe
             // Destination
             Dictionary<string, object> destinationDictionary = (Dictionary<string, object>)data["destination"];
 
-            ASteamBuildDestination destination = CreateDestinationFromType(m_currentDestinationType);
+            ABuildDestination destination = CreateDestinationFromType(m_currentDestinationType);
             destination.Deserialize(destinationDictionary);
         }
     }

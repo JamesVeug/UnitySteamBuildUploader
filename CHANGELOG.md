@@ -25,14 +25,14 @@
 # 1.2.0
 - General
   - Removed `com.unity.nuget.newtonsoft-json` dependency in favor of internal solution.
-  - Tabs (Steamworks/UnityCloud) can now be enabled/hidden in `Preferences/Steam Build Uploader`
+  - Tabs (Steamworks/UnityCloud) can now be enabled/hidden in `Preferences/Build Uploader`
   - Fixed dropdowns not showing duplicate entries
   - Fixed trying to type your game name twice, and it disappears from the list
   - Fixed pressing `+` to create a new config not showing correct depots and branches.
 - Steamworks tab
-  - Moved to `ProjectSettings/Steam Build Uploader`
+  - Moved to `ProjectSettings/Build Uploader`
 - Unity Cloud tab
-  - Disabled/Hidden by default. Enable in `Preferences/Steam Build Uploader`.
+  - Disabled/Hidden by default. Enable in `Preferences/Build Uploader`.
 
 # 1.1.2
 - General
@@ -59,7 +59,7 @@
 
 # 1.1.0
 - General
-  - Moved all login credentials to `Edit->Preferences->Steam Build Uploader`
+  - Moved all login credentials to `Edit->Preferences->Build Uploader`
   - Added icon to the window
   - Logging is a little better
 - Steam tab

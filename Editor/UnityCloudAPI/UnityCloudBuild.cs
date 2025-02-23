@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Wireframe
 {
+	// ReSharper disable once ClassNeverInstantiated.Global
+	/// <summary>
+	/// Build information retrieved from the Unity Cloud API
+	/// </summary>
 	internal class UnityCloudBuild : DropdownElement
 	{
 		public int Id => build;

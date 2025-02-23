@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class FileSource : ASteamBuildSource
+    internal class FileSource : ABuildSource
     {
         private GUIStyle m_pathButtonExistsStyle;
         private GUIStyle m_pathButtonDoesNotExistStyle;
@@ -17,7 +17,7 @@ namespace Wireframe
         private string m_finalSourcePath;
         private string m_enteredFilePath;
 
-        public FileSource(SteamBuildWindow steamBuildWindow)
+        public FileSource(BuildUploaderWindow buildUploaderWindow)
         {
         }
 

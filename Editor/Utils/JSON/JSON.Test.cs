@@ -1,4 +1,6 @@
-﻿#if UNITY_EDITOR
+﻿using System.Collections;
+using System.Reflection;
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,9 +12,9 @@ namespace Wireframe
 {
     internal static partial class JSON
     {
-        // [MenuItem("Tools/Wireframe/JSON Test")]
-        // public static void Test()
-        // {
+        [MenuItem("Tools/Wireframe/JSON Test")]
+        public static void Test()
+        {
         //     UnityCloudBuild cloudBuild = new UnityCloudBuild();
         //     cloudBuild.changeset = new List<UnityCloudBuild.ArtifactChange>();
         //     UnityCloudBuild.ArtifactChange change = new UnityCloudBuild.ArtifactChange();
@@ -47,17 +49,17 @@ namespace Wireframe
         //     cloudBuild.links.Add("facebook", "https://www.facebook.com/");
         //
         //     string cloudBuildText = SerializeObject(cloudBuild);
-        //     File.WriteAllText(Application.persistentDataPath + "/SteamBuilder/TESTcloudBuildText.json", cloudBuildText);
+        //     File.WriteAllText(Application.persistentDataPath + "/BuildUploader/TESTcloudBuildText.json", cloudBuildText);
         //     //
         //     UnityCloudTarget target = new UnityCloudTarget();
         //     target.buildtargetid = "buildtargetid";
         //     target.links = null;
         //     target.enabled = true;
         //     string targetText = SerializeObject(target);
-        //     File.WriteAllText(Application.persistentDataPath + "/SteamBuilder/TESTtargetText.json", targetText);
+        //     File.WriteAllText(Application.persistentDataPath + "/BuildUploader/TESTtargetText.json", targetText);
         //
         //
-        //     SteamBuildWindowUploadTab.UploadTabData buildTarget = new SteamBuildWindowUploadTab.UploadTabData();
+        //     WindowUploadTab.UploadTabData buildTarget = new WindowUploadTab.UploadTabData();
         //     buildTarget.Data = new List<Dictionary<string, object>>();
         //     Dictionary<string, object> data = new Dictionary<string, object>();
         //     data.Add("key", "value");
@@ -67,10 +69,10 @@ namespace Wireframe
         //     buildTarget.Data.Add(data);
         //
         //     string buildTargetText = SerializeObject(buildTarget);
-        //     File.WriteAllText(Application.persistentDataPath + "/SteamBuilder/TESTbuildTargetText.json",
+        //     File.WriteAllText(Application.persistentDataPath + "/BuildUploader/TESTbuildTargetText.json",
         //         buildTargetText);
         //
-        //     Debug.Log("Uploaded to " + Application.persistentDataPath + "/SteamBuilder/");
+        //     Debug.Log("Uploaded to " + Application.persistentDataPath + "/BuildUploader/");
         //
         //     // Deserialize
         //
@@ -78,8 +80,8 @@ namespace Wireframe
         //     Debug.Log("cloudBuild2: " + cloudBuild2.build);
         //
         //
-        //     SteamBuildWindowUploadTab.UploadTabData buildTarget2 =
-        //         DeserializeObject<SteamBuildWindowUploadTab.UploadTabData>(buildTargetText);
+        //     WindowUploadTab.UploadTabData buildTarget2 =
+        //         DeserializeObject<WindowUploadTab.UploadTabData>(buildTargetText);
         //     Debug.Log("buildTarget2: " + buildTarget2.Data.Count);
         //
         //     UnityCloudTarget target2 = DeserializeObject<UnityCloudTarget>(targetText);
@@ -88,7 +90,7 @@ namespace Wireframe
         //     // Test are equal
         //
         //     CompareObjects(cloudBuild, cloudBuild2, typeof(UnityCloudBuild));
-        //     CompareObjects(buildTarget, buildTarget2, typeof(SteamBuildWindowUploadTab.UploadTabData));
+        //     CompareObjects(buildTarget, buildTarget2, typeof(WindowUploadTab.UploadTabData));
         //     CompareObjects(target, target2, typeof(UnityCloudTarget));
         //
         //     Debug.Log("Done!");
@@ -176,6 +178,6 @@ namespace Wireframe
         //     
         //     Debug.Log(type.Name + " Objects are equal!");
         //     return true;
-        // }
+        }
     }
 }

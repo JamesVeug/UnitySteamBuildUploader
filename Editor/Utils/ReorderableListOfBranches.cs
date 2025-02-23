@@ -10,7 +10,7 @@ namespace Wireframe
     {
         private class Container : ScriptableObject
         {
-            public List<SteamBuildBranch> branches;
+            public List<SteamBranch> branches;
         }
 
         private Container container;
@@ -18,10 +18,10 @@ namespace Wireframe
         private SerializedObject serializedObject;
         private SerializedProperty branchesProperty;
         private string header = "";
-        private Action<SteamBuildBranch> addCallback;
+        private Action<SteamBranch> addCallback;
 
-        public void Initialize(List<SteamBuildBranch> listReference, string listHeader,
-            Action<SteamBuildBranch> onAddCallback)
+        public void Initialize(List<SteamBranch> listReference, string listHeader,
+            Action<SteamBranch> onAddCallback)
         {
             header = listHeader;
             addCallback = onAddCallback;
@@ -53,7 +53,7 @@ namespace Wireframe
         {
             // your GUI code here for list content
             SerializedProperty arrayElementAtIndex = branchesProperty.GetArrayElementAtIndex(index);
-            SteamBuildBranch element = (SteamBuildBranch)arrayElementAtIndex.boxedValue;
+            SteamBranch element = (SteamBranch)arrayElementAtIndex.boxedValue;
 
             Rect rect1 = new Rect(rect.x, rect.y, Mathf.Min(100, rect.width / 2), rect.height);
             string n = GUI.TextField(rect1, element.name);
@@ -76,11 +76,11 @@ namespace Wireframe
             l.index = branchesProperty.arraySize - 1;
             SerializedProperty arrayElementAtIndex = branchesProperty.GetArrayElementAtIndex(l.index);
 
-            SteamBuildBranch buildDepot = new SteamBuildBranch(branchesProperty.arraySize, "");
-            arrayElementAtIndex.boxedValue = buildDepot;
+            SteamBranch depot = new SteamBranch(branchesProperty.arraySize, "");
+            arrayElementAtIndex.boxedValue = depot;
             serializedObject.ApplyModifiedProperties();
 
-            addCallback?.Invoke(buildDepot);
+            addCallback?.Invoke(depot);
         }
     }
 }

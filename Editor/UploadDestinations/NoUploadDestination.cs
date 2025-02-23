@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    internal class NoUploadDestination : ASteamBuildDestination
+    internal class NoUploadDestination : ABuildDestination
     {
-        public NoUploadDestination(SteamBuildWindow window) : base(window)
+        public NoUploadDestination(BuildUploaderWindow uploaderWindow) : base(uploaderWindow)
         {
 
         }

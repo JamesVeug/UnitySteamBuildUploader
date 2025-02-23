@@ -1,15 +1,18 @@
-# Steam Build Uploader
+# <img src="https://github.com/JamesVeug/UnitySteamBuildUploader/blob/main/Icon.png?raw=true" width="20" height="20"> Build Uploader
 
-This package is designed to help streamline the process of uploading builds to Steam. It is designed to work with the Steam SDK and optionally Unity Cloud.
-- No dependencies
+
+This package helps streamline uploading builds to online services such as Steam. It is designed to work with the [Steam SDK](https://partner.steamgames.com/doc/sdk) and optionally [Unity Build](https://unity.com/solutions/ci-cd).
 - Unity 2020 and above.
+- No package dependencies
 - Minimal build size impact
+- Can be used commercially
 - Open Source
 
 
 ## Links
 - Support Me: https://buymeacoffee.com/jamesgamesnz
 - Discord: https://discord.gg/R2UjXB6pQ8
+- Github: https://github.com/JamesVeug/UnitySteamBuildUploader
 
 
 ## How to install
@@ -27,14 +30,14 @@ This package is designed to help streamline the process of uploading builds to S
 ### 2. Setup
 
 <a href="https://ibb.co/61JHPPn"><img src="https://i.ibb.co/9V3bTT8/Screenshot-2025-01-03-213527.png" alt="Screenshot-2025-01-03-213527" border="0"></a>
-- Go to `Edit->Preferences->Steam Build Uploader`
+- Go to `Edit->Preferences->Build Uploader`
   - Download SteamSDK and extract it to a folder on your computer
     - Enter the path to the SteamSDK folder (https://partner.steamgames.com/downloads/list)
   - Enter your steam login details
   - Enter Unity Cloud details **(Optional)**
 
 <a href="https://ibb.co/9VMYd9p"><img src="https://i.ibb.co/s6B3Xvg/Screenshot-2025-01-03-212949.png" alt="Screenshot-2025-01-03-212949" border="0"></a>
-- Go to `Edit->ProjectSettings->Steam Build Uploader`
+- Go to `Edit->ProjectSettings->Build Uploader`
   - Press `New`
   - Enter the name of your game
   - Enter the AppID of your game. (Found in the URL of your games store page. eg: `1141030`)
@@ -42,7 +45,7 @@ This package is designed to help streamline the process of uploading builds to S
     - Enter a name for the depot
     - Enter the depot ID (Found in the Steamworks website eg: `1141031`)
   - Add any more branches that you need (`none` is also known as default on steamworks)
-- Go to `Window->Steam Build Uploader`
+- Go to `Window->Build Uploader`
   - Press `New`
   - Choose where your build will come from
     - Choose Manual to choose a file from your computer then select the .zip or .exe of your game
@@ -56,7 +59,7 @@ This package is designed to help streamline the process of uploading builds to S
 
 ### 3. Upload
 
-- Go to `Window->Steam Build Uploader`
+- Go to `Window->Build Uploader`
   - Select which build you want to upload
   - Choose where you want to upload it to
   - Enter description of the build (eg: `v1.0.1 build 123 - Fixed jumping bug`)

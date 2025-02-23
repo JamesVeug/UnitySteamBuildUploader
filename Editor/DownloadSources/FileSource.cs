@@ -62,13 +62,42 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             Setup();
             
             bool exists = FileExists();
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
-            if (GUILayout.Button(m_enteredFilePath, style))
+            style.alignment = TextAnchor.MiddleLeft;
+            
+            string displayedPath = "";
+            if (!string.IsNullOrEmpty(m_enteredFilePath))
+            {
+                string fileName = Path.GetFileName(m_enteredFilePath);
+                string directory = Path.GetFileName(Path.GetDirectoryName(m_enteredFilePath));
+                displayedPath = "..." + Path.Combine(directory, fileName);
+            }
+
+            if (!string.IsNullOrEmpty(displayedPath))
+            {
+                float characterWidth = 8f;
+                int characters = displayedPath.Length;
+                float expectedWidth = characterWidth * characters;
+                if (expectedWidth >= maxWidth)
+                {
+                    int charactersToRemove = (int)((expectedWidth - maxWidth) / characterWidth);
+                    if (charactersToRemove < displayedPath.Length)
+                    {
+                        displayedPath = displayedPath.Substring(charactersToRemove);
+                    }
+                    else
+                    {
+                        displayedPath = "";
+                    }
+                }
+            }
+
+            if (GUILayout.Button(displayedPath, style))
             {
                 string newPath = EditorUtility.OpenFilePanel("Select build to upload", "", "zip,exe");
                 if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))

@@ -78,7 +78,7 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget))
             {

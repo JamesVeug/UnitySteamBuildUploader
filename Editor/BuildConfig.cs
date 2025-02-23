@@ -74,10 +74,10 @@ namespace Wireframe
         private void OnGUICollapsed(ref bool isDirty)
         {
             // Draw the build but on one line
-            using (new GUILayout.HorizontalScope())
+            using (new EditorGUILayout.HorizontalScope())
             {
                 // Source Type
-                SourceType sourceType = (SourceType)EditorGUILayout.EnumPopup(m_currentSourceType);
+                SourceType sourceType = (SourceType)EditorGUILayout.EnumPopup(m_currentSourceType, GUILayout.Width(100));
                 if (sourceType != m_currentSourceType || m_buildSource == null)
                 {
                     if (m_buildSource != null)
@@ -89,15 +89,16 @@ namespace Wireframe
                     CreateSourceFromType(sourceType);
                 }
 
-                float maxWidth = m_window.position.width;
                 float splitWidth = 100;
+                float maxWidth = m_window.position.width - splitWidth - 120;
                 float parts = maxWidth / 2 - splitWidth;
+                Debug.Log("Window: " + maxWidth + " part: " + parts);
 
                 // Source
                 float sourceWidth = parts;
-                using (new GUILayout.HorizontalScope(GUILayout.MaxWidth(sourceWidth)))
+                using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(sourceWidth)))
                 {
-                    m_buildSource.OnGUICollapsed(ref isDirty);
+                    m_buildSource.OnGUICollapsed(ref isDirty, sourceWidth);
                 }
 
 
@@ -114,7 +115,7 @@ namespace Wireframe
                 GUILayout.Label(progressText, m_titleStyle, GUILayout.Width(splitWidth));
 
                 // Destination Type
-                DestinationType destinationType = (DestinationType)EditorGUILayout.EnumPopup(m_currentDestinationType);
+                DestinationType destinationType = (DestinationType)EditorGUILayout.EnumPopup(m_currentDestinationType, GUILayout.Width(100));
                 if (destinationType != m_currentDestinationType || m_buildDestination == null)
                 {
                     if (m_buildDestination != null)
@@ -127,7 +128,7 @@ namespace Wireframe
 
                 // Destination
                 float destinationWidth = parts;
-                using (new GUILayout.HorizontalScope(GUILayout.MaxWidth(destinationWidth)))
+                using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(destinationWidth)))
                 {
                     m_buildDestination.OnGUICollapsed(ref isDirty);
                 }
@@ -145,7 +146,7 @@ namespace Wireframe
                     using (new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label("Source Type: ", GUILayout.Width(120));
-                        SourceType type = (SourceType)EditorGUILayout.EnumPopup(m_currentSourceType);
+                        SourceType type = (SourceType)EditorGUILayout.EnumPopup(m_currentSourceType, GUILayout.Width(100));
                         if (type != m_currentSourceType || m_buildSource == null)
                         {
                             isDirty = true;

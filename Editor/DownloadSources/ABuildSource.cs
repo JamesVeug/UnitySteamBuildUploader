@@ -13,7 +13,7 @@ namespace Wireframe
         public bool IsRunning => m_getSourceInProgress;
 
         public abstract void OnGUIExpanded(ref bool isDirty);
-        public abstract void OnGUICollapsed(ref bool isDirty);
+        public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
         public abstract Task<bool> GetSource();
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();

@@ -62,7 +62,7 @@ namespace Wireframe
                 {
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (GUILayout.Button("X"))
+                        if (GUILayout.Button("X", GUILayout.MaxWidth(20)))
                         {
                             if (EditorUtility.DisplayDialog("Remove Build",
                                     "Are you sure you want to remove this build config?", "Yes"))

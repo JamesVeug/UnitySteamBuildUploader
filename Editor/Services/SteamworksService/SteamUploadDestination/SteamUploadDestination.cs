@@ -7,6 +7,11 @@ using Directory = UnityEngine.Windows.Directory;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Upload a build to Steamworks
+    /// 
+    /// NOTE: This classes name path is saved in the JSON file so avoid renaming
+    /// </summary>
     internal class SteamUploadDestination : ABuildDestination
     {
         public override string DisplayName => "Steamworks";
@@ -235,7 +240,7 @@ namespace Wireframe
             // Note: In 1.2.2 the serialization data was changed from the Name to ID
             
             // Config
-            List<SteamApp> buildConfigs = SteamUIUtils.ConfigPopup.GetAllData();
+            SteamApp[] buildConfigs = SteamUIUtils.ConfigPopup.Values;
             if (data.TryGetValue("configID", out object configIDString) && configIDString != null)
             {
                 m_current = buildConfigs.FirstOrDefault(a=> a.Id == (long)configIDString);
@@ -252,7 +257,7 @@ namespace Wireframe
             }
             
             // Depot
-            if(data.TryGetValue("depotID", out object depotIDString))
+            if(data.TryGetValue("depotID", out object depotIDString) && depotIDString != null)
             {
                 m_depot = m_current.Depots.FirstOrDefault(a=>a.Id == (long)depotIDString);
             }
@@ -262,7 +267,7 @@ namespace Wireframe
             }
             
             // Branch
-            if (data.TryGetValue("branchID", out object branchIDString))
+            if (data.TryGetValue("branchID", out object branchIDString) && branchIDString != null)
             {
                 m_destinationBranch = m_current.ConfigBranches.FirstOrDefault(a=>a.Id == (long)branchIDString);
             }

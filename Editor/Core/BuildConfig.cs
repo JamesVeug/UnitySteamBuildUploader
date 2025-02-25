@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -71,7 +72,14 @@ namespace Wireframe
                 if (UIHelpers.SourcesPopup.DrawPopup(ref m_buildSourceType, GUILayout.MaxWidth(120)))
                 {
                     isDirty = true;
-                    m_buildSource = Activator.CreateInstance(m_buildSourceType.Type, new object[]{uploaderWindow}) as ABuildSource;
+                    if (m_buildSourceType != null)
+                    {
+                        m_buildSource = Activator.CreateInstance(m_buildSourceType.Type, new object[] { uploaderWindow }) as ABuildSource;
+                    }
+                    else
+                    {
+                        m_buildSource = null;
+                    }
                 }
 
                 float splitWidth = 100;
@@ -105,7 +113,13 @@ namespace Wireframe
                 if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
                 {
                     isDirty = true;
-                    m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
+                    if(m_buildDestinationType != null){
+                        m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
+                    }
+                    else
+                    {
+                        m_buildDestination = null;
+                    }
                 }
 
                 // Destination
@@ -134,7 +148,14 @@ namespace Wireframe
                         if (UIHelpers.SourcesPopup.DrawPopup(ref m_buildSourceType))
                         {
                             isDirty = true;
-                            m_buildSource = Activator.CreateInstance(m_buildSourceType.Type, new object[]{uploaderWindow}) as ABuildSource;
+                            if (m_buildSourceType != null)
+                            {
+                                m_buildSource = Activator.CreateInstance(m_buildSourceType.Type, new object[]{uploaderWindow}) as ABuildSource;
+                            }
+                            else
+                            {
+                                m_buildSource = null;
+                            }
                         }
                     }
 
@@ -152,7 +173,13 @@ namespace Wireframe
                         if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
                         {
                             isDirty = true;
-                            m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
+                            if(m_buildDestinationType != null){
+                                m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
+                            }
+                            else
+                            {
+                                m_buildDestination = null;
+                            }
                         }
                     }
                     
@@ -241,9 +268,13 @@ namespace Wireframe
                 Type type = Type.GetType(sourceFullPath);
                 if (type != null)
                 {
-                    Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
-                    ABuildSource source = Activator.CreateInstance(type, new object[]{m_window}) as ABuildSource;
-                    source.Deserialize(sourceDictionary);
+                    m_buildSource = Activator.CreateInstance(type, new object[]{m_window}) as ABuildSource;
+                    if (m_buildSource != null)
+                    {
+                        Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
+                        m_buildSource.Deserialize(sourceDictionary);
+                        m_buildSourceType = UIHelpers.SourcesPopup.Values.FirstOrDefault(a => a.Type == type);
+                    }
                 }
             }
 
@@ -254,9 +285,13 @@ namespace Wireframe
                 Type type = Type.GetType(destinationFullPath);
                 if (type != null)
                 {
-                    Dictionary<string, object> destinationDictionary = (Dictionary<string, object>)data["destination"];
-                    ABuildDestination destination = Activator.CreateInstance(type, new object[]{m_window}) as ABuildDestination;
-                    destination.Deserialize(destinationDictionary);
+                    m_buildDestination = Activator.CreateInstance(type, new object[]{m_window}) as ABuildDestination;
+                    if (m_buildDestination != null)
+                    {
+                        Dictionary<string, object> destinationDictionary = (Dictionary<string, object>)data["destination"];
+                        m_buildDestination.Deserialize(destinationDictionary);
+                        m_buildDestinationType = UIHelpers.DestinationsPopup.Values.FirstOrDefault(a => a.Type == type);
+                    }
                 }
             }
         }

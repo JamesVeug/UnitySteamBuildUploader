@@ -23,7 +23,7 @@ namespace Wireframe
         {
             public override string FirstEntryText => "Choose App";
 
-            public override List<SteamApp> GetAllData()
+            protected override List<SteamApp> FetchAllData()
             {
                 GetSteamBuildData();
                 return data.Configs;

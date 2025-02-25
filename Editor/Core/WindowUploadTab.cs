@@ -243,11 +243,22 @@ namespace Wireframe
                 m_buildsToUpload = new List<BuildConfig>();
                 for (int i = 0; i < config.Data.Count; i++)
                 {
-                    BuildConfig buildConfig = new BuildConfig((BuildUploaderWindow)UploaderWindow);
-                    buildConfig.Collapsed = true;
-                    var jObject = config.Data[i];
-                    buildConfig.Deserialize(jObject);
-                    m_buildsToUpload.Add(buildConfig);
+                    try
+                    {
+                        BuildConfig buildConfig = new BuildConfig(UploaderWindow);
+                        buildConfig.Collapsed = true;
+                        var jObject = config.Data[i];
+                        buildConfig.Deserialize(jObject);
+                        m_buildsToUpload.Add(buildConfig);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("Failed to load build config: #" + (i+1));
+                        Debug.LogException(e);
+                        BuildConfig buildConfig = new BuildConfig(UploaderWindow);
+                        buildConfig.Collapsed = true;
+                        m_buildsToUpload.Add(buildConfig);
+                    }
                 }
             }
         }

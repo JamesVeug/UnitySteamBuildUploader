@@ -6,7 +6,7 @@ namespace Wireframe
     {
         internal class UnityCloudTargetPopup : CustomDropdown<UnityCloudTarget>
         {
-            public override List<UnityCloudTarget> GetAllData()
+            protected override List<UnityCloudTarget> FetchAllData()
             {
                 return UnityCloudAPI.CloudBuildTargets;
             }

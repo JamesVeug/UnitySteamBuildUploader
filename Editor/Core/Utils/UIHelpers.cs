@@ -15,7 +15,7 @@ namespace Wireframe
                 public Type Type { get; set; }
             }
             
-            public override List<SourceData> GetAllData()
+            protected override List<SourceData> FetchAllData()
             {
                 List<SourceData> sources = new List<SourceData>();
                 foreach (Type type in InternalUtils.AllBuildSources())
@@ -41,8 +41,8 @@ namespace Wireframe
                 public string DisplayName { get; set; }
                 public Type Type { get; set; }
             }
-            
-            public override List<DestinationData> GetAllData()
+
+            protected override List<DestinationData> FetchAllData()
             {
                 List<DestinationData> destinations = new List<DestinationData>();
                 foreach (Type type in InternalUtils.AllBuildDestinations())

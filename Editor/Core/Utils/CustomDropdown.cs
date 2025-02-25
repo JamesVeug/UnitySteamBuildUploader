@@ -9,16 +9,28 @@ namespace Wireframe
     {
         public virtual string FirstEntryText => "Choose from Dropdown";
         public virtual bool AddChooseFromDropdownEntry => true;
-        
-        public abstract List<T> GetAllData();
+        public T[] Values
+        {
+            get
+            {
+                if(NeedsSettingUp()){
+                    Refresh();
+                }
+                return rawValues;
+            }
+        }
+
+        protected abstract List<T> FetchAllData();
 
         private string[] names = null;
         private T[] values = null;
+        private T[] rawValues = null;
 
         public void Refresh()
         {
-            List<T> data = new List<T>(GetAllData());
+            List<T> data = new List<T>(FetchAllData());
             data.Sort(SortNames);
+            rawValues = data.ToArray();
             
             int count = data.Count + (AddChooseFromDropdownEntry ? 1 : 0);
             List<string> namesTemp = new List<string>(count);

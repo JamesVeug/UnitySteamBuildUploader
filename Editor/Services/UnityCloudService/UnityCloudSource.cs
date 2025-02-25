@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -9,6 +8,11 @@ using Debug = UnityEngine.Debug;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Download a build from UnityCloud
+    /// 
+    /// NOTE: This classes name path is saved in the JSON file so avoid renaming
+    /// </summary>
     internal class UnityCloudSource : ABuildSource
     {
         public override string DisplayName => "Unity Cloud";

@@ -6,6 +6,11 @@ using UnityEngine;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// User is able to select a .exe or folder to upload
+    /// 
+    /// NOTE: This classes name path is saved in the JSON file so avoid renaming
+    /// </summary>
     internal class FileSource : ABuildSource
     {
         public override string DisplayName => "File";

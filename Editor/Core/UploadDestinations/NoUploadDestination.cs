@@ -3,6 +3,12 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// A no destination end point when uploading a build
+    /// Good for testing if your builds can be retrieved from the sources without worrying if they are uploading or not
+    /// 
+    /// NOTE: This classes name path is saved in the JSON file so avoid renaming
+    /// </summary>
     internal class NoUploadDestination : ABuildDestination
     {
         public override string DisplayName => "Nowhere";

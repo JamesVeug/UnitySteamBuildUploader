@@ -5,6 +5,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
 namespace Wireframe
 {
     internal class UnityCloudWindowTab : WindowTab

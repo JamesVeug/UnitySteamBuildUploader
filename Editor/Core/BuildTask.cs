@@ -200,7 +200,6 @@ namespace Wireframe
 
             }
 
-            bool allPathsExist = true;
             for (var i = 0; i < buildConfigs.Count; i++)
             {
                 var build = buildConfigs[i];
@@ -213,7 +212,6 @@ namespace Wireframe
                 string path = source.SourceFilePath();
                 if (!File.Exists(path) && !Directory.Exists(path))
                 {
-                    allPathsExist = false;
                     Debug.LogError($"Build {i+1} failed to get source. Path does not exist: " + path);
                     break;
                 }

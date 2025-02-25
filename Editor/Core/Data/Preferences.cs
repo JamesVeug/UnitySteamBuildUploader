@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace Wireframe
 {
     internal static class Preferences

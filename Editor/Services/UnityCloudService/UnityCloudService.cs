@@ -5,6 +5,8 @@
     /// </summary>
     internal partial class UnityCloudService : AService
     {
+        public override WindowTab WindowTabType => new UnityCloudWindowTab();
+        
         public UnityCloudService()
         {
             // Needed for reflection

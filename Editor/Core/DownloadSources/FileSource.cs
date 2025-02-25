@@ -100,14 +100,7 @@ namespace Wireframe
 
         private string GetButtonText(float maxWidth)
         {
-            string displayedPath = "";
-            if (!string.IsNullOrEmpty(m_enteredFilePath))
-            {
-                string fileName = Path.GetFileName(m_enteredFilePath);
-                string directory = Path.GetFileName(Path.GetDirectoryName(m_enteredFilePath));
-                displayedPath = "..." + Path.Combine(directory, fileName);
-            }
-
+            string displayedPath = m_enteredFilePath;
             if (!string.IsNullOrEmpty(displayedPath))
             {
                 float characterWidth = 8f;
@@ -125,9 +118,13 @@ namespace Wireframe
                         displayedPath = "";
                     }
                 }
+                
+                if(displayedPath.Length < m_enteredFilePath.Length)
+                {
+                    displayedPath = "..." + displayedPath;
+                }
             }
-
-            if (string.IsNullOrEmpty(displayedPath))
+            else
             {
                 displayedPath = "Choose .exe or .zip to Upload...";
             }

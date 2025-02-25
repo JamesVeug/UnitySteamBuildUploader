@@ -47,7 +47,7 @@ namespace Wireframe
                 GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
                 string newPath = GUILayout.TextField(m_enteredFilePath, style);
 
-                if (GUILayout.Button("...", GUILayout.Width(50), GUILayout.MaxWidth(500)))
+                if (GUILayout.Button("...", GUILayout.Width(20)))
                 {
                     newPath = EditorUtility.OpenFilePanel("Build Folder", "", "");
                 }

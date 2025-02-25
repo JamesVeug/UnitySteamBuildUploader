@@ -13,8 +13,8 @@ namespace Wireframe
         {
             get
             {
-                return (m_buildSource != null && m_buildSource.IsRunning) ||
-                       (m_buildDestination != null && m_buildDestination.IsRunning);
+                return m_buildSource != null && m_buildDestination != null && 
+                       (m_buildSource.IsRunning || m_buildDestination.IsRunning);
             }
         }
 
@@ -68,7 +68,7 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 // Source Type
-                if (UIHelpers.SourcesPopup.DrawPopup(ref m_buildSourceType))
+                if (UIHelpers.SourcesPopup.DrawPopup(ref m_buildSourceType, GUILayout.MaxWidth(120)))
                 {
                     isDirty = true;
                     m_buildSource = Activator.CreateInstance(m_buildSourceType.Type, new object[]{uploaderWindow}) as ABuildSource;
@@ -107,16 +107,6 @@ namespace Wireframe
                     isDirty = true;
                     m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
                 }
-                // DestinationType destinationType = (DestinationType)EditorGUILayout.EnumPopup(m_currentDestinationType, GUILayout.Width(100));
-                // if (destinationType != m_currentDestinationType || m_buildDestination == null)
-                // {
-                //     if (m_buildDestination != null)
-                //     {
-                //         isDirty = true;
-                //     }
-                //     m_currentDestinationType = destinationType;
-                //     CreateDestinationFromType(destinationType);
-                // }
 
                 // Destination
                 float destinationWidth = parts;
@@ -148,13 +138,28 @@ namespace Wireframe
                         }
                     }
 
-                    m_buildSource.OnGUIExpanded(ref isDirty);
+                    if (m_buildSource != null)
+                    {
+                        m_buildSource.OnGUIExpanded(ref isDirty);
+                    }
                 }
 
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth)))
                 {
-                    GUILayout.Label("Destination", m_titleStyle);
-                    m_buildDestination.OnGUIExpanded(ref isDirty);
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Destination: ", GUILayout.Width(120));
+                        if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
+                        {
+                            isDirty = true;
+                            m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
+                        }
+                    }
+                    
+                    if (m_buildDestination != null)
+                    {
+                        m_buildDestination.OnGUIExpanded(ref isDirty);
+                    }
                 }
             }
         }
@@ -211,10 +216,10 @@ namespace Wireframe
             Dictionary<string, object> data = new Dictionary<string, object>
             {
                 ["enabled"] = Enabled,
-                ["sourceFullType"] = m_buildSource.GetType().FullName,
-                ["source"] = m_buildSource.Serialize(),
-                ["destinationFullType"] = m_buildDestination.GetType().FullName,
-                ["destination"] = m_buildDestination.Serialize()
+                ["sourceFullType"] = m_buildSource?.GetType().FullName,
+                ["source"] = m_buildSource?.Serialize(),
+                ["destinationFullType"] = m_buildDestination?.GetType().FullName,
+                ["destination"] = m_buildDestination?.Serialize()
             };
 
             return data;
@@ -230,7 +235,7 @@ namespace Wireframe
             }
 
             // Source
-            if (data.TryGetValue("sourceFullType", out object sourceFullType))
+            if (data.TryGetValue("sourceFullType", out object sourceFullType) && sourceFullType != null)
             {
                 string sourceFullPath = (string)sourceFullType;
                 Type type = Type.GetType(sourceFullPath);
@@ -243,7 +248,7 @@ namespace Wireframe
             }
 
             // Destination
-            if (data.TryGetValue("destinationFullType", out object destinationFullType))
+            if (data.TryGetValue("destinationFullType", out object destinationFullType) && destinationFullType != null)
             {
                 string destinationFullPath = (string)destinationFullType;
                 Type type = Type.GetType(destinationFullPath);

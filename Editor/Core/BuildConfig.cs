@@ -82,7 +82,10 @@ namespace Wireframe
                 float sourceWidth = parts;
                 using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(sourceWidth)))
                 {
-                    m_buildSource.OnGUICollapsed(ref isDirty, sourceWidth);
+                    if (m_buildSource != null)
+                    {
+                        m_buildSource.OnGUICollapsed(ref isDirty, sourceWidth);
+                    }
                 }
 
 
@@ -119,7 +122,10 @@ namespace Wireframe
                 float destinationWidth = parts;
                 using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(destinationWidth)))
                 {
-                    m_buildDestination.OnGUICollapsed(ref isDirty);
+                    if (m_buildDestination != null)
+                    {
+                        m_buildDestination.OnGUICollapsed(ref isDirty);
+                    }
                 }
             }
         }

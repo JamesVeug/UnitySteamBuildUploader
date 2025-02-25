@@ -15,14 +15,14 @@ namespace Wireframe
         private bool m_createDepotFile = true;
         private bool m_uploadToSteam = true;
 
-        private SteamApp _mCurrent;
-        private SteamDepot _mDepot;
+        private SteamApp m_current;
+        private SteamDepot m_depot;
         private SteamBranch m_destinationBranch;
         
         private string m_filePath;
         private string m_unzippedfilePath;
         private bool m_wasBuildSuccessful;
-        private SteamApp _mUpload;
+        private SteamApp m_upload;
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
 
@@ -36,21 +36,21 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Config:", GUILayout.Width(120));
-                isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref _mCurrent);
+                isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current);
             }
 
             // Depot
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Depot:", GUILayout.Width(120));
-                isDirty |= SteamUIUtils.DepotPopup.DrawPopup(_mCurrent, ref _mDepot);
+                isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot);
             }
 
             // Branch
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Branch:", GUILayout.Width(120));
-                isDirty |= SteamUIUtils.BranchPopup.DrawPopup(_mCurrent, ref m_destinationBranch);
+                isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch);
             }
 
             // Tools
@@ -75,9 +75,9 @@ namespace Wireframe
 
         public override void OnGUICollapsed(ref bool isDirty)
         {
-            isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref _mCurrent);
-            isDirty |= SteamUIUtils.DepotPopup.DrawPopup(_mCurrent, ref _mDepot);
-            isDirty |= SteamUIUtils.BranchPopup.DrawPopup(_mCurrent, ref m_destinationBranch);
+            isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current);
+            isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot);
+            isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch);
         }
 
         public override async Task<bool> Upload(string filePath, string buildDescription)
@@ -87,8 +87,8 @@ namespace Wireframe
             m_wasBuildSuccessful = false;
             m_uploadInProgress = true;
             
-            _mUpload = new SteamApp(_mCurrent);
-            m_uploadDepot = new SteamDepot(_mDepot);
+            m_upload = new SteamApp(m_current);
+            m_uploadDepot = new SteamDepot(m_depot);
             m_uploadBranch = new SteamBranch(m_destinationBranch);
             
             
@@ -133,7 +133,7 @@ namespace Wireframe
                 Debug.Log("Creating new app file");
                 m_progressDescription = "Creating App Files";
                 m_uploadProgress = 0.25f;
-                if (!await SteamSDK.Instance.CreateAppFiles(_mUpload.App, m_uploadDepot.Depot,
+                if (!await SteamSDK.Instance.CreateAppFiles(m_upload.App, m_uploadDepot.Depot,
                         m_destinationBranch.name,
                         buildDescription, m_filePath))
                 {
@@ -163,7 +163,7 @@ namespace Wireframe
             Debug.Log("Uploading to steam. Grab a coffee... this will take a while.");
             m_progressDescription = "Uploading to Steam";
             m_uploadProgress = 0.75f;
-            m_wasBuildSuccessful = await SteamSDK.Instance.Upload(_mUpload.App, m_uploadToSteam);
+            m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_upload.App, m_uploadToSteam);
 
             return m_wasBuildSuccessful;
         }
@@ -184,13 +184,13 @@ namespace Wireframe
 
         public override bool IsSetup(out string reason)
         {
-            if (_mCurrent == null)
+            if (m_current == null)
             {
                 reason = "Steam Game not selected";
                 return false;
             }
 
-            if (_mDepot == null)
+            if (m_depot == null)
             {
                 reason = "No depot selected";
                 return false;
@@ -218,8 +218,8 @@ namespace Wireframe
                 ["m_createAppFile"] = m_createAppFile,
                 ["m_createDepotFile"] = m_createDepotFile,
                 ["m_uploadToSteam"] = m_uploadToSteam,
-                ["configID"] = _mCurrent?.Id,
-                ["depotID"] = _mDepot?.Id,
+                ["configID"] = m_current?.Id,
+                ["depotID"] = m_depot?.Id,
                 ["branchID"] = m_destinationBranch?.Id
             };
 
@@ -238,14 +238,14 @@ namespace Wireframe
             List<SteamApp> buildConfigs = SteamUIUtils.ConfigPopup.GetAllData();
             if (data.TryGetValue("configID", out object configIDString) && configIDString != null)
             {
-                _mCurrent = buildConfigs.FirstOrDefault(a=> a.Id == (long)configIDString);
+                m_current = buildConfigs.FirstOrDefault(a=> a.Id == (long)configIDString);
             }
             else if (data.TryGetValue("m_currentConfig", out object m_currentConfigName))
             {
-                _mCurrent = buildConfigs.FirstOrDefault(a=>a.Name == m_currentConfigName.ToString());
+                m_current = buildConfigs.FirstOrDefault(a=>a.Name == m_currentConfigName.ToString());
             }
 
-            if (_mCurrent == null)
+            if (m_current == null)
             {
                 // No config found so don't continue.
                 return;
@@ -254,21 +254,21 @@ namespace Wireframe
             // Depot
             if(data.TryGetValue("depotID", out object depotIDString))
             {
-                _mDepot = _mCurrent.Depots.FirstOrDefault(a=>a.Id == (long)depotIDString);
+                m_depot = m_current.Depots.FirstOrDefault(a=>a.Id == (long)depotIDString);
             }
             else if (data.TryGetValue("m_buildDepot", out object m_buildDepotName))
             {
-                _mDepot = _mCurrent.Depots.FirstOrDefault(a=>a.Name == m_buildDepotName.ToString());
+                m_depot = m_current.Depots.FirstOrDefault(a=>a.Name == m_buildDepotName.ToString());
             }
             
             // Branch
             if (data.TryGetValue("branchID", out object branchIDString))
             {
-                m_destinationBranch = _mCurrent.ConfigBranches.FirstOrDefault(a=>a.Id == (long)branchIDString);
+                m_destinationBranch = m_current.ConfigBranches.FirstOrDefault(a=>a.Id == (long)branchIDString);
             }
             else if (data.TryGetValue("m_destinationBranch", out object m_destinationBranchName))
             {
-                m_destinationBranch = _mCurrent.ConfigBranches.FirstOrDefault(a=>a.name == m_destinationBranchName.ToString());
+                m_destinationBranch = m_current.ConfigBranches.FirstOrDefault(a=>a.name == m_destinationBranchName.ToString());
             }
         }
     }

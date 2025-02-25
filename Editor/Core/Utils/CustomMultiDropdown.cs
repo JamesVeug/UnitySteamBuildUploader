@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ namespace Wireframe
 {
     internal abstract class CustomMultiDropdown<T, Y> where Y : DropdownElement
     {
-        private const string firstEntryText = "Choose from Dropdown";
+        public virtual string FirstEntryText => "Choose from Dropdown";
 
         public abstract List<(T, List<Y>)> GetAllData();
 
@@ -21,9 +20,8 @@ namespace Wireframe
 
         public bool DrawPopup(T target, ref Y initial, params GUILayoutOption[] options)
         {
-            if (nameLookup == null || nameLookup.Count == 0 || valueLookup == null || valueLookup.Count == 0)
+            if (FailedToRefresh())
             {
-                Refresh();
                 return false;
             }
             else if (target == null)
@@ -86,7 +84,7 @@ namespace Wireframe
                 List<string> names = new List<string>();
                 List<Y> values = new List<Y>();
 
-                names.Add(firstEntryText);
+                names.Add(FirstEntryText);
                 values.Add(default);
 
                 for (var j = 0; j < builds.Count; j++)
@@ -105,11 +103,11 @@ namespace Wireframe
 
         public virtual int SortByName(Y a, Y b)
         {
-            if (a.DisplayName == firstEntryText)
+            if (a.DisplayName == FirstEntryText)
             {
                 return -1;
             }
-            else if (b.DisplayName == firstEntryText)
+            else if (b.DisplayName == FirstEntryText)
             {
                 return 1;
             }
@@ -120,6 +118,25 @@ namespace Wireframe
                 return compareTo;
             }
             return a.DisplayName.CompareTo(b.DisplayName);
+        }
+
+        private bool FailedToRefresh()
+        {
+            if (NeedsRefreshing())
+            {
+                Refresh();
+                if (NeedsRefreshing())
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        private static bool NeedsRefreshing()
+        {
+            return nameLookup == null || nameLookup.Count == 0 || valueLookup == null || valueLookup.Count == 0;
         }
     }
 }

@@ -73,6 +73,28 @@ namespace Wireframe
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
             style.alignment = TextAnchor.MiddleLeft;
             
+            string displayedPath = GetButtonText(maxWidth);
+            if (GUILayout.Button(displayedPath, style))
+            {
+                string newPath = EditorUtility.OpenFilePanel("Select build to upload", "", "zip,exe");
+                if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))
+                {
+                    isDirty = true;
+                    if (newPath.EndsWith(".exe"))
+                    {
+                        // Use path of exe instead
+                        m_enteredFilePath = Path.GetDirectoryName(newPath);
+                    }
+                    else
+                    {
+                        m_enteredFilePath = newPath;
+                    }
+                }
+            }
+        }
+
+        private string GetButtonText(float maxWidth)
+        {
             string displayedPath = "";
             if (!string.IsNullOrEmpty(m_enteredFilePath))
             {
@@ -100,30 +122,19 @@ namespace Wireframe
                 }
             }
 
-            if (GUILayout.Button(displayedPath, style))
+            if (string.IsNullOrEmpty(displayedPath))
             {
-                string newPath = EditorUtility.OpenFilePanel("Select build to upload", "", "zip,exe");
-                if (newPath != m_enteredFilePath && !string.IsNullOrEmpty(newPath))
-                {
-                    isDirty = true;
-                    if (newPath.EndsWith(".exe"))
-                    {
-                        // Use path of exe instead
-                        m_enteredFilePath = Path.GetDirectoryName(newPath);
-                    }
-                    else
-                    {
-                        m_enteredFilePath = newPath;
-                    }
-                }
+                displayedPath = "Choose .exe or .zip to Upload...";
             }
+
+            return displayedPath;
         }
 
         private bool FileExists()
         {
             if (string.IsNullOrEmpty(m_enteredFilePath))
             {
-                return false;
+                return true;
             }
             
             return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);

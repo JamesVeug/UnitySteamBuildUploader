@@ -10,6 +10,8 @@ namespace Wireframe
 
         internal class SteamDepotPopup : CustomMultiDropdown<SteamApp, SteamDepot>
         {
+            public override string FirstEntryText => "Choose Depot";
+            
             public override List<(SteamApp, List<SteamDepot>)> GetAllData()
             {
                 GetSteamBuildData();
@@ -19,6 +21,8 @@ namespace Wireframe
 
         internal class SteamConfigPopup : CustomDropdown<SteamApp>
         {
+            public override string FirstEntryText => "Choose App";
+
             public override List<SteamApp> GetAllData()
             {
                 GetSteamBuildData();
@@ -28,6 +32,8 @@ namespace Wireframe
 
         internal class SteamBranchPopup : CustomMultiDropdown<SteamApp, SteamBranch>
         {
+            public override string FirstEntryText => "Choose Branch";
+            
             public override List<(SteamApp, List<SteamBranch>)> GetAllData()
             {
                 GetSteamBuildData();

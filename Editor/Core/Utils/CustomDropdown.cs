@@ -7,9 +7,10 @@ namespace Wireframe
 {
     internal abstract class CustomDropdown<T> where T : DropdownElement
     {
-        public abstract List<T> GetAllData();
         public virtual string FirstEntryText => "Choose from Dropdown";
         public virtual bool AddChooseFromDropdownEntry => true;
+        
+        public abstract List<T> GetAllData();
 
         private string[] names = null;
         private T[] values = null;

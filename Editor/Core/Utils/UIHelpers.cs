@@ -7,6 +7,7 @@ namespace Wireframe
     {
         internal class BuildSourcesPopup : CustomDropdown<BuildSourcesPopup.SourceData>
         {
+            public override string FirstEntryText => "Choose Source";
             public class SourceData : DropdownElement
             {
                 public int Id { get; set; }
@@ -33,6 +34,7 @@ namespace Wireframe
         
         internal class BuildDestinationsPopup : CustomDropdown<BuildDestinationsPopup.DestinationData>
         {
+            public override string FirstEntryText => "Choose Destination";
             public class DestinationData : DropdownElement
             {
                 public int Id { get; set; }

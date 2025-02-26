@@ -2,8 +2,11 @@
 
 
 This package helps streamline uploading builds to online services such as Steam. It is designed to work with the [Steam SDK](https://partner.steamgames.com/doc/sdk) and optionally [Unity Build](https://unity.com/solutions/ci-cd).
-- Unity 2020 and above.
-- No package dependencies
+- Supports 
+  - Unity 2021 and above.
+    - No package dependencies
+  - Unity 2020 and below.
+    - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
 - Minimal build size impact
 - Can be used commercially
 - Open Source
@@ -26,6 +29,8 @@ This package helps streamline uploading builds to online services such as Steam.
 - Choose `Add package from git URL`
 - Enter the git url `https://github.com/JamesVeug/UnitySteamBuildUploader.git`
 - Press `Add`
+- Unity 2020 and below
+  - Repeat above steps with but using `com.unity.sharp-zip-lib`
 
 ### 2. Setup
 

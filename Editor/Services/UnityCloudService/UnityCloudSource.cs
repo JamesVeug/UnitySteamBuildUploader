@@ -142,7 +142,12 @@ namespace Wireframe
 
                 // Save
                 m_progressDescription = "Saving locally...";
+                
+#if UNITY_2021_2_OR_NEWER
                 await File.WriteAllBytesAsync(fullFilePath, request.downloadHandler.data);
+#else
+                File.WriteAllBytes(fullFilePath, request.downloadHandler.data);
+#endif
             }
             else
             {

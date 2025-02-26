@@ -7,61 +7,18 @@ using Wireframe;
 
 namespace Wireframe
 {
-    internal class ReorderableListOfDepots
+    internal class ReorderableListOfDepots : InternalReorderableList<SteamDepot>
     {
-        private class Container : ScriptableObject
+        protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
-            public List<SteamDepot> depots;
-        }
-
-        private Container container;
-        private ReorderableList list;
-        private SerializedObject serializedObject;
-        private SerializedProperty depotsProperty;
-        private string header = "";
-        private Action<SteamDepot> addCallback;
-
-        public void Initialize(List<SteamDepot> listReference, string listHeader,
-            Action<SteamDepot> onAddCallback)
-        {
-            header = listHeader;
-            addCallback = onAddCallback;
-            container = ScriptableObject.CreateInstance<Container>();
-            container.depots = listReference;
-
-            serializedObject = new SerializedObject(container);
-            depotsProperty = serializedObject.FindProperty("depots");
-
-            list = new ReorderableList(serializedObject, depotsProperty, true, true, true, true);
-            list.drawElementCallback = StringsDrawListItems;
-            list.drawHeaderCallback = StringsDrawHeader;
-            list.onAddCallback = AddCallback;
-        }
-
-        public bool OnGUI()
-        {
-            if (serializedObject == null)
-            {
-                return false;
-            }
-
-            serializedObject.Update();
-            list.DoLayoutList();
-            return serializedObject.ApplyModifiedProperties();
-        }
-
-        protected virtual void StringsDrawListItems(Rect rect, int index, bool isActive, bool isFocused)
-        {
-            // your GUI code here for list content
-            SerializedProperty arrayElementAtIndex = depotsProperty.GetArrayElementAtIndex(index);
-            SteamDepot element = (SteamDepot)arrayElementAtIndex.boxedValue;
+            SteamDepot element = list[index];
 
             Rect rect1 = new Rect(rect.x, rect.y, Mathf.Min(100, rect.width / 2), rect.height);
             string n = GUI.TextField(rect1, element.Name);
             if (n != element.Name)
             {
                 element.Name = n;
-                arrayElementAtIndex.boxedValue = element;
+                dirty = true;
             }
 
             rect1.x += rect1.width;
@@ -69,27 +26,13 @@ namespace Wireframe
             if (int.TryParse(textField, out int value) && value != element.Depot.DepotID)
             {
                 element.Depot.DepotID = value;
-                arrayElementAtIndex.boxedValue = element;
+                dirty = true;
             }
         }
 
-        protected virtual void StringsDrawHeader(Rect rect)
+        protected override SteamDepot CreateItem(int index)
         {
-            // your GUI code here for list header
-            EditorGUI.LabelField(rect, header);
-        }
-
-        private void AddCallback(ReorderableList l)
-        {
-            depotsProperty.arraySize++;
-            l.index = depotsProperty.arraySize - 1;
-            SerializedProperty arrayElementAtIndex = depotsProperty.GetArrayElementAtIndex(l.index);
-
-            SteamDepot depot = new SteamDepot(depotsProperty.arraySize, "");
-            arrayElementAtIndex.boxedValue = depot;
-            serializedObject.ApplyModifiedProperties();
-
-            addCallback?.Invoke(depot);
+            return new SteamDepot(index, "");
         }
     }
 }

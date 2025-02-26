@@ -467,7 +467,7 @@ namespace Wireframe
                             var line2 = lines[i];
                             if (line2.StartsWith("----------------------------------------------------------------"))
                             {
-                                version = lines[i + 1].Split(" ")[0];
+                                version = lines[i + 1].Split(' ')[0];
                                 return true ;
                             }
                         }

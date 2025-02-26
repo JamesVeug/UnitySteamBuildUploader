@@ -323,7 +323,12 @@ namespace Wireframe
                 // Save to disk
                 string path = directories[i];
                 Debug.Log("Saving to " + path);
+                
+#if UNITY_2021_2_OR_NEWER
                 await File.WriteAllBytesAsync(path, operations[i].webRequest.downloadHandler.data);
+#else
+                File.WriteAllBytes(path, operations[i].webRequest.downloadHandler.data);
+#endif
             }
         }
 

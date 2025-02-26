@@ -2,7 +2,7 @@
 {
     internal interface DropdownElement
     {
-        public int Id { get; }
-        public string DisplayName { get; }
+        int Id { get; }
+        string DisplayName { get; }
     }
 }

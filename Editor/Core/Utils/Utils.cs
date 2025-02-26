@@ -10,7 +10,7 @@ namespace Wireframe
             get
             {
                 var iconPath = "Packages/com.veugeljame.builduploader/Icon.png";
-                UnityEngine.Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(UnityEngine.Object));
+                Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
                 return loadAssetAtPath as Texture2D;
             }
         }

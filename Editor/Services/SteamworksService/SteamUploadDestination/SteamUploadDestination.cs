@@ -121,7 +121,7 @@ namespace Wireframe
                 // System.IO.Compression.ZipFile.CreateFromDirectory(startPath, zipPath);
                 try
                 {
-                    System.IO.Compression.ZipFile.ExtractToDirectory(m_filePath, m_unzippedfilePath);
+                    ZipUtils.UnZip(m_filePath, m_unzippedfilePath);
                 }
                 catch (IOException e)
                 {

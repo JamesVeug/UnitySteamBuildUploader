@@ -139,7 +139,7 @@ namespace Wireframe
         private async Task DownloadAndUpload()
         {
             // Start uploading
-            BuildTask buildTask = new (m_buildsToUpload, m_buildDescription);
+            BuildTask buildTask = new BuildTask(m_buildsToUpload, m_buildDescription);
             await buildTask.Start(()=> UploaderWindow.Repaint());
             UploaderWindow.Repaint();
         }

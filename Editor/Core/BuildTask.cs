@@ -21,15 +21,16 @@ namespace Wireframe
 
         ~BuildTask()
         {
-            if (Progress.Exists(progressId))
+            
+            if (ProgressUtils.Exists(progressId))
             {
-                Progress.Remove(progressId);
+                ProgressUtils.Remove(progressId);
             }
         }
 
         public async Task Start(Action tick = null)
         {
-            this.progressId = Progress.Start("Build Uploader Window", "Getting Sources...");
+            this.progressId = ProgressUtils.Start("Build Uploader Window", "Getting Sources...");
             
             // Get all the files we need from all configs first
             // Ensure all files are retrieved correctly
@@ -45,7 +46,7 @@ namespace Wireframe
             {
                 // We retrieved all the files we need to upload
                 // Now we need to make sure we can upload to every config
-                Progress.Report(progressId, 0.25f, "Preparing Destinations...");
+                ProgressUtils.Report(progressId, 0.25f, "Preparing Destinations...");
                 Task<bool> prepareTask = PrepareDestinations();
                 while (!prepareTask.IsCompleted)
                 {
@@ -57,7 +58,7 @@ namespace Wireframe
                 {
                     // Builds ready to be uploaded and destinations are prepared
                     // Start uploading every build to their assigned destinations.
-                    Progress.Report(progressId, 0.33f, "Uploading...");
+                    ProgressUtils.Report(progressId, 0.33f, "Uploading...");
 
                     Task<bool> uploadTask = Upload();
                     while (!uploadTask.IsCompleted)
@@ -84,7 +85,7 @@ namespace Wireframe
                 // Cleanup to make sure nothing is left behind - dirtying up the users computer
                 for (int i = 0; i < buildConfigs.Count; i++)
                 {
-                    Progress.Report(progressId, 0.66f, "Cleaning up...");
+                    ProgressUtils.Report(progressId, 0.66f, "Cleaning up...");
                     for (int j = 0; j < buildConfigs.Count; j++)
                     {
                         if (buildConfigs[j].Enabled)
@@ -100,7 +101,7 @@ namespace Wireframe
                 DisplayDialog("Failed to get Sources! Not uploading any builds.\n\nSee logs for more info.", "Okay");
             }
 
-            Progress.Remove(progressId);
+            ProgressUtils.Remove(progressId);
         }
 
         private async Task<bool> PrepareDestinations()
@@ -139,7 +140,7 @@ namespace Wireframe
                 }
 
                 float progress = completionAmount / tasks.Count;
-                Progress.Report(progressId, progress, "Preparing Destinations");
+                ProgressUtils.Report(progressId, progress, "Preparing Destinations");
                 await Task.Delay(10);
             }
 
@@ -153,7 +154,7 @@ namespace Wireframe
 
         private async Task<bool> GetSources()
         {
-            int sourceID = Progress.Start("Get Sources", "Starting...");
+            int sourceID = ProgressUtils.Start("Get Sources", "Starting...");
 
             List<Tuple<ABuildSource, Task<bool>>> tasks = new List<Tuple<ABuildSource, Task<bool>>>();
             for (int j = 0; j < buildConfigs.Count; j++)
@@ -195,7 +196,7 @@ namespace Wireframe
                 }
 
                 float progress = completionAmount / tasks.Count;
-                Progress.Report(sourceID, progress, "Getting Sources");
+                ProgressUtils.Report(sourceID, progress, "Getting Sources");
                 await Task.Delay(10);
 
             }
@@ -217,13 +218,13 @@ namespace Wireframe
                 }
             }
 
-            Progress.Remove(sourceID);
+            ProgressUtils.Remove(sourceID);
             return allSuccessful;
         }
 
         private async Task<bool> Upload()
         {
-            int uploadID = Progress.Start("Uploading", "Starting...");
+            int uploadID = ProgressUtils.Start("Uploading", "Starting...");
 
             bool allSuccessful = true;
             int totalBuilds = GetEnabledBuildCount();
@@ -239,22 +240,22 @@ namespace Wireframe
                 string sourceFilePath = buildSource.SourceFilePath();
 
                 ABuildDestination destination = buildConfigs[i].Destination();
-                Progress.Report(uploadID, (float)i/totalBuilds, $"Uploading {i+1}/{buildConfigs.Count}");
+                ProgressUtils.Report(uploadID, (float)i/totalBuilds, $"Uploading {i+1}/{buildConfigs.Count}");
                 
-                int destinationID = Progress.Start(destination.ProgressTitle(), destination.ProgressDescription());
+                int destinationID = ProgressUtils.Start(destination.ProgressTitle(), destination.ProgressDescription());
                 Task<bool> upload = destination.Upload(sourceFilePath, description);
                 while (!upload.IsCompleted)
                 {
                     await Task.Delay(10);
-                    Progress.Report(destinationID, destination.UploadProgress(), destination.ProgressDescription());
+                    ProgressUtils.Report(destinationID, destination.UploadProgress(), destination.ProgressDescription());
                 }
                 allSuccessful &= upload.Result;
-                Progress.Remove(destinationID);
+                ProgressUtils.Remove(destinationID);
                 
                 Debug.Log("Uploaded to destination complete: " + i);
             }
 
-            Progress.Remove(uploadID);
+            ProgressUtils.Remove(uploadID);
             Debug.Log("Upload Complete!");
             return allSuccessful;
         }

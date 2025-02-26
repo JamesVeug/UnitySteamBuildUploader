@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+
 namespace Wireframe
 {
     [Serializable]
@@ -21,13 +23,21 @@ namespace Wireframe
             if (!File.Exists(path))
             {
                 FileStream stream = File.Create(path);
+#if UNITY_2021_2_OR_NEWER
                 await stream.DisposeAsync();
+#else
+                stream.Dispose();
+#endif
             }
 
             Debug.Log("Writing content to: " + path);
             try
             {
+#if UNITY_2021_2_OR_NEWER
                 await File.WriteAllTextAsync(path, content);
+#else
+                File.WriteAllText(path, content);
+#endif
                 Debug.Log("Saved VDFFile to: " + path);
                 return true;
             }

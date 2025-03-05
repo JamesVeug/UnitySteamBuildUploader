@@ -27,11 +27,11 @@ namespace Wireframe
 
         }
 
-        public override Task<bool> Upload(string filePath, string buildDescription)
+        public override Task<UploadResult> Upload(string filePath, string buildDescription)
         {
             m_uploadInProgress = true;
             m_uploadProgress = 1;
-            return Task.FromResult(true);
+            return Task.FromResult(UploadResult.Success());
         }
 
         public override string ProgressTitle()
@@ -42,11 +42,6 @@ namespace Wireframe
         public override bool IsSetup(out string reason)
         {
             reason = "";
-            return true;
-        }
-
-        public override bool WasUploadSuccessful()
-        {
             return true;
         }
 

@@ -26,8 +26,7 @@ namespace Wireframe
         
         private string m_filePath;
         private string m_unzippedfilePath;
-        private bool m_wasBuildSuccessful;
-        private SteamApp m_upload;
+        private SteamApp m_uploadApp;
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
 
@@ -85,14 +84,13 @@ namespace Wireframe
             isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch);
         }
 
-        public override async Task<bool> Upload(string filePath, string buildDescription)
+        public override async Task<UploadResult> Upload(string filePath, string buildDescription)
         {
             m_filePath = filePath;
             m_unzippedfilePath = "";
-            m_wasBuildSuccessful = false;
             m_uploadInProgress = true;
             
-            m_upload = new SteamApp(m_current);
+            m_uploadApp = new SteamApp(m_current);
             m_uploadDepot = new SteamDepot(m_depot);
             m_uploadBranch = new SteamBranch(m_destinationBranch);
             
@@ -117,8 +115,7 @@ namespace Wireframe
                 {
                     Directory.CreateDirectory(m_unzippedfilePath);
                 }
-                    
-                // System.IO.Compression.ZipFile.CreateFromDirectory(startPath, zipPath);
+                
                 try
                 {
                     ZipUtils.UnZip(m_filePath, m_unzippedfilePath);
@@ -127,7 +124,7 @@ namespace Wireframe
                 {
                     Debug.LogException(e);
                     m_uploadInProgress = false;
-                    return false;
+                    return UploadResult.Failed("Failed to unzip file");
                 }
 
                 m_filePath = m_unzippedfilePath;
@@ -138,11 +135,11 @@ namespace Wireframe
                 Debug.Log("Creating new app file");
                 m_progressDescription = "Creating App Files";
                 m_uploadProgress = 0.25f;
-                if (!await SteamSDK.Instance.CreateAppFiles(m_upload.App, m_uploadDepot.Depot,
-                        m_destinationBranch.name,
+                if (!await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepot.Depot,
+                        m_uploadBranch.name,
                         buildDescription, m_filePath))
                 {
-                    return false;
+                    return UploadResult.Failed("Failed to create app file");
                 }
             }
             else
@@ -157,7 +154,7 @@ namespace Wireframe
                 m_uploadProgress = 0.5f;
                 if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot))
                 {
-                    return false;
+                    return UploadResult.Failed("Failed to create depot file");
                 }
             }
             else
@@ -168,9 +165,8 @@ namespace Wireframe
             Debug.Log("Uploading to steam. Grab a coffee... this will take a while.");
             m_progressDescription = "Uploading to Steam";
             m_uploadProgress = 0.75f;
-            m_wasBuildSuccessful = await SteamSDK.Instance.Upload(m_upload.App, m_uploadToSteam);
 
-            return m_wasBuildSuccessful;
+            return await SteamSDK.Instance.Upload(m_uploadApp.App, m_uploadToSteam);
         }
 
         public override void CleanUp()
@@ -209,11 +205,6 @@ namespace Wireframe
 
             reason = "";
             return true;
-        }
-
-        public override bool WasUploadSuccessful()
-        {
-            return m_wasBuildSuccessful;
         }
 
         public override Dictionary<string, object> Serialize()

@@ -187,9 +187,9 @@ namespace Wireframe
             return fullPath;
         }
 
-        public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam)
+        public async Task<UploadResult> Upload(AppVDFFile appFile, bool uploadeToSteam)
         {
-            bool result = false;
+            UploadResult result = default;
             try
             {
                 bool retry = true;
@@ -221,7 +221,7 @@ namespace Wireframe
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
-                    result = outputResults.successful;
+                    result = new UploadResult(outputResults.successful, outputResults.errorText);
                     if (!outputResults.successful)
                     {
                         Debug.LogError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
@@ -244,7 +244,7 @@ namespace Wireframe
             catch (Exception e)
             {
                 Debug.LogException(e);
-                result = false;
+                result = UploadResult.Failed(e.Message);
             }
 
             await Task.Delay(10);

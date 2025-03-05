@@ -10,16 +10,16 @@ namespace Wireframe
     {
         public override string Name => "Upload";
         
-        private bool[] m_uploadResults;
+        private UploadResult[] m_uploadResults;
         
         public override async Task<bool> Run(BuildTask buildTask)
         {
             int uploadID = ProgressUtils.Start("Uploading", "Starting...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
-            m_uploadResults = new bool[buildConfigs.Count];
+            m_uploadResults = new UploadResult[buildConfigs.Count];
 
             int totalBuilds = GetEnabledBuildCount(buildConfigs);
-            List<Tuple<ABuildDestination, Task<bool>>> uploads = new List<Tuple<ABuildDestination, Task<bool>>>();
+            List<Tuple<ABuildDestination, Task<UploadResult>>> uploads = new List<Tuple<ABuildDestination, Task<UploadResult>>>();
             for (int i = 0; i < buildConfigs.Count; i++)
             {
                 if (!buildConfigs[i].Enabled)
@@ -34,8 +34,8 @@ namespace Wireframe
                 ABuildDestination destination = buildConfigs[i].Destination();
                 ProgressUtils.Report(uploadID, (float)i/totalBuilds, $"Uploading {i+1}/{buildConfigs.Count}");
                 
-                Task<bool> upload = destination.Upload(sourceFilePath, description);
-                uploads.Add(new Tuple<ABuildDestination, Task<bool>>(destination, upload));
+                Task<UploadResult> upload = destination.Upload(sourceFilePath, description);
+                uploads.Add(new Tuple<ABuildDestination, Task<UploadResult>>(destination, upload));
             }
             
             bool allSuccessful = true;
@@ -45,16 +45,15 @@ namespace Wireframe
                 float completionAmount = 0.0f;
                 for (int j = 0; j < uploads.Count; j++)
                 {
-                    Tuple<ABuildDestination, Task<bool>> tuple = uploads[j];
+                    Tuple<ABuildDestination, Task<UploadResult>> tuple = uploads[j];
                     if (!tuple.Item2.IsCompleted)
                     {
                         done = false;
-                        m_uploadResults[j] = false;
                         completionAmount += tuple.Item1.UploadProgress();
                     }
                     else
                     {
-                        allSuccessful &= tuple.Item2.Result;
+                        allSuccessful &= tuple.Item2.Result.Successful;
                         m_uploadResults[j] = tuple.Item2.Result;
                         completionAmount++;
                     }
@@ -105,15 +104,15 @@ namespace Wireframe
 
         public override void Failed(BuildTask buildTask)
         {
-            int failedCount = m_uploadResults.Count(a => !a);
+            int failedCount = m_uploadResults.Count(a => !a.Successful);
             int totalCount = m_uploadResults.Length;
             string message = $"{failedCount}/{totalCount} Builds Failed to Upload!";
             for (int i = 0; i < m_uploadResults.Length; i++)
             {
-                bool result = m_uploadResults[i];
-                if (!result)
+                UploadResult result = m_uploadResults[i];
+                if (!result.Successful)
                 {
-                    message += $"\nBuild {i+1}";
+                    message += $"\nBuild #{i+1} - " + result.FailReason;
                 }
             }
             

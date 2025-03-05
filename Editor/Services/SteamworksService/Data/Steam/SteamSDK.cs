@@ -50,7 +50,7 @@ namespace Wireframe
         
         public static string SteamSDKEXEPath
         {
-            get => Instance.m_exePath;
+            get => Instance.m_steamCMDPath;
         }
 
         public bool IsInitialized => m_initialized;
@@ -60,7 +60,7 @@ namespace Wireframe
         private Process m_uploadProcess;
         private string m_scriptPath;
         private string m_contentPath;
-        private string m_exePath;
+        private string m_steamCMDPath;
         private bool m_initialized;
 
         private SteamSDK()
@@ -132,14 +132,35 @@ namespace Wireframe
                 return;
             }
 
-            string exePath = Path.Combine(contentBuilderPath, "builder", "steamcmd.exe");
+            Debug.Log("[SteamSDK] Application.platform: " + Application.platform);
+            
+            string exePath = "";
+            if (Application.platform == RuntimePlatform.WindowsEditor)
+            {
+                exePath = Path.Combine(contentBuilderPath, "builder", "steamcmd.exe");
+            }
+            else if (Application.platform == RuntimePlatform.OSXEditor)
+            {
+                exePath = Path.Combine(contentBuilderPath, "builder_osx", "steamcmd.sh");
+            }
+            else if (Application.platform == RuntimePlatform.LinuxEditor)
+            {
+                exePath = Path.Combine(contentBuilderPath, "builder_linux", "steamcmd.sh");
+            }
+            else
+            {
+                Debug.LogError("Unsupported platform for Steamworks SDK: " + Application.platform);
+                return;
+            }
+            
+            
             if (!File.Exists(exePath))
             {
                 Debug.LogError("Could not find steamcmd.exe inside ContentBuilder/builder path!");
                 return;
             }
 
-            m_exePath = exePath;
+            m_steamCMDPath = exePath;
             m_contentPath = content;
             m_scriptPath = scripts;
             m_initialized = true;
@@ -202,7 +223,7 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
-                    m_uploadProcess.StartInfo.FileName = m_exePath;
+                    m_uploadProcess.StartInfo.FileName = m_steamCMDPath;
                     m_uploadProcess.StartInfo.Arguments = CreateSteamArguments(appFile, true, uploadeToSteam, steamGuardCode);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
@@ -429,7 +450,7 @@ namespace Wireframe
         {
             var process = new Process();
             process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            process.StartInfo.FileName = m_exePath;
+            process.StartInfo.FileName = m_steamCMDPath;
             process.StartInfo.Arguments = "";
             process.EnableRaisingEvents = true;
             process.Start();

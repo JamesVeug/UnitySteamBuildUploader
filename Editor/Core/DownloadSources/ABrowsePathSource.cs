@@ -142,7 +142,7 @@ namespace Wireframe
             return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);
         }
 
-        public override async Task<bool> GetSource(BuildConfig buildConfig)
+        public override Task<bool> GetSource(BuildConfig buildConfig)
         {
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
@@ -164,40 +164,9 @@ namespace Wireframe
                 sourcePath = Path.GetDirectoryName(m_enteredFilePath);
             }
 
-            string cacheFolderName = isDirectory ? new DirectoryInfo(sourcePath).Name : Path.GetFileNameWithoutExtension(sourcePath);
-            string cacheFolderPath = Path.Combine(directoryPath, cacheFolderName + "_" + buildConfig.GUID);
-            if (Directory.Exists(cacheFolderPath))
-            {
-                Debug.LogWarning($"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
-                Directory.Delete(cacheFolderPath, true);
-            }
-            Directory.CreateDirectory(cacheFolderPath);
-            
-            if (isDirectory)
-            {
-                await Task.Run(async () =>
-                {
-                    foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
-                    {
-                        Directory.CreateDirectory(dirPath.Replace(sourcePath, cacheFolderPath));
-                    }
-
-                    foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
-                    {
-                        await Utils.CopyFileAsync(newPath, newPath.Replace(sourcePath, cacheFolderPath));
-                    }
-                });
-            }
-            else
-            {
-                // Getting a file - put it in its own folder
-                string path = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
-                await Utils.CopyFileAsync(sourcePath, path);
-            }
-
-            m_finalSourcePath = cacheFolderPath;
+            m_finalSourcePath = sourcePath;
             m_progressDescription = "Done!";
-            return true;
+            return Task.FromResult(true);
         }
 
         public override string SourceFilePath()

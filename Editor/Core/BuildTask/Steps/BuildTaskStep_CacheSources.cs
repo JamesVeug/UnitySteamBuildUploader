@@ -111,6 +111,8 @@ namespace Wireframe
                 string path = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
                 await Utils.CopyFileAsync(sourcePath, path);
             }
+            
+            task.CachedLocations[sourceIndex] = cacheFolderPath;
 
             return true;
         }

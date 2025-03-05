@@ -10,15 +10,18 @@ namespace Wireframe
     {
         public List<BuildConfig> BuildConfigs => buildConfigs;
         public string BuildDescription => buildDescription;
+        public string[] CachedLocations => cachedLocations;
         
         private List<BuildConfig> buildConfigs;
+        private string[] cachedLocations;
         private int progressId;
         private string buildDescription;
 
         public BuildTask(List<BuildConfig> buildConfigs, string buildDescription)
         {
-            this.buildConfigs = buildConfigs;
             this.buildDescription = buildDescription;
+            this.buildConfigs = buildConfigs;
+            this.cachedLocations = new string[buildConfigs.Count];
         }
 
         ~BuildTask()

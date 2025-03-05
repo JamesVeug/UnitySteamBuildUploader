@@ -18,7 +18,6 @@ namespace Wireframe
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             m_uploadResults = new UploadResult[buildConfigs.Count];
 
-            int totalBuilds = GetEnabledBuildCount(buildConfigs);
             List<Tuple<ABuildDestination, Task<UploadResult>>> uploads = new List<Tuple<ABuildDestination, Task<UploadResult>>>();
             for (int i = 0; i < buildConfigs.Count; i++)
             {
@@ -27,14 +26,10 @@ namespace Wireframe
                     continue;
                 }
 
-                ABuildSource buildSource = buildConfigs[i].Source();
-                string description = GetBuildDescription(buildTask, buildSource);
-                string sourceFilePath = buildSource.SourceFilePath();
 
+                string sourceFilePath = buildTask.CachedLocations[i];
                 ABuildDestination destination = buildConfigs[i].Destination();
-                ProgressUtils.Report(uploadID, (float)i/totalBuilds, $"Uploading {i+1}/{buildConfigs.Count}");
-                
-                Task<UploadResult> upload = destination.Upload(sourceFilePath, description);
+                Task<UploadResult> upload = destination.Upload(sourceFilePath, buildTask.BuildDescription);
                 uploads.Add(new Tuple<ABuildDestination, Task<UploadResult>>(destination, upload));
             }
             

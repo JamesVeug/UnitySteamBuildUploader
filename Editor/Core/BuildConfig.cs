@@ -10,6 +10,7 @@ namespace Wireframe
     {
         public bool Collapsed { get; set; } = false;
         public bool Enabled { get; set; } = true;
+        public string GUID { get; set; }
         public bool IsBuilding
         {
             get
@@ -31,6 +32,7 @@ namespace Wireframe
         public BuildConfig(BuildUploaderWindow window)
         {
             m_window = window;
+            GUID = Guid.NewGuid().ToString();
         }
 
         private void Setup()
@@ -243,6 +245,7 @@ namespace Wireframe
             Dictionary<string, object> data = new Dictionary<string, object>
             {
                 ["enabled"] = Enabled,
+                ["guid"] = GUID,
                 ["sourceFullType"] = m_buildSource?.GetType().FullName,
                 ["source"] = m_buildSource?.Serialize(),
                 ["destinationFullType"] = m_buildDestination?.GetType().FullName,
@@ -259,6 +262,17 @@ namespace Wireframe
             if (data.TryGetValue("enabled", out enabled))
             {
                 Enabled = (bool)enabled;
+            }
+            
+            // GUID
+            if (data.TryGetValue("guid", out object guid))
+            {
+                GUID = (string)guid;
+            }
+            else
+            {
+                // Generate a new GUID
+                GUID = Guid.NewGuid().ToString();
             }
 
             // Source

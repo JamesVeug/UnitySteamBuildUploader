@@ -142,7 +142,7 @@ namespace Wireframe
             return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);
         }
 
-        public override async Task<bool> GetSource()
+        public override async Task<bool> GetSource(BuildConfig buildConfig)
         {
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
@@ -157,7 +157,7 @@ namespace Wireframe
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory
             string sourcePath = m_enteredFilePath;
-            bool isDirectory = IsDirectory(sourcePath);
+            bool isDirectory = Utils.IsPathADirectory(sourcePath);
             if (!isDirectory && m_enteredFilePath.EndsWith(".exe"))
             {
                 // Given a .exe. use the Folder because they likely want to upload the entire folder - not just the .exe
@@ -165,7 +165,7 @@ namespace Wireframe
             }
 
             string cacheFolderName = isDirectory ? new DirectoryInfo(sourcePath).Name : Path.GetFileNameWithoutExtension(sourcePath);
-            string cacheFolderPath = Path.Combine(directoryPath, cacheFolderName);
+            string cacheFolderPath = Path.Combine(directoryPath, cacheFolderName + "_" + buildConfig.GUID);
             if (Directory.Exists(cacheFolderPath))
             {
                 Debug.LogWarning($"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
@@ -184,7 +184,7 @@ namespace Wireframe
 
                     foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
                     {
-                        await CopyFileAsync(newPath, newPath.Replace(sourcePath, cacheFolderPath));
+                        await Utils.CopyFileAsync(newPath, newPath.Replace(sourcePath, cacheFolderPath));
                     }
                 });
             }
@@ -192,29 +192,12 @@ namespace Wireframe
             {
                 // Getting a file - put it in its own folder
                 string path = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
-                await CopyFileAsync(sourcePath, path);
+                await Utils.CopyFileAsync(sourcePath, path);
             }
 
             m_finalSourcePath = cacheFolderPath;
             m_progressDescription = "Done!";
             return true;
-        }
-
-        protected static bool IsDirectory(string path)
-        {
-            FileAttributes attr = File.GetAttributes(path);
-            return (attr & FileAttributes.Directory) == FileAttributes.Directory;
-        }
-
-        private static async Task CopyFileAsync(string sourceFile, string destinationFile)
-        {
-            using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-            {
-                using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-                {
-                    await sourceStream.CopyToAsync(destinationStream);
-                }
-            }
         }
 
         public override string SourceFilePath()
@@ -299,7 +282,7 @@ namespace Wireframe
                 return;
             }
 
-            if (IsDirectory(m_finalSourcePath))
+            if (Utils.IsPathADirectory(m_finalSourcePath))
             {
                 if (Directory.Exists(m_finalSourcePath))
                 {

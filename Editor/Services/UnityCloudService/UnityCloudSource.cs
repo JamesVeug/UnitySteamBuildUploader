@@ -96,7 +96,7 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> GetSource()
+        public override async Task<bool> GetSource(BuildConfig buildConfig)
         {
             m_getSourceInProgress = true;
             m_downloadProgress = 0.0f;
@@ -104,13 +104,13 @@ namespace Wireframe
             // Preparing
             m_progressDescription = "Preparing...";
             string buildName = sourceBuild.platform + "-" + sourceBuild.buildtargetid + "-" + sourceBuild.build;
-            string directoryPath = Application.persistentDataPath + "/BuildUploader/UnityCloudBuilds";
+            string directoryPath = Path.Combine(Utils.CacheFolder, "UnityCloudBuilds");
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
             }
 
-            fullFilePath = directoryPath + "/" + buildName + ".zip";
+            fullFilePath = Path.Combine(directoryPath, buildName + ".zip");
 
             // Only download if we don't have it
             if (!File.Exists(fullFilePath))

@@ -10,8 +10,12 @@ namespace Wireframe
         [PreferenceItem("Build Uploader")]
         private static void OnPreferencesGUI()
         {
-            GUILayout.Label("Preferences for the Build Uploader. Required to log into various services.",
-                EditorStyles.wordWrappedLabel);
+            GUILayout.Label("Preferences for the Build Uploader. Required to log into various services.", EditorStyles.wordWrappedLabel);
+
+            if (GUILayout.Button("Open Cache Folder"))
+            {
+                EditorUtility.RevealInFinder(Utils.CacheFolder);
+            }
 
             foreach (AService service in InternalUtils.AllServices())
             {

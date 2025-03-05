@@ -5,6 +5,8 @@ namespace Wireframe
 {
     internal static class Utils
     {
+        public static readonly string CacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
+        
         public static Texture2D WindowIcon
         {
             get

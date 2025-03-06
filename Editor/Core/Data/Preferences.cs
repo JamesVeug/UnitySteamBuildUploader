@@ -19,7 +19,7 @@ namespace Wireframe
             GUILayout.Label("Preferences for the Build Uploader. Required to log into various services.", EditorStyles.wordWrappedLabel);
 
             GUILayout.Space(20);
-            EditorGUILayout.LabelField("Build Cache");
+            EditorGUILayout.LabelField("Cached Builds");
             using (new GUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("Open Cache Folder"))
@@ -27,7 +27,7 @@ namespace Wireframe
                     EditorUtility.RevealInFinder(Utils.CacheFolder);
                 }
                 
-                EditorGUILayout.LabelField("Delete cache after building", GUILayout.Width(160));
+                EditorGUILayout.LabelField("Delete cache after uploading", GUILayout.Width(170));
 
                 bool cacheAfterBuild = DeleteCacheAfterBuild;
                 bool newCacheAfterBuild = EditorGUILayout.Toggle(cacheAfterBuild);

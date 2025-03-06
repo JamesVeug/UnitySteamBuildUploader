@@ -52,8 +52,7 @@ namespace Wireframe
 
                 if (GUILayout.Button("New"))
                 {
-                    BuildConfig buildConfigSetup = new BuildConfig((BuildUploaderWindow)UploaderWindow);
-                    buildConfigSetup.Collapsed = true;
+                    BuildConfig buildConfigSetup = new BuildConfig(UploaderWindow);
                     m_buildsToUpload.Add(buildConfigSetup);
                     m_isDirty = true;
                 }
@@ -248,7 +247,6 @@ namespace Wireframe
                     try
                     {
                         BuildConfig buildConfig = new BuildConfig(UploaderWindow);
-                        buildConfig.Collapsed = true;
                         var jObject = config.Data[i];
                         buildConfig.Deserialize(jObject);
                         m_buildsToUpload.Add(buildConfig);
@@ -258,7 +256,6 @@ namespace Wireframe
                         Debug.LogError("Failed to load build config: #" + (i+1));
                         Debug.LogException(e);
                         BuildConfig buildConfig = new BuildConfig(UploaderWindow);
-                        buildConfig.Collapsed = true;
                         m_buildsToUpload.Add(buildConfig);
                     }
                 }

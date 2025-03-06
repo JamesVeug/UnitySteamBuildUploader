@@ -203,7 +203,7 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
                     m_uploadProcess.StartInfo.FileName = m_exePath;
-                    m_uploadProcess.StartInfo.Arguments = CreateSteamArguments(appFile, true, uploadeToSteam, steamGuardCode);
+                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFile, true, uploadeToSteam, steamGuardCode);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                     m_uploadProcess.EnableRaisingEvents = true;
@@ -251,7 +251,7 @@ namespace Wireframe
             return result;
         }
 
-        private string CreateSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload, string steamGuardCode)
+        private string CreateUploadBuildSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload, string steamGuardCode)
         {
             string fullDirectory = GetAppScriptOutputPath(appFile);
             
@@ -264,6 +264,26 @@ namespace Wireframe
             }
             
             string uploadArg = upload ? $" +run_app_build \"{fullDirectory}\"" : "";
+            string arguments = string.Format("+login \"{0}\" \"{1}\" {2} {3}", username, password, guard, uploadArg);
+            
+            if (quitOnComplete)
+            {
+                arguments += " +quit";
+            }
+            return arguments;
+        }
+        
+        private string CreateDRMWrapSteamArguments(bool quitOnComplete, bool upload, string steamGuardCode, int appID, string sourcePath, string destinationPath, int flags)
+        {
+            string username = UserName;
+            string password = UserPassword;
+            string guard = string.IsNullOrEmpty(steamGuardCode) ? "" : " " + steamGuardCode;
+            if (!upload)
+            {
+                Debug.Log("Upload to Steam is disabled. Not but still attempting login.");
+            }
+            
+            string uploadArg = !upload ? "" : string.Format($" +drm_wrap {appID} {sourcePath} {destinationPath} drmtoolp {flags}");
             string arguments = string.Format("+login \"{0}\" \"{1}\" {2} {3}", username, password, guard, uploadArg);
             
             if (quitOnComplete)
@@ -385,7 +405,9 @@ namespace Wireframe
                 return result;
             }
 
-            if (uploading && !ContainsText(lines, "Uploading content...", "", out index))
+            if (uploading && 
+                !ContainsText(lines, "Uploading content...", "", out index) &&
+                !ContainsText(lines, "DRM wrap completed", "", out index)) // TODO: Separate this into a separate verification check
             {
                 result.errorText = "Failed to scan content to upload...";
                 return result;
@@ -433,6 +455,77 @@ namespace Wireframe
             process.StartInfo.Arguments = "";
             process.EnableRaisingEvents = true;
             process.Start();
+        }
+        
+        /// <summary>
+        /// The Steam DRM wrapper protects against extremely casual piracy (i.e. copying all game files to another computer) and has some obfuscation, but it is easily removed by a motivated attacker.
+        /// https://partner.steamgames.com/doc/features/drm#other_drm
+        ///
+        /// Works by uploading the .exe of your game and applies the DRM then writes it back to the output path.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<UploadResult> DRMWrap(int appID, string sourceExe, string resultEXE, int flags = 6)
+        {
+            UploadResult result = default;
+            try
+            {
+                bool retry = true;
+                string steamGuardCode = "";
+                while (retry)
+                {
+                    retry = false;
+                    
+                    m_uploadProcess = new Process();
+                    m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    m_uploadProcess.StartInfo.CreateNoWindow = true;
+                    m_uploadProcess.StartInfo.UseShellExecute = false;
+                    m_uploadProcess.StartInfo.FileName = m_exePath;
+                    m_uploadProcess.StartInfo.Arguments = CreateDRMWrapSteamArguments(true, true, steamGuardCode, appID, sourceExe, resultEXE, flags);
+                    m_uploadProcess.StartInfo.RedirectStandardError = true;
+                    m_uploadProcess.StartInfo.RedirectStandardOutput = true;
+                    m_uploadProcess.EnableRaisingEvents = true;
+                    m_uploadProcess.Start();
+                    
+                    string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
+                    
+                    // Hide username
+                    if (UserName != null && UserName.Length > 2)
+                    {
+                        textDump = textDump.Replace(UserName, "**********");
+                    }
+                    
+                    var outputResults = await LogOutSteamResult(textDump, true);
+                    m_uploadProcess.WaitForExit();
+                    m_uploadProcess.Close();
+
+                    result = new UploadResult(outputResults.successful, outputResults.errorText);
+                    if (!outputResults.successful)
+                    {
+                        Debug.LogError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
+                        retry = outputResults.retry;
+                        if (!string.IsNullOrEmpty(outputResults.steamGuardCode))
+                        {
+                            steamGuardCode = outputResults.steamGuardCode;
+                        }
+                        if (!string.IsNullOrEmpty(outputResults.steamTwoFactorCode))
+                        {
+                            steamGuardCode = outputResults.steamTwoFactorCode;
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("[Steam] Steam DRMWrap successful!\n\n" + textDump);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                result = UploadResult.Failed(e.Message);
+            }
+
+            await Task.Delay(10);
+            return result;
         }
 
         /// <summary>

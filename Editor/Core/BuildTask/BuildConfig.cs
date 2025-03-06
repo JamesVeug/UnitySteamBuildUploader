@@ -8,20 +8,15 @@ namespace Wireframe
 {
     internal class BuildConfig
     {
-        public bool Collapsed { get; set; } = false;
+        public bool Collapsed { get; set; } = true;
         public bool Enabled { get; set; } = true;
         public string GUID { get; set; }
-        public bool IsBuilding
-        {
-            get
-            {
-                return m_buildSource != null && m_buildDestination != null && 
-                       (m_buildSource.IsRunning || m_buildDestination.IsRunning);
-            }
-        }
+        public List<ABuildConfigModifer> Modifers => m_modifers;
 
         private ABuildSource m_buildSource;
         private UIHelpers.BuildSourcesPopup.SourceData m_buildSourceType;
+        
+        private List<ABuildConfigModifer> m_modifers = new List<ABuildConfigModifer>();
         
         private ABuildDestination m_buildDestination;
         private UIHelpers.BuildDestinationsPopup.DestinationData m_buildDestinationType;
@@ -33,9 +28,29 @@ namespace Wireframe
         {
             m_window = window;
             GUID = Guid.NewGuid().ToString();
+            Initialize();
         }
 
-        private void Setup()
+        private void Initialize()
+        {
+            // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
+            // This isn't needed so add it as a default modifier
+            ExcludeFilesByRegex_BuildModifier regexBuildModifier = new ExcludeFilesByRegex_BuildModifier();
+            regexBuildModifier.Add("*_DoNotShip", true, false);
+            
+            m_modifers = new List<ABuildConfigModifer>
+            {
+                regexBuildModifier,
+                new SteamDRM_BuildModifier(),
+            };
+
+            foreach (ABuildConfigModifer modifer in m_modifers)
+            {
+                modifer.Setup(()=>m_window.Repaint());
+            }
+        }
+
+        public void Setup()
         {
             if (m_titleStyle == null)
             {
@@ -101,7 +116,7 @@ namespace Wireframe
 
                 // Progress
                 string progressText = "->";
-                if (IsBuilding)
+                if (IsBuilding())
                 {
                     float progress = m_buildSource.DownloadProgress() + m_buildDestination.UploadProgress();
                     float ratio = progress / 2.0f;
@@ -164,6 +179,15 @@ namespace Wireframe
                     if (m_buildSource != null)
                     {
                         m_buildSource.OnGUIExpanded(ref isDirty);
+                    }
+                
+                    GUILayout.Space(10);
+                    
+                    // Modifiers
+                    GUILayout.Label("Modifiers");
+                    foreach (ABuildConfigModifer modifer in m_modifers)
+                    {
+                        isDirty |= modifer.OnGUI();
                     }
                 }
 
@@ -308,6 +332,12 @@ namespace Wireframe
                     }
                 }
             }
+        }
+
+        public bool IsBuilding()
+        {
+            return m_buildSource != null && m_buildDestination != null &&
+                   (m_buildSource.IsRunning || m_buildDestination.IsRunning);
         }
     }
 }

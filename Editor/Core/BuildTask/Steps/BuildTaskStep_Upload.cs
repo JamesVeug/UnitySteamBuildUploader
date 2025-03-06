@@ -14,7 +14,7 @@ namespace Wireframe
         
         public override async Task<bool> Run(BuildTask buildTask)
         {
-            int uploadID = ProgressUtils.Start("Uploading", "Starting...");
+            int uploadID = ProgressUtils.Start(Name, "Setting up...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             m_uploadResults = new UploadResult[buildConfigs.Count];
 
@@ -60,7 +60,7 @@ namespace Wireframe
                 }
 
                 float progress = completionAmount / uploads.Count;
-                ProgressUtils.Report(uploadID, progress, "Uploading...");
+                ProgressUtils.Report(uploadID, progress, "Waiting for all to be uploaded...");
                 await Task.Delay(10);
             }
 

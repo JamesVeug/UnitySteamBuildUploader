@@ -35,12 +35,13 @@ namespace Wireframe
 
         public async Task Start(Action tick = null)
         {
-            progressId = ProgressUtils.Start("Build Uploader Window", "Starting up...");
+            progressId = ProgressUtils.Start("Build Uploader Window", "Upload Builds");
 
             ABuildTask_Step[] steps = new ABuildTask_Step[]
             {
                 new BuildTaskStep_GetSources(), // Download content from services or get local folder
                 new BuildTaskStep_CacheSources(), // Cache the content in Utils.CachePath
+                new BuildTaskStep_ModifyCachedSources(), // Modify the build so it's ready to be uploaded (Remove/add files)
                 new BuildTaskStep_PrepareDestinations(), // Make sure the destination is ready to receive the content
                 new BuildTaskStep_Upload() // Upload cached content
             };
@@ -48,7 +49,7 @@ namespace Wireframe
             bool successful = true;
             for (int i = 0; i < steps.Length; i++)
             {
-                ProgressUtils.Report(progressId, (float)i/steps.Length, steps[i].Name);
+                ProgressUtils.Report(progressId, (float)i/steps.Length, "Upload Builds");
                 Task<bool> task = steps[i].Run(this);
                 while (!task.IsCompleted)
                 {

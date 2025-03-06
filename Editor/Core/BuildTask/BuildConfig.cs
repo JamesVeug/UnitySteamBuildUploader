@@ -27,7 +27,7 @@ namespace Wireframe
         public BuildConfig(BuildUploaderWindow window)
         {
             m_window = window;
-            GUID = Guid.NewGuid().ToString();
+            GUID = Guid.NewGuid().ToString().Substring(0,5);
             Initialize();
         }
 
@@ -296,7 +296,7 @@ namespace Wireframe
             else
             {
                 // Generate a new GUID
-                GUID = Guid.NewGuid().ToString();
+                GUID = Guid.NewGuid().ToString().Substring(0,5);
             }
 
             // Source

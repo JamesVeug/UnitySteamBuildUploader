@@ -35,5 +35,28 @@ namespace Wireframe
                 }
             }
         }
+        
+        public static async Task<bool> CopyDirectoryAsync(string sourcePath, string cacheFolderPath)
+        {
+            try
+            {
+                foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+                {
+                    Directory.CreateDirectory(dirPath.Replace(sourcePath, cacheFolderPath));
+                }
+
+                foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                {
+                    await CopyFileAsync(newPath, newPath.Replace(sourcePath, cacheFolderPath));
+                }
+
+                return true;
+            }
+            catch (IOException e)
+            {
+                Debug.LogException(e);
+                return false;
+            }
+        }
     }
 }

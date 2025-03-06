@@ -242,33 +242,6 @@ namespace Wireframe
             return description;
         }
 
-        public override void CleanUp()
-        {
-            base.CleanUp();
-
-            if (m_finalSourcePath == m_enteredFilePath)
-            {
-                return;
-            }
-
-            if (Utils.IsPathADirectory(m_finalSourcePath))
-            {
-                if (Directory.Exists(m_finalSourcePath))
-                {
-                    Debug.Log("Deleting cached file: " + m_finalSourcePath);
-                    Directory.Delete(m_finalSourcePath, true);
-                }
-            }
-            else
-            {
-                if (File.Exists(m_finalSourcePath))
-                {
-                    Debug.Log("Deleting cached file: " + m_finalSourcePath);
-                    File.Delete(m_finalSourcePath);
-                }
-            }
-        }
-
         public override Dictionary<string, object> Serialize()
         {
             return new Dictionary<string, object>()

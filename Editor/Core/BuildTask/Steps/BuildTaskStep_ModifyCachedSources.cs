@@ -85,6 +85,5 @@ namespace Wireframe
             
             buildTask.DisplayDialog(message, "Okay");
         }
-
     }
 }

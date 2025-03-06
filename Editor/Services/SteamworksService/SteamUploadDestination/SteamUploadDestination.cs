@@ -25,7 +25,6 @@ namespace Wireframe
         private SteamBranch m_destinationBranch;
         
         private string m_filePath;
-        private string m_unzippedfilePath;
         private SteamApp m_uploadApp;
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
@@ -67,7 +66,8 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Create DepotFile:", GUILayout.Width(120));
-                isDirty |= CustomToggle.DrawToggle(ref m_createDepotFile);
+                bool drawToggle = CustomToggle.DrawToggle(ref m_createDepotFile);
+                isDirty |= drawToggle;
             }
 
             using (new GUILayout.HorizontalScope())
@@ -87,48 +87,11 @@ namespace Wireframe
         public override async Task<UploadResult> Upload(string filePath, string buildDescription)
         {
             m_filePath = filePath;
-            m_unzippedfilePath = "";
             m_uploadInProgress = true;
             
             m_uploadApp = new SteamApp(m_current);
             m_uploadDepot = new SteamDepot(m_depot);
             m_uploadBranch = new SteamBranch(m_destinationBranch);
-            
-            
-            if (File.Exists(filePath) && filePath.EndsWith(".zip"))
-            {
-                Debug.Log("Unzipping file...");
-                m_progressDescription = "Unzipped file...";
-                    
-                // We need to unzip!
-                string fileName = Path.GetFileNameWithoutExtension(filePath);
-                m_unzippedfilePath = Path.Combine(Utils.CacheFolder, "SteamBuilds", fileName);
-                
-                await Task.Yield(); // Show UI
-
-                if (Directory.Exists(m_unzippedfilePath))
-                {
-                    Directory.Delete(m_unzippedfilePath);
-                }
-                
-                if (!Directory.Exists(m_unzippedfilePath))
-                {
-                    Directory.CreateDirectory(m_unzippedfilePath);
-                }
-                
-                try
-                {
-                    ZipUtils.UnZip(m_filePath, m_unzippedfilePath);
-                }
-                catch (IOException e)
-                {
-                    Debug.LogException(e);
-                    m_uploadInProgress = false;
-                    return UploadResult.Failed("Failed to unzip file");
-                }
-
-                m_filePath = m_unzippedfilePath;
-            }
 
             if (m_createAppFile)
             {
@@ -167,15 +130,6 @@ namespace Wireframe
             m_uploadProgress = 0.75f;
 
             return await SteamSDK.Instance.Upload(m_uploadApp.App, m_uploadToSteam);
-        }
-
-        public override void CleanUp()
-        {
-            base.CleanUp();
-            if (!string.IsNullOrEmpty(m_unzippedfilePath) && Directory.Exists(m_unzippedfilePath))
-            {
-                Directory.Delete(m_unzippedfilePath);
-            }
         }
 
         public override string ProgressTitle()

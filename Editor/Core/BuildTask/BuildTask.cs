@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -49,7 +50,7 @@ namespace Wireframe
             bool successful = true;
             for (int i = 0; i < steps.Length; i++)
             {
-                ProgressUtils.Report(progressId, (float)i/steps.Length, "Upload Builds");
+                ProgressUtils.Report(progressId, (float)i/(steps.Length+1), "Upload Builds");
                 Task<bool> task = steps[i].Run(this);
                 while (!task.IsCompleted)
                 {
@@ -72,19 +73,46 @@ namespace Wireframe
             }
             
             // Cleanup to make sure nothing is left behind - dirtying up the users computer
-            for (int i = 0; i < buildConfigs.Count; i++)
+            ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+1), "Cleaning up");
+            if (Preferences.DeleteCacheAfterBuild)
             {
-                ProgressUtils.Report(progressId, 1f, "Cleaning up...");
-                for (int j = 0; j < buildConfigs.Count; j++)
+                // Delete cache
+                int cleanupProgressId = ProgressUtils.Start("Cleanup", "Deleting cached files");
+                for (var i = 0; i < cachedLocations.Length; i++)
                 {
-                    if (buildConfigs[j].Enabled)
+                    var cachedLocation = cachedLocations[i];
+                    if (!Directory.Exists(cachedLocation))
                     {
-                        buildConfigs[j].Source().CleanUp();
-                        buildConfigs[j].Destination().CleanUp();
+                        continue;
+                    }
+                    
+                    await Task.Yield();
+                    ProgressUtils.Report(cleanupProgressId, 0, $"Deleting cached files " + (i+1) + "/" + cachedLocations.Length);
+                    
+                    Directory.Delete(cachedLocation, true);
+                }
+
+                // Cleanup configs
+                ProgressUtils.Report(cleanupProgressId, 0.5f, "Cleaning up configs");
+                for (int i = 0; i < buildConfigs.Count; i++)
+                {
+                    await Task.Yield();
+                    ProgressUtils.Report(cleanupProgressId, 0.5f, $"Cleaning up configs " + (i+1) + "/" + buildConfigs.Count);
+                    
+                    if (buildConfigs[i].Enabled)
+                    {
+                        buildConfigs[i].Source().CleanUp();
+                        buildConfigs[i].Destination().CleanUp();
                     }
                 }
+                
+                ProgressUtils.Remove(cleanupProgressId);
             }
-
+            else
+            {
+                Debug.Log("Skipping cache and build cleanup. Re-enable in preferences.");
+            }
+                
             ProgressUtils.Remove(progressId);
         }
 

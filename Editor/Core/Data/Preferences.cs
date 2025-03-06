@@ -7,14 +7,34 @@ namespace Wireframe
 {
     internal static class Preferences
     {
+        public static bool DeleteCacheAfterBuild
+        {
+            get => EditorPrefs.GetBool("BuildUploader_DeleteCacheAfterBuild", true);
+            set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
+        } 
+        
         [PreferenceItem("Build Uploader")]
         private static void OnPreferencesGUI()
         {
             GUILayout.Label("Preferences for the Build Uploader. Required to log into various services.", EditorStyles.wordWrappedLabel);
 
-            if (GUILayout.Button("Open Cache Folder"))
+            GUILayout.Space(20);
+            EditorGUILayout.LabelField("Build Cache");
+            using (new GUILayout.HorizontalScope())
             {
-                EditorUtility.RevealInFinder(Utils.CacheFolder);
+                if (GUILayout.Button("Open Cache Folder"))
+                {
+                    EditorUtility.RevealInFinder(Utils.CacheFolder);
+                }
+                
+                EditorGUILayout.LabelField("Delete cache after building", GUILayout.Width(160));
+
+                bool cacheAfterBuild = DeleteCacheAfterBuild;
+                bool newCacheAfterBuild = EditorGUILayout.Toggle(cacheAfterBuild);
+                if (newCacheAfterBuild != DeleteCacheAfterBuild)
+                {
+                    DeleteCacheAfterBuild = newCacheAfterBuild;
+                }
             }
 
             foreach (AService service in InternalUtils.AllServices())

@@ -64,7 +64,7 @@ namespace Wireframe
         private async Task<bool> ModifyBuild(BuildTask task, int sourceIndex)
         {
             BuildConfig buildConfig = task.BuildConfigs[sourceIndex];
-            foreach (ABuildConfigModifer modifer in buildConfig.Modifers)
+            foreach (ABuildConfigModifer modifer in buildConfig.Modifiers)
             {
                 UploadResult result = await modifer.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex);
                 if (!result.Successful)

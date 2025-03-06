@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -73,13 +74,22 @@ namespace Wireframe
         {
             return new Dictionary<string, object>
             {
-                ["enabled"] = m_enabled
+                ["enabled"] = m_enabled,
+                ["flags"] = m_flags,
+                ["appID"] = m_current?.Id
             };
         }
 
         public override void Deserialize(Dictionary<string, object> data)
         {
             m_enabled = (bool)data["enabled"];
+            m_flags = Convert.ToInt32(data["flags"]);
+            
+            if (data.TryGetValue("appID", out object configIDString) && configIDString != null)
+            {
+                SteamApp[] buildConfigs = SteamUIUtils.ConfigPopup.Values;
+                m_current = buildConfigs.FirstOrDefault(a=> a.Id == (long)configIDString);
+            }
         }
     }
 }

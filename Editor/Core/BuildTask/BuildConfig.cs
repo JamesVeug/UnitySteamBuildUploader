@@ -11,12 +11,12 @@ namespace Wireframe
         public bool Collapsed { get; set; } = true;
         public bool Enabled { get; set; } = true;
         public string GUID { get; set; }
-        public List<ABuildConfigModifer> Modifers => m_modifers;
+        public List<ABuildConfigModifer> Modifiers => m_modifiers;
 
         private ABuildSource m_buildSource;
         private UIHelpers.BuildSourcesPopup.SourceData m_buildSourceType;
         
-        private List<ABuildConfigModifer> m_modifers = new List<ABuildConfigModifer>();
+        private List<ABuildConfigModifer> m_modifiers = new List<ABuildConfigModifer>();
         
         private ABuildDestination m_buildDestination;
         private UIHelpers.BuildDestinationsPopup.DestinationData m_buildDestinationType;
@@ -38,13 +38,13 @@ namespace Wireframe
             ExcludeFilesByRegex_BuildModifier regexBuildModifier = new ExcludeFilesByRegex_BuildModifier();
             regexBuildModifier.Add("*_DoNotShip", true, false);
             
-            m_modifers = new List<ABuildConfigModifer>
+            m_modifiers = new List<ABuildConfigModifer>
             {
                 regexBuildModifier,
                 new SteamDRM_BuildModifier(),
             };
 
-            foreach (ABuildConfigModifer modifer in m_modifers)
+            foreach (ABuildConfigModifer modifer in m_modifiers)
             {
                 modifer.Setup(()=>m_window.Repaint());
             }
@@ -185,7 +185,7 @@ namespace Wireframe
                     
                     // Modifiers
                     GUILayout.Label("Modifiers");
-                    foreach (ABuildConfigModifer modifer in m_modifers)
+                    foreach (ABuildConfigModifer modifer in m_modifiers)
                     {
                         isDirty |= modifer.OnGUI();
                     }
@@ -272,6 +272,12 @@ namespace Wireframe
                 ["guid"] = GUID,
                 ["sourceFullType"] = m_buildSource?.GetType().FullName,
                 ["source"] = m_buildSource?.Serialize(),
+                ["modifiers"] = m_modifiers.Select(a =>
+                {
+                    Dictionary<string,object> dictionary = a.Serialize();
+                    dictionary["$type"] = a.GetType().FullName;
+                    return dictionary;
+                }).ToList(),
                 ["destinationFullType"] = m_buildDestination?.GetType().FullName,
                 ["destination"] = m_buildDestination?.Serialize()
             };
@@ -315,6 +321,33 @@ namespace Wireframe
                     }
                 }
             }
+            
+            // Modifiers
+            if (data.TryGetValue("modifiers", out object modifiers))
+            {
+                m_modifiers = new List<ABuildConfigModifer>(); // Clear so we know its empty
+                
+                List<object> modifierList = (List<object>)modifiers;
+                foreach (object modifier in modifierList)
+                {
+                    Dictionary<string, object> modifierDictionary = (Dictionary<string, object>)modifier;
+                    if (modifierDictionary.TryGetValue("$type", out object modifierType))
+                    {
+                        Type type = Type.GetType((string)modifierType);
+                        if (type != null)
+                        {
+                            ABuildConfigModifer buildConfigModifer = Activator.CreateInstance(type) as ABuildConfigModifer;
+                            if (buildConfigModifer != null)
+                            {
+                                buildConfigModifer.Setup(()=>m_window.Repaint());
+                                buildConfigModifer.Deserialize(modifierDictionary);
+                                m_modifiers.Add(buildConfigModifer);
+                            }
+                        }
+                    }
+                }
+            }
+            
 
             // Destination
             if (data.TryGetValue("destinationFullType", out object destinationFullType) && destinationFullType != null)

@@ -137,8 +137,8 @@ namespace Wireframe
 
         public override void Deserialize(Dictionary<string, object> data)
         {
-            var allRegexes = (object[])data["regexes"];
-            m_fileRegexes = new List<Selection>(allRegexes.Length);
+            var allRegexes = (List<object>)data["regexes"];
+            m_fileRegexes.Clear();
             foreach (object o in allRegexes)
             {
                 Selection selection = new Selection();

@@ -46,7 +46,7 @@ namespace Wireframe
 
             foreach (ABuildConfigModifer modifer in m_modifiers)
             {
-                modifer.Setup(()=>m_window.Repaint());
+                modifer.Initialize(()=>m_window.Repaint());
             }
         }
 
@@ -231,6 +231,16 @@ namespace Wireframe
                 return false;
             }
 
+            for (var i = 0; i < m_modifiers.Count; i++)
+            {
+                var modifier = m_modifiers[i];
+                if (!modifier.IsSetup(out string modifierReason))
+                {
+                    reason = $"Modifier #{i+1}: {modifierReason}";
+                    return false;
+                }
+            }
+
             if (m_buildDestination == null)
             {
                 reason = "No Destination specified";
@@ -240,14 +250,6 @@ namespace Wireframe
             {
                 reason = "Destination: " + destinationReason;
                 return false;
-            }
-
-            foreach (AService service in InternalUtils.AllServices())
-            {
-                if (!service.IsReadyToStartBuild(out reason))
-                {
-                    return false;
-                }
             }
 
             reason = "";
@@ -339,7 +341,7 @@ namespace Wireframe
                             ABuildConfigModifer buildConfigModifer = Activator.CreateInstance(type) as ABuildConfigModifer;
                             if (buildConfigModifer != null)
                             {
-                                buildConfigModifer.Setup(()=>m_window.Repaint());
+                                buildConfigModifer.Initialize(()=>m_window.Repaint());
                                 buildConfigModifer.Deserialize(modifierDictionary);
                                 m_modifiers.Add(buildConfigModifer);
                             }

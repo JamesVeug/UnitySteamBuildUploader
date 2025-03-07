@@ -13,9 +13,32 @@ namespace Wireframe
         private SteamApp m_current;
         private int m_flags;
 
-        public override void Setup(Action onChanged)
+        public override void Initialize(Action onChanged)
         {
             m_flags = 0;
+        }
+
+        public override bool IsSetup(out string reason)
+        {
+            if (!m_enabled)
+            {
+                reason = "";
+                return true;
+            }
+
+            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out reason))
+            {
+                return false;
+            }
+            
+            if (m_current == null)
+            {
+                reason = "No Steam App selected";
+                return false;
+            }
+            
+            reason = "";
+            return true;
         }
 
         public override async Task<UploadResult> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex)

@@ -139,21 +139,26 @@ namespace Wireframe
 
         public override bool IsSetup(out string reason)
         {
+            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out reason))
+            {
+                return false;
+            }
+            
             if (m_current == null)
             {
-                reason = "Steam Game not selected";
+                reason = "No App selected";
                 return false;
             }
 
             if (m_depot == null)
             {
-                reason = "No depot selected";
+                reason = "No Depot selected";
                 return false;
             }
 
             if (m_destinationBranch == null)
             {
-                reason = "No branch selected";
+                reason = "No Branch selected";
                 return false;
             }
 

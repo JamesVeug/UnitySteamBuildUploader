@@ -185,6 +185,11 @@ namespace Wireframe
 
         public override bool IsSetup(out string reason)
         {
+            if (!InternalUtils.GetService<UnityCloudService>().IsReadyToStartBuild(out reason))
+            {
+                return false;
+            }
+            
             if (sourceTarget == null)
             {
                 reason = "No target selected";

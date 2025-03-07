@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -43,13 +42,30 @@ namespace Wireframe
         private ReorderableListOfExcludeFileByRegexSelection m_reorderableList = new ReorderableListOfExcludeFileByRegexSelection();
         private Action m_onChanged;
 
-        public override void Setup(Action onChanged)
+        public override void Initialize(Action onChanged)
         {
             m_onChanged = onChanged;
             m_reorderableList.Initialize(m_fileRegexes, "Exclude Files", regex =>
             {
                 m_onChanged.Invoke();
             });
+        }
+
+        public override bool IsSetup(out string reason)
+        {
+            for (var i = 0; i < m_fileRegexes.Count; i++)
+            {
+                var selection = m_fileRegexes[i];
+                if (string.IsNullOrEmpty(selection.Regex))
+                {
+                    reason = $"Regex at index {i+1} is empty";
+                    return false;
+                }
+                
+            }
+            
+            reason = "";
+            return true;
         }
 
         public void Add(string path, bool deleteRecursively, bool searchAllDirectories)

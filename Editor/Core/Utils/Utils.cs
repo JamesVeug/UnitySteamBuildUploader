@@ -19,6 +19,16 @@ namespace Wireframe
             }
         }
         
+        public static Texture2D WarningIcon
+        {
+            get
+            {
+                var iconPath = "Packages/com.veugeljame.builduploader/warningicon.png";
+                Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
+                return loadAssetAtPath as Texture2D;
+            }
+        }
+        
         public static bool IsPathADirectory(string path)
         {
             FileAttributes attr = File.GetAttributes(path);

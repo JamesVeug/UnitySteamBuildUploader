@@ -50,7 +50,6 @@ namespace Wireframe
             
             // Find .exe
             string exePath = System.IO.Directory.GetFiles(cachedDirectory, "*.exe", System.IO.SearchOption.TopDirectoryOnly)[0];
-            // Debug.Log("[Steam] DRMWrapping " + exePath);
             if (string.IsNullOrEmpty(exePath) || !System.IO.File.Exists(exePath))
             {
                 Debug.LogError("[Steam] No exe found to DRMWrap in " + cachedDirectory);
@@ -60,7 +59,6 @@ namespace Wireframe
             int processID = ProgressUtils.Start("Steam DRM Modifier", "Wrapping exe with Steam DRM");
             UploadResult result = await SteamSDK.Instance.DRMWrap(m_current.Id, exePath, exePath, m_flags);
             ProgressUtils.Remove(processID);
-            // Debug.Log("[Steam] DRMWrap done " + result.Successful + " " + result.FailReason);
             return result;
         }
 
@@ -91,6 +89,14 @@ namespace Wireframe
                 return isDirty;
             }
 
+        }
+        
+        public override void TryGetWarnings(ABuildDestination destination, List<string> warnings)
+        {
+            if (destination is not SteamUploadDestination && destination is not NoUploadDestination)
+            {
+                warnings.Add("Steam DRM is set but the build is destined for a non-steam location. The build won't be playable!");
+            }
         }
 
         public override Dictionary<string, object> Serialize()

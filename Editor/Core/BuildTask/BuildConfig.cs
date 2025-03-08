@@ -149,6 +149,35 @@ namespace Wireframe
                     }
                 }
             }
+            
+            List<string> warnings = GetAllWarnings();
+            if(warnings.Count > 0)
+            {
+                foreach (string warning in warnings)
+                {
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label(Utils.WarningIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
+                        Color color = GUI.color;
+                        GUI.color = Color.yellow;
+                        GUILayout.Label("Warning: " + warning, EditorStyles.helpBox);
+                        GUI.color = color;
+                    }
+                }
+            }
+        }
+
+        private List<string> GetAllWarnings()
+        {
+            List<string> warnings = new List<string>();
+            foreach (ABuildConfigModifer modifer in m_modifiers)
+            {
+                modifer.TryGetWarnings(this, warnings);
+                modifer.TryGetWarnings(m_buildSource, warnings);
+                modifer.TryGetWarnings(m_buildDestination, warnings);
+            }
+
+            return warnings;
         }
 
         private void OnGUIExpanded(ref bool isDirty, BuildUploaderWindow uploaderWindow)

@@ -2,7 +2,7 @@
 
 <h1 align="center">Build Uploader</h1>
 
-<p align="center">Unity Editor tool for uploading builds to online services.</p>
+<p align="center">Unity Editor Tool For Uploading Builds To Online Services.</p>
 
 <p align="center">Steamworks Support | Open Source | Commercial Use</p>
 
@@ -12,14 +12,19 @@
 [![STARS](https://img.shields.io/github/stars/JamesVeug/UnitySteamBuildUploader)](https://github.com/JamesVeug/UnitySteamBuildUploader)
 
 ## Key Points
-- Windows (Mac WIP)
+- Windows
 - Unity 2021 and above.
   - No package dependencies
 - Unity 2020 and below.
   - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
 - Services
   - Steamworks
+    - Uploading a build
+    - DRM Wrapping
   - Unity Cloud Build
+    - View builds
+    - Download builds
+    - Start new builds
 - Minimal build size impact
 - Can be used commercially
 - Open Source
@@ -55,7 +60,7 @@
 
 ### 2. Setup
 
-<a href="https://ibb.co/61JHPPn"><img src="https://i.ibb.co/9V3bTT8/Screenshot-2025-01-03-213527.png" alt="Screenshot-2025-01-03-213527" border="0"></a>
+<a href="https://imgur.com/CSyR6M4"><img src="https://i.imgur.com/CSyR6M4.png" alt="Screenshot-2025-01-03-213527" border="0"></a>
 
 - a. Go to `Edit->Preferences->Build Uploader`
   - Steamworks
@@ -72,7 +77,7 @@
     - Enter the Secret Key
       - This is found in `DevOps->Settings->API Key`
       
-<a href="https://ibb.co/9VMYd9p"><img src="https://i.ibb.co/s6B3Xvg/Screenshot-2025-01-03-212949.png" alt="Screenshot-2025-01-03-212949" border="0"></a>
+<a href="https://imgur.com/QxMZ09b"><img src="https://imgur.com/QxMZ09b.png" alt="Screenshot-2025-01-03-212949" border="0"></a>
 
 - b. Go to `Edit->ProjectSettings->Build Uploader`
   - Press `New`
@@ -117,7 +122,7 @@
 
 
 ## Upload Tab
-<a href="https://ibb.co/7RSjdgL"><img src="https://i.ibb.co/3MT49fQ/Git-Sync-Tab-Pic.png" alt="Git-Sync-Tab-Pic" border="0"></a>
+<a href="https://imgur.com/pBnYzJR"><img src="https://imgur.com/pBnYzJR.png" alt="Git-Sync-Tab-Pic" border="0"></a>
 
 Specify where you want builds to come from and where you want them to go.
 - You can specify a file/file on your computer or choose from your Unity Cloud builds.
@@ -130,12 +135,62 @@ Specify where you want builds to come from and where you want them to go.
 
 
 ## Unity Cloud Tab (Optional)
-<a href="https://ibb.co/6tcrXN3"><img src="https://i.ibb.co/s1pbWt0/Git-Unity-Cloud-Pic.png" alt="Git-Unity-Cloud-Pic" border="0"></a>
+<a href="https://imgur.com/PNFJd87"><img src="https://imgur.com/PNFJd87.png" alt="Git-Unity-Cloud-Pic" border="0"></a>
 
 Utilize Unity Cloud to automate make builds of your project.
 - Tracks progress of current builds
 - Start a new build
 - Download builds
+
+## How does it work?
+
+<a href="https://imgur.com/3cKv2zs"><img src="https://i.imgur.com/3cKv2zs.png" alt="Upload process" border="0"></a>
+
+When pressing the `Download and Upload all` button the editor starts an async Build Task to begin the upload process.
+
+The Build Task has a number of steps that it goes through sequentially while its uploading. Each step is async and fires for each Build Config at the same time. When a Step is complete for all Build Configs it will proceed to the next step.
+
+> NOTE: If any Build Config fails at any point then the whole build task will cancel and notify the user of the issue.
+
+### 1. Get Source
+
+Download the build from the selected source
+eg: Choose File/Folder will save that location
+eg: Choose Unity Cloud will download the build from Unity Cloud
+
+
+### 2. Cache Source
+
+This will copy the selected contents from Source to a cache folder.
+
+`%userprofile%/appdata/locallow/<companyname>/<productname>/BuildUploader/CachedBuilds`
+
+The copied contents are required to be a folder and not a file or zip. The build step will unzip the contents.
+
+### 3. Modify Cached Contents
+
+This is where modifiers are applied to the cached contents.
+- Remove DoNotShip files/folders
+- Apply Steam DRM
+- etc
+
+### 4. Upload Contents
+
+This is the final step where everything is expected to be valid and ready to upload to the selected Destination.
+
+Each build config will upload at the same time.
+
+> NOTE: If 1 build fails to upload it does NOT prevent the others from uploading.
+> 
+> Example: Steam has the incorrect login credentials.
+> 
+> You can test the build before uploading by selecting `Nowhere` as the destination and disabling Deleting Caching in preferences. 
+> This will still go through the same process but not upload the build anywhere.
+
+### 5. Cleanup
+
+After the upload is complete the cache folder is deleted (Unless specified in Preferences to not)
+
 
 
 ## Security 🔒
@@ -146,9 +201,9 @@ Keeping your credentials safe is important to me!
 If you discover any security related issues, please email me, message on discord or create an issue on [github.](https://github.com/JamesVeug/UnitySteamBuildUploader)
 
 
-## Known Issues
-- Steam Two-Factor authentication requires you to enter in a code manually every time you upload
-  - I Don't know why it does not cache this locally like the Steam Guard Code.
+## Known Issues 🪳
+- Steam Two-Factor authentication requires you to enter the steam guard code manually every time you upload
+  - I Don't know why pressing "Confirm that's me" doesn't work, and it does not cache this locally like the Steam Guard Code.
 
 ## Reporting bugs / suggesting changes ❓
 
@@ -161,7 +216,7 @@ Include:
 - Are you using Mac or Windows
 
 
-## How to Contribute
+## How to Contribute 🔨
 - Fork the [repository](https://github.com/JamesVeug/UnitySteamBuildUploader)
 - Make your changes
 - Create a pull request to the `develop` branch
@@ -170,7 +225,7 @@ Include:
   - Include any concerns with the changes you made (So i'm aware of them too)
 
 
-## How to Support
+## How to Support 🙏
 
 A lot of effort has been put into this package for others to freely use. Any kind of support is greatly appreciated and encourages further work!
 
@@ -178,7 +233,7 @@ A lot of effort has been put into this package for others to freely use. Any kin
 - Review this package on the [Asset Store](https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907)
 - Buy me a coffee: https://buymeacoffee.com/jamesgamesnz
 
-## License
+## License 🪪
 Creative Commons - CC0 1.0 Universal
 
 Use this package however you want - commercially or non-commercially.

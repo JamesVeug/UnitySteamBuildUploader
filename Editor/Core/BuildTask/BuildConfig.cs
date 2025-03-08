@@ -155,15 +155,20 @@ namespace Wireframe
             {
                 foreach (string warning in warnings)
                 {
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        GUILayout.Label(Utils.WarningIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
-                        Color color = GUI.color;
-                        GUI.color = Color.yellow;
-                        GUILayout.Label("Warning: " + warning, EditorStyles.helpBox);
-                        GUI.color = color;
-                    }
+                    DrawWarning(warning);
                 }
+            }
+        }
+
+        private static void DrawWarning(string warning)
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label(Utils.WarningIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
+                Color color = GUI.color;
+                GUI.color = Color.yellow;
+                GUILayout.Label("Warning: " + warning, EditorStyles.helpBox);
+                GUI.color = color;
             }
         }
 
@@ -185,7 +190,7 @@ namespace Wireframe
             float windowWidth = m_window.position.width;
             using (new GUILayout.HorizontalScope())
             {
-                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth)))
+                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth/2)))
                 {
                     GUILayout.Label("Source", m_titleStyle);
                     using (new GUILayout.HorizontalScope())
@@ -208,6 +213,16 @@ namespace Wireframe
                     if (m_buildSource != null)
                     {
                         m_buildSource.OnGUIExpanded(ref isDirty);
+                        List<string> warnings = new List<string>();
+                        foreach (ABuildConfigModifer modifer in m_modifiers)
+                        {
+                            modifer.TryGetWarnings(this, warnings);
+                            modifer.TryGetWarnings(m_buildSource, warnings);
+                            foreach (string warning in warnings)
+                            {
+                                DrawWarning(warning);
+                            }
+                        }
                     }
                 
                     GUILayout.Space(10);
@@ -220,20 +235,26 @@ namespace Wireframe
                     }
                 }
 
-                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth)))
+                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth / 2)))
                 {
+                    GUILayout.Label("Destination", m_titleStyle);
                     using (new GUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Destination: ", GUILayout.Width(120));
-                        if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
+                        using (new GUILayout.HorizontalScope())
                         {
-                            isDirty = true;
-                            if(m_buildDestinationType != null){
-                                m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
-                            }
-                            else
+                            GUILayout.Label("Destination Type: ", GUILayout.Width(120));
+                            if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
                             {
-                                m_buildDestination = null;
+                                isDirty = true;
+                                if (m_buildDestinationType != null)
+                                {
+                                    m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type,
+                                        new object[] { uploaderWindow }) as ABuildDestination;
+                                }
+                                else
+                                {
+                                    m_buildDestination = null;
+                                }
                             }
                         }
                     }
@@ -241,6 +262,16 @@ namespace Wireframe
                     if (m_buildDestination != null)
                     {
                         m_buildDestination.OnGUIExpanded(ref isDirty);
+                        
+                        List<string> warnings = new List<string>();
+                        foreach (ABuildConfigModifer modifer in m_modifiers)
+                        {
+                            modifer.TryGetWarnings(m_buildDestination, warnings);
+                            foreach (string warning in warnings)
+                            {
+                                DrawWarning(warning);
+                            }
+                        }
                     }
                 }
             }

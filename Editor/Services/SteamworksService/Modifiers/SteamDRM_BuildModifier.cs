@@ -74,7 +74,7 @@ namespace Wireframe
                     isDirty = true;
                 }
                 
-                GUILayout.Label("Steam DRM", GUILayout.Width(70));
+                GUILayout.Label("Steam DRM (Anti-piracy)", GUILayout.Width(150));
                 if (GUILayout.Button("?", GUILayout.Width(20)))
                 {
                     Application.OpenURL("https://partner.steamgames.com/doc/features/drm");

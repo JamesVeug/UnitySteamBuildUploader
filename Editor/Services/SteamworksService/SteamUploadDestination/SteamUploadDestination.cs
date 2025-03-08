@@ -77,7 +77,7 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current);
             isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot);

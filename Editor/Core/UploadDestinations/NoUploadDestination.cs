@@ -22,7 +22,7 @@ namespace Wireframe
 
         }
 
-        public override void OnGUICollapsed(ref bool isDirty)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
 
         }

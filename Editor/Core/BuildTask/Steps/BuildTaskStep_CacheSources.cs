@@ -126,8 +126,8 @@ namespace Wireframe
             {
                 // Getting a file - put it in its own folder
                 // BuildUploader/CachedBuilds/FileName_GUID/FileName.extension
-                cacheFolderPath = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
-                await Utils.CopyFileAsync(sourcePath, cacheFolderPath);
+                string copiedFilePath = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
+                await Utils.CopyFileAsync(sourcePath, copiedFilePath);
             }
             
             task.CachedLocations[sourceIndex] = cacheFolderPath;

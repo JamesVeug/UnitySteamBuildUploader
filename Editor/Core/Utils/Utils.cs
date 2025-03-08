@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Wireframe
 {
@@ -31,8 +33,16 @@ namespace Wireframe
         
         public static bool IsPathADirectory(string path)
         {
-            FileAttributes attr = File.GetAttributes(path);
-            return (attr & FileAttributes.Directory) == FileAttributes.Directory;
+            try
+            {
+                FileAttributes attr = File.GetAttributes(path);
+                return (attr & FileAttributes.Directory) == FileAttributes.Directory;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return false;
+            }
         }
 
         public static async Task CopyFileAsync(string sourceFile, string destinationFile)

@@ -93,6 +93,11 @@ namespace Wireframe
         
         public override void TryGetWarnings(ABuildDestination destination, List<string> warnings)
         {
+            if (!m_enabled)
+            {
+                return;
+            }
+            
             if (destination is not SteamUploadDestination && destination is not NoUploadDestination)
             {
                 warnings.Add("Steam DRM is set but the build is destined for a non-steam location. The build won't be playable!");

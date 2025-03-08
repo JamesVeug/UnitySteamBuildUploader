@@ -145,7 +145,7 @@ namespace Wireframe
                 {
                     if (m_buildDestination != null)
                     {
-                        m_buildDestination.OnGUICollapsed(ref isDirty);
+                        m_buildDestination.OnGUICollapsed(ref isDirty, parts);
                     }
                 }
             }

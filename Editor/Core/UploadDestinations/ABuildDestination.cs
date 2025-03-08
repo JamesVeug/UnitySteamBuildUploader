@@ -32,7 +32,7 @@ namespace Wireframe
         public abstract void Deserialize(Dictionary<string, object> s);
 
         public abstract void OnGUIExpanded(ref bool isDirty);
-        public abstract void OnGUICollapsed(ref bool isDirty);
+        public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
 
         public virtual void CleanUp()
         {

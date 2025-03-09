@@ -61,7 +61,7 @@ namespace Wireframe
             }
 
 
-            if (steamPasswordAssigned || steamPasswordConfirmation == SteamSDK.UserPassword)
+            if (steamPasswordConfirmed)
             {
                 // Steam username
                 using (new GUILayout.HorizontalScope())
@@ -78,6 +78,10 @@ namespace Wireframe
             else
             {
                 steamPasswordConfirmation = PasswordField.Draw("Password:", 105, steamPasswordConfirmation);
+                if (steamPasswordConfirmation == SteamSDK.UserPassword)
+                {
+                    steamPasswordConfirmed = true;
+                }
             }
 
             if (GUILayout.Button("Reset login details"))
@@ -88,7 +92,7 @@ namespace Wireframe
                     SteamSDK.UserName = "";
                     SteamSDK.UserPassword = "";
                     steamPasswordConfirmation = "";
-                    steamPasswordAssigned = true;
+                    steamPasswordConfirmed = true; // confirmation password matches
                 }
             }
         }

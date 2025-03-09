@@ -9,7 +9,7 @@ namespace Wireframe
     internal partial class SteamworksService : AService
     {
         private static string steamPasswordConfirmation;
-        private static bool steamPasswordAssigned = false;
+        private static bool steamPasswordConfirmed = string.IsNullOrEmpty(SteamSDK.UserPassword);
 
         public SteamworksService()
         {

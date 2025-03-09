@@ -11,7 +11,7 @@
 [![LICENSE](https://img.shields.io/github/license/JamesVeug/UnitySteamBuildUploader)](LICENSE)
 [![STARS](https://img.shields.io/github/stars/JamesVeug/UnitySteamBuildUploader)](https://github.com/JamesVeug/UnitySteamBuildUploader)
 
-## Key Points
+## Key Points 💡
 - Windows
 - Unity 2021 and above.
   - No package dependencies
@@ -30,14 +30,14 @@
 - Open Source
 
 
-## Links
+## Links 
 - Support Me: https://buymeacoffee.com/jamesgamesnz
 - Discord: https://discord.gg/R2UjXB6pQ8
 - Github: https://github.com/JamesVeug/UnitySteamBuildUploader
 - Asset Store: https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907
 
 
-## How to Install
+## How to Install 💿
 
 <a href="https://youtu.be/w_ffKFQ5nh4?si=_bk7xMUItqdL1uUn"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Logo_of_YouTube_%282013-2015%29.svg/2560px-Logo_of_YouTube_%282013-2015%29.svg.png" alt="Git-Sync-Tab-Pic" border="0" width="81" height="32"></a>
 
@@ -74,7 +74,7 @@
       - You use this to log into https://cloud.unity.com/home/login
     - Enter your Project ID
       - You can find this in the URL of your Unity Cloud Build page eg: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-    - Enter the Secret Key
+    - Enter the DevOps API Key
       - This is found in `DevOps->Settings->API Key`
       
 <a href="https://imgur.com/QxMZ09b"><img src="https://imgur.com/QxMZ09b.png" alt="Screenshot-2025-01-03-212949" border="0"></a>

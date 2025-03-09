@@ -23,6 +23,13 @@ namespace Wireframe
                 return m_instance;
             }
         }
+
+        static SteamSDK()
+        {
+            // V2.1 - Migrate old preferences to new encoded values
+            EncodedEditorPrefs.MigrateKeyToEncoded<string>("steambuild_SDKUser", UserNameKey);
+            EncodedEditorPrefs.MigrateKeyToEncoded<string>("steambuild_SDKPass", UserPasswordKey);
+        }
         
         public static bool Enabled
         {
@@ -36,16 +43,19 @@ namespace Wireframe
             set => PlayerPrefs.SetString("steambuild_SDKPath", value);
         }
 
+        
+        private static string UserNameKey => Application.productName + "SteamUBuildUploader";
         public static string UserName
         {
-            get => EditorPrefs.GetString("steambuild_SDKUser");
-            set => EditorPrefs.SetString("steambuild_SDKUser", value);
+            get => EncodedEditorPrefs.GetString(UserNameKey, "");
+            set => EncodedEditorPrefs.SetString(UserNameKey, value);
         }
 
+        private static string UserPasswordKey => Application.productName + "SteamPBuildUploader";
         public static string UserPassword
         {
-            get => EditorPrefs.GetString("steambuild_SDKPass");
-            set => EditorPrefs.SetString("steambuild_SDKPass", value);
+            get => EncodedEditorPrefs.GetString(UserPasswordKey, "");
+            set => EncodedEditorPrefs.SetString(UserPasswordKey, value);
         }
         
         public static string SteamSDKEXEPath

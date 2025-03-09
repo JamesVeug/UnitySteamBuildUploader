@@ -8,6 +8,8 @@ using System;
 using System.IO;
 #endif
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+
 namespace Wireframe
 {
     /// <summary>
@@ -50,7 +52,7 @@ namespace Wireframe
                         entry.DateTime = DateTime.Now;
                         zipStream.PutNextEntry(entry);
 
-                        byte[] bytes = await File.ReadAllBytesAsync(file);
+                        byte[] bytes = File.ReadAllBytes(file);
                         zipStream.Write(bytes, 0, bytes.Length);
                     }
 

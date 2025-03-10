@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Wireframe
@@ -6,11 +7,25 @@ namespace Wireframe
     internal static class PasswordField
     {
         private static Dictionary<string, bool> m_passwordFieldToggles = new Dictionary<string, bool>();
-        public static string Draw(string label, int labelLength, string password, char mask = '*')
+        public static string Draw(string label, int labelLength, string password, char mask = '*', Action onHelpPressed = null)
         {
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label(label, GUILayout.Width(labelLength));
+                int realLabelLength = labelLength;
+                if (onHelpPressed != null)
+                {
+                    realLabelLength -= 20;
+                }
+                
+                GUILayout.Label(label, GUILayout.Width(realLabelLength));
+                
+                if (onHelpPressed != null)
+                {
+                    if (GUILayout.Button("?", GUILayout.Width(20)))
+                    {
+                        onHelpPressed();
+                    }
+                }
                 
                 if (password == null)
                 {

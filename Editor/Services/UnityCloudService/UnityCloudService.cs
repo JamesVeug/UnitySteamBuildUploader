@@ -14,6 +14,31 @@
         
         public override bool IsReadyToStartBuild(out string reason)
         {
+            if (!UnityCloud.Enabled)
+            {
+                reason = "Unity Cloud is not enabled in Preferences";
+                return false;
+            }
+            
+            if (string.IsNullOrEmpty(UnityCloud.Instance.Organization))
+            {
+                reason = "Organization is not set in Preferences";
+                return false;
+            }
+            
+            if (string.IsNullOrEmpty(UnityCloud.Instance.Project))
+            {
+                reason = "Project is not set in Preferences";
+                return false;
+            }
+            
+            if (string.IsNullOrEmpty(UnityCloud.Instance.Secret))
+            {
+                reason = "Secret is not set in Preferences";
+                return false;
+            }
+            
+            
             reason = "";
             return true;
         }

@@ -8,19 +8,15 @@ namespace Wireframe
 {
     internal class BuildConfig
     {
-        public bool Collapsed { get; set; } = false;
+        public bool Collapsed { get; set; } = true;
         public bool Enabled { get; set; } = true;
-        public bool IsBuilding
-        {
-            get
-            {
-                return m_buildSource != null && m_buildDestination != null && 
-                       (m_buildSource.IsRunning || m_buildDestination.IsRunning);
-            }
-        }
+        public string GUID { get; set; }
+        public List<ABuildConfigModifer> Modifiers => m_modifiers;
 
         private ABuildSource m_buildSource;
         private UIHelpers.BuildSourcesPopup.SourceData m_buildSourceType;
+        
+        private List<ABuildConfigModifer> m_modifiers = new List<ABuildConfigModifer>();
         
         private ABuildDestination m_buildDestination;
         private UIHelpers.BuildDestinationsPopup.DestinationData m_buildDestinationType;
@@ -31,9 +27,30 @@ namespace Wireframe
         public BuildConfig(BuildUploaderWindow window)
         {
             m_window = window;
+            GUID = Guid.NewGuid().ToString().Substring(0,5);
+            Initialize();
         }
 
-        private void Setup()
+        private void Initialize()
+        {
+            // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
+            // This isn't needed so add it as a default modifier
+            ExcludeFilesByRegex_BuildModifier regexBuildModifier = new ExcludeFilesByRegex_BuildModifier();
+            regexBuildModifier.Add("*_DoNotShip", true, false);
+            
+            m_modifiers = new List<ABuildConfigModifer>
+            {
+                regexBuildModifier,
+                new SteamDRM_BuildModifier(),
+            };
+
+            foreach (ABuildConfigModifer modifer in m_modifiers)
+            {
+                modifer.Initialize(()=>m_window.Repaint());
+            }
+        }
+
+        public void Setup()
         {
             if (m_titleStyle == null)
             {
@@ -99,7 +116,7 @@ namespace Wireframe
 
                 // Progress
                 string progressText = "->";
-                if (IsBuilding)
+                if (IsBuilding())
                 {
                     float progress = m_buildSource.DownloadProgress() + m_buildDestination.UploadProgress();
                     float ratio = progress / 2.0f;
@@ -128,10 +145,44 @@ namespace Wireframe
                 {
                     if (m_buildDestination != null)
                     {
-                        m_buildDestination.OnGUICollapsed(ref isDirty);
+                        m_buildDestination.OnGUICollapsed(ref isDirty, parts);
                     }
                 }
             }
+            
+            List<string> warnings = GetAllWarnings();
+            if(warnings.Count > 0)
+            {
+                foreach (string warning in warnings)
+                {
+                    DrawWarning(warning);
+                }
+            }
+        }
+
+        private static void DrawWarning(string warning)
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label(Utils.WarningIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
+                Color color = GUI.color;
+                GUI.color = Color.yellow;
+                GUILayout.Label("Warning: " + warning, EditorStyles.helpBox);
+                GUI.color = color;
+            }
+        }
+
+        private List<string> GetAllWarnings()
+        {
+            List<string> warnings = new List<string>();
+            foreach (ABuildConfigModifer modifer in m_modifiers)
+            {
+                modifer.TryGetWarnings(this, warnings);
+                modifer.TryGetWarnings(m_buildSource, warnings);
+                modifer.TryGetWarnings(m_buildDestination, warnings);
+            }
+
+            return warnings;
         }
 
         private void OnGUIExpanded(ref bool isDirty, BuildUploaderWindow uploaderWindow)
@@ -139,7 +190,7 @@ namespace Wireframe
             float windowWidth = m_window.position.width;
             using (new GUILayout.HorizontalScope())
             {
-                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth)))
+                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth/2)))
                 {
                     GUILayout.Label("Source", m_titleStyle);
                     using (new GUILayout.HorizontalScope())
@@ -162,23 +213,48 @@ namespace Wireframe
                     if (m_buildSource != null)
                     {
                         m_buildSource.OnGUIExpanded(ref isDirty);
+                        List<string> warnings = new List<string>();
+                        foreach (ABuildConfigModifer modifer in m_modifiers)
+                        {
+                            modifer.TryGetWarnings(this, warnings);
+                            modifer.TryGetWarnings(m_buildSource, warnings);
+                            foreach (string warning in warnings)
+                            {
+                                DrawWarning(warning);
+                            }
+                        }
+                    }
+                
+                    GUILayout.Space(10);
+                    
+                    // Modifiers
+                    GUILayout.Label("Modifiers");
+                    foreach (ABuildConfigModifer modifer in m_modifiers)
+                    {
+                        isDirty |= modifer.OnGUI();
                     }
                 }
 
-                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth)))
+                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth / 2)))
                 {
+                    GUILayout.Label("Destination", m_titleStyle);
                     using (new GUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Destination: ", GUILayout.Width(120));
-                        if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
+                        using (new GUILayout.HorizontalScope())
                         {
-                            isDirty = true;
-                            if(m_buildDestinationType != null){
-                                m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
-                            }
-                            else
+                            GUILayout.Label("Destination Type: ", GUILayout.Width(120));
+                            if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
                             {
-                                m_buildDestination = null;
+                                isDirty = true;
+                                if (m_buildDestinationType != null)
+                                {
+                                    m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type,
+                                        new object[] { uploaderWindow }) as ABuildDestination;
+                                }
+                                else
+                                {
+                                    m_buildDestination = null;
+                                }
                             }
                         }
                     }
@@ -186,6 +262,16 @@ namespace Wireframe
                     if (m_buildDestination != null)
                     {
                         m_buildDestination.OnGUIExpanded(ref isDirty);
+                        
+                        List<string> warnings = new List<string>();
+                        foreach (ABuildConfigModifer modifer in m_modifiers)
+                        {
+                            modifer.TryGetWarnings(m_buildDestination, warnings);
+                            foreach (string warning in warnings)
+                            {
+                                DrawWarning(warning);
+                            }
+                        }
                     }
                 }
             }
@@ -205,6 +291,16 @@ namespace Wireframe
                 return false;
             }
 
+            for (var i = 0; i < m_modifiers.Count; i++)
+            {
+                var modifier = m_modifiers[i];
+                if (!modifier.IsSetup(out string modifierReason))
+                {
+                    reason = $"Modifier #{i+1}: {modifierReason}";
+                    return false;
+                }
+            }
+
             if (m_buildDestination == null)
             {
                 reason = "No Destination specified";
@@ -214,14 +310,6 @@ namespace Wireframe
             {
                 reason = "Destination: " + destinationReason;
                 return false;
-            }
-
-            foreach (AService service in InternalUtils.AllServices())
-            {
-                if (!service.IsReadyToStartBuild(out reason))
-                {
-                    return false;
-                }
             }
 
             reason = "";
@@ -243,8 +331,15 @@ namespace Wireframe
             Dictionary<string, object> data = new Dictionary<string, object>
             {
                 ["enabled"] = Enabled,
+                ["guid"] = GUID,
                 ["sourceFullType"] = m_buildSource?.GetType().FullName,
                 ["source"] = m_buildSource?.Serialize(),
+                ["modifiers"] = m_modifiers.Select(a =>
+                {
+                    Dictionary<string,object> dictionary = a.Serialize();
+                    dictionary["$type"] = a.GetType().FullName;
+                    return dictionary;
+                }).ToList(),
                 ["destinationFullType"] = m_buildDestination?.GetType().FullName,
                 ["destination"] = m_buildDestination?.Serialize()
             };
@@ -259,6 +354,17 @@ namespace Wireframe
             if (data.TryGetValue("enabled", out enabled))
             {
                 Enabled = (bool)enabled;
+            }
+            
+            // GUID
+            if (data.TryGetValue("guid", out object guid))
+            {
+                GUID = (string)guid;
+            }
+            else
+            {
+                // Generate a new GUID
+                GUID = Guid.NewGuid().ToString().Substring(0,5);
             }
 
             // Source
@@ -277,6 +383,33 @@ namespace Wireframe
                     }
                 }
             }
+            
+            // Modifiers
+            if (data.TryGetValue("modifiers", out object modifiers))
+            {
+                m_modifiers = new List<ABuildConfigModifer>(); // Clear so we know its empty
+                
+                List<object> modifierList = (List<object>)modifiers;
+                foreach (object modifier in modifierList)
+                {
+                    Dictionary<string, object> modifierDictionary = (Dictionary<string, object>)modifier;
+                    if (modifierDictionary.TryGetValue("$type", out object modifierType))
+                    {
+                        Type type = Type.GetType((string)modifierType);
+                        if (type != null)
+                        {
+                            ABuildConfigModifer buildConfigModifer = Activator.CreateInstance(type) as ABuildConfigModifer;
+                            if (buildConfigModifer != null)
+                            {
+                                buildConfigModifer.Initialize(()=>m_window.Repaint());
+                                buildConfigModifer.Deserialize(modifierDictionary);
+                                m_modifiers.Add(buildConfigModifer);
+                            }
+                        }
+                    }
+                }
+            }
+            
 
             // Destination
             if (data.TryGetValue("destinationFullType", out object destinationFullType) && destinationFullType != null)
@@ -294,6 +427,12 @@ namespace Wireframe
                     }
                 }
             }
+        }
+
+        public bool IsBuilding()
+        {
+            return m_buildSource != null && m_buildDestination != null &&
+                   (m_buildSource.IsRunning || m_buildDestination.IsRunning);
         }
     }
 }

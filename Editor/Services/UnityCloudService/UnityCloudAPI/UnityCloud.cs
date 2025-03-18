@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -18,6 +19,14 @@ namespace Wireframe
         }
 
         private static UnityCloud m_instance;
+
+        static UnityCloud()
+        {
+            // Migrate everything over to encoded values
+            EncodedEditorPrefs.MigrateKeyToEncoded<string>("unityCloud_organization", OrganizationKey);
+            EncodedEditorPrefs.MigrateKeyToEncoded<string>("unityCloud_project", ProjectKey);
+            EncodedEditorPrefs.MigrateKeyToEncoded<string>("unityCloud_secret", SecretKey);
+        }
         
         public static bool Enabled
         {
@@ -25,22 +34,25 @@ namespace Wireframe
             set => EditorPrefs.SetBool("unityCloud_enabled", value);
         }
 
+        private static string OrganizationKey => Application.productName + "UnityCloudOBuildUploader";
         public string Organization
         {
-            get => EditorPrefs.GetString("unityCloud_organization", null);
-            set => EditorPrefs.SetString("unityCloud_organization", value);
+            get => EncodedEditorPrefs.GetString(OrganizationKey, "");
+            set => EncodedEditorPrefs.SetString(OrganizationKey, value);
         }
 
+        private static string ProjectKey => Application.productName + "UnityCloudPBuildUploader";
         public string Project
         {
-            get => EditorPrefs.GetString("unityCloud_project", null);
-            set => EditorPrefs.SetString("unityCloud_project", value);
+            get => EncodedEditorPrefs.GetString(ProjectKey, "");
+            set => EncodedEditorPrefs.SetString(ProjectKey, value);
         }
 
+        private static string SecretKey => Application.productName + "UnityCloudSBuildUploader";
         public string Secret
         {
-            get => EditorPrefs.GetString("unityCloud_secret", null);
-            set => EditorPrefs.SetString("unityCloud_secret", value);
+            get => EncodedEditorPrefs.GetString(SecretKey, "");
+            set => EncodedEditorPrefs.SetString(SecretKey, value);
         }
 
         public bool IsInitialized()

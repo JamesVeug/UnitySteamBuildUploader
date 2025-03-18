@@ -11,8 +11,8 @@ namespace Wireframe
             
 #if UNITY_2022_1_OR_NEWER
             return prop.GetValue();
-#endif
-
+#else
+            // Note: I think this doesn't actually work. It's not used so not bothering to fix it
             var path = prop.propertyPath.Replace(".Array.data[", "[");
             object obj = prop.serializedObject.targetObject;
             var elements = path.Split('.');
@@ -32,6 +32,7 @@ namespace Wireframe
             }
 
             return obj;
+#endif
         }
         
         public static void SetValue(this SerializedProperty prop, object value)
@@ -40,10 +41,10 @@ namespace Wireframe
             
 #if UNITY_2022_1_OR_NEWER
             prop.boxedValue = value;
-            return;
-#endif
-
+#else
+            // Note: I think this doesn't actually work. It's not used so not bothering to fix it
             prop.managedReferenceValue = value;
+#endif
         }
 
         private static object GetValue_Imp(object source, string name)

@@ -25,15 +25,14 @@ namespace Wireframe
         }
         
         public abstract string DisplayName { get; }
-        public abstract Task<bool> Upload(string filePath, string buildDescription);
+        public abstract Task<UploadResult> Upload(string filePath, string buildDescription);
         public abstract string ProgressTitle();
         public abstract bool IsSetup(out string reason);
-        public abstract bool WasUploadSuccessful();
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);
 
         public abstract void OnGUIExpanded(ref bool isDirty);
-        public abstract void OnGUICollapsed(ref bool isDirty);
+        public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
 
         public virtual void CleanUp()
         {

@@ -23,7 +23,7 @@ namespace Wireframe
         public abstract string DisplayName { get; }
         public abstract void OnGUIExpanded(ref bool isDirty);
         public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
-        public abstract Task<bool> GetSource();
+        public abstract Task<bool> GetSource(BuildConfig buildConfig);
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();
         public abstract string ProgressTitle();

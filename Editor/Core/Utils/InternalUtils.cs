@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -19,6 +18,19 @@ namespace Wireframe
             }
             
             return allServices;
+        }
+        
+        public static T GetService<T>() where T : AService
+        {
+            foreach (AService service in AllServices())
+            {
+                if (service is T t)
+                {
+                    return t;
+                }
+            }
+            
+            return null;
         }
         
         public static List<Type> AllBuildSources()

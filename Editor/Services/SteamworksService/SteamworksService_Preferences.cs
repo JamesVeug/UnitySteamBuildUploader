@@ -77,7 +77,7 @@ namespace Wireframe
             }
             else
             {
-                steamPasswordConfirmation = PasswordField.Draw("Password:", 105, steamPasswordConfirmation);
+                steamPasswordConfirmation = PasswordField.Draw("Verify Password:", 105, steamPasswordConfirmation);
                 if (steamPasswordConfirmation == SteamSDK.UserPassword)
                 {
                     steamPasswordConfirmed = true;

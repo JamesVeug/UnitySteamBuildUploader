@@ -27,6 +27,7 @@ namespace Wireframe
         private Vector2 m_scrollPosition;
         private string m_buildDescription;
         private bool m_isDirty;
+        private Vector2 m_descriptionScrollPosition;
 
         private void Setup()
         {
@@ -101,12 +102,19 @@ namespace Wireframe
                 GUILayout.FlexibleSpace();
 
                 // Description
-                GUILayout.Label("Build", m_titleStyle);
-                using (new GUILayout.HorizontalScope())
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Description:", GUILayout.Width(100));
-                    m_buildDescription = GUILayout.TextField(m_buildDescription);
+                    GUILayout.Label("Description:");
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button("Edit", GUILayout.MaxWidth(50)))
+                    {
+                        ShowEditDescriptionMenu();
+                    }
                 }
+
+                m_descriptionScrollPosition = GUILayout.BeginScrollView(m_descriptionScrollPosition, GUILayout.Height(100));
+                m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
+                GUILayout.EndScrollView();
 
                 // Upload all
                 bool startButtonDisabled = !CanStartBuild(out string reason);
@@ -124,6 +132,33 @@ namespace Wireframe
                     }
                 }
             }
+        }
+
+        private void ShowEditDescriptionMenu()
+        {
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Clear"), false, () => m_buildDescription = "");
+            menu.AddItem(new GUIContent("Set/Text file"), false, () =>
+            {
+                // Choose file
+                string path = EditorUtility.OpenFilePanel("Choose File", "", "");
+                if (string.IsNullOrEmpty(path))
+                    return;
+                
+                string text = File.ReadAllText(path);
+                m_buildDescription = text;
+            });
+            menu.AddItem(new GUIContent("Append/Text file"), false, () =>
+            {
+                // Choose file
+                string path = EditorUtility.OpenFilePanel("Choose File", "", "");
+                if (string.IsNullOrEmpty(path))
+                    return;
+                
+                string text = File.ReadAllText(path);
+                m_buildDescription += "\n\n" + text;
+            });
+            menu.ShowAsContext();
         }
 
         private void DrawSaveButton()

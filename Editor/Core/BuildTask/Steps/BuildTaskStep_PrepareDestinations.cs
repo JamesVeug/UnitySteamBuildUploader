@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -13,7 +14,7 @@ namespace Wireframe
             int progressId = ProgressUtils.Start(Name, "Setting up...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             
-            List<Tuple<ABuildDestination, Task<bool>>> tasks = new List<Tuple<ABuildDestination, Task<bool>>>();
+            List<Tuple<List<BuildConfig.DestinationData>, Task<bool>>> tasks = new();
             for (int j = 0; j < buildConfigs.Count; j++)
             {
                 if (!buildConfigs[j].Enabled)
@@ -21,9 +22,9 @@ namespace Wireframe
                     continue;
                 }
 
-                ABuildDestination buildSource = buildConfigs[j].Destination();
-                Task<bool> task = buildSource.Prepare();
-                tasks.Add(new Tuple<ABuildDestination, Task<bool>>(buildSource, task));
+                Task<bool> task = PrepareDestination(buildConfigs[j]);
+                List<BuildConfig.DestinationData> destinations = buildConfigs[j].Destinations.Where(a => a.Enabled).ToList();
+                tasks.Add(new Tuple<List<BuildConfig.DestinationData>, Task<bool>>(destinations, task));
             }
 
             bool allSuccessful = true;
@@ -31,19 +32,23 @@ namespace Wireframe
             {
                 bool done = true;
                 float completionAmount = 0.0f;
+                int totalDestinations = 0;
                 for (int j = 0; j < tasks.Count; j++)
                 {
-                    Tuple<ABuildDestination, Task<bool>> tuple = tasks[j];
+                    Tuple<List<BuildConfig.DestinationData>, Task<bool>> tuple = tasks[j];
                     if (!tuple.Item2.IsCompleted)
                     {
                         done = false;
-                        completionAmount += 0; // TODO: Add progress rate
-                        break;
+                        foreach (BuildConfig.DestinationData data in tuple.Item1)
+                        {
+                            completionAmount += 0.5f; // TODO: Add progress to PrepareDestination
+                        }
+                        totalDestinations += tuple.Item1.Count;
                     }
                     else
                     {
                         allSuccessful &= tuple.Item2.Result;
-                        completionAmount++;
+                        completionAmount += tuple.Item1.Count;
                     }
                 }
 
@@ -52,13 +57,33 @@ namespace Wireframe
                     break;
                 }
 
-                float progress = completionAmount / tasks.Count;
-                ProgressUtils.Report(progressId, progress, "Waiting for all to be prepared...");
+                float progress = completionAmount / totalDestinations;
+                ProgressUtils.Report(progressId, progress, "Waiting for destinations to prepare...");
                 await Task.Delay(10);
             }
             
             ProgressUtils.Remove(progressId);
             return allSuccessful;
+        }
+        
+        private async Task<bool> PrepareDestination(BuildConfig buildConfig)
+        {
+            foreach (BuildConfig.DestinationData destination in buildConfig.Destinations)
+            {
+                if (!destination.Enabled)
+                {
+                    continue;
+                }
+                
+                ABuildDestination buildDestination = destination.Destination;
+                bool success = await buildDestination.Prepare();
+                if (!success)
+                {
+                    return false;
+                }
+            }
+            
+            return true;
         }
 
         public override void Failed(BuildTask buildTask)

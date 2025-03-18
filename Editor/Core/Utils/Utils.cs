@@ -78,5 +78,39 @@ namespace Wireframe
                 return false;
             }
         }
+
+        public static string TruncateText(string m_enteredFilePath, float maxWidth, string defaultText)
+        {
+            string displayedPath = m_enteredFilePath;
+            if (!string.IsNullOrEmpty(displayedPath))
+            {
+                float characterWidth = 8f;
+                int characters = displayedPath.Length;
+                float expectedWidth = characterWidth * characters;
+                if (expectedWidth >= maxWidth)
+                {
+                    int charactersToRemove = (int)((expectedWidth - maxWidth) / characterWidth);
+                    if (charactersToRemove < displayedPath.Length)
+                    {
+                        displayedPath = displayedPath.Substring(charactersToRemove);
+                    }
+                    else
+                    {
+                        displayedPath = "";
+                    }
+                }
+            
+                if(displayedPath.Length < m_enteredFilePath.Length)
+                {
+                    displayedPath = "..." + displayedPath;
+                }
+            }
+            else
+            {
+                displayedPath = defaultText;
+            }
+
+            return displayedPath;
+        }
     }
 }

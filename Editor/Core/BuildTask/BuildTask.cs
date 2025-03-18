@@ -27,7 +27,6 @@ namespace Wireframe
 
         ~BuildTask()
         {
-            
             if (ProgressUtils.Exists(progressId))
             {
                 ProgressUtils.Remove(progressId);
@@ -101,8 +100,7 @@ namespace Wireframe
                     
                     if (buildConfigs[i].Enabled)
                     {
-                        buildConfigs[i].Source().CleanUp();
-                        buildConfigs[i].Destination().CleanUp();
+                        buildConfigs[i].CleanUp();
                     }
                 }
                 

@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Wireframe
 {
@@ -76,7 +77,7 @@ namespace Wireframe
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
             style.alignment = TextAnchor.MiddleLeft;
             
-            string displayedPath = GetButtonText(maxWidth);
+            string displayedPath = Utils.TruncateText(m_enteredFilePath, maxWidth, ButtonText);
             if (GUILayout.Button(displayedPath, style))
             {
                 string newPath = SelectFile();
@@ -95,41 +96,6 @@ namespace Wireframe
             
             m_enteredFilePath = newPath;
             return true;
-
-        }
-
-        private string GetButtonText(float maxWidth)
-        {
-            string displayedPath = m_enteredFilePath;
-            if (!string.IsNullOrEmpty(displayedPath))
-            {
-                float characterWidth = 8f;
-                int characters = displayedPath.Length;
-                float expectedWidth = characterWidth * characters;
-                if (expectedWidth >= maxWidth)
-                {
-                    int charactersToRemove = (int)((expectedWidth - maxWidth) / characterWidth);
-                    if (charactersToRemove < displayedPath.Length)
-                    {
-                        displayedPath = displayedPath.Substring(charactersToRemove);
-                    }
-                    else
-                    {
-                        displayedPath = "";
-                    }
-                }
-                
-                if(displayedPath.Length < m_enteredFilePath.Length)
-                {
-                    displayedPath = "..." + displayedPath;
-                }
-            }
-            else
-            {
-                displayedPath = ButtonText;
-            }
-
-            return displayedPath;
         }
 
         private bool PathExists()

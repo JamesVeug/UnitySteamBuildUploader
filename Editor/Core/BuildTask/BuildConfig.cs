@@ -6,20 +6,19 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class BuildConfig
+    internal partial class BuildConfig
     {
         public bool Collapsed { get; set; } = true;
         public bool Enabled { get; set; } = true;
         public string GUID { get; set; }
-        public List<ABuildConfigModifer> Modifiers => m_modifiers;
+        
+        public List<SourceData> Sources => m_buildSources;
+        public List<ABuildConfigModifer > Modifiers => m_modifiers;
+        public List<DestinationData> Destinations => m_buildDestinations;
 
-        private ABuildSource m_buildSource;
-        private UIHelpers.BuildSourcesPopup.SourceData m_buildSourceType;
-        
-        private List<ABuildConfigModifer> m_modifiers = new List<ABuildConfigModifer>();
-        
-        private ABuildDestination m_buildDestination;
-        private UIHelpers.BuildDestinationsPopup.DestinationData m_buildDestinationType;
+        private List<SourceData> m_buildSources;
+        private List<ABuildConfigModifer> m_modifiers;
+        private List<DestinationData> m_buildDestinations;
 
         private GUIStyle m_titleStyle;
         private BuildUploaderWindow m_window;
@@ -33,6 +32,12 @@ namespace Wireframe
 
         private void Initialize()
         {
+            m_buildSources = new List<SourceData>();
+            m_buildSources.Add(new SourceData()
+            {
+                Enabled = true,
+            });
+            
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
             ExcludeFilesByRegex_BuildModifier regexBuildModifier = new ExcludeFilesByRegex_BuildModifier();
@@ -43,11 +48,17 @@ namespace Wireframe
                 regexBuildModifier,
                 new SteamDRM_BuildModifier(),
             };
-
+            
             foreach (ABuildConfigModifer modifer in m_modifiers)
             {
                 modifer.Initialize(()=>m_window.Repaint());
             }
+            
+            m_buildDestinations = new List<DestinationData>();
+            m_buildDestinations.Add(new DestinationData()
+            {
+                Enabled = true,
+            });
         }
 
         public void Setup()
@@ -82,80 +93,123 @@ namespace Wireframe
 
         private void OnGUICollapsed(ref bool isDirty, BuildUploaderWindow uploaderWindow)
         {
-            // Draw the build but on one line
+            float splitWidth = 100;
+            float maxWidth = m_window.position.width - splitWidth - 120;
+            float parts = maxWidth / 2 - splitWidth;
+
             using (new EditorGUILayout.HorizontalScope())
             {
-                // Source Type
-                if (UIHelpers.SourcesPopup.DrawPopup(ref m_buildSourceType, GUILayout.MaxWidth(120)))
+                using (new EditorGUILayout.VerticalScope())
                 {
-                    isDirty = true;
-                    if (m_buildSourceType != null)
+                    foreach (SourceData source in m_buildSources)
                     {
-                        m_buildSource = Activator.CreateInstance(m_buildSourceType.Type, new object[] { uploaderWindow }) as ABuildSource;
-                    }
-                    else
-                    {
-                        m_buildSource = null;
+                        if (!source.Enabled)
+                        {
+                            continue;
+                        }
+                        
+                        // Draw the build but on one line
+                        using (new EditorGUILayout.HorizontalScope())
+                        {
+                            // Source Type
+                            if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, GUILayout.MaxWidth(120)))
+                            {
+                                isDirty = true;
+                                if (source.SourceType != null)
+                                {
+                                    source.Source = Activator.CreateInstance(source.SourceType.Type, new object[] { uploaderWindow }) as ABuildSource;
+                                }
+                                else
+                                {
+                                    source.Source = null;
+                                }
+                            }
+
+                            // Source
+                            float sourceWidth = parts;
+                            using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(sourceWidth)))
+                            {
+                                if (source.Source != null)
+                                {
+                                    source.Source.OnGUICollapsed(ref isDirty, sourceWidth);
+                                }
+                            }
+                        }
                     }
                 }
-
-                float splitWidth = 100;
-                float maxWidth = m_window.position.width - splitWidth - 120;
-                float parts = maxWidth / 2 - splitWidth;
-
-                // Source
-                float sourceWidth = parts;
-                using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(sourceWidth)))
-                {
-                    if (m_buildSource != null)
-                    {
-                        m_buildSource.OnGUICollapsed(ref isDirty, sourceWidth);
-                    }
-                }
-
 
                 // Progress
                 string progressText = "->";
                 if (IsBuilding())
                 {
-                    float progress = m_buildSource.DownloadProgress() + m_buildDestination.UploadProgress();
-                    float ratio = progress / 2.0f;
+                    // TODO: Get the actual progress value from the task
+                    float progress = 0;
+                    List<SourceData> activeSources = m_buildSources.Where(a => a.Enabled).ToList();
+                    foreach (SourceData sourceData in activeSources)
+                    {
+                        progress += sourceData.Source.DownloadProgress();
+                    }
+
+                    List<DestinationData> activeDestinations = m_buildDestinations.Where(a => a.Enabled).ToList();
+                    foreach (DestinationData destinationData in activeDestinations)
+                    {
+                        progress += destinationData.Destination.UploadProgress();
+                    }
+
+                    float ratio = progress / (activeSources.Count + activeDestinations.Count);
                     int percentage = (int)(ratio * 100);
                     progressText = string.Format("{0}%", percentage);
                 }
 
                 GUILayout.Label(progressText, m_titleStyle, GUILayout.Width(splitWidth));
 
-                // Destination Type
-                if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
+                using (new EditorGUILayout.VerticalScope())
                 {
-                    isDirty = true;
-                    if(m_buildDestinationType != null){
-                        m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type, new object[]{uploaderWindow}) as ABuildDestination;
-                    }
-                    else
+                    foreach (DestinationData destinationData in m_buildDestinations)
                     {
-                        m_buildDestination = null;
-                    }
-                }
+                        if (!destinationData.Enabled)
+                        {
+                            continue;
+                        }
+                        
+                        using (new EditorGUILayout.HorizontalScope())
+                        {
+                            // Destination Type
+                            if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType))
+                            {
+                                isDirty = true;
+                                if (destinationData.DestinationType != null)
+                                {
+                                    destinationData.Destination =
+                                        Activator.CreateInstance(destinationData.DestinationType.Type,
+                                            new object[] { uploaderWindow }) as ABuildDestination;
+                                }
+                                else
+                                {
+                                    destinationData.Destination = null;
+                                }
+                            }
 
-                // Destination
-                float destinationWidth = parts;
-                using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(destinationWidth)))
-                {
-                    if (m_buildDestination != null)
-                    {
-                        m_buildDestination.OnGUICollapsed(ref isDirty, parts);
+                            // Destination
+                            float destinationWidth = parts;
+                            using (new EditorGUILayout.HorizontalScope(GUILayout.MaxWidth(destinationWidth)))
+                            {
+                                if (destinationData.Destination != null)
+                                {
+                                    destinationData.Destination.OnGUICollapsed(ref isDirty, parts);
+                                }
+                            }
+                        }
                     }
-                }
-            }
-            
-            List<string> warnings = GetAllWarnings();
-            if(warnings.Count > 0)
-            {
-                foreach (string warning in warnings)
-                {
-                    DrawWarning(warning);
+
+                    List<string> warnings = GetAllWarnings();
+                    if (warnings.Count > 0)
+                    {
+                        foreach (string warning in warnings)
+                        {
+                            DrawWarning(warning);
+                        }
+                    }
                 }
             }
         }
@@ -175,13 +229,37 @@ namespace Wireframe
         private List<string> GetAllWarnings()
         {
             List<string> warnings = new List<string>();
+            warnings.AddRange(GetSourceWarnings());
+            warnings.AddRange(GetDestinationWarnings());
+
+            return warnings;
+        }
+
+        private List<string> GetSourceWarnings()
+        {
+            List<string> warnings = new List<string>();
             foreach (ABuildConfigModifer modifer in m_modifiers)
             {
-                modifer.TryGetWarnings(this, warnings);
-                modifer.TryGetWarnings(m_buildSource, warnings);
-                modifer.TryGetWarnings(m_buildDestination, warnings);
+                foreach (SourceData sourceData in m_buildSources)
+                {
+                    modifer.TryGetWarnings(sourceData.Source, warnings);
+                }
             }
+            
+            return warnings;
+        }
 
+        private List<string> GetDestinationWarnings()
+        {
+            List<string> warnings = new List<string>();
+            foreach (ABuildConfigModifer modifier in m_modifiers)
+            {
+                foreach (DestinationData destinationData in m_buildDestinations)
+                {
+                    modifier.TryGetWarnings(destinationData.Destination, warnings);
+                }
+            }
+            
             return warnings;
         }
 
@@ -192,42 +270,82 @@ namespace Wireframe
             {
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth/2)))
                 {
-                    GUILayout.Label("Source", m_titleStyle);
-                    using (new GUILayout.HorizontalScope())
+                    GUILayout.Label("Sources", m_titleStyle);
+                    for (var i = 0; i < m_buildSources.Count; i++)
                     {
-                        GUILayout.Label("Source Type: ", GUILayout.Width(120));
-                        if (UIHelpers.SourcesPopup.DrawPopup(ref m_buildSourceType))
+                        var source = m_buildSources[i];
+                        using (new GUILayout.HorizontalScope())
                         {
-                            isDirty = true;
-                            if (m_buildSourceType != null)
+                            isDirty |= CustomToggle.DrawToggle(ref source.Enabled, GUILayout.Width(20));
+
+                            using (new EditorGUI.DisabledScope(!source.Enabled))
                             {
-                                m_buildSource = Activator.CreateInstance(m_buildSourceType.Type, new object[]{uploaderWindow}) as ABuildSource;
+                                GUILayout.Label("Source Type: ", GUILayout.Width(100));
+                                if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType))
+                                {
+                                    isDirty = true;
+                                    if (source.SourceType != null)
+                                    {
+                                        source.Source =
+                                            Activator.CreateInstance(source.SourceType.Type,
+                                                new object[] { uploaderWindow }) as ABuildSource;
+                                    }
+                                    else
+                                    {
+                                        source.Source = null;
+                                    }
+                                }
                             }
-                            else
+
+                            if (GUILayout.Button("X", GUILayout.Width(20)))
                             {
-                                m_buildSource = null;
+                                if (EditorUtility.DisplayDialog("Remove Source",
+                                        "Are you sure you want to remove this source?",
+                                        "Yes", "Oops No!"))
+                                {
+                                    m_buildSources.RemoveAt(i--);
+                                    isDirty = true;
+                                }
                             }
                         }
+
+                        if (source.Source != null)
+                        {
+                            using (new EditorGUI.DisabledScope(!source.Enabled))
+                            {
+                                source.Source.OnGUIExpanded(ref isDirty);
+                                List<string> warnings = new List<string>();
+                                foreach (ABuildConfigModifer modifer in m_modifiers)
+                                {
+                                    modifer.TryGetWarnings(this, warnings);
+                                    modifer.TryGetWarnings(source.Source, warnings);
+                                    foreach (string warning in warnings)
+                                    {
+                                        DrawWarning(warning);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        GUILayout.Space(10);
                     }
 
-                    if (m_buildSource != null)
+                    using (new GUILayout.HorizontalScope())
                     {
-                        m_buildSource.OnGUIExpanded(ref isDirty);
-                        List<string> warnings = new List<string>();
-                        foreach (ABuildConfigModifer modifer in m_modifiers)
+                        if (GUILayout.Button("Add New Source"))
                         {
-                            modifer.TryGetWarnings(this, warnings);
-                            modifer.TryGetWarnings(m_buildSource, warnings);
-                            foreach (string warning in warnings)
+                            m_buildSources.Add(new SourceData()
                             {
-                                DrawWarning(warning);
-                            }
+                                Enabled = true,
+                            });
+                            isDirty = true;
                         }
                     }
-                
-                    GUILayout.Space(10);
-                    
-                    // Modifiers
+                }
+
+                // Modifiers
+                using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth / 2)))
+                {
                     GUILayout.Label("Modifiers");
                     foreach (ABuildConfigModifer modifer in m_modifiers)
                     {
@@ -237,40 +355,77 @@ namespace Wireframe
 
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth / 2)))
                 {
-                    GUILayout.Label("Destination", m_titleStyle);
-                    using (new GUILayout.HorizontalScope())
+                    GUILayout.Label("Destinations", m_titleStyle);
+                    for (var i = 0; i < m_buildDestinations.Count; i++)
                     {
+                        var destinationData = m_buildDestinations[i];
                         using (new GUILayout.HorizontalScope())
                         {
+                            isDirty |= CustomToggle.DrawToggle(ref destinationData.Enabled, GUILayout.Width(20));
+
                             GUILayout.Label("Destination Type: ", GUILayout.Width(120));
-                            if (UIHelpers.DestinationsPopup.DrawPopup(ref m_buildDestinationType))
+                            using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                             {
-                                isDirty = true;
-                                if (m_buildDestinationType != null)
+                                if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType))
                                 {
-                                    m_buildDestination = Activator.CreateInstance(m_buildDestinationType.Type,
-                                        new object[] { uploaderWindow }) as ABuildDestination;
+                                    isDirty = true;
+                                    if (destinationData.DestinationType != null)
+                                    {
+                                        destinationData.Destination = Activator.CreateInstance(
+                                            destinationData.DestinationType.Type,
+                                            new object[] { uploaderWindow }) as ABuildDestination;
+                                    }
+                                    else
+                                    {
+                                        destinationData.Destination = null;
+                                    }
                                 }
-                                else
+                            }
+                            
+                            if (GUILayout.Button("X", GUILayout.Width(20)))
+                            {
+                                if(EditorUtility.DisplayDialog("Remove Destination",
+                                       "Are you sure you want to remove this destination?", 
+                                       "Yes", "Oops No!"))
                                 {
-                                    m_buildDestination = null;
+                                    m_buildDestinations.RemoveAt(i--);
+                                    isDirty = true;
                                 }
                             }
                         }
-                    }
-                    
-                    if (m_buildDestination != null)
-                    {
-                        m_buildDestination.OnGUIExpanded(ref isDirty);
-                        
-                        List<string> warnings = new List<string>();
-                        foreach (ABuildConfigModifer modifer in m_modifiers)
+
+                        if (destinationData.Destination != null)
                         {
-                            modifer.TryGetWarnings(m_buildDestination, warnings);
-                            foreach (string warning in warnings)
+                            using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                             {
-                                DrawWarning(warning);
+                                destinationData.Destination.OnGUIExpanded(ref isDirty);
+
+                                List<string> warnings = new List<string>();
+                                foreach (ABuildConfigModifer modifier in m_modifiers)
+                                {
+                                    modifier.TryGetWarnings(destinationData.Destination, warnings);
+                                }
+
+                                foreach (string warning in warnings)
+                                {
+                                    DrawWarning(warning);
+                                }
                             }
+                        }
+                        
+                        GUILayout.Space(10);
+                    }
+
+
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        if (GUILayout.Button("Add New Destination"))
+                        {
+                            m_buildDestinations.Add(new DestinationData()
+                            {
+                                Enabled = true,
+                            });
+                            isDirty = true;
                         }
                     }
                 }
@@ -279,18 +434,33 @@ namespace Wireframe
 
         public bool CanStartBuild(out string reason)
         {
-            if (m_buildSource == null)
+            if(m_buildSources.Count == 0)
             {
-                reason = "Source is not setup";
+                reason = "No Sources specified";
                 return false;
             }
-
-            if (!m_buildSource.IsSetup(out string sourceReason))
+            
+            for (var i = 0; i < m_buildSources.Count; i++)
             {
-                reason = "Source: " + sourceReason;
-                return false;
-            }
+                var source = m_buildSources[i];
+                if (!source.Enabled)
+                {
+                    continue;
+                }
+                
+                if (source.Source == null)
+                {
+                    reason = $"Source #{i+1} is not setup";
+                    return false;
+                }
 
+                if (!source.Source.IsSetup(out string sourceReason))
+                {
+                    reason = $"Source #{i+1}: " + sourceReason;
+                    return false;
+                }
+            }
+            
             for (var i = 0; i < m_modifiers.Count; i++)
             {
                 var modifier = m_modifiers[i];
@@ -301,138 +471,85 @@ namespace Wireframe
                 }
             }
 
-            if (m_buildDestination == null)
+            if (m_buildDestinations.Count == 0)
             {
                 reason = "No Destination specified";
                 return false;
             }
-            if (!m_buildDestination.IsSetup(out string destinationReason))
+            
+            for (var i = 0; i < m_buildDestinations.Count; i++)
             {
-                reason = "Destination: " + destinationReason;
-                return false;
+                var destination = m_buildDestinations[i];
+                if (!destination.Enabled)
+                {
+                    continue;
+                }
+                
+                if (destination.Destination == null)
+                {
+                    reason = $"Destination #{i+1} is not setup";
+                    return false;
+                }
+
+                if (!destination.Destination.IsSetup(out string destinationReason))
+                {
+                    reason = $"Destination #{i+1}: " + destinationReason;
+                    return false;
+                }
             }
 
             reason = "";
             return true;
         }
 
-        public ABuildDestination Destination()
-        {
-            return m_buildDestination;
-        }
-
-        public ABuildSource Source()
-        {
-            return m_buildSource;
-        }
-
-        public Dictionary<string, object> Serialize()
-        {
-            Dictionary<string, object> data = new Dictionary<string, object>
-            {
-                ["enabled"] = Enabled,
-                ["guid"] = GUID,
-                ["sourceFullType"] = m_buildSource?.GetType().FullName,
-                ["source"] = m_buildSource?.Serialize(),
-                ["modifiers"] = m_modifiers.Select(a =>
-                {
-                    Dictionary<string,object> dictionary = a.Serialize();
-                    dictionary["$type"] = a.GetType().FullName;
-                    return dictionary;
-                }).ToList(),
-                ["destinationFullType"] = m_buildDestination?.GetType().FullName,
-                ["destination"] = m_buildDestination?.Serialize()
-            };
-
-            return data;
-        }
-
-        public void Deserialize(Dictionary<string, object> data)
-        {
-            // Enabled
-            object enabled;
-            if (data.TryGetValue("enabled", out enabled))
-            {
-                Enabled = (bool)enabled;
-            }
-            
-            // GUID
-            if (data.TryGetValue("guid", out object guid))
-            {
-                GUID = (string)guid;
-            }
-            else
-            {
-                // Generate a new GUID
-                GUID = Guid.NewGuid().ToString().Substring(0,5);
-            }
-
-            // Source
-            if (data.TryGetValue("sourceFullType", out object sourceFullType) && sourceFullType != null)
-            {
-                string sourceFullPath = (string)sourceFullType;
-                Type type = Type.GetType(sourceFullPath);
-                if (type != null)
-                {
-                    m_buildSource = Activator.CreateInstance(type, new object[]{m_window}) as ABuildSource;
-                    if (m_buildSource != null)
-                    {
-                        Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
-                        m_buildSource.Deserialize(sourceDictionary);
-                        m_buildSourceType = UIHelpers.SourcesPopup.Values.FirstOrDefault(a => a.Type == type);
-                    }
-                }
-            }
-            
-            // Modifiers
-            if (data.TryGetValue("modifiers", out object modifiers))
-            {
-                m_modifiers = new List<ABuildConfigModifer>(); // Clear so we know its empty
-                
-                List<object> modifierList = (List<object>)modifiers;
-                foreach (object modifier in modifierList)
-                {
-                    Dictionary<string, object> modifierDictionary = (Dictionary<string, object>)modifier;
-                    if (modifierDictionary.TryGetValue("$type", out object modifierType))
-                    {
-                        Type type = Type.GetType((string)modifierType);
-                        if (type != null)
-                        {
-                            ABuildConfigModifer buildConfigModifer = Activator.CreateInstance(type) as ABuildConfigModifer;
-                            if (buildConfigModifer != null)
-                            {
-                                buildConfigModifer.Initialize(()=>m_window.Repaint());
-                                buildConfigModifer.Deserialize(modifierDictionary);
-                                m_modifiers.Add(buildConfigModifer);
-                            }
-                        }
-                    }
-                }
-            }
-            
-
-            // Destination
-            if (data.TryGetValue("destinationFullType", out object destinationFullType) && destinationFullType != null)
-            {
-                string destinationFullPath = (string)destinationFullType;
-                Type type = Type.GetType(destinationFullPath);
-                if (type != null)
-                {
-                    m_buildDestination = Activator.CreateInstance(type, new object[]{m_window}) as ABuildDestination;
-                    if (m_buildDestination != null)
-                    {
-                        Dictionary<string, object> destinationDictionary = (Dictionary<string, object>)data["destination"];
-                        m_buildDestination.Deserialize(destinationDictionary);
-                        m_buildDestinationType = UIHelpers.DestinationsPopup.Values.FirstOrDefault(a => a.Type == type);
-                    }
-                }
-            }
-        }
-
         public bool IsBuilding()
         {
-            return m_buildSource != null && m_buildDestination != null &&
-                   (m_buildSource.IsRunning || m_buildDestination.IsRunning);
+            foreach (SourceData source in m_buildSources)
+            {
+                if (source.Source == null)
+                {
+                    return false;
+                }
+            }
+
+            foreach (DestinationData destination in m_buildDestinations)
+            {
+                if (destination.Destination == null)
+                {
+                    return false;
+                }
+            }
+            
+            foreach (SourceData source in m_buildSources)
+            {
+                if (source.Source.IsRunning)
+                {
+                    return true;
+                }
+            }
+
+            foreach (DestinationData destination in m_buildDestinations)
+            {
+                if (destination.Destination.IsRunning)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void CleanUp()
+        {
+            foreach (SourceData source in m_buildSources)
+            {
+                source.Source?.CleanUp();
+            }
+
+            foreach (DestinationData destination in m_buildDestinations)
+            {
+                destination.Destination?.CleanUp();
+            }
         }
     }
 }

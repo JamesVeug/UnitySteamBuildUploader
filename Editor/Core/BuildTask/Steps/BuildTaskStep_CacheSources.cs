@@ -59,7 +59,7 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> CacheBuildConfigAtIndex(BuildTask task, int sourceIndex)
+        private async Task<bool> CacheBuildConfigAtIndex(BuildTask task, int configIndex)
         {
             string directoryPath = Utils.CacheFolder;
             if (!Directory.Exists(directoryPath))
@@ -67,30 +67,51 @@ namespace Wireframe
                 Directory.CreateDirectory(directoryPath);
             }
 
-            BuildConfig buildConfig = task.BuildConfigs[sourceIndex];
-            string fullPath = buildConfig.Source().SourceFilePath();
-
-            string sourcePath = fullPath;
-            bool isDirectory = Utils.IsPathADirectory(sourcePath);
-            if (!isDirectory)
+            BuildConfig buildConfig = task.BuildConfigs[configIndex];
+            
+            // Files export to /BuildUploader/CachedBuilds/GUID/*.*
+            string cacheFolderPath = Path.Combine(directoryPath, buildConfig.GUID);
+            for (var i = 0; i < buildConfig.Sources.Count; i++)
             {
-                if (fullPath.EndsWith(".exe"))
+                var sourceData = buildConfig.Sources[i];
+                if (!sourceData.Enabled)
+                {
+                    continue;
+                }
+
+                bool cached = await CacheSource(sourceData, configIndex, i, cacheFolderPath);
+                if (!cached)
+                {
+                    return false;
+                }
+            }
+
+            task.CachedLocations[configIndex] = cacheFolderPath;
+
+            return true;
+        }
+        
+        private async Task<bool> CacheSource(BuildConfig.SourceData sourceData, int configIndex, int sourceIndex, string cacheFolderPath)
+        {
+            string sourcePath = sourceData.Source.SourceFilePath();
+            bool sourceIsADirectory = Utils.IsPathADirectory(sourcePath);
+            if (!sourceIsADirectory)
+            {
+                if (sourcePath.EndsWith(".exe"))
                 {
                     // Given a .exe. use the Folder because they likely want to upload the entire folder - not just the .exe
-                    sourcePath = Path.GetDirectoryName(fullPath);
+                    sourcePath = Path.GetDirectoryName(sourcePath);
                 }
             }
 
             if (string.IsNullOrEmpty(sourcePath))
             {
-                Debug.LogWarning($"Source path is empty for build config index: {sourceIndex}");
+                Debug.LogWarning($"Source path is empty for Build Config index: {configIndex} and Source index: {sourceIndex}");
                 return false;
             }
 
-            // Files export to       /BuildUploader/CachedBuilds/FileName_GUID/FileName.extension
-            // Directories export to /BuildUploader/CachedBuilds/DirectoryName_GUID/...
-            string cacheFolderName = isDirectory ? new DirectoryInfo(sourcePath).Name : Path.GetFileNameWithoutExtension(sourcePath);
-            string cacheFolderPath = Path.Combine(directoryPath, cacheFolderName + "_" + buildConfig.GUID);
+            // BuildUploader/CachedBuilds/GUID/
+            string outputDirectory = cacheFolderPath;
             if (Directory.Exists(cacheFolderPath))
             {
                 Debug.LogWarning($"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
@@ -98,11 +119,19 @@ namespace Wireframe
             }
             Directory.CreateDirectory(cacheFolderPath);
             
+            // BuildUploader/CachedBuilds/GUID/Last Message_Data\StreamingAssets
+            if (string.IsNullOrEmpty(sourceData.SubFolderPath))
+            {
+                outputDirectory = Path.Combine(cacheFolderPath, sourceData.SubFolderPath);
+                Directory.CreateDirectory(outputDirectory);
+            }
+            
+            
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory
-            if (isDirectory)
+            if (sourceIsADirectory)
             {
-                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, cacheFolderPath);
+                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, outputDirectory);
                 if (!copiedSuccessfully)
                 {
                     return false;
@@ -113,8 +142,8 @@ namespace Wireframe
                 try
                 {
                     // Unzip to a different location
-                    // BuildUploader/CachedBuilds/ZipFileName_GUID/...
-                    ZipUtils.UnZip(fullPath, cacheFolderPath);
+                    // BuildUploader/CachedBuilds/GUID/...
+                    ZipUtils.UnZip(sourcePath, outputDirectory);
                 }
                 catch (IOException e)
                 {
@@ -125,12 +154,10 @@ namespace Wireframe
             else
             {
                 // Getting a file - put it in its own folder
-                // BuildUploader/CachedBuilds/FileName_GUID/FileName.extension
-                string copiedFilePath = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
+                // BuildUploader/CachedBuilds/GUID/FileName.extension
+                string copiedFilePath = Path.Combine(outputDirectory, Path.GetFileName(sourcePath));
                 await Utils.CopyFileAsync(sourcePath, copiedFilePath);
             }
-            
-            task.CachedLocations[sourceIndex] = cacheFolderPath;
 
             return true;
         }

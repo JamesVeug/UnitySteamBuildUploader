@@ -67,6 +67,14 @@ namespace Wireframe
             return a.DisplayName.CompareTo(b.DisplayName);
         }
 
+        public bool DrawPopup(IList<T> collection, int index, params GUILayoutOption[] options)
+        {
+            T t = collection[index];
+            bool edited = DrawPopup(ref t, options);
+            collection[index] = t;
+            return edited;
+        }
+        
         public bool DrawPopup(ref T initial, params GUILayoutOption[] options)
         {
             if (NeedsSettingUp())

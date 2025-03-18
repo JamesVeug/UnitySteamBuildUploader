@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -16,6 +18,7 @@ namespace Wireframe
         private string m_target;
         private bool m_draft;
         private bool m_prerelease;
+        private bool m_zipContents;
         
         public NewGithubReleaseDestination(BuildUploaderWindow window) : base(window)
         {
@@ -24,9 +27,20 @@ namespace Wireframe
         public override async Task<UploadResult> Upload(string filePath, string buildDescription)
         {
             List<string> files = new List<string>();
-            files.Add(filePath);
+            if (m_zipContents)
+            {
+                // Before uploading the directory we'll zip all its contents
+                files.Add(filePath);
+            }
+            else
+            {
+                // Get all files at the top level so each can be uploaded individually
+                // Sub-Folders will be zipped 
+                files.AddRange(Directory.GetFiles(buildDescription, "*.*", SearchOption.TopDirectoryOnly));
+            }
 
-            int processID = ProgressUtils.Start("Github Release", "Uploading to Github Release");
+            int processID = ProgressUtils.Start("Github Release", ProgressTitle());
+            
             UploadResult result = await Github.NewRelease(m_owner, m_repo, m_releaseName, buildDescription, m_tagName, m_target, m_draft, m_prerelease, Github.Token, files);
             
             ProgressUtils.Remove(processID);
@@ -35,7 +49,7 @@ namespace Wireframe
 
         public override string ProgressTitle()
         {
-            return "Uploading to Github Release";
+            return "Uploading a new Github Release";
         }
 
         public override bool IsSetup(out string reason)
@@ -139,6 +153,12 @@ namespace Wireframe
                 GUILayout.Label("Is Prerelease:", GUILayout.Width(120));
                 isDirty |= CustomToggle.DrawToggle(ref m_prerelease);
             }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Zip Contents:", GUILayout.Width(120));
+                isDirty |= CustomToggle.DrawToggle(ref m_zipContents);
+            }
         }
 
         public override Dictionary<string, object> Serialize()
@@ -149,6 +169,7 @@ namespace Wireframe
             dict["releaseName"] = m_releaseName;
             dict["tagName"] = m_tagName;
             dict["target"] = m_target;
+            dict["zipContents"] = m_zipContents;
             return dict;
         }
 
@@ -159,6 +180,7 @@ namespace Wireframe
             m_releaseName = s["releaseName"] as string;
             m_tagName = s["tagName"] as string;
             m_target = s["target"] as string;
+            m_zipContents = (bool) s["zipContents"];
         }
     }
 }

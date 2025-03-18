@@ -39,12 +39,15 @@ namespace Wireframe
             List<string> assets = null)
         {
             // Verify paths first
-            foreach (string asset in assets)
+            if (assets != null)
             {
-                if (!File.Exists(asset) && !Directory.Exists(asset))
+                foreach (string asset in assets)
                 {
-                    Debug.LogError($"Path not found: {asset}");
-                    return UploadResult.Failed("Path to asset not found: " + asset);
+                    if (!File.Exists(asset) && !Directory.Exists(asset))
+                    {
+                        Debug.LogError($"Path not found: {asset}");
+                        return UploadResult.Failed("Path to asset not found: " + asset);
+                    }
                 }
             }
 
@@ -52,7 +55,7 @@ namespace Wireframe
             Dictionary<string, object> payload = new Dictionary<string,object>()
             {
                 {"tag_name", tagName},
-                {"target_commitish", target},
+                {"target_commitish", target}, // branch or commit hash/SHA
                 {"name", releaseName},
                 {"body", releaseBody},
                 {"draft", draft},
@@ -85,15 +88,19 @@ namespace Wireframe
                     string jsonResponse = www.downloadHandler.text;
                     var release = JSON.DeserializeObject<Dictionary<string, object>>(jsonResponse);
                     string uploadUrl = release["upload_url"].ToString().Split('{')[0];
-                    foreach (string assetPath in assets)
+                    if (assets != null)
                     {
-                        UploadResult result = await UploadReleaseAsset(uploadUrl, token, assetPath);
-                        if (!result.Successful)
+                        foreach (string assetPath in assets)
                         {
-                            return result;
+                            UploadResult result = await UploadReleaseAsset(uploadUrl, token, assetPath);
+                            if (!result.Successful)
+                            {
+                                Debug.LogError($"Failed to upload release asset: {assetPath} but the release was made. Check Github for the status!");
+                                return result;
+                            }
                         }
+                        Debug.Log("All assets uploaded successfully.");
                     }
-                    Debug.Log("All assets uploaded successfully.");
                 }
                 else
                 {

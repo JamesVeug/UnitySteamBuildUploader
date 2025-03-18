@@ -20,7 +20,10 @@ namespace Wireframe
                 
                 if (type == typeof(string))
                 {
-                    return "\"" + o + "\"";
+                    string s = (string)o;
+                    s = s.Replace("\r", "\\r");
+                    s = s.Replace("\n", "\\n");
+                    return "\"" + s + "\"";
                 }
                 if (type.IsPrimitive)
                 {

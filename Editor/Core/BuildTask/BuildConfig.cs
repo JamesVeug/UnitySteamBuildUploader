@@ -33,6 +33,11 @@ namespace Wireframe
 
         private void Initialize()
         {
+            InitializeModifiers();
+        }
+
+        private void InitializeModifiers()
+        {
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
             ExcludeFilesByRegex_BuildModifier regexBuildModifier = new ExcludeFilesByRegex_BuildModifier();
@@ -229,6 +234,10 @@ namespace Wireframe
                     
                     // Modifiers
                     GUILayout.Label("Modifiers");
+                    if (m_modifiers == null || m_modifiers.Count == 0)
+                    {
+                        InitializeModifiers();
+                    }
                     foreach (ABuildConfigModifer modifer in m_modifiers)
                     {
                         isDirty |= modifer.OnGUI();

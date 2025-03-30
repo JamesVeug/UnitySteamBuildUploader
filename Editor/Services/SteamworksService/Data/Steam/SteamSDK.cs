@@ -314,8 +314,8 @@ namespace Wireframe
                 Debug.Log("Upload to Steam is disabled. Not but still attempting login.");
             }
             
-            string uploadArg = !upload ? "" : string.Format($" +drm_wrap {appID} {sourcePath} {destinationPath} drmtoolp {flags}");
-            string arguments = string.Format("+login \"{0}\" \"{1}\" {2} {3}", username, password, guard, uploadArg);
+            string uploadArg = !upload ? "" : $" +drm_wrap {appID} \"{sourcePath}\" \"{destinationPath}\" drmtoolp {flags}";
+            string arguments = $"+login \"{username}\" \"{password}\" {guard} {uploadArg}";
             
             if (quitOnComplete)
             {

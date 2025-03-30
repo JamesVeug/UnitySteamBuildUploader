@@ -393,7 +393,8 @@ namespace Wireframe
                 return result;
             }
             
-            if (ContainsText(lines, "Two-factor code:FAILED", "", out index))
+            if (ContainsText(lines, "Two-factor code:FAILED", "", out index) ||
+                ContainsText(lines, "This account is protected by a Steam Guard mobile authenticator", "", out index))
             {
                 await SteamGuardTwoFactorWindow.ShowAsync((confirmed) =>
                 {

@@ -248,7 +248,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
                     
-                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam);
+                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam, false);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
@@ -333,7 +333,7 @@ namespace Wireframe
             public string errorText;
         }
         
-        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading)
+        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading, bool drmWrapping)
         {
             OutputResultArgs result = new OutputResultArgs();
             
@@ -394,7 +394,7 @@ namespace Wireframe
             }
             
             if (ContainsText(lines, "Two-factor code:FAILED", "", out index) ||
-                ContainsText(lines, "This account is protected by a Steam Guard mobile authenticator", "", out index))
+                ContainsText(lines, "Wait for confirmation timed out", "", out index))
             {
                 await SteamGuardTwoFactorWindow.ShowAsync((confirmed) =>
                 {
@@ -437,12 +437,27 @@ namespace Wireframe
                 return result;
             }
 
-            if (uploading && 
-                !ContainsText(lines, "Uploading content...", "", out index) &&
-                !ContainsText(lines, "DRM wrap completed", "", out index)) // TODO: Separate this into a separate verification check
+            if (uploading)
             {
-                result.errorText = "Failed to scan content to upload...";
-                return result;
+                if (drmWrapping)
+                {
+                    if (!ContainsText(lines, "Module is already DRM protected", "", out index)) // TODO: Separate this into a separate verification check
+                    {
+                        if (!ContainsText(lines, "DRM wrap completed", "", out index))
+                        {
+                            result.errorText = "Failed to DRM wrap...";
+                            return result;
+                        }
+                    }
+                }
+                else
+                {
+                    if (!ContainsText(lines, "Uploading content...", "", out index))
+                    {
+                        result.errorText = "Failed to scan content to upload...";
+                        return result;
+                    }
+                }
             }
             
             if (ContainsText(lines, "ERROR! Failed to commit build", "", out index))
@@ -498,6 +513,9 @@ namespace Wireframe
         /// <returns></returns>
         public async Task<UploadResult> DRMWrap(int appID, string sourceExe, string resultEXE, int flags = 6)
         {
+            // Get name of sourceExe
+            string sourceExeName = Path.GetFileName(sourceExe);
+            Debug.Log($"[Steam] Attempting DRMWrap {sourceExeName}. If you're using Steam Guard or Two-factor Authenticator check your phone!\n\n");
             UploadResult result = default;
             try
             {
@@ -526,7 +544,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
                     
-                    var outputResults = await LogOutSteamResult(textDump, true);
+                    var outputResults = await LogOutSteamResult(textDump, true, true);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 

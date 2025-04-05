@@ -19,7 +19,7 @@ namespace Wireframe
         private float m_lastEditDelta;
         private bool m_saveQueued;
 
-        [MenuItem("Window/Build Uploader")]
+        [MenuItem("Window/Build Uploader/Open Window")]
         public static void OpenWindow()
         {
             // Get existing open window or if none, make a new one:

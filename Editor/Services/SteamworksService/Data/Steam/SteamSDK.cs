@@ -60,7 +60,7 @@ namespace Wireframe
         
         public static string SteamSDKEXEPath
         {
-            get => Instance.m_exePath;
+            get => Instance.m_steamCMDPath;
         }
 
         public bool IsInitialized => m_initialized;
@@ -70,7 +70,7 @@ namespace Wireframe
         private Process m_uploadProcess;
         private string m_scriptPath;
         private string m_contentPath;
-        private string m_exePath;
+        private string m_steamCMDPath;
         private bool m_initialized;
 
         private SteamSDK()
@@ -142,14 +142,35 @@ namespace Wireframe
                 return;
             }
 
-            string exePath = Path.Combine(contentBuilderPath, "builder", "steamcmd.exe");
+            Debug.Log("[SteamSDK] Application.platform: " + Application.platform);
+            
+            string exePath = "";
+            if (Application.platform == RuntimePlatform.WindowsEditor)
+            {
+                exePath = Path.Combine(contentBuilderPath, "builder", "steamcmd.exe");
+            }
+            else if (Application.platform == RuntimePlatform.OSXEditor)
+            {
+                exePath = Path.Combine(contentBuilderPath, "builder_osx", "steamcmd.sh");
+            }
+            else if (Application.platform == RuntimePlatform.LinuxEditor)
+            {
+                exePath = Path.Combine(contentBuilderPath, "builder_linux", "steamcmd.sh");
+            }
+            else
+            {
+                Debug.LogError("Unsupported platform for Steamworks SDK: " + Application.platform);
+                return;
+            }
+            
+            
             if (!File.Exists(exePath))
             {
                 Debug.LogError("Could not find steamcmd.exe inside ContentBuilder/builder path!");
                 return;
             }
 
-            m_exePath = exePath;
+            m_steamCMDPath = exePath;
             m_contentPath = content;
             m_scriptPath = scripts;
             m_initialized = true;
@@ -212,7 +233,7 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
-                    m_uploadProcess.StartInfo.FileName = m_exePath;
+                    m_uploadProcess.StartInfo.FileName = m_steamCMDPath;
                     m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFile, true, uploadeToSteam, steamGuardCode);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
@@ -227,7 +248,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
                     
-                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam);
+                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam, false);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
@@ -293,8 +314,8 @@ namespace Wireframe
                 Debug.Log("Upload to Steam is disabled. Not but still attempting login.");
             }
             
-            string uploadArg = !upload ? "" : string.Format($" +drm_wrap {appID} {sourcePath} {destinationPath} drmtoolp {flags}");
-            string arguments = string.Format("+login \"{0}\" \"{1}\" {2} {3}", username, password, guard, uploadArg);
+            string uploadArg = !upload ? "" : $" +drm_wrap {appID} \"{sourcePath}\" \"{destinationPath}\" drmtoolp {flags}";
+            string arguments = $"+login \"{username}\" \"{password}\" {guard} {uploadArg}";
             
             if (quitOnComplete)
             {
@@ -312,7 +333,7 @@ namespace Wireframe
             public string errorText;
         }
         
-        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading)
+        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading, bool drmWrapping)
         {
             OutputResultArgs result = new OutputResultArgs();
             
@@ -372,7 +393,8 @@ namespace Wireframe
                 return result;
             }
             
-            if (ContainsText(lines, "Two-factor code:FAILED", "", out index))
+            if (ContainsText(lines, "Two-factor code:FAILED", "", out index) ||
+                ContainsText(lines, "Wait for confirmation timed out", "", out index))
             {
                 await SteamGuardTwoFactorWindow.ShowAsync((confirmed) =>
                 {
@@ -415,12 +437,27 @@ namespace Wireframe
                 return result;
             }
 
-            if (uploading && 
-                !ContainsText(lines, "Uploading content...", "", out index) &&
-                !ContainsText(lines, "DRM wrap completed", "", out index)) // TODO: Separate this into a separate verification check
+            if (uploading)
             {
-                result.errorText = "Failed to scan content to upload...";
-                return result;
+                if (drmWrapping)
+                {
+                    if (!ContainsText(lines, "Module is already DRM protected", "", out index)) // TODO: Separate this into a separate verification check
+                    {
+                        if (!ContainsText(lines, "DRM wrap completed", "", out index))
+                        {
+                            result.errorText = "Failed to DRM wrap...";
+                            return result;
+                        }
+                    }
+                }
+                else
+                {
+                    if (!ContainsText(lines, "Uploading content...", "", out index))
+                    {
+                        result.errorText = "Failed to scan content to upload...";
+                        return result;
+                    }
+                }
             }
             
             if (ContainsText(lines, "ERROR! Failed to commit build", "", out index))
@@ -461,7 +498,7 @@ namespace Wireframe
         {
             var process = new Process();
             process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            process.StartInfo.FileName = m_exePath;
+            process.StartInfo.FileName = m_steamCMDPath;
             process.StartInfo.Arguments = "";
             process.EnableRaisingEvents = true;
             process.Start();
@@ -476,6 +513,9 @@ namespace Wireframe
         /// <returns></returns>
         public async Task<UploadResult> DRMWrap(int appID, string sourceExe, string resultEXE, int flags = 6)
         {
+            // Get name of sourceExe
+            string sourceExeName = Path.GetFileName(sourceExe);
+            Debug.Log($"[Steam] Attempting DRMWrap {sourceExeName}. If you're using Steam Guard or Two-factor Authenticator check your phone!\n\n");
             UploadResult result = default;
             try
             {
@@ -489,7 +529,7 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
-                    m_uploadProcess.StartInfo.FileName = m_exePath;
+                    m_uploadProcess.StartInfo.FileName = m_steamCMDPath;
                     m_uploadProcess.StartInfo.Arguments = CreateDRMWrapSteamArguments(true, true, steamGuardCode, appID, sourceExe, resultEXE, flags);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
@@ -504,7 +544,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
                     
-                    var outputResults = await LogOutSteamResult(textDump, true);
+                    var outputResults = await LogOutSteamResult(textDump, true, true);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 

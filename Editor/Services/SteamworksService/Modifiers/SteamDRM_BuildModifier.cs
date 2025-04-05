@@ -57,7 +57,7 @@ namespace Wireframe
             }
             
             int processID = ProgressUtils.Start("Steam DRM Modifier", "Wrapping exe with Steam DRM");
-            UploadResult result = await SteamSDK.Instance.DRMWrap(m_current.Id, exePath, exePath, m_flags);
+            UploadResult result = await SteamSDK.Instance.DRMWrap(m_current.App.appid, exePath, exePath, m_flags);
             ProgressUtils.Remove(processID);
             return result;
         }

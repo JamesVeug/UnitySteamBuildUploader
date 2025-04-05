@@ -1,3 +1,11 @@
+# 2.1.1
+- General
+  - First pass Mac/linux support
+  - Fixed DRM Wrapping not working for games/companies with spaces in the name
+  - Fixed DRM Wrapping not working with SteamGuard/Two Factor support properly
+  - Safety guard to add modifiers back in case they disappear
+
+
 # 2.1.0
 ## Upload Tab
 - Added `Folder` Source so its now possible ot upload a folder for Steam DLC.

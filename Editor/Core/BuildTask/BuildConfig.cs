@@ -38,6 +38,15 @@ namespace Wireframe
                 Enabled = true,
             });
             
+            m_buildDestinations = new List<DestinationData>();
+            m_buildDestinations.Add(new DestinationData()
+            {
+                Enabled = true,
+            });
+        }
+
+        private void InitializeModifiers()
+        {
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
             ExcludeFilesByRegex_BuildModifier regexBuildModifier = new ExcludeFilesByRegex_BuildModifier();
@@ -53,12 +62,6 @@ namespace Wireframe
             {
                 modifer.Initialize(()=>m_window.Repaint());
             }
-            
-            m_buildDestinations = new List<DestinationData>();
-            m_buildDestinations.Add(new DestinationData()
-            {
-                Enabled = true,
-            });
         }
 
         public void Setup()
@@ -347,6 +350,10 @@ namespace Wireframe
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth / 2)))
                 {
                     GUILayout.Label("Modifiers");
+                    if (m_modifiers == null || m_modifiers.Count == 0)
+                    {
+                        InitializeModifiers();
+                    }
                     foreach (ABuildConfigModifer modifer in m_modifiers)
                     {
                         isDirty |= modifer.OnGUI();

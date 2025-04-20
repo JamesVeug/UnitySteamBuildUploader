@@ -31,6 +31,7 @@
 
 
 ## Links 
+- Documentation: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki
 - Support Me: https://buymeacoffee.com/jamesgamesnz
 - Discord: https://discord.gg/R2UjXB6pQ8
 - Github: https://github.com/JamesVeug/UnitySteamBuildUploader

@@ -3,7 +3,7 @@
 namespace Wireframe
 {
     [Serializable]
-    internal class AppVDFFile : VDFFile
+    public class AppVDFFile : VDFFile
     {
         public override string FileName => "appbuild";
 

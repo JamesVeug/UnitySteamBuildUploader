@@ -9,11 +9,16 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    internal class NoUploadDestination : ABuildDestination
+    public class NoUploadDestination : ABuildDestination
     {
         public override string DisplayName => "Nowhere";
 
-        public NoUploadDestination(BuildUploaderWindow window) : base(window)
+        public NoUploadDestination() : base(null)
+        {
+            
+        }
+
+        internal NoUploadDestination(BuildUploaderWindow window) : base(window)
         {
         }
         

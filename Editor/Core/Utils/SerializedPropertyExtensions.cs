@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Wireframe
 {
-    internal static class SerializedPropertyExtensions
+    public static class SerializedPropertyExtensions
     {
         public static object GetValue(this SerializedProperty prop)
         {

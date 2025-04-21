@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
 {
-    internal class NewGithubReleaseDestination : ABuildDestination
+    public class NewGithubReleaseDestination : ABuildDestination
     {
         public override string DisplayName => "New Github Release";
         
@@ -19,8 +18,35 @@ namespace Wireframe
         private bool m_draft;
         private bool m_prerelease;
         private bool m_zipContents;
+
+        public NewGithubReleaseDestination() : base(null)
+        {
+            
+        }
         
-        public NewGithubReleaseDestination(BuildUploaderWindow window) : base(window)
+        public void SetRepository(string owner, string repo)
+        {
+            m_owner = owner;
+            m_repo = repo;
+        }
+        
+        public void SetRelease(string releaseName, string tagName, string target)
+        {
+            m_releaseName = releaseName;
+            m_tagName = tagName;
+            m_target = target;
+        }
+        
+        public void SetContent(bool draft, bool prerelease, bool zipContents)
+        {
+            m_draft = draft;
+            m_prerelease = prerelease;
+            m_zipContents = zipContents;
+        }
+        
+        
+        
+        internal NewGithubReleaseDestination(BuildUploaderWindow window) : base(window)
         {
         }
 
@@ -36,7 +62,7 @@ namespace Wireframe
             {
                 // Get all files at the top level so each can be uploaded individually
                 // Sub-Folders will be zipped 
-                files.AddRange(Directory.GetFiles(buildDescription, "*.*", SearchOption.TopDirectoryOnly));
+                files.AddRange(Directory.GetFiles(filePath, "*.*", SearchOption.TopDirectoryOnly));
             }
 
             int processID = ProgressUtils.Start("Github Release", ProgressTitle());

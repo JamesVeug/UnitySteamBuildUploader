@@ -1,6 +1,6 @@
 ﻿namespace Wireframe
 {
-    internal class ProjectEditorPrefs
+    public class ProjectEditorPrefs
     {
         private static readonly string ProjectKeySuffix = UnityEditor.PlayerSettings.productName + "_";
 

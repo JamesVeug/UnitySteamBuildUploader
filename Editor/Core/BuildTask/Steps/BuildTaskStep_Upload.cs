@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class BuildTaskStep_Upload : ABuildTask_Step
+    public class BuildTaskStep_Upload : ABuildTask_Step
     {
         public override string Name => "Upload";
         

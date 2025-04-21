@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    internal class BuildTaskStep_GetSources : ABuildTask_Step
+    public class BuildTaskStep_GetSources : ABuildTask_Step
     {
         public override string Name => "Get Sources";
 

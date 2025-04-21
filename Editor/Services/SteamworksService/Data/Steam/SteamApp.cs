@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace Wireframe
 {
     [Serializable]
-    internal class SteamApp : DropdownElement
+    public class SteamApp : DropdownElement
     {
         public int Id => ID;
         public string DisplayName => Name;
@@ -36,7 +36,7 @@ namespace Wireframe
     }
 
     [Serializable]
-    internal class SteamDepot : DropdownElement
+    public class SteamDepot : DropdownElement
     {
         public int Id => ID;
         public string DisplayName => Name;

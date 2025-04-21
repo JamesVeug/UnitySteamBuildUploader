@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    internal static class CustomTextField
+    public static class CustomTextField
     {
         public static bool Draw(ref string text, params GUILayoutOption[] options)
         {

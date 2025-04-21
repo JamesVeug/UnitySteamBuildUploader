@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    internal readonly struct EncodedValue<T> : IEquatable<EncodedValue<T>>
+    public readonly struct EncodedValue<T> : IEquatable<EncodedValue<T>>
     {
         private readonly byte[] m_value;
 

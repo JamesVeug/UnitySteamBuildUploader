@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal static partial class JSON
+    public static partial class JSON
     {
         [MenuItem("Tools/Wireframe/JSON Test")]
         public static void Test()

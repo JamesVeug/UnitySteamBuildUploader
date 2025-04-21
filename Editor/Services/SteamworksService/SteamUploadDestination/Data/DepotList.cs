@@ -3,7 +3,7 @@
 namespace Wireframe
 {
     [Serializable]
-    internal class DepotList : VdfMap<int, string>
+    public class DepotList : VdfMap<int, string>
     {
         public DepotList()
         {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    internal abstract class ABuildConfigModifer
+    public abstract class ABuildConfigModifer
     {
         public abstract bool IsSetup(out string reason);
         public abstract void Initialize(Action onChanged);

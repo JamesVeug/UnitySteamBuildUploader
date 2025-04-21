@@ -8,12 +8,16 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    internal class FileSource : ABrowsePathSource
+    public class FileSource : ABrowsePathSource
     {
         public override string DisplayName => "File";
         protected override string ButtonText => "Choose file Upload...";
+
+        public FileSource(string path) : base(null, path)
+        {
+        }
         
-        public FileSource(BuildUploaderWindow window) : base(window)
+        internal FileSource(BuildUploaderWindow window) : base(window)
         {
         }
 

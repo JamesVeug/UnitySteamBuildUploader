@@ -1,6 +1,6 @@
 ﻿namespace Wireframe
 {
-    internal enum WebRequestMethod
+    public enum WebRequestMethod
     {
         GET,
         POST,

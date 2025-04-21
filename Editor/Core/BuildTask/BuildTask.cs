@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class BuildTask
+    public class BuildTask
     {
         public List<BuildConfig> BuildConfigs => buildConfigs;
         public string BuildDescription => buildDescription;
@@ -22,7 +22,12 @@ namespace Wireframe
         {
             this.buildDescription = buildDescription;
             this.buildConfigs = buildConfigs;
-            this.cachedLocations = new string[buildConfigs.Count];
+        }
+        
+        public BuildTask()
+        {
+            buildDescription = "";
+            buildConfigs = new List<BuildConfig>();
         }
 
         ~BuildTask()
@@ -33,9 +38,10 @@ namespace Wireframe
             }
         }
 
-        public async Task Start(Action tick = null)
+        public async Task Start(Action tick = null, Action<bool> onComplete = null)
         {
             progressId = ProgressUtils.Start("Build Uploader Window", "Upload Builds");
+            cachedLocations = new string[buildConfigs.Count];
 
             ABuildTask_Step[] steps = new ABuildTask_Step[]
             {
@@ -112,12 +118,28 @@ namespace Wireframe
             }
                 
             ProgressUtils.Remove(progressId);
+            onComplete?.Invoke(successful);
         }
 
         public void DisplayDialog(string message, string buttonText)
         {
             Debug.Log(message);
             EditorUtility.DisplayDialog("Build Uploader", message, buttonText);
+        }
+        
+        public void AddConfig(BuildConfig config)
+        {
+            if (config == null)
+            {
+                return;
+            }
+            
+            buildConfigs.Add(config);
+        }
+        
+        public void SetBuildDescription(string description)
+        {
+            buildDescription = description;
         }
     }
 }

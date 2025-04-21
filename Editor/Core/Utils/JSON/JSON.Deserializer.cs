@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal static partial class JSON
+    public static partial class JSON
     {
-        internal class JSONDeserializer
+        public class JSONDeserializer
         {
             public static T FromJSON<T>(string json)
             {
@@ -310,7 +310,7 @@ namespace Wireframe
                 return (T)ConvertType(data, typeof(T));
             }
 
-            internal static object ConvertType(object obj, Type type)
+            public static object ConvertType(object obj, Type type)
             {
                 if (obj == null)
                 {

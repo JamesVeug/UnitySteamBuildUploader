@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class BuildTaskStep_CacheSources : ABuildTask_Step
+    public class BuildTaskStep_CacheSources : ABuildTask_Step
     {
         public override string Name => "Cache Sources";
         

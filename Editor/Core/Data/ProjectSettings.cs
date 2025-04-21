@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Wireframe
 {
-    internal class ProjectSettings : SettingsProvider
+    public class ProjectSettings : SettingsProvider
     {
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace Wireframe
 {
     [Serializable]
-    internal abstract class VdfMap<T, Y> : IVdfMap
+    public abstract class VdfMap<T, Y> : IVdfMap
     {
-        internal class MapData
+        public class MapData
         {
             public T Key;
             public Y Value;

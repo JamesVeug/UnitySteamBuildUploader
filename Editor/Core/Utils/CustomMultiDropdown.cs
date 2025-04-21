@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal abstract class CustomMultiDropdown<T, Y> where Y : DropdownElement
+    public abstract class CustomMultiDropdown<T, Y> where Y : DropdownElement
     {
         public virtual string FirstEntryText => "Choose from Dropdown";
 

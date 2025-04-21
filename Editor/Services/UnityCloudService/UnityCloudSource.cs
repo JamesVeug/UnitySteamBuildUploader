@@ -13,20 +13,19 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    internal class UnityCloudSource : ABuildSource
+    public class UnityCloudSource : ABuildSource
     {
         public override string DisplayName => "Unity Cloud";
         
-        private string sourceFilePath;
         private UnityCloudTarget sourceTarget;
         private UnityCloudBuild sourceBuild;
 
         private Vector2 buildScrollPosition;
 
-        private string unzipDirectory;
-        private string fullFilePath;
+        private string downloadedFilePath;
+        private string sourceFilePath;
 
-        public UnityCloudSource(BuildUploaderWindow window) : base(window)
+        internal UnityCloudSource(BuildUploaderWindow window) : base(window)
         {
             sourceFilePath = null;
             uploaderWindow = window;
@@ -110,10 +109,10 @@ namespace Wireframe
                 Directory.CreateDirectory(directoryPath);
             }
 
-            fullFilePath = Path.Combine(directoryPath, buildName + ".zip");
+            downloadedFilePath = Path.Combine(directoryPath, buildName + ".zip");
 
             // Only download if we don't have it
-            if (!File.Exists(fullFilePath))
+            if (!File.Exists(downloadedFilePath))
             {
                 string downloadUrl = sourceBuild.GetGameArtifactDownloadUrl();
                 if (downloadUrl == null)
@@ -144,21 +143,21 @@ namespace Wireframe
                 m_progressDescription = "Saving locally...";
                 
 #if UNITY_2021_2_OR_NEWER
-                await File.WriteAllBytesAsync(fullFilePath, request.downloadHandler.data);
+                await File.WriteAllBytesAsync(downloadedFilePath, request.downloadHandler.data);
 #else
                 File.WriteAllBytes(fullFilePath, request.downloadHandler.data);
 #endif
             }
             else
             {
-                Debug.Log("Skipping downloading form UnityCloud since it already exists: " + fullFilePath);
+                Debug.Log("Skipping downloading form UnityCloud since it already exists: " + downloadedFilePath);
             }
 
             m_progressDescription = "Done!";
-            Debug.Log("Retrieved UnityCloud Build: " + fullFilePath);
+            Debug.Log("Retrieved UnityCloud Build: " + downloadedFilePath);
 
             // Record where the game is saved to
-            sourceFilePath = fullFilePath;
+            sourceFilePath = downloadedFilePath;
             m_downloadProgress = 1.0f;
             return true;
         }

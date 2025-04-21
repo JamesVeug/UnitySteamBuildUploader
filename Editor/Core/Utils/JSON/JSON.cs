@@ -7,7 +7,7 @@ namespace Wireframe
     /// Not really efficient, does not work for all cases but at least works for the Build Uploader.
     /// Using this instead of a library to avoid dependencies and JSONUtility does not work for what I need.
     /// </summary>
-    internal static partial class JSON
+    public static partial class JSON
     {
         public static string SerializeObject<T>(T data)
         {

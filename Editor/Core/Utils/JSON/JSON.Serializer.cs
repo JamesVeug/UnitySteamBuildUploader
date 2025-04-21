@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal static partial class JSON
+    public static partial class JSON
     {
         private class JSONSerializer
         {

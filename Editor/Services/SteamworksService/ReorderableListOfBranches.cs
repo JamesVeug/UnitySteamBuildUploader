@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    internal class ReorderableListOfBranches : InternalReorderableList<SteamBranch>
+    public class ReorderableListOfBranches : InternalReorderableList<SteamBranch>
     {
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {

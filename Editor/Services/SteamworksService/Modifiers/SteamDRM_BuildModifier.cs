@@ -7,11 +7,20 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class SteamDRM_BuildModifier : ABuildConfigModifer
+    public class SteamDRM_BuildModifier : ABuildConfigModifer
     {
         private bool m_enabled;
         private SteamApp m_current;
         private int m_flags;
+
+        /// <summary>
+        /// https://partner.steamgames.com/doc/features/drm
+        /// </summary>
+        public SteamDRM_BuildModifier(SteamApp app, int flags = 0)
+        {
+            m_current = app;
+            m_flags = flags;
+        }
 
         public override void Initialize(Action onChanged)
         {

@@ -3,7 +3,7 @@
 namespace Wireframe
 {
     [Serializable]
-    internal class SteamBranch : DropdownElement
+    public class SteamBranch : DropdownElement
     {
         public int Id => id;
         public string DisplayName => name;

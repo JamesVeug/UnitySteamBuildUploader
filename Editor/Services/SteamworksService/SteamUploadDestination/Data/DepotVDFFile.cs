@@ -3,7 +3,7 @@
 namespace Wireframe
 {
     [Serializable]
-    internal class DepotFileMapping : VDFFile
+    public class DepotFileMapping : VDFFile
     {
         public override string FileName => "FileMapping";
 
@@ -32,7 +32,7 @@ namespace Wireframe
     }
 
     [Serializable]
-    internal class DepotVDFFile : VDFFile
+    public class DepotVDFFile : VDFFile
     {
         public override string FileName => "DepotBuildConfig";
 

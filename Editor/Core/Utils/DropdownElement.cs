@@ -1,6 +1,6 @@
 ﻿namespace Wireframe
 {
-    internal interface DropdownElement
+    public interface DropdownElement
     {
         int Id { get; }
         string DisplayName { get; }

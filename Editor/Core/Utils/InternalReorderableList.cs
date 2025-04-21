@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal abstract class InternalReorderableList<T>
+    public abstract class InternalReorderableList<T>
     {
         protected List<T> list;
         protected bool dirty = false;

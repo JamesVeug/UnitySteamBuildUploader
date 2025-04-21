@@ -7,7 +7,7 @@ using Wireframe;
 
 namespace Wireframe
 {
-    internal class ReorderableListOfDepots : InternalReorderableList<SteamDepot>
+    public class ReorderableListOfDepots : InternalReorderableList<SteamDepot>
     {
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    internal class BuildTaskStep_ModifyCachedSources : ABuildTask_Step
+    public class BuildTaskStep_ModifyCachedSources : ABuildTask_Step
     {
         public override string Name => "Modify Cached Sources";
         

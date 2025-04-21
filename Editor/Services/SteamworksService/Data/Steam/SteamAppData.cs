@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Wireframe
 {
     [Serializable]
-    internal class SteamAppData
+    public class SteamAppData
     {
         public List<SteamApp> Configs = new List<SteamApp>();
 

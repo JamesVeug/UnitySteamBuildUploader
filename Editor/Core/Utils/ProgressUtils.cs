@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace Wireframe
 {
-    internal static class ProgressUtils
+    public static class ProgressUtils
     {
         public static bool Exists(int progressId)
         {

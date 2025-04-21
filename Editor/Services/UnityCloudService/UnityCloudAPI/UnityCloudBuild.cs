@@ -44,14 +44,14 @@ namespace Wireframe
 		// #####################
 		// #####################
 
-		internal class ArtifactChangeAuthor
+		public class ArtifactChangeAuthor
 		{
 			public string fullName;
 			public string absoluteUrl;
 		}
 
 		[Serializable]
-		internal class ArtifactChange
+		public class ArtifactChange
 		{
 			public DateTime DateTime => DateTime.Parse(timestamp);
 
@@ -64,7 +64,7 @@ namespace Wireframe
 		}
 
 		[Serializable]
-		internal class ArtifactBuild
+		public class ArtifactBuild
 		{
 			public string filename;
 			public long size;
@@ -74,7 +74,7 @@ namespace Wireframe
 		}
 
 		[Serializable]
-		internal class Artifact
+		public class Artifact
 		{
 			public string key;
 			public string name;

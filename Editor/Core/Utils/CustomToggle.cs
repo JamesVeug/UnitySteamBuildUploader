@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal static class CustomToggle
+    public static class CustomToggle
     {
         public static bool DrawToggle(string label, ref bool value, params GUILayoutOption[] options)
         {

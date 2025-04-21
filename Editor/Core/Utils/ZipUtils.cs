@@ -19,7 +19,7 @@ namespace Wireframe
     /// Unity 2022 we can use ZipFile from C#
     /// Below that requires adding the package com.unity.sharp-zip-lib 
     /// </summary>
-    internal static class ZipUtils
+    public static class ZipUtils
     {
         public static async Task<bool> Zip(string filePath, string zippedfilePath)
         {

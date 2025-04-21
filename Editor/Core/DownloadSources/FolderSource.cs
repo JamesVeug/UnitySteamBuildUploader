@@ -7,12 +7,16 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    internal class FolderSource : ABrowsePathSource
+    public class FolderSource : ABrowsePathSource
     {
         public override string DisplayName => "Folder";
         protected override string ButtonText => "Choose Folder to Upload...";
 
-        public FolderSource(BuildUploaderWindow window) : base(window)
+        public FolderSource(string path) : base(null, path)
+        {
+        }
+
+        internal FolderSource(BuildUploaderWindow window) : base(window)
         {
         }
 

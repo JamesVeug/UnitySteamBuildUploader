@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    internal class BuildTaskStep_PrepareDestinations : ABuildTask_Step
+    public class BuildTaskStep_PrepareDestinations : ABuildTask_Step
     {
         public override string Name => "Prepare Destinations";
         

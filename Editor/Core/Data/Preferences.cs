@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace Wireframe
 {
-    internal static class Preferences
+    public static class Preferences
     {
         public static bool DeleteCacheAfterBuild
         {

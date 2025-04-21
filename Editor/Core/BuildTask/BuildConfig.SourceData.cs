@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace Wireframe
 {
-    internal partial class BuildConfig
+    public partial class BuildConfig
     {
-        internal class SourceData
+        public class SourceData
         {
             public bool Enabled;
             public ABuildSource Source;

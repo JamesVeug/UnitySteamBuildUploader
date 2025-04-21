@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal partial class BuildConfig
+    public partial class BuildConfig
     {
         public bool Collapsed { get; set; } = true;
         public bool Enabled { get; set; } = true;
@@ -23,39 +23,34 @@ namespace Wireframe
         private GUIStyle m_titleStyle;
         private BuildUploaderWindow m_window;
 
-        public BuildConfig(BuildUploaderWindow window)
+        public BuildConfig(string guid)
+        {
+            GUID = guid;
+            Initialize();
+        }
+
+        internal BuildConfig(BuildUploaderWindow window) : this(Guid.NewGuid().ToString().Substring(0,5))
         {
             m_window = window;
-            GUID = Guid.NewGuid().ToString().Substring(0,5);
-            Initialize();
         }
 
         private void Initialize()
         {
             m_buildSources = new List<SourceData>();
-            m_buildSources.Add(new SourceData()
-            {
-                Enabled = true,
-            });
-            
+            m_modifiers = new List<ABuildConfigModifer>();
             m_buildDestinations = new List<DestinationData>();
-            m_buildDestinations.Add(new DestinationData()
-            {
-                Enabled = true,
-            });
         }
 
         private void InitializeModifiers()
         {
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
-            ExcludeFilesByRegex_BuildModifier regexBuildModifier = new ExcludeFilesByRegex_BuildModifier();
+            ExcludeFoldersByRegex_BuildModifier regexBuildModifier = new ExcludeFoldersByRegex_BuildModifier();
             regexBuildModifier.Add("*_DoNotShip", true, false);
             
             m_modifiers = new List<ABuildConfigModifer>
             {
                 regexBuildModifier,
-                new SteamDRM_BuildModifier(),
             };
             
             foreach (ABuildConfigModifer modifer in m_modifiers)
@@ -77,7 +72,7 @@ namespace Wireframe
             }
         }
 
-        public void OnGUI(ref bool isDirty, BuildUploaderWindow uploaderWindow)
+        internal void OnGUI(ref bool isDirty, BuildUploaderWindow uploaderWindow)
         {
             Setup();
 
@@ -557,6 +552,36 @@ namespace Wireframe
             {
                 destination.Destination?.CleanUp();
             }
+        }
+
+        public void AddSource(SourceData source)
+        {
+            if (source == null)
+            {
+                return;
+            }
+            
+            m_buildSources.Add(source);
+        }
+        
+        public void AddDestination(DestinationData destination)
+        {
+            if (destination == null)
+            {
+                return;
+            }
+            
+            m_buildDestinations.Add(destination);
+        }
+        
+        public void AddModifier(ABuildConfigModifer modifier)
+        {
+            if (modifier == null)
+            {
+                return;
+            }
+            
+            m_modifiers.Add(modifier);
         }
     }
 }

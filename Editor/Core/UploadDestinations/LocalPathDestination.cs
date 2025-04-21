@@ -11,10 +11,10 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    internal class LocalPathDestination : ABuildDestination
+    public class LocalPathDestination : ABuildDestination
     {
         public override string DisplayName => "LocalPath";
-        public string ButtonText => "Choose Local Path...";
+        private string ButtonText => "Choose Local Path...";
         
         private GUIStyle m_pathButtonExistsStyle;
         private GUIStyle m_pathButtonDoesNotExistStyle;
@@ -25,7 +25,19 @@ namespace Wireframe
         private string m_fileName = "";
         private bool m_zipContent = false;
 
-        public LocalPathDestination(BuildUploaderWindow window) : base(window)
+        public LocalPathDestination() : base(null)
+        {
+            
+        }
+        
+        public LocalPathDestination(string localPath, string fileName, bool zipContent) : base(null)
+        {
+            m_localPath = localPath;
+            m_fileName = fileName;
+            m_zipContent = zipContent;
+        }
+
+        internal LocalPathDestination(BuildUploaderWindow window) : base(window)
         {
         }
 
@@ -115,12 +127,11 @@ namespace Wireframe
         {
             string path = m_localPath;
             string name = m_fileName;
-            if (string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name))
             {
-                name = "???";
+                path = Path.Combine(path, name);
             }
             
-            path = Path.Combine(path, name);
             if (m_zipContent)
             {
                 path += ".zip";

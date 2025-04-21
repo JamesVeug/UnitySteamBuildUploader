@@ -40,10 +40,10 @@ namespace Wireframe
    }
 
    [Serializable]
-   internal class UnityCloudTarget : DropdownElement
+   public class UnityCloudTarget : DropdownElement
    {
       [Serializable]
-      internal class LastBuilt
+      public class LastBuilt
       {
          public string unityVersion;
       }

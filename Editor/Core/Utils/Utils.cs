@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace Wireframe
 {
-    internal static class Utils
+    public static class Utils
     {
         public static readonly string CacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
         

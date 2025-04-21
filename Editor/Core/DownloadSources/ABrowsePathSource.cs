@@ -10,7 +10,7 @@ namespace Wireframe
     /// <summary>
     /// User is able to select a path of some sort to upload
     /// </summary>
-    internal abstract class ABrowsePathSource : ABuildSource
+    public abstract class ABrowsePathSource : ABuildSource
     {
         protected abstract string ButtonText { get; }
         
@@ -23,9 +23,14 @@ namespace Wireframe
         protected string m_finalSourcePath;
         protected string m_enteredFilePath;
         
-        public ABrowsePathSource(BuildUploaderWindow window) : base(window)
+        internal ABrowsePathSource(BuildUploaderWindow window) : base(window)
         {
             
+        }
+        
+        internal ABrowsePathSource(BuildUploaderWindow window, string path) : base(window)
+        {
+            m_enteredFilePath = path;
         }
 
         private void Setup()

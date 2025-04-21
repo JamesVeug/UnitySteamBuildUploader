@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal partial class BuildConfig
+    public partial class BuildConfig
     {
         public Dictionary<string, object> Serialize()
         {
@@ -141,8 +141,7 @@ namespace Wireframe
                 if (sourceType != null)
                 {
                     SourceData sourceData = new SourceData();
-                    ABuildSource source =
-                        Activator.CreateInstance(sourceType, new object[] { m_window }) as ABuildSource;
+                    ABuildSource source = Activator.CreateInstance(sourceType, new object[] { m_window }) as ABuildSource;
                     if (source != null)
                     {
                         // Source

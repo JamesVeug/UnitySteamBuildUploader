@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Wireframe
 {
-    internal static class UIHelpers
+    public static class UIHelpers
     {
-        internal class BuildSourcesPopup : CustomDropdown<BuildSourcesPopup.SourceData>
+        public class BuildSourcesPopup : CustomDropdown<BuildSourcesPopup.SourceData>
         {
             public override string FirstEntryText => "Choose Source";
             public class SourceData : DropdownElement
@@ -32,7 +32,7 @@ namespace Wireframe
             }
         }
         
-        internal class BuildDestinationsPopup : CustomDropdown<BuildDestinationsPopup.DestinationData>
+        public class BuildDestinationsPopup : CustomDropdown<BuildDestinationsPopup.DestinationData>
         {
             public override string FirstEntryText => "Choose Destination";
             public class DestinationData : DropdownElement

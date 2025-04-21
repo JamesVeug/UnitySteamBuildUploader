@@ -8,7 +8,7 @@ namespace Wireframe
     {
         private static readonly string FilePath = Application.dataPath + "/../BuildUploader/SteamWorksConfig.json";
 
-        internal class SteamDepotPopup : CustomMultiDropdown<SteamApp, SteamDepot>
+        public class SteamDepotPopup : CustomMultiDropdown<SteamApp, SteamDepot>
         {
             public override string FirstEntryText => "Choose Depot";
             
@@ -19,7 +19,7 @@ namespace Wireframe
             }
         }
 
-        internal class SteamConfigPopup : CustomDropdown<SteamApp>
+        public class SteamConfigPopup : CustomDropdown<SteamApp>
         {
             public override string FirstEntryText => "Choose App";
 
@@ -30,7 +30,7 @@ namespace Wireframe
             }
         }
 
-        internal class SteamBranchPopup : CustomMultiDropdown<SteamApp, SteamBranch>
+        public class SteamBranchPopup : CustomMultiDropdown<SteamApp, SteamBranch>
         {
             public override string FirstEntryText => "Choose Branch";
             

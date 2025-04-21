@@ -2,9 +2,9 @@
 
 namespace Wireframe
 {
-    internal partial class BuildConfig
+    public partial class BuildConfig
     {
-        internal class DestinationData
+        public class DestinationData
         {
             public bool Enabled;
             public ABuildDestination Destination;

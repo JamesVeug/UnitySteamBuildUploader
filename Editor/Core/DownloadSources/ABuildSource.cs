@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    internal abstract class ABuildSource : DropdownElement
+    public abstract class ABuildSource : DropdownElement
     {
         protected float m_downloadProgress;
         protected string m_progressDescription;
         protected bool m_getSourceInProgress;
-        protected BuildUploaderWindow uploaderWindow;
+        internal BuildUploaderWindow uploaderWindow;
         
-        public ABuildSource(BuildUploaderWindow window)
+        internal ABuildSource(BuildUploaderWindow window)
         {
             // Required for Reflection
             uploaderWindow = window;

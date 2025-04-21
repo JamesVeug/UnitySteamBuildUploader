@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Wireframe
 {
-    internal static class InternalUtils
+    public static class InternalUtils
     {
         private static List<AService> allServices = null;
         private static List<Type> allBuildSources = null;

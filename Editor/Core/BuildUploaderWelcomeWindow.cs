@@ -5,7 +5,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Wireframe {
-    internal class BuildUploaderWelcomeWindow : EditorWindow
+    public class BuildUploaderWelcomeWindow : EditorWindow
     {
         private Vector2 scrollPosition;
         

@@ -1,6 +1,6 @@
 ﻿namespace Wireframe
 {
-    internal struct UploadResult
+    public struct UploadResult
     {
         public bool Successful;
         public string FailReason;

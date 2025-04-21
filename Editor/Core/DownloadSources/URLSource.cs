@@ -14,7 +14,7 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    internal class URLSource : ABuildSource
+    public class URLSource : ABuildSource
     {
         public override string DisplayName => "URL";
 
@@ -24,9 +24,28 @@ namespace Wireframe
         private string m_fileName;
         private WebRequestMethod m_method;
         private List<Tuple<string,string>> m_headers = new List<Tuple<string, string>>();
+
+        public URLSource() : base(null)
+        {
+            
+        }
         
+        public void SetURL(string url, WebRequestMethod method)
+        {
+            m_url = url;
+        }
         
-        public URLSource(BuildUploaderWindow window) : base(window)
+        public void SetHeaders(params Tuple<string,string>[] headers)
+        {
+            m_headers = headers.ToList();
+        }
+        
+        public void AddHeader(string key, string value)
+        {
+            m_headers.Add(new Tuple<string, string>(key, value));
+        }
+        
+        internal URLSource(BuildUploaderWindow window) : base(window)
         {
         }
 

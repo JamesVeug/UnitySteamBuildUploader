@@ -8,7 +8,7 @@
 //     /// <summary>
 //     /// Plan is to show images in the UI so its prettier and exciting to upload builds
 //     /// </summary>
-//     internal class SteamPageInfo
+//     public class SteamPageInfo
 //     {
 //         // [MenuItem("Steam/Save Header Image")]
 //         // public static void SaveHeaderImage()
@@ -132,51 +132,51 @@
 //         public object ratings;
 //     }
 //
-//     internal class Pc_requirements
+//     public class Pc_requirements
 //     {
 //         public string minimum;
 //         public string recommended;
 //     }
 //
-//     internal class Mac_requirements
+//     public class Mac_requirements
 //     {
 //         public string minimum;
 //         public string recommended;
 //     }
 //
-//     internal class Linux_requirements
+//     public class Linux_requirements
 //     {
 //         public string minimum;
 //         public string recommended;
 //     }
 //
-//     internal class Platforms
+//     public class Platforms
 //     {
 //         public bool windows;
 //         public bool mac;
 //         public bool linux;
 //     }
 //
-//     internal class Categories
+//     public class Categories
 //     {
 //         public int id;
 //         public string description;
 //     }
 //
-//     internal class Genres
+//     public class Genres
 //     {
 //         public string id;
 //         public string description;
 //     }
 //
-//     internal class Screenshots
+//     public class Screenshots
 //     {
 //         public int id;
 //         public string path_thumbnail;
 //         public string path_full;
 //     }
 //
-//     internal class Movies
+//     public class Movies
 //     {
 //         public int id;
 //         public string name;
@@ -186,43 +186,43 @@
 //         public bool highlight;
 //     }
 //
-//     internal class Webm
+//     public class Webm
 //     {
 //         public string _80;
 //         public string max;
 //     }
 //
-//     internal class Mp4
+//     public class Mp4
 //     {
 //         public string _80;
 //         public string max;
 //     }
 //
-//     internal class Achievements
+//     public class Achievements
 //     {
 //         public int total;
 //         public Highlighted[] highlighted;
 //     }
 //
-//     internal class Highlighted
+//     public class Highlighted
 //     {
 //         public string name;
 //         public string path;
 //     }
 //
-//     internal class Release_date
+//     public class Release_date
 //     {
 //         public bool coming_soon;
 //         public string date;
 //     }
 //
-//     internal class Support_info
+//     public class Support_info
 //     {
 //         public string url;
 //         public string email;
 //     }
 //
-//     internal class Content_descriptors
+//     public class Content_descriptors
 //     {
 //         public int[] ids;
 //         public string notes;

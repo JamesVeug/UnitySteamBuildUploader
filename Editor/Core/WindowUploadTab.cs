@@ -14,7 +14,7 @@ namespace Wireframe
         private static readonly string FilePath = Application.persistentDataPath + "/BuildUploader/WindowUploadTab.json";
 
         [Serializable]
-        internal class UploadTabData
+        public class UploadTabData
         {
             [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         }

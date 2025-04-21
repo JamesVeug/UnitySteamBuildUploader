@@ -78,7 +78,7 @@ namespace Wireframe
             m_fileRegexes.Add(new Selection(fileRegex, true, recursive, searchAllDirectories));
         }
 
-        public override void Initialize(Action onChanged)
+        internal override void Initialize(Action onChanged)
         {
             m_onChanged = onChanged;
             m_reorderableList.Initialize(m_fileRegexes, "Exclude Files", regex =>

@@ -22,7 +22,7 @@ namespace Wireframe
             m_flags = flags;
         }
 
-        public override void Initialize(Action onChanged)
+        internal override void Initialize(Action onChanged)
         {
             m_flags = 0;
         }

@@ -7,7 +7,7 @@ namespace Wireframe
     public abstract class ABuildConfigModifer
     {
         public abstract bool IsSetup(out string reason);
-        public abstract void Initialize(Action onChanged);
+        internal abstract void Initialize(Action onChanged);
         public abstract Task<UploadResult> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex);
         
         public virtual void TryGetWarnings(BuildConfig config, List<string> warnings)

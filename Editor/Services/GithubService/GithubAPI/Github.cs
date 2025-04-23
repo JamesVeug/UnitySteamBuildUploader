@@ -27,7 +27,7 @@ namespace Wireframe
         /// <summary>
         /// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#create-a-release
         /// </summary>
-        public static async Task<UploadResult> NewRelease(string owner,
+        public static async Task<bool> NewRelease(string owner,
             string repo,
             string releaseName,
             string releaseBody,
@@ -36,6 +36,7 @@ namespace Wireframe
             bool draft,
             bool prerelease,
             string token,
+            BuildTaskReport.StepResult result,
             List<string> assets = null)
         {
             // Verify paths first
@@ -45,8 +46,9 @@ namespace Wireframe
                 {
                     if (!File.Exists(asset) && !Directory.Exists(asset))
                     {
-                        Debug.LogError($"Path not found: {asset}");
-                        return UploadResult.Failed("Path to asset not found: " + asset);
+                        result.AddError($"Path not found: {asset}");
+                        result.SetFailed("Path not found: " + asset);
+                        return false;
                     }
                 }
             }
@@ -92,11 +94,11 @@ namespace Wireframe
                     {
                         foreach (string assetPath in assets)
                         {
-                            UploadResult result = await UploadReleaseAsset(uploadUrl, token, assetPath);
-                            if (!result.Successful)
+                            bool uploadAssetSuccess = await UploadReleaseAsset(uploadUrl, token, assetPath, result);
+                            if (!uploadAssetSuccess)
                             {
                                 Debug.LogError($"Failed to upload release asset: {assetPath} but the release was made. Check Github for the status!");
-                                return result;
+                                return false;
                             }
                         }
                         Debug.Log("All assets uploaded successfully.");
@@ -105,15 +107,16 @@ namespace Wireframe
                 else
                 {
                     string downloadHandlerText = www.downloadHandler.text;
-                    Debug.LogError($"Failed to create release: {www.responseCode} - {downloadHandlerText}");
-                    return UploadResult.Failed("Failed to create release: " + www.responseCode + " - " + downloadHandlerText);
+                    result.AddError($"Failed to create release: {www.responseCode} - {downloadHandlerText}");
+                    result.SetFailed(result.Logs[^1].Message);
+                    return false;
                 }
             }
             
-            return UploadResult.Success();
+            return true;
         }
         
-        private static async Task<UploadResult> UploadReleaseAsset(string uploadUrl, string token, string path)
+        private static async Task<bool> UploadReleaseAsset(string uploadUrl, string token, string path, BuildTaskReport.StepResult result)
         {
             try
             {
@@ -127,9 +130,9 @@ namespace Wireframe
                 {
                     // Zip the directory
                     string zipPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".zip");
-                    if (!await ZipUtils.Zip(path, zipPath))
+                    if (!await ZipUtils.Zip(path, zipPath, result))
                     {
-                        return UploadResult.Failed("Failed to zip directory: " + path);
+                        return false;
                     }
 
                     fileContent = await File.ReadAllBytesAsync(zipPath);
@@ -137,8 +140,8 @@ namespace Wireframe
                 }
                 else
                 {
-                    Debug.LogError($"Invalid Path: {path}");
-                    return UploadResult.Failed("Invalid Path: " + path);
+                    result.AddError($"Invalid Path: {path}");
+                    return false;
                 }
 
                 string url = $"{uploadUrl}?name={assetName}";
@@ -158,23 +161,25 @@ namespace Wireframe
                         await Task.Yield();
                     }
 
-                    Debug.Log("Upload asset result: " + www.responseCode + " - " + www.downloadHandler.text);
+                    result.AddLog("Upload asset result: " + www.responseCode + " - " + www.downloadHandler.text);
                     if (www.result == UnityWebRequest.Result.Success)
                     {
-                        Debug.Log("File uploaded successfully.");
-                        return UploadResult.Success();
+                        result.AddLog("File uploaded successfully.");
+                        return true;
                     }
                     else
                     {
-                        Debug.LogError($"Failed to upload file: {www.responseCode} - {www.downloadHandler.text}");
-                        return UploadResult.Failed("Failed to upload file: " + path + " - " + www.responseCode + " - " + www.downloadHandler.text);
+                        result.AddError($"Failed to upload file: {www.responseCode} - {www.downloadHandler.text}");
+                        result.SetFailed(result.Logs[^1].Message);
+                        return false;
                     }
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"Failed to fully create release: {e.Message}");
-                return UploadResult.Failed("Failed to fully create release: " + e.Message);
+                result.AddException(e);
+                result.SetFailed($"Failed to fully create release: {e.Message}");
+                return false;
             }
         }
     }

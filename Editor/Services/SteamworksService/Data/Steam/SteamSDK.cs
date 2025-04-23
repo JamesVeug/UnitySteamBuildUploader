@@ -176,8 +176,9 @@ namespace Wireframe
             m_initialized = true;
         }
 
-        public async Task<bool> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch, string description,
-            string sourceFilePath)
+        public async Task<bool> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch,
+            string description,
+            string sourceFilePath, BuildTaskReport.StepResult result)
         {
             appFile.desc = description;
             appFile.buildoutput = "..\\output\\";
@@ -187,10 +188,10 @@ namespace Wireframe
             appFile.setlive = branch == "none" ? "" : branch;
 
             string fullPath = GetAppScriptOutputPath(appFile);
-            return await VDFFile.Save(appFile, fullPath);
+            return await VDFFile.Save(appFile, fullPath, result);
         }
 
-        public async Task<bool> CreateDepotFiles(DepotVDFFile depot)
+        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, BuildTaskReport.StepResult result)
         {
             depot.FileExclusion = "*.pdb";
             depot.FileMapping = new DepotFileMapping
@@ -201,7 +202,7 @@ namespace Wireframe
             };
 
             string fullPath = GetDepotScriptOutputPath(depot);
-            return await VDFFile.Save(depot, fullPath);
+            return await VDFFile.Save(depot, fullPath, result);
         }
 
         public string GetAppScriptOutputPath(AppVDFFile appFile)
@@ -218,9 +219,8 @@ namespace Wireframe
             return fullPath;
         }
 
-        public async Task<UploadResult> Upload(AppVDFFile appFile, bool uploadeToSteam)
+        public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam, BuildTaskReport.StepResult stepResult)
         {
-            UploadResult result = default;
             try
             {
                 bool retry = true;
@@ -252,10 +252,9 @@ namespace Wireframe
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
-                    result = new UploadResult(outputResults.successful, outputResults.errorText);
                     if (!outputResults.successful)
                     {
-                        Debug.LogError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
+                        stepResult.AddError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
                         retry = outputResults.retry;
                         if (!string.IsNullOrEmpty(outputResults.steamGuardCode))
                         {
@@ -268,18 +267,18 @@ namespace Wireframe
                     }
                     else
                     {
-                        Debug.Log("[Steam] Steam upload successful!\n\n" + textDump);
+                        stepResult.AddLog("[Steam] Steam upload successful!\n\n" + textDump);
                     }
                 }
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
-                result = UploadResult.Failed(e.Message);
+                stepResult.AddException(e);
+                stepResult.SetFailed("Could not upload to " + appFile.appid + "\n" + e.Message);
             }
 
             await Task.Delay(10);
-            return result;
+            return stepResult.Successful;
         }
 
         private string CreateUploadBuildSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload, string steamGuardCode)
@@ -511,12 +510,11 @@ namespace Wireframe
         /// Works by uploading the .exe of your game and applies the DRM then writes it back to the output path.
         /// </summary>
         /// <returns></returns>
-        public async Task<UploadResult> DRMWrap(int appID, string sourceExe, string resultEXE, int flags = 6)
+        public async Task<bool> DRMWrap(int appID, string sourceExe, string resultEXE, int flags, BuildTaskReport.StepResult stepResult)
         {
             // Get name of sourceExe
             string sourceExeName = Path.GetFileName(sourceExe);
-            Debug.Log($"[Steam] Attempting DRMWrap {sourceExeName}. If you're using Steam Guard or Two-factor Authenticator check your phone!\n\n");
-            UploadResult result = default;
+            stepResult.AddLog($"[Steam] Attempting DRMWrap {sourceExeName}. If you're using Steam Guard or Two-factor Authenticator check your phone!\n\n");
             try
             {
                 bool retry = true;
@@ -548,34 +546,38 @@ namespace Wireframe
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
-                    result = new UploadResult(outputResults.successful, outputResults.errorText);
                     if (!outputResults.successful)
                     {
-                        Debug.LogError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
+                        stepResult.AddError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
                         retry = outputResults.retry;
                         if (!string.IsNullOrEmpty(outputResults.steamGuardCode))
                         {
                             steamGuardCode = outputResults.steamGuardCode;
                         }
+
                         if (!string.IsNullOrEmpty(outputResults.steamTwoFactorCode))
                         {
                             steamGuardCode = outputResults.steamTwoFactorCode;
                         }
+
+                        if (!retry)
+                        {
+                            stepResult.SetFailed(stepResult.Logs[^1].Message);
+                        }
                     }
                     else
                     {
-                        Debug.Log("[Steam] Steam DRMWrap successful!\n\n" + textDump);
+                        stepResult.AddLog("[Steam] Steam DRMWrap successful!\n\n" + textDump);
                     }
                 }
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
-                result = UploadResult.Failed(e.Message);
+                stepResult.AddException(e);
+                stepResult.SetFailed(e.Message);
             }
 
-            await Task.Delay(10);
-            return result;
+            return stepResult.Successful;
         }
 
         /// <summary>

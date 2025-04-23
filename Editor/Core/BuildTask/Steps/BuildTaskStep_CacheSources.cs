@@ -7,11 +7,12 @@ namespace Wireframe
 {
     public class BuildTaskStep_CacheSources : ABuildTask_Step
     {
-        public override string Name => "Cache Sources";
+        public override StepType Type => StepType.CacheSources;
         
-        public override async Task<bool> Run(BuildTask buildTask)
+        
+        public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
         {
-            int progressId = ProgressUtils.Start(Name, "Setting up...");
+            int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             
             List<Task<bool>> tasks = new List<Task<bool>>();
@@ -22,7 +23,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = CacheBuildConfigAtIndex(buildTask, j);
+                Task<bool> task = CacheBuildConfigAtIndex(buildTask, j, report);
                 tasks.Add(task);
             }
 
@@ -59,7 +60,7 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> CacheBuildConfigAtIndex(BuildTask task, int configIndex)
+        private async Task<bool> CacheBuildConfigAtIndex(BuildTask task, int configIndex, BuildTaskReport report)
         {
             string directoryPath = Utils.CacheFolder;
             if (!Directory.Exists(directoryPath))
@@ -68,18 +69,21 @@ namespace Wireframe
             }
 
             BuildConfig buildConfig = task.BuildConfigs[configIndex];
-            
+            BuildTaskReport.StepResult[] reports = report.NewReports(Type, buildConfig.Sources.Count);
+
             // Files export to /BuildUploader/CachedBuilds/GUID/*.*
             string cacheFolderPath = Path.Combine(directoryPath, buildConfig.GUID);
             for (var i = 0; i < buildConfig.Sources.Count; i++)
             {
                 var sourceData = buildConfig.Sources[i];
+                BuildTaskReport.StepResult result = reports[i];
                 if (!sourceData.Enabled)
                 {
+                    result.AddLog("Skipping cacheSources because it's disabled");
                     continue;
                 }
 
-                bool cached = await CacheSource(sourceData, configIndex, i, cacheFolderPath);
+                bool cached = await CacheSource(sourceData, configIndex, i, cacheFolderPath, result);
                 if (!cached)
                 {
                     return false;
@@ -91,7 +95,8 @@ namespace Wireframe
             return true;
         }
         
-        private async Task<bool> CacheSource(BuildConfig.SourceData sourceData, int configIndex, int sourceIndex, string cacheFolderPath)
+        private async Task<bool> CacheSource(BuildConfig.SourceData sourceData, int configIndex, int sourceIndex,
+            string cacheFolderPath, BuildTaskReport.StepResult result)
         {
             string sourcePath = sourceData.Source.SourceFilePath();
             bool sourceIsADirectory = Utils.IsPathADirectory(sourcePath);
@@ -106,7 +111,8 @@ namespace Wireframe
 
             if (string.IsNullOrEmpty(sourcePath))
             {
-                Debug.LogWarning($"Source path is empty for Build Config index: {configIndex} and Source index: {sourceIndex}");
+                result.AddWarning($"Source path is empty for Build Config index: {configIndex} and Source index: {sourceIndex}");
+                result.SetFailed($"Source path is empty");
                 return false;
             }
 
@@ -114,7 +120,7 @@ namespace Wireframe
             string outputDirectory = cacheFolderPath;
             if (Directory.Exists(cacheFolderPath))
             {
-                Debug.LogWarning($"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
+                result.AddWarning($"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
                 Directory.Delete(cacheFolderPath, true);
             }
             Directory.CreateDirectory(cacheFolderPath);
@@ -131,9 +137,11 @@ namespace Wireframe
             // If it's a file, copy it to the directory
             if (sourceIsADirectory)
             {
-                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, outputDirectory);
+                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, outputDirectory, result);
                 if (!copiedSuccessfully)
                 {
+                    result.AddError("Failed to copy directory: " + sourcePath + " to " + outputDirectory);
+                    result.SetFailed("Failed to copy directory: " + sourcePath + " to " + outputDirectory);
                     return false;
                 }
             }
@@ -147,7 +155,8 @@ namespace Wireframe
                 }
                 catch (IOException e)
                 {
-                    Debug.LogException(e);
+                    result.AddException(e);
+                    result.SetFailed("Failed to unzip file: " + sourcePath + " to " + outputDirectory);
                     return false;
                 }
             }
@@ -161,10 +170,10 @@ namespace Wireframe
 
             return true;
         }
-
-        public override void Failed(BuildTask buildTask)
+        
+        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
-            buildTask.DisplayDialog("Failed to Cache Sources! Not uploading any builds.\n\nSee logs for more info.", "Okay");
+            ReportCachedFiles(buildTask, report);
         }
     }
 }

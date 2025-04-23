@@ -17,7 +17,7 @@ namespace Wireframe
         public abstract string FileName { get; }
 
 
-        public static async Task<bool> Save<T>(T t, string path) where T : VDFFile, new()
+        public static async Task<bool> Save<T>(T t, string path, BuildTaskReport.StepResult result) where T : VDFFile, new()
         {
             string content = ConvertToString(t, "\"" + t.FileName + "\"", "");
             if (!File.Exists(path))
@@ -30,7 +30,7 @@ namespace Wireframe
 #endif
             }
 
-            Debug.Log("Writing content to: " + path);
+            result.AddLog("Writing content to: " + path);
             try
             {
 #if UNITY_2021_2_OR_NEWER
@@ -38,12 +38,13 @@ namespace Wireframe
 #else
                 File.WriteAllText(path, content);
 #endif
-                Debug.Log("Saved VDFFile to: " + path);
+                result.AddLog("Saved VDFFile to: " + path);
                 return true;
             }
             catch (Exception e)
             {
-                Debug.LogError("Failed to write to file: " + e.Message);
+                result.AddException(e);
+                result.SetFailed("Failed to write to file: " + e.Message);
                 return false;
             }
         }

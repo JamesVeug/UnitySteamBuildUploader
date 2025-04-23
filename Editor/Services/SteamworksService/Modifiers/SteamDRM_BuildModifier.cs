@@ -50,23 +50,25 @@ namespace Wireframe
             return true;
         }
 
-        public override async Task<UploadResult> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex)
+        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig,
+            int buildIndex, BuildTaskReport.StepResult stepResult)
         {
             if (!m_enabled)
             {
-                return UploadResult.Success();
+                return true;
             }
             
             // Find .exe
             string exePath = System.IO.Directory.GetFiles(cachedDirectory, "*.exe", System.IO.SearchOption.TopDirectoryOnly)[0];
             if (string.IsNullOrEmpty(exePath) || !System.IO.File.Exists(exePath))
             {
-                Debug.LogError("[Steam] No exe found to DRMWrap in " + cachedDirectory);
-                return UploadResult.Failed("No exe found to DRMWrap");
+                stepResult.AddError("[Steam] No exe found to DRMWrap in " + cachedDirectory);
+                stepResult.SetFailed("No exe found to DRMWrap");
+                return false;
             }
             
             int processID = ProgressUtils.Start("Steam DRM Modifier", "Wrapping exe with Steam DRM");
-            UploadResult result = await SteamSDK.Instance.DRMWrap(m_current.App.appid, exePath, exePath, m_flags);
+            bool result = await SteamSDK.Instance.DRMWrap(m_current.App.appid, exePath, exePath, m_flags, stepResult);
             ProgressUtils.Remove(processID);
             return result;
         }

@@ -95,7 +95,7 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> GetSource(BuildConfig buildConfig)
+        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
         {
             m_getSourceInProgress = true;
             m_downloadProgress = 0.0f;

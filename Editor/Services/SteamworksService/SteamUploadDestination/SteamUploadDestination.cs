@@ -109,7 +109,7 @@ namespace Wireframe
             isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch);
         }
 
-        public override async Task<UploadResult> Upload(string filePath, string buildDescription)
+        public override async Task<bool> Upload(string filePath, string buildDescription, BuildTaskReport.StepResult result)
         {
             m_filePath = filePath;
             m_uploadInProgress = true;
@@ -120,41 +120,42 @@ namespace Wireframe
 
             if (m_createAppFile)
             {
-                Debug.Log("Creating new app file");
+                result.AddLog("Creating new app file");
                 m_progressDescription = "Creating App Files";
                 m_uploadProgress = 0.25f;
                 if (!await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepot.Depot,
-                        m_uploadBranch.name,
-                        buildDescription, m_filePath))
+                        m_uploadBranch.name, buildDescription, m_filePath, result))
                 {
-                    return UploadResult.Failed("Failed to create app file");
+                    result.SetFailed("Failed to create app file");
+                    return false;
                 }
             }
             else
             {
-                Debug.Log("Create App File is disabled. Not creating.");
+                result.AddLog("Create App File is disabled. Not creating.");
             }
 
             if (m_createDepotFile)
             {
-                Debug.Log("Creating new depot file");
+                result.AddLog("Creating new depot file");
                 m_progressDescription = "Creating Depot File";
                 m_uploadProgress = 0.5f;
-                if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot))
+                if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot, result))
                 {
-                    return UploadResult.Failed("Failed to create depot file");
+                    result.SetFailed("Failed to create depot file");
+                    return false;
                 }
             }
             else
             {
-                Debug.Log("Create Depot File is disabled. Not creating.");
+                result.AddLog("Create Depot File is disabled. Not creating.");
             }
 
-            Debug.Log("Uploading to steam. Grab a coffee... this will take a while.");
+            result.AddLog("Uploading to steam. Grab a coffee... this will take a while.");
             m_progressDescription = "Uploading to Steam";
             m_uploadProgress = 0.75f;
 
-            return await SteamSDK.Instance.Upload(m_uploadApp.App, m_uploadToSteam);
+            return await SteamSDK.Instance.Upload(m_uploadApp.App, m_uploadToSteam, result);
         }
 
         public override string ProgressTitle()

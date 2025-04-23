@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,11 +8,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_GetSources : ABuildTask_Step
     {
-        public override string Name => "Get Sources";
+        public override StepType Type => StepType.GetSources;
 
-        public override async Task<bool> Run(BuildTask buildTask)
+        public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
         {
-            int progressId = ProgressUtils.Start(Name, "Setting up...");
+            int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             
             List<Tuple<List<BuildConfig.SourceData>, Task<bool>>> tasks = new();
@@ -22,7 +23,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = GetSources(buildConfigs[j]);
+                Task<bool> task = GetSources(buildConfigs[j], report);
                 List<BuildConfig.SourceData> activeSources = buildConfigs[j].Sources.Where(a=>a.Enabled).ToList();
                 tasks.Add(new Tuple<List<BuildConfig.SourceData>, Task<bool>>(activeSources, task));
             }
@@ -66,28 +67,49 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> GetSources(BuildConfig buildConfig)
+        private async Task<bool> GetSources(BuildConfig buildConfig, BuildTaskReport report)
         {
-            foreach (BuildConfig.SourceData sourceData in buildConfig.Sources)
+            BuildTaskReport.StepResult[] results = report.NewReports(Type, buildConfig.Sources.Count);
+            for (var i = 0; i < buildConfig.Sources.Count; i++)
             {
+                var sourceData = buildConfig.Sources[i];
+                var result = results[i];
                 if (!sourceData.Enabled)
                 {
+                    result.AddLog("Source skipped - not enabled");
                     continue;
                 }
-                
-                bool success = await sourceData.Source.GetSource(buildConfig);
+
+                bool success = await sourceData.Source.GetSource(buildConfig, result);
                 if (!success)
                 {
                     return false;
                 }
             }
-            
+
             return true;
         }
 
-        public override void Failed(BuildTask buildTask)
+        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
-            buildTask.DisplayDialog("Failed to get Sources! Not uploading any builds.\n\nSee logs for more info.", "Okay");
+            List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
+            for (var i = 0; i < buildConfigs.Count; i++)
+            {
+                var config = buildConfigs[i];
+                if (!config.Enabled)
+                {
+                    continue;
+                }
+
+                BuildTaskReport.StepResult[] results = report.NewReports(Type, config.Sources.Count);
+                for (var j = 0; j < config.Sources.Count; j++)
+                {
+                    if(config.Sources[j].Enabled)
+                    {
+                        results[j].AddLog($"FinalSource: {config.Sources[j].Source.SourceFilePath()}");
+                    }
+                }
+            }
         }
     }
 }

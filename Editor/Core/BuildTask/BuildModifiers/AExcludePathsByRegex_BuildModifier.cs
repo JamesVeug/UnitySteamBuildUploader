@@ -116,18 +116,19 @@ namespace Wireframe
 
         protected abstract string[] GetFiles(string cachedDirectory, Selection regex);
         
-        public override async Task<UploadResult> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex)
+        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig,
+            int buildIndex, BuildTaskReport.StepResult stepResult)
         {
             int progressId = ProgressUtils.Start("Exclude Files Modifier", "Removing files from cache...");
             int active = m_fileRegexes.Count(a => a.Enabled);
 
-            UploadResult result = UploadResult.Success();
-            StringBuilder sb = new StringBuilder();
+            bool successful = true;
             for (var i = 0; i < m_fileRegexes.Count; i++)
             {
                 var regex = m_fileRegexes[i];
                 if (!regex.Enabled)
                 {
+                    stepResult.AddLog($"Skipping regex {i} because it's disabled");
                     continue;
                 }
 
@@ -139,44 +140,32 @@ namespace Wireframe
                 int deleteCount = 0;
                 try
                 {
-                    SearchOption searchOption = regex.SearchAllDirectories
-                        ? SearchOption.AllDirectories
-                        : SearchOption.TopDirectoryOnly;
-                    
-                    
                     string[] files = GetFiles(cachedDirectory, regex);
-                    string[] folders = Directory.GetDirectories(cachedDirectory, regex.Regex, searchOption);
                     foreach (string filePath in files)
                     {
                         deleteCount++;
-                        sb.AppendLine($"Removing {filePath} from regex: {regex.Regex}");
                         if (Utils.IsPathADirectory(filePath))
                         {
+                            stepResult.AddLog($"Removing directory {filePath} from regex: {regex.Regex} (recursive: {regex.Recursive})");
                             Directory.Delete(filePath, regex.Recursive);
                         }
                         else
                         {
+                            stepResult.AddLog($"Removing file {filePath} from regex: {regex.Regex}");
                             File.Delete(filePath);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Failed to delete files by regex: {regex.Regex} - {e.Message}");
-                    result = UploadResult.Failed(e.Message);
-                }
-                finally
-                {
-                    if (deleteCount > 0)
-                    {
-                        sb.Insert(0, "Build #" + buildIndex + "\n");
-                        Debug.Log(sb.ToString());
-                    }
+                    stepResult.AddException(e);
+                    stepResult.SetFailed(e.ToString());
+                    successful = false;
                 }
             }
 
             ProgressUtils.Remove(progressId);
-            return result;
+            return successful;
         }
 
         public override bool OnGUI()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -174,8 +175,37 @@ namespace Wireframe
         {
             // Start uploading
             BuildTask buildTask = new BuildTask(m_buildsToUpload, m_buildDescription);
-            await buildTask.Start(()=> UploaderWindow.Repaint());
+            BuildTaskReport report = new BuildTaskReport("");
+            await buildTask.Start(report, ()=> UploaderWindow.Repaint(), (_)=>OnDownloadAndUploadComplete(report));
             UploaderWindow.Repaint();
+        }
+
+        private void OnDownloadAndUploadComplete(BuildTaskReport report)
+        {
+            if (report.Successful)
+            {
+                EditorUtility.DisplayDialog("Build Uploader", "All builds uploaded successfully!", "Yay!");
+            }
+            else
+            {
+                // Get first 3 failed lines from the report
+                StringBuilder sb = new StringBuilder();
+
+                int logs = 0;
+                foreach (var (stepType, log) in report.GetFailReasons())
+                {
+                    sb.AppendLine($"{stepType}: {log}");
+                    logs++;
+                    if (logs >= 3)
+                    {
+                        break;
+                    }
+                }
+
+                sb.Append("\n\nSee logs for more info.");
+
+                EditorUtility.DisplayDialog("Build Uploader", sb.ToString(), "Okay");
+            }
         }
 
         private bool CanStartBuild(out string reason)

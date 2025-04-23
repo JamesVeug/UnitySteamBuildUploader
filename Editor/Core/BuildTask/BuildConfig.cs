@@ -167,16 +167,16 @@ namespace Wireframe
             return false;
         }
 
-        public void CleanUp()
+        public void CleanUp(BuildTaskReport.StepResult result)
         {
             foreach (SourceData source in m_buildSources)
             {
-                source.Source?.CleanUp();
+                source.Source?.CleanUp(result);
             }
 
             foreach (DestinationData destination in m_buildDestinations)
             {
-                destination.Destination?.CleanUp();
+                destination.Destination?.CleanUp(result);
             }
         }
 

@@ -160,7 +160,7 @@ namespace Wireframe
             return false;
         }
 
-        public override async Task<bool> GetSource(BuildConfig buildConfig)
+        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
         {
             m_getSourceInProgress = true;
             m_downloadProgress = 0.0f;
@@ -170,6 +170,7 @@ namespace Wireframe
             string directoryPath = Path.Combine(Utils.CacheFolder, "URLBuilds");
             if (!Directory.Exists(directoryPath))
             {
+                stepResult.AddLog("Creating directory: " + directoryPath);
                 Directory.CreateDirectory(directoryPath);
             }
 
@@ -178,7 +179,7 @@ namespace Wireframe
             // Only download if we don't have it
             if (!File.Exists(fullFilePath))
             {
-                Debug.Log("Downloading from: " + m_url);
+                stepResult.AddLog("Downloading from URL: " + m_url);
 
                 m_progressDescription = "Fetching...";
                 UnityWebRequest request = new UnityWebRequest(m_url, m_method.ToString());
@@ -200,7 +201,7 @@ namespace Wireframe
                 if (request.isHttpError || request.isNetworkError)
                 {
                     string message = $"Could not download build from url {m_url}:\nError: {request.error}";
-                    Debug.LogError(message);
+                    stepResult.AddError(message);
                     return false;
                 }
 
@@ -215,15 +216,15 @@ namespace Wireframe
             }
             else
             {
-                Debug.Log("Skipping downloading from URL since it already exists: " + fullFilePath);
+                stepResult.AddLog("Skipping downloading from URL since it already exists: " + fullFilePath);
             }
 
             m_progressDescription = "Done!";
-            Debug.Log("Retrieved URL Build: " + fullFilePath);
 
             // Record where the game is saved to
             m_sourcePath = fullFilePath;
             m_downloadProgress = 1.0f;
+            stepResult.AddLog("Retrieved URL Build: " + m_sourcePath);
             return true;
         }
 

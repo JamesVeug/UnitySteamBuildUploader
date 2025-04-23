@@ -5,13 +5,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_ModifyCachedSources : ABuildTask_Step
     {
-        public override string Name => "Modify Cached Sources";
+        public override StepType Type => StepType.ModifyCacheSources;
         
-        private UploadResult m_lastFailedResult;
-        
-        public override async Task<bool> Run(BuildTask buildTask)
+        public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
         {
-            int progressId = ProgressUtils.Start(Name, "Setting up...");
+            int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             
             List<Task<bool>> tasks = new List<Task<bool>>();
@@ -22,7 +20,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = ModifyBuild(buildTask, j);
+                Task<bool> task = ModifyBuild(buildTask, j, report);
                 tasks.Add(task);
             }
 
@@ -59,29 +57,27 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> ModifyBuild(BuildTask task, int sourceIndex)
+        private async Task<bool> ModifyBuild(BuildTask task, int sourceIndex, BuildTaskReport report)
         {
             BuildConfig buildConfig = task.BuildConfigs[sourceIndex];
-            foreach (ABuildConfigModifer modifer in buildConfig.Modifiers)
+            BuildTaskReport.StepResult[] results = report.NewReports(Type, buildConfig.Modifiers.Count);
+            for (var i = 0; i < buildConfig.Modifiers.Count; i++)
             {
-                UploadResult result = await modifer.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex);
-                if (!result.Successful)
+                var modifer = buildConfig.Modifiers[i];
+                var stepResult = results[i];
+                bool success = await modifer.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex, stepResult);
+                if (!success)
                 {
-                    m_lastFailedResult = result;
                     return false;
                 }
             }
 
             return true;
         }
-
-        public override void Failed(BuildTask buildTask)
+        
+        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
-            string message = "Failed to Modify Cache Sources!";
-            message += "\n\n" + m_lastFailedResult.FailReason;
-            message += "\n\nSee logs for more info.";
-            
-            buildTask.DisplayDialog(message, "Okay");
+            ReportCachedFiles(buildTask, report);
         }
     }
 }

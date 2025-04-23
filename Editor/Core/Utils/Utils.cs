@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -56,7 +58,8 @@ namespace Wireframe
             }
         }
         
-        public static async Task<bool> CopyDirectoryAsync(string sourcePath, string cacheFolderPath)
+        public static async Task<bool> CopyDirectoryAsync(string sourcePath, string cacheFolderPath,
+            BuildTaskReport.StepResult result = null)
         {
             try
             {
@@ -74,7 +77,16 @@ namespace Wireframe
             }
             catch (IOException e)
             {
-                Debug.LogException(e);
+                if (result != null)
+                {
+                    result.AddException(e);
+                    result.SetFailed("Failed to copy directory: " + sourcePath + " to " + cacheFolderPath);
+                }
+                else
+                {
+                    Debug.LogException(e);
+                }
+
                 return false;
             }
         }
@@ -111,6 +123,44 @@ namespace Wireframe
             }
 
             return displayedPath;
+        }
+        
+        public static List<string> GetSortedFilesAndDirectories(string directory)
+        {
+            // Log out every file in this directory
+            string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
+            string[] folders = Directory.GetDirectories(directory, "*", SearchOption.AllDirectories);
+
+            List<string> allFiles = files.Concat(folders).Distinct().ToList();
+            allFiles.Sort(static (a, b) =>
+            {
+                // Order by folder depth first, then by name
+                var aKey = a.Split(Path.DirectorySeparatorChar);
+                int aLength = aKey.Length;
+                    
+                var bKey = b.Split(Path.DirectorySeparatorChar);
+                int bLength = bKey.Length;
+
+                for (int aIndex = 0; aIndex < Mathf.Min(aKey.Length, bKey.Length); aIndex++)
+                {
+                    string strA = bKey[aIndex];
+                    string strB = aKey[aIndex];
+                    int compare = string.Compare(strA, strB, StringComparison.Ordinal);
+                    if (compare != 0)
+                    {
+                        return compare;
+                    }
+                }
+                    
+                if (aLength != bLength)
+                {
+                    return aLength - bLength;
+                }
+                    
+                return string.Compare(a, b, StringComparison.Ordinal);
+            });
+
+            return allFiles;
         }
     }
 }

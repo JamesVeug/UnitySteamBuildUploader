@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -38,7 +40,7 @@ namespace Wireframe
             }
         }
 
-        public async Task Start(Action tick = null, Action<bool> onComplete = null)
+        public async Task Start(BuildTaskReport report, Action tick = null, Action<bool> onComplete = null)
         {
             progressId = ProgressUtils.Start("Build Uploader Window", "Upload Builds");
             cachedLocations = new string[buildConfigs.Count];
@@ -52,30 +54,28 @@ namespace Wireframe
                 new BuildTaskStep_Upload() // Upload cached content
             };
             
-            bool successful = true;
             for (int i = 0; i < steps.Length; i++)
             {
                 ProgressUtils.Report(progressId, (float)i/(steps.Length+1), "Upload Builds");
-                Task<bool> task = steps[i].Run(this);
+                report.SetProcess(ABuildTask_Step.StepProcess.Intra);
+                Task<bool> task = steps[i].Run(this, report);
                 while (!task.IsCompleted)
                 {
                     tick?.Invoke();
                     await Task.Delay(10);
                 }
+                
+                report.SetProcess(ABuildTask_Step.StepProcess.Post);
+                steps[i].PostRunResult(this, report);
 
                 if (!task.Result)
                 {
-                    steps[i].Failed(this);
-                    // DisplayDialog("Failed to " + steps[i].Name + "! Not uploading any builds.\n\nSee logs for more info.", "Okay");
-                    successful = false;
                     break;
                 }
             }
             
-            if (successful)
-            {
-                DisplayDialog("All builds uploaded successfully!", "Yay!");
-            }
+            report.SetProcess(ABuildTask_Step.StepProcess.Intra);
+            BuildTaskReport.StepResult beginCleanupResult = report.NewReport(ABuildTask_Step.StepType.Cleanup);
             
             // Cleanup to make sure nothing is left behind - dirtying up the users computer
             ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+1), "Cleaning up");
@@ -86,45 +86,53 @@ namespace Wireframe
                 for (var i = 0; i < cachedLocations.Length; i++)
                 {
                     var cachedLocation = cachedLocations[i];
+                    if (string.IsNullOrEmpty(cachedLocation))
+                    {
+                        continue;
+                    }
+                    
                     if (!Directory.Exists(cachedLocation))
                     {
+                        beginCleanupResult.AddLog("Cached location does not exist to cleanup: " + cachedLocation);
                         continue;
                     }
                     
                     await Task.Yield();
                     ProgressUtils.Report(cleanupProgressId, 0, $"Deleting cached files " + (i+1) + "/" + cachedLocations.Length);
                     
+                    beginCleanupResult.AddLog("Deleting cached files " + cachedLocation);
                     Directory.Delete(cachedLocation, true);
                 }
 
                 // Cleanup configs
                 ProgressUtils.Report(cleanupProgressId, 0.5f, "Cleaning up configs");
+                BuildTaskReport.StepResult[] cleanupReports = report.NewReports(ABuildTask_Step.StepType.Cleanup, buildConfigs.Count);
                 for (int i = 0; i < buildConfigs.Count; i++)
                 {
+                    var buildConfig = buildConfigs[i];
+                    var cleanupResult = cleanupReports[i];
+                    if (!buildConfig.Enabled)
+                    {
+                        cleanupResult.AddLog("Skipping config cleanup because it's disabled");
+                        continue;
+                    }
+                    
                     await Task.Yield();
                     ProgressUtils.Report(cleanupProgressId, 0.5f, $"Cleaning up configs " + (i+1) + "/" + buildConfigs.Count);
                     
-                    if (buildConfigs[i].Enabled)
-                    {
-                        buildConfigs[i].CleanUp();
-                    }
+                    buildConfig.CleanUp(cleanupResult);
                 }
                 
                 ProgressUtils.Remove(cleanupProgressId);
             }
             else
             {
-                Debug.Log("Skipping cache and build cleanup. Re-enable in preferences.");
+                beginCleanupResult.AddLog("Skipping deleting cache. Re-enable in preferences.");
             }
-                
+            
             ProgressUtils.Remove(progressId);
-            onComplete?.Invoke(successful);
-        }
-
-        public void DisplayDialog(string message, string buttonText)
-        {
-            Debug.Log(message);
-            EditorUtility.DisplayDialog("Build Uploader", message, buttonText);
+            report.Complete();
+            onComplete?.Invoke(report.Successful);
         }
         
         public void AddConfig(BuildConfig config)

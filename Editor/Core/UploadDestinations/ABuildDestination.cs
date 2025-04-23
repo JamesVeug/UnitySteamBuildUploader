@@ -19,13 +19,13 @@ namespace Wireframe
         public bool IsRunning => m_uploadInProgress;
         public int Id { get; set;  }
 
-        public virtual Task<bool> Prepare()
+        public virtual Task<bool> Prepare(BuildTaskReport.StepResult result)
         {
             return Task.FromResult(true);
         }
         
         public abstract string DisplayName { get; }
-        public abstract Task<UploadResult> Upload(string filePath, string buildDescription);
+        public abstract Task<bool> Upload(string filePath, string buildDescription, BuildTaskReport.StepResult result);
         public abstract string ProgressTitle();
         public abstract bool IsSetup(out string reason);
         public abstract Dictionary<string, object> Serialize();
@@ -34,7 +34,7 @@ namespace Wireframe
         public abstract void OnGUIExpanded(ref bool isDirty);
         public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
 
-        public virtual void CleanUp()
+        public virtual void CleanUp(BuildTaskReport.StepResult result)
         {
             m_uploadProgress = 0.0f;
             m_uploadInProgress = false;
@@ -48,6 +48,11 @@ namespace Wireframe
         public virtual string ProgressDescription()
         {
             return m_progressDescription;
+        }
+
+        public virtual void PostUpload(BuildTaskReport.StepResult report)
+        {
+            
         }
    }
 }

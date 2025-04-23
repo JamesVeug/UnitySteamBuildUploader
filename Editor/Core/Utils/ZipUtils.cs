@@ -21,7 +21,7 @@ namespace Wireframe
     /// </summary>
     public static class ZipUtils
     {
-        public static async Task<bool> Zip(string filePath, string zippedfilePath)
+        public static async Task<bool> Zip(string filePath, string zippedfilePath, BuildTaskReport.StepResult result)
         {
 #if UNITY_2021_1_OR_NEWER
             return await Task.Run(() =>
@@ -33,7 +33,8 @@ namespace Wireframe
                 }
                 catch (System.Exception e)
                 {
-                    UnityEngine.Debug.LogError($"Failed to zip file: {e.Message}");
+                    result.AddException(e);
+                    result.SetFailed($"Failed to zip file: {e.Message}");
                     return false;
                 }
             });
@@ -63,7 +64,8 @@ namespace Wireframe
             }
             catch (System.Exception e)
             {
-                UnityEngine.Debug.LogError($"Failed to zip file: {e.Message}");
+                result.AddException(e);
+                result.SetFailed($"Failed to zip file: {e.Message}");
                 return false;
             }
             

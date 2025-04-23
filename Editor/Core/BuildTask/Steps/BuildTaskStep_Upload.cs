@@ -2,26 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Wireframe
 {
     public class BuildTaskStep_Upload : ABuildTask_Step
     {
-        public override string Name => "Upload";
+        public override StepType Type => StepType.Upload;
         
-        private class UploadResultData
-        {
-            public BuildConfig Config;
-            public UploadResult[] Results;
-        }
-        
-        private UploadResultData[] m_configUploadResults;
-        
-        public override async Task<bool> Run(BuildTask buildTask)
+        public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
         {
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
-            m_configUploadResults = new UploadResultData[buildConfigs.Count];
 
             List<Tuple<List<BuildConfig.DestinationData>, Task<bool>>> uploads = new();
             for (int i = 0; i < buildConfigs.Count; i++)
@@ -32,12 +22,7 @@ namespace Wireframe
                 }
                 List<BuildConfig.DestinationData> destinations = buildConfigs[i].Destinations.Where(a=>a.Enabled).ToList();
 
-                UploadResultData data = new UploadResultData();
-                data.Config = buildConfigs[i];
-                data.Results = new UploadResult[destinations.Count];
-                m_configUploadResults[i] = data;
-                
-                Task<bool> upload = Upload(buildTask, i, data, destinations);
+                Task<bool> upload = Upload(buildTask, i, destinations, report);
                 uploads.Add(new (destinations, upload));
             }
             
@@ -69,18 +54,28 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> Upload(BuildTask buildTask, int configIndex, UploadResultData data, List<BuildConfig.DestinationData> destinations)
+        private async Task<bool> Upload(BuildTask buildTask, int configIndex,
+            List<BuildConfig.DestinationData> destinations, BuildTaskReport report)
         {
-            int uploadID = ProgressUtils.Start(Name, $"Uploading Config {configIndex + 1}");
+            int uploadID = ProgressUtils.Start(Type.ToString(), $"Uploading Config {configIndex + 1}");
 
             string sourceFilePath = buildTask.CachedLocations[configIndex];
-            List<Task<UploadResult>> uploadTasks = new List<Task<UploadResult>>();
-            foreach (BuildConfig.DestinationData destinationData in destinations)
+            List<Task<bool>> uploadTasks = new List<Task<bool>>();
+            BuildTaskReport.StepResult[] reports = report.NewReports(Type, destinations.Count);
+            for (var i = 0; i < destinations.Count; i++)
             {
-                Task<UploadResult> task = destinationData.Destination.Upload(sourceFilePath, buildTask.BuildDescription);
+                var destinationData = destinations[i];
+                BuildTaskReport.StepResult result = reports[i];
+                if (!destinationData.Enabled)
+                {
+                    result.AddLog("Skipping upload because it's disabled");
+                    continue;
+                }
+
+                Task<bool> task = destinationData.Destination.Upload(sourceFilePath, buildTask.BuildDescription, result);
                 uploadTasks.Add(task);
             }
-            
+
             bool allSuccessful = true;
             while (true)
             {
@@ -88,7 +83,7 @@ namespace Wireframe
                 float completionAmount = 0.0f;
                 for (int j = 0; j < uploadTasks.Count; j++)
                 {
-                    Task<UploadResult> tuple = uploadTasks[j];
+                    Task<bool> tuple = uploadTasks[j];
                     ABuildDestination destination = destinations[j].Destination;
                     if (!tuple.IsCompleted)
                     {
@@ -97,8 +92,7 @@ namespace Wireframe
                     }
                     else
                     {
-                        allSuccessful &= tuple.Result.Successful;
-                        data.Results[j] = tuple.Result;
+                        allSuccessful &= tuple.Result;
                         completionAmount++;
                     }
                 }
@@ -116,28 +110,29 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        public override void Failed(BuildTask buildTask)
+        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
-            int failedConfigs = m_configUploadResults.Count(a => a.Results.Any(b=>!b.Successful));
-            int totalConfigs = m_configUploadResults.Length;
-            string message = $"{failedConfigs}/{totalConfigs} Builds Failed to Upload!";
-            for (int i = 0; i < m_configUploadResults.Length; i++)
+            foreach (BuildConfig config in buildTask.BuildConfigs)
             {
-                UploadResultData result = m_configUploadResults[i];
-                for (var j = 0; j < result.Results.Length; j++)
+                if (!config.Enabled)
                 {
-                    var uploadResult = result.Results[j];
-                    if (!uploadResult.Successful)
+                    continue;
+                }
+
+                BuildTaskReport.StepResult[] reports = report.NewReports(Type, config.Destinations.Count);
+                for (var i = 0; i < config.Destinations.Count; i++)
+                {
+                    var destination = config.Destinations[i];
+                    var result = reports[i];
+                    if (!destination.Enabled)
                     {
-                        message += $"\nBuild #{i + 1} Destination #{j+1} - " + uploadResult.FailReason;
+                        continue;
                     }
+
+                    ABuildDestination buildDestination = destination.Destination;
+                    buildDestination.PostUpload(result);
                 }
             }
-            
-            message += "\n\nSee logs for more info.";
-
-
-            buildTask.DisplayDialog(message, "Aw");
         }
     }
 }

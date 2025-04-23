@@ -7,11 +7,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_PrepareDestinations : ABuildTask_Step
     {
-        public override string Name => "Prepare Destinations";
+        public override StepType Type => StepType.PrepareDestinations;
         
-        public override async Task<bool> Run(BuildTask buildTask)
+        public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
         {
-            int progressId = ProgressUtils.Start(Name, "Setting up...");
+            int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             
             List<Tuple<List<BuildConfig.DestinationData>, Task<bool>>> tasks = new();
@@ -22,7 +22,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = PrepareDestination(buildConfigs[j]);
+                Task<bool> task = PrepareDestination(buildConfigs[j], report);
                 List<BuildConfig.DestinationData> destinations = buildConfigs[j].Destinations.Where(a => a.Enabled).ToList();
                 tasks.Add(new Tuple<List<BuildConfig.DestinationData>, Task<bool>>(destinations, task));
             }
@@ -66,29 +66,33 @@ namespace Wireframe
             return allSuccessful;
         }
         
-        private async Task<bool> PrepareDestination(BuildConfig buildConfig)
+        private async Task<bool> PrepareDestination(BuildConfig buildConfig, BuildTaskReport report)
         {
-            foreach (BuildConfig.DestinationData destination in buildConfig.Destinations)
+            BuildTaskReport.StepResult[] reports = report.NewReports(Type, buildConfig.Destinations.Count);
+            for (var i = 0; i < buildConfig.Destinations.Count; i++)
             {
+                var destination = buildConfig.Destinations[i];
+                var result = reports[i];
                 if (!destination.Enabled)
                 {
+                    result.AddLog("Skipping destination because it's disabled");
                     continue;
                 }
-                
+
                 ABuildDestination buildDestination = destination.Destination;
-                bool success = await buildDestination.Prepare();
+                bool success = await buildDestination.Prepare(result);
                 if (!success)
                 {
                     return false;
                 }
             }
-            
+
             return true;
         }
 
-        public override void Failed(BuildTask buildTask)
+        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
-            buildTask.DisplayDialog("Failed to prepare Destinations! Not uploading any builds.\n\nSee logs for more info.", "Okay");
+            // Do nothing
         }
     }
 }

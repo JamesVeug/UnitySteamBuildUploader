@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -201,7 +202,7 @@ namespace Wireframe
             return true;
         }
 
-        public override async Task<UploadResult> Upload(string filePath, string buildDescription)
+        public override async Task<bool> Upload(string filePath, string buildDescription, BuildTaskReport.StepResult result)
         {
             m_uploadInProgress = true;
             m_uploadProgress = 1;
@@ -212,37 +213,62 @@ namespace Wireframe
             // Delete existing content
             if (Directory.Exists(fullPath))
             {
+                result.AddLog($"Deleting existing directory: {fullPath}");
                 Directory.Delete(fullPath, true);
             }
             else if (File.Exists(fullPath))
             {
+                result.AddLog($"Deleting existing file: {fullPath}");
                 File.Delete(fullPath);
             }
             
             // Create directory
             if (!Directory.Exists(directory))
             {
+                result.AddLog($"Creating directory: {directory}");
                 Directory.CreateDirectory(directory);
             }
             
             // Copy contents
             if (m_zipContent)
             {
-                if (!await ZipUtils.Zip(filePath, fullPath))
+                if (!await ZipUtils.Zip(filePath, fullPath, result))
                 {
-                    return UploadResult.Failed("Failed to zip contents");
+                    return false;
                 }
             }
             else if (Utils.IsPathADirectory(filePath))
             {
-                await Utils.CopyDirectoryAsync(filePath, fullPath);
+                if (!await Utils.CopyDirectoryAsync(filePath, fullPath, result))
+                {
+                    return false;
+                }
             }
             else
             {
                 await Utils.CopyFileAsync(filePath, fullPath);
             }
             
-            return Task.FromResult(UploadResult.Success()).Result;
+            return true;
+        }
+
+        public override void PostUpload(BuildTaskReport.StepResult result)
+        {
+            string fullPath = FullPath();
+            if (Path.HasExtension(fullPath))
+            {
+                fullPath = Path.GetDirectoryName(fullPath);
+            }
+            
+            List<string> allFiles = Utils.GetSortedFilesAndDirectories(fullPath);
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"LocalPathDestination: " + fullPath);
+            foreach (string file in allFiles)
+            {
+                sb.AppendLine("\t-" + file);
+            }
+            result.AddLog(sb.ToString());
         }
 
         public override string ProgressTitle()

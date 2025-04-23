@@ -50,7 +50,7 @@ namespace Wireframe
         {
         }
 
-        public override async Task<UploadResult> Upload(string filePath, string buildDescription)
+        public override async Task<bool> Upload(string filePath, string buildDescription, BuildTaskReport.StepResult result)
         {
             List<string> files = new List<string>();
             if (m_zipContents)
@@ -67,10 +67,10 @@ namespace Wireframe
 
             int processID = ProgressUtils.Start("Github Release", ProgressTitle());
             
-            UploadResult result = await Github.NewRelease(m_owner, m_repo, m_releaseName, buildDescription, m_tagName, m_target, m_draft, m_prerelease, Github.Token, files);
+            bool success = await Github.NewRelease(m_owner, m_repo, m_releaseName, buildDescription, m_tagName, m_target, m_draft, m_prerelease, Github.Token, result, files);
             
             ProgressUtils.Remove(processID);
-            return result;
+            return success;
         }
 
         public override string ProgressTitle()

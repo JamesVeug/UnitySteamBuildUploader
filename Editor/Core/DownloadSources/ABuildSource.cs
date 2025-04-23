@@ -23,7 +23,7 @@ namespace Wireframe
         public abstract string DisplayName { get; }
         public abstract void OnGUIExpanded(ref bool isDirty);
         public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
-        public abstract Task<bool> GetSource(BuildConfig buildConfig);
+        public abstract Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult);
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();
         public abstract string ProgressTitle();
@@ -31,7 +31,7 @@ namespace Wireframe
         public abstract bool IsSetup(out string reason);
         public abstract string GetBuildDescription();
 
-        public virtual void CleanUp()
+        public virtual void CleanUp(BuildTaskReport.StepResult result)
         {
             m_downloadProgress = 0.0f;
             m_getSourceInProgress = false;

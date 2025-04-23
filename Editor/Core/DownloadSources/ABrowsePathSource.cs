@@ -113,7 +113,7 @@ namespace Wireframe
             return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);
         }
 
-        public override Task<bool> GetSource(BuildConfig buildConfig)
+        public override Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
         {
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
@@ -121,6 +121,7 @@ namespace Wireframe
             string directoryPath = Utils.CacheFolder;
             if (!Directory.Exists(directoryPath))
             {
+                stepResult.AddLog("Creating cache directory: " + directoryPath);
                 Directory.CreateDirectory(directoryPath);
             }
 
@@ -134,7 +135,7 @@ namespace Wireframe
                 // Given a .exe. use the Folder because they likely want to upload the entire folder - not just the .exe
                 sourcePath = Path.GetDirectoryName(m_enteredFilePath);
             }
-
+            
             m_finalSourcePath = sourcePath;
             m_progressDescription = "Done!";
             return Task.FromResult(true);

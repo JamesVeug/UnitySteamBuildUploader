@@ -22,12 +22,12 @@ namespace Wireframe
         {
         }
         
-        public override void OnGUIExpanded(ref bool isDirty)
+        internal override void OnGUIExpanded(ref bool isDirty)
         {
 
         }
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
 
         }

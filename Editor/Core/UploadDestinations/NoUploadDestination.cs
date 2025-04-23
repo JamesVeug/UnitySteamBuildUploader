@@ -32,10 +32,8 @@ namespace Wireframe
 
         }
 
-        public override Task<bool> Upload(string filePath, string buildDescription,
-            BuildTaskReport.StepResult result)
+        public override Task<bool> Upload(BuildTaskReport.StepResult result)
         {
-            m_uploadInProgress = true;
             m_uploadProgress = 1;
             return Task.FromResult(true);
         }

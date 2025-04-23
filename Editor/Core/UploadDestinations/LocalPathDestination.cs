@@ -131,11 +131,8 @@ namespace Wireframe
             return true;
         }
 
-        public override async Task<bool> Upload(string filePath, string buildDescription, BuildTaskReport.StepResult result)
+        public override async Task<bool> Upload(BuildTaskReport.StepResult result)
         {
-            m_uploadInProgress = true;
-            m_uploadProgress = 1;
-            
             string fullPath = FullPath();
             string directory = m_zipContent ? Path.GetDirectoryName(fullPath) : fullPath;
 
@@ -161,23 +158,24 @@ namespace Wireframe
             // Copy contents
             if (m_zipContent)
             {
-                if (!await ZipUtils.Zip(filePath, fullPath, result))
+                if (!await ZipUtils.Zip(m_filePath, fullPath, result))
                 {
                     return false;
                 }
             }
-            else if (Utils.IsPathADirectory(filePath))
+            else if (Utils.IsPathADirectory(m_filePath))
             {
-                if (!await Utils.CopyDirectoryAsync(filePath, fullPath, result))
+                if (!await Utils.CopyDirectoryAsync(m_filePath, fullPath, result))
                 {
                     return false;
                 }
             }
             else
             {
-                await Utils.CopyFileAsync(filePath, fullPath);
+                await Utils.CopyFileAsync(m_filePath, fullPath);
             }
             
+            m_uploadProgress = 1;
             return true;
         }
 

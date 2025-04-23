@@ -22,7 +22,8 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = PrepareDestination(buildConfigs[j], report);
+                string cachePath = buildTask.CachedLocations[j];
+                Task<bool> task = PrepareDestination(buildConfigs[j], cachePath, buildTask.BuildDescription, report);
                 List<BuildConfig.DestinationData> destinations = buildConfigs[j].Destinations.Where(a => a.Enabled).ToList();
                 tasks.Add(new Tuple<List<BuildConfig.DestinationData>, Task<bool>>(destinations, task));
             }
@@ -66,7 +67,7 @@ namespace Wireframe
             return allSuccessful;
         }
         
-        private async Task<bool> PrepareDestination(BuildConfig buildConfig, BuildTaskReport report)
+        private async Task<bool> PrepareDestination(BuildConfig buildConfig, string cachePath, string desc, BuildTaskReport report)
         {
             BuildTaskReport.StepResult[] reports = report.NewReports(Type, buildConfig.Destinations.Count);
             for (var i = 0; i < buildConfig.Destinations.Count; i++)
@@ -79,10 +80,20 @@ namespace Wireframe
                     continue;
                 }
 
+                
                 ABuildDestination buildDestination = destination.Destination;
-                bool success = await buildDestination.Prepare(result);
-                if (!success)
+                try
                 {
+                    bool success = await buildDestination.Prepare(cachePath, desc, result);
+                    if (!success)
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    result.AddException(e);
+                    result.SetFailed("Failed to prepare destination: " + e.Message);
                     return false;
                 }
             }

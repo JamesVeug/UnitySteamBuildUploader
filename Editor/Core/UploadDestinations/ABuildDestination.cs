@@ -4,12 +4,15 @@ using System.Threading.Tasks;
 namespace Wireframe
 {
     public abstract class ABuildDestination : DropdownElement
-   {
+    {
+        protected string m_filePath;
+        protected string m_buildDescription;
+        
         protected float m_uploadProgress;
         protected string m_progressDescription;
         protected bool m_uploadInProgress;
         internal BuildUploaderWindow uploaderWindow;
-        
+
         internal ABuildDestination(BuildUploaderWindow window)
         {
             // Required for Reflection
@@ -17,15 +20,18 @@ namespace Wireframe
         }
 
         public bool IsRunning => m_uploadInProgress;
-        public int Id { get; set;  }
+        public int Id { get; set; }
 
-        public virtual Task<bool> Prepare(BuildTaskReport.StepResult result)
+        public virtual Task<bool> Prepare(string filePath, string buildDescription, BuildTaskReport.StepResult result)
         {
+            m_filePath = filePath;
+            m_buildDescription = buildDescription;
+            m_uploadInProgress = true;
             return Task.FromResult(true);
         }
-        
+
         public abstract string DisplayName { get; }
-        public abstract Task<bool> Upload(string filePath, string buildDescription, BuildTaskReport.StepResult result);
+        public abstract Task<bool> Upload(BuildTaskReport.StepResult stepResult);
         public abstract string ProgressTitle();
         public abstract bool IsSetup(out string reason);
         public abstract Dictionary<string, object> Serialize();
@@ -52,7 +58,7 @@ namespace Wireframe
 
         public virtual void PostUpload(BuildTaskReport.StepResult report)
         {
-            
+
         }
-   }
+    }
 }

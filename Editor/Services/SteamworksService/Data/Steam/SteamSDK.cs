@@ -234,7 +234,7 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
                     m_uploadProcess.StartInfo.FileName = m_steamCMDPath;
-                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFile, true, uploadeToSteam, steamGuardCode);
+                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFile, true, uploadeToSteam, steamGuardCode, stepResult);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                     m_uploadProcess.EnableRaisingEvents = true;
@@ -281,7 +281,8 @@ namespace Wireframe
             return stepResult.Successful;
         }
 
-        private string CreateUploadBuildSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload, string steamGuardCode)
+        private string CreateUploadBuildSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload,
+            string steamGuardCode, BuildTaskReport.StepResult stepResult)
         {
             string fullDirectory = GetAppScriptOutputPath(appFile);
             
@@ -290,7 +291,7 @@ namespace Wireframe
             string guard = string.IsNullOrEmpty(steamGuardCode) ? "" : " " + steamGuardCode;
             if (!upload)
             {
-                Debug.Log("Upload to Steam is disabled. Not but still attempting login.");
+                stepResult.AddLog("Upload to Steam is disabled. Not but still attempting login.");
             }
             
             string uploadArg = upload ? $" +run_app_build \"{fullDirectory}\"" : "";

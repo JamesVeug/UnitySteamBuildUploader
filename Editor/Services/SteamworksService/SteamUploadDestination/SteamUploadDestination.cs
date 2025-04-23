@@ -22,7 +22,6 @@ namespace Wireframe
         private SteamDepot m_depot;
         private SteamBranch m_destinationBranch;
         
-        private string m_filePath;
         private SteamApp m_uploadApp;
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
@@ -58,17 +57,27 @@ namespace Wireframe
             m_uploadToSteam = uploadToSteam;
         }
 
-
-            {
-            }
-            {
-            }
-            {
-            }
-        public override async Task<bool> Upload(string filePath, string buildDescription, BuildTaskReport.StepResult result)
+        public override async Task<bool> Prepare(string filePath, string buildDescription, BuildTaskReport.StepResult result)
         {
-            m_filePath = filePath;
-            m_uploadInProgress = true;
+            await base.Prepare(filePath, buildDescription, result);
+
+            if (m_current == null)
+            {
+                result.SetFailed("No App selected");
+                return false;
+            }
+            
+            if (m_depot == null)
+            {
+                result.SetFailed("No Depot selected");
+                return false;
+            }
+            
+            if (m_destinationBranch == null)
+            {
+                result.SetFailed("No Branch selected");
+                return false;
+            }
             
             m_uploadApp = new SteamApp(m_current);
             m_uploadDepot = new SteamDepot(m_depot);
@@ -107,6 +116,11 @@ namespace Wireframe
                 result.AddLog("Create Depot File is disabled. Not creating.");
             }
 
+            return true;
+        }
+
+        public override async Task<bool> Upload(BuildTaskReport.StepResult result)
+        {
             result.AddLog("Uploading to steam. Grab a coffee... this will take a while.");
             m_progressDescription = "Uploading to Steam";
             m_uploadProgress = 0.75f;

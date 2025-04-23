@@ -59,7 +59,6 @@ namespace Wireframe
         {
             int uploadID = ProgressUtils.Start(Type.ToString(), $"Uploading Config {configIndex + 1}");
 
-            string sourceFilePath = buildTask.CachedLocations[configIndex];
             List<Task<bool>> uploadTasks = new List<Task<bool>>();
             BuildTaskReport.StepResult[] reports = report.NewReports(Type, destinations.Count);
             for (var i = 0; i < destinations.Count; i++)
@@ -72,7 +71,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = destinationData.Destination.Upload(sourceFilePath, buildTask.BuildDescription, result);
+                Task<bool> task = UploadDestinationWrapper(destinationData.Destination, result);
                 uploadTasks.Add(task);
             }
 
@@ -108,6 +107,20 @@ namespace Wireframe
             }
             
             return allSuccessful;
+        }
+
+        private async Task<bool> UploadDestinationWrapper(ABuildDestination destinationDataDestination, BuildTaskReport.StepResult result)
+        {
+            try
+            {
+                return await destinationDataDestination.Upload(result);
+            }
+            catch (Exception e)
+            {
+                result.AddException(e);
+                result.SetFailed("Upload failed: " + e.Message);
+                return false;
+            }
         }
 
         public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)

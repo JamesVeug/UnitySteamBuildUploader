@@ -1,28 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public abstract class ABuildSource : DropdownElement
+    public abstract partial class ABuildSource : DropdownElement
     {
+        public bool IsRunning => m_getSourceInProgress;
+        
         protected float m_downloadProgress;
         protected string m_progressDescription;
         protected bool m_getSourceInProgress;
-        internal BuildUploaderWindow uploaderWindow;
-        
-        internal ABuildSource(BuildUploaderWindow window)
+
+
+        public ABuildSource() : base()
         {
-            // Required for Reflection
-            uploaderWindow = window;
+            // Required for reflection
         }
 
-        public bool IsRunning => m_getSourceInProgress;
-
         public int Id { get; set; }
-        public abstract string DisplayName { get; }
-        public abstract void OnGUIExpanded(ref bool isDirty);
-        public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
         public abstract Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult);
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();
@@ -40,10 +37,5 @@ namespace Wireframe
 
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> data);
-
-        public virtual void AssignLatestBuildTarget()
-        {
-
-        }
     }
 }

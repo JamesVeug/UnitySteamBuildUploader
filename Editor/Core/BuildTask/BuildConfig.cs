@@ -8,18 +8,18 @@ namespace Wireframe
         public string GUID { get; private set; }
         
         public List<SourceData> Sources => m_buildSources;
-        public List<ABuildConfigModifer > Modifiers => m_modifiers;
+        public List<ModifierData > Modifiers => m_modifiers;
         public List<DestinationData> Destinations => m_buildDestinations;
 
         private List<SourceData> m_buildSources;
-        private List<ABuildConfigModifer> m_modifiers;
+        private List<ModifierData> m_modifiers;
         private List<DestinationData> m_buildDestinations;
 
         public BuildConfig(string guid)
         {
             GUID = guid;
             m_buildSources = new List<SourceData>();
-            m_modifiers = new List<ABuildConfigModifer>();
+            m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
         }
 
@@ -35,11 +35,11 @@ namespace Wireframe
         public List<string> GetSourceWarnings()
         {
             List<string> warnings = new List<string>();
-            foreach (ABuildConfigModifer modifer in m_modifiers)
+            foreach (ModifierData modifer in m_modifiers)
             {
                 foreach (SourceData sourceData in m_buildSources)
                 {
-                    modifer.TryGetWarnings(sourceData.Source, warnings);
+                    modifer.Modifier?.TryGetWarnings(sourceData.Source, warnings);
                 }
             }
             
@@ -49,11 +49,11 @@ namespace Wireframe
         public List<string> GetDestinationWarnings()
         {
             List<string> warnings = new List<string>();
-            foreach (ABuildConfigModifer modifier in m_modifiers)
+            foreach (ModifierData modifier in m_modifiers)
             {
                 foreach (DestinationData destinationData in m_buildDestinations)
                 {
-                    modifier.TryGetWarnings(destinationData.Destination, warnings);
+                    modifier.Modifier?.TryGetWarnings(destinationData.Destination, warnings);
                 }
             }
             
@@ -91,10 +91,21 @@ namespace Wireframe
             
             for (var i = 0; i < m_modifiers.Count; i++)
             {
-                var modifier = m_modifiers[i];
-                if (!modifier.IsSetup(out string modifierReason))
+                var source = m_modifiers[i];
+                if (!source.Enabled)
                 {
-                    reason = $"Modifier #{i+1}: {modifierReason}";
+                    continue;
+                }
+                
+                if (source.Modifier == null)
+                {
+                    reason = $"Modifier #{i+1} is not setup";
+                    return false;
+                }
+
+                if (!source.Modifier.IsSetup(out string sourceReason))
+                {
+                    reason = $"Modifier #{i+1}: " + sourceReason;
                     return false;
                 }
             }
@@ -200,7 +211,7 @@ namespace Wireframe
             m_buildDestinations.Add(destination);
         }
         
-        public void AddModifier(ABuildConfigModifer modifier)
+        public void AddModifier(ModifierData modifier)
         {
             if (modifier == null)
             {

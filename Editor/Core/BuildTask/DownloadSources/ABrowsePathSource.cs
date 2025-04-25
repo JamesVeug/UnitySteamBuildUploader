@@ -1,19 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Wireframe
 {
     /// <summary>
     /// User is able to select a path of some sort to upload
     /// </summary>
-    public abstract class ABrowsePathSource : ABuildSource
+    public abstract partial class ABrowsePathSource : ABuildSource
     {
-        protected abstract string ButtonText { get; }
-        
         private GUIStyle m_pathButtonExistsStyle;
         private GUIStyle m_pathButtonDoesNotExistStyle;
         private GUIStyle m_pathInputFieldExistsStyle;
@@ -22,75 +18,16 @@ namespace Wireframe
         
         protected string m_finalSourcePath;
         protected string m_enteredFilePath;
-        
-        internal ABrowsePathSource(BuildUploaderWindow window) : base(window)
+
+        public ABrowsePathSource() : base()
         {
-            
+            // Required for reflection
         }
-        
-        internal ABrowsePathSource(BuildUploaderWindow window, string path) : base(window)
+
+        internal ABrowsePathSource(string path) : base()
         {
             m_enteredFilePath = path;
         }
-
-        private void Setup()
-        {
-            m_pathButtonExistsStyle = new GUIStyle(GUI.skin.button);
-            m_pathButtonDoesNotExistStyle = new GUIStyle(GUI.skin.button);
-            m_pathButtonDoesNotExistStyle.normal.textColor = Color.red;
-            
-            m_pathInputFieldExistsStyle = new GUIStyle(GUI.skin.textField);
-            m_pathInputFieldDoesNotExistStyle = new GUIStyle(GUI.skin.textField);
-            m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.red;
-        }
-
-        public override void OnGUIExpanded(ref bool isDirty)
-        {
-            Setup();
-            
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Path:", GUILayout.Width(120));
-                
-                bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && (File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath));
-                GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
-                string newPath = GUILayout.TextField(m_enteredFilePath, style, GUILayout.MaxWidth(200));
-                if (m_enteredFilePath != newPath)
-                {
-                    m_enteredFilePath = newPath;
-                    isDirty = true;
-                }
-
-                if (GUILayout.Button("...", GUILayout.Width(20)))
-                {
-                    string path = SelectFile();
-                    isDirty |= SetNewPath(path);
-                }
-
-                if (GUILayout.Button("Show", GUILayout.Width(50)))
-                {
-                    EditorUtility.RevealInFinder(m_enteredFilePath);
-                }
-            }
-        }
-
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
-        {
-            Setup();
-            
-            bool exists = PathExists();
-            GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
-            style.alignment = TextAnchor.MiddleLeft;
-            
-            string displayedPath = Utils.TruncateText(m_enteredFilePath, maxWidth, ButtonText);
-            if (GUILayout.Button(displayedPath, style))
-            {
-                string newPath = SelectFile();
-                isDirty |= SetNewPath(newPath);
-            }
-        }
-
-        protected abstract string SelectFile();
 
         private bool SetNewPath(string newPath)
         {
@@ -153,7 +90,7 @@ namespace Wireframe
 
         public override string ProgressTitle()
         {
-            return "Getting " + DisplayName;
+            return "Getting " + ((DropdownElement)this).DisplayName;
         }
 
         public override string ProgressDescription()

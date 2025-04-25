@@ -31,7 +31,7 @@ namespace Wireframe
                     DestinationType.Type = System.Type.GetType(destinationType as string);
                     if (DestinationType.Type != null)
                     {
-                        Destination = System.Activator.CreateInstance(DestinationType.Type, new object[] { null }) as ABuildDestination;
+                        Destination = Utils.CreateInstance<ABuildDestination>(DestinationType.Type);
                         if (Destination != null)
                         {
                             Destination.Deserialize(data["destination"] as Dictionary<string, object>);

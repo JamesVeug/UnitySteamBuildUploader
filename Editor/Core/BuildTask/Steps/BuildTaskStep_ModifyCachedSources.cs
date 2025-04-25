@@ -65,7 +65,7 @@ namespace Wireframe
             {
                 var modifer = buildConfig.Modifiers[i];
                 var stepResult = results[i];
-                bool success = await modifer.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex, stepResult);
+                bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex, stepResult);
                 if (!success)
                 {
                     return false;
@@ -75,9 +75,10 @@ namespace Wireframe
             return true;
         }
         
-        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
+        public override Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
             ReportCachedFiles(buildTask, report);
+            return Task.FromResult(true);
         }
     }
 }

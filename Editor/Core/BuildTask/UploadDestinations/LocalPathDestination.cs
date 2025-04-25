@@ -2,8 +2,6 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -12,45 +10,23 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [BuildDestination("LocalPath")]
     public partial class LocalPathDestination : ABuildDestination
     {
-        public override string DisplayName => "LocalPath";
-        private string ButtonText => "Choose Local Path...";
-        
-        private GUIStyle m_pathButtonExistsStyle;
-        private GUIStyle m_pathButtonDoesNotExistStyle;
-        private GUIStyle m_pathInputFieldExistsStyle;
-        private GUIStyle m_pathInputFieldDoesNotExistStyle;
-        
         private string m_localPath = "";
         private string m_fileName = "";
         private bool m_zipContent = false;
 
-        public LocalPathDestination() : base(null)
+        public LocalPathDestination() : base()
         {
-            
+            // Required for reflection
         }
         
-        public LocalPathDestination(string localPath, string fileName, bool zipContent) : base(null)
+        public LocalPathDestination(string localPath, string fileName, bool zipContent) : base()
         {
             m_localPath = localPath;
             m_fileName = fileName;
             m_zipContent = zipContent;
-        }
-
-        internal LocalPathDestination(BuildUploaderWindow window) : base(window)
-        {
-        }
-
-        private void Setup()
-        {
-            m_pathButtonExistsStyle = new GUIStyle(GUI.skin.button);
-            m_pathButtonDoesNotExistStyle = new GUIStyle(GUI.skin.button);
-            m_pathButtonDoesNotExistStyle.normal.textColor = Color.red;
-            
-            m_pathInputFieldExistsStyle = new GUIStyle(GUI.skin.textField);
-            m_pathInputFieldDoesNotExistStyle = new GUIStyle(GUI.skin.textField);
-            m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.red;
         }
 
         private string FullPath()
@@ -68,46 +44,6 @@ namespace Wireframe
             }
             
             return path;
-        }
-
-        private string GetButtonText(float maxWidth)
-        {
-            string fullPath = FullPath();
-            string displayedPath = fullPath;
-            if (!string.IsNullOrEmpty(displayedPath))
-            {
-                float characterWidth = 8f;
-                int characters = displayedPath.Length;
-                float expectedWidth = characterWidth * characters;
-                if (expectedWidth >= maxWidth)
-                {
-                    int charactersToRemove = (int)((expectedWidth - maxWidth) / characterWidth);
-                    if (charactersToRemove < displayedPath.Length)
-                    {
-                        displayedPath = displayedPath.Substring(charactersToRemove);
-                    }
-                    else
-                    {
-                        displayedPath = "";
-                    }
-                }
-                
-                if(displayedPath.Length < fullPath.Length)
-                {
-                    displayedPath = "..." + displayedPath;
-                }
-            }
-            else
-            {
-                displayedPath = ButtonText;
-            }
-
-            return displayedPath;
-        }
-
-        protected virtual string SelectFile()
-        {
-            return EditorUtility.OpenFolderPanel("Select Folder to upload", m_localPath, "");
         }
         
         private bool PathExists()
@@ -179,7 +115,7 @@ namespace Wireframe
             return true;
         }
 
-        public override void PostUpload(BuildTaskReport.StepResult result)
+        public override Task<bool> PostUpload(BuildTaskReport.StepResult result)
         {
             string fullPath = FullPath();
             if (Path.HasExtension(fullPath))
@@ -196,6 +132,7 @@ namespace Wireframe
                 sb.AppendLine("\t-" + file);
             }
             result.AddLog(sb.ToString());
+            return Task.FromResult(true);
         }
 
         public override string ProgressTitle()

@@ -66,9 +66,14 @@ namespace Wireframe
                 }
                 
                 report.SetProcess(ABuildTask_Step.StepProcess.Post);
-                steps[i].PostRunResult(this, report);
+                Task<bool> postTask = steps[i].PostRunResult(this, report);
+                while (!task.IsCompleted)
+                {
+                    tick?.Invoke();
+                    await Task.Delay(10);
+                }
 
-                if (!task.Result)
+                if (!task.Result || !postTask.Result)
                 {
                     break;
                 }

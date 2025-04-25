@@ -2,6 +2,7 @@
 
 namespace Wireframe
 {
+    [BuildModifier("Exclude Folders By Regex")]
     public class ExcludeFoldersByRegex_BuildModifier : AExcludePathsByRegex_BuildModifier
     {
         public ExcludeFoldersByRegex_BuildModifier() : base()

@@ -22,22 +22,27 @@ namespace Wireframe
             m_window = window;
         }
 
-        private void SetupDefaultModifiers()
+        public void SetupDefaults()
         {
+            AddSource(new SourceData()
+            {
+                Enabled = true,
+                Source = null,
+                SourceType = null
+            });
+            
+            AddDestination(new DestinationData()
+            {
+                Enabled = true,
+                Destination = null,
+                DestinationType = null
+            });
+            
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
             ExcludeFoldersByRegex_BuildModifier regexBuildModifier = new ExcludeFoldersByRegex_BuildModifier();
             regexBuildModifier.Add("*_DoNotShip", true, false);
-            
-            m_modifiers = new List<ABuildConfigModifer>
-            {
-                regexBuildModifier,
-            };
-            
-            foreach (ABuildConfigModifer modifer in m_modifiers)
-            {
-                modifer.Initialize(()=>m_window.Repaint());
-            }
+            AddModifier(new ModifierData(regexBuildModifier, true));
         }
         
         private void SetupGUI()
@@ -96,7 +101,8 @@ namespace Wireframe
                                 isDirty = true;
                                 if (source.SourceType != null)
                                 {
-                                    source.Source = Activator.CreateInstance(source.SourceType.Type, new object[] { uploaderWindow }) as ABuildSource;
+                                    Type sourceType = source.SourceType.Type;
+                                    source.Source = Utils.CreateInstance<ABuildSource>(sourceType);
                                 }
                                 else
                                 {
@@ -159,9 +165,8 @@ namespace Wireframe
                                 isDirty = true;
                                 if (destinationData.DestinationType != null)
                                 {
-                                    destinationData.Destination =
-                                        Activator.CreateInstance(destinationData.DestinationType.Type,
-                                            new object[] { uploaderWindow }) as ABuildDestination;
+                                    Type sourceTypeType = destinationData.DestinationType.Type;
+                                    destinationData.Destination = Utils.CreateInstance<ABuildDestination>(sourceTypeType);
                                 }
                                 else
                                 {
@@ -228,9 +233,8 @@ namespace Wireframe
                                     isDirty = true;
                                     if (source.SourceType != null)
                                     {
-                                        source.Source =
-                                            Activator.CreateInstance(source.SourceType.Type,
-                                                new object[] { uploaderWindow }) as ABuildSource;
+                                        Type sourceType = source.SourceType.Type;
+                                        source.Source = Utils.CreateInstance<ABuildSource>(sourceType);
                                     }
                                     else
                                     {
@@ -257,10 +261,15 @@ namespace Wireframe
                             {
                                 source.Source.OnGUIExpanded(ref isDirty);
                                 List<string> warnings = new List<string>();
-                                foreach (ABuildConfigModifer modifer in m_modifiers)
+                                foreach (ModifierData modifer in m_modifiers)
                                 {
-                                    modifer.TryGetWarnings(this, warnings);
-                                    modifer.TryGetWarnings(source.Source, warnings);
+                                    if (modifer.Modifier == null)
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    modifer.Modifier.TryGetWarnings(this, warnings);
+                                    modifer.Modifier.TryGetWarnings(source.Source, warnings);
                                     foreach (string warning in warnings)
                                     {
                                         DrawWarning(warning);
@@ -288,14 +297,65 @@ namespace Wireframe
                 // Modifiers
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth / 2)))
                 {
-                    GUILayout.Label("Modifiers");
-                    if (m_modifiers == null || m_modifiers.Count == 0)
+                    GUILayout.Label("Modifiers", m_titleStyle);
+                    for (var i = 0; i < m_modifiers.Count; i++)
                     {
-                        SetupDefaultModifiers();
+                        ModifierData modifiers = m_modifiers[i];
+                        using (new GUILayout.HorizontalScope())
+                        {
+                            isDirty |= CustomToggle.DrawToggle(ref modifiers.Enabled, GUILayout.Width(20));
+
+                            using (new EditorGUI.DisabledScope(!modifiers.Enabled))
+                            {
+                                GUILayout.Label("Modifier Type: ", GUILayout.Width(100));
+                                if (UIHelpers.ModifiersPopup.DrawPopup(ref modifiers.ModifierType))
+                                {
+                                    isDirty = true;
+                                    if (modifiers.ModifierType != null)
+                                    {
+                                        Type modifierType = modifiers.ModifierType.Type;
+                                        modifiers.Modifier = Utils.CreateInstance<ABuildConfigModifer>(modifierType);
+                                    }
+                                    else
+                                    {
+                                        modifiers.Modifier = null;
+                                    }
+                                }
+                            }
+
+                            if (GUILayout.Button("X", GUILayout.Width(20)))
+                            {
+                                if (EditorUtility.DisplayDialog("Remove Modifier",
+                                        "Are you sure you want to remove this Modifier?",
+                                        "Yes", "Oops No!"))
+                                {
+                                    m_modifiers.RemoveAt(i--);
+                                    isDirty = true;
+                                }
+                            }
+                        }
+                        
+                        if (modifiers.Modifier != null)
+                        {
+                            using (new EditorGUI.DisabledScope(!modifiers.Enabled))
+                            {
+                                modifiers.Modifier.OnGUIExpanded(ref isDirty);
+                            }
+                        }
+                        
+                        GUILayout.Space(10);
                     }
-                    foreach (ABuildConfigModifer modifer in m_modifiers)
+
+                    using (new GUILayout.HorizontalScope())
                     {
-                        isDirty |= modifer.OnGUI();
+                        if (GUILayout.Button("Add New Modifier"))
+                        {
+                            m_modifiers.Add(new ModifierData()
+                            {
+                                Enabled = true,
+                            });
+                            isDirty = true;
+                        }
                     }
                 }
 
@@ -317,9 +377,8 @@ namespace Wireframe
                                     isDirty = true;
                                     if (destinationData.DestinationType != null)
                                     {
-                                        destinationData.Destination = Activator.CreateInstance(
-                                            destinationData.DestinationType.Type,
-                                            new object[] { uploaderWindow }) as ABuildDestination;
+                                        Type destinationType = destinationData.DestinationType.Type;
+                                        destinationData.Destination = Utils.CreateInstance<ABuildDestination>(destinationType);
                                     }
                                     else
                                     {
@@ -347,9 +406,9 @@ namespace Wireframe
                                 destinationData.Destination.OnGUIExpanded(ref isDirty);
 
                                 List<string> warnings = new List<string>();
-                                foreach (ABuildConfigModifer modifier in m_modifiers)
+                                foreach (ModifierData modifier in m_modifiers)
                                 {
-                                    modifier.TryGetWarnings(destinationData.Destination, warnings);
+                                    modifier.Modifier?.TryGetWarnings(destinationData.Destination, warnings);
                                 }
 
                                 foreach (string warning in warnings)

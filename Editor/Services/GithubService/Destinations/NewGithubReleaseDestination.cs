@@ -1,15 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 
 namespace Wireframe
 {
+    [BuildDestination("New Github Release")]
     public partial class NewGithubReleaseDestination : ABuildDestination
     {
-        public override string DisplayName => "New Github Release";
-        
         private string m_owner;
         private string m_repo;
         private string m_releaseName;
@@ -19,9 +16,9 @@ namespace Wireframe
         private bool m_prerelease;
         private bool m_zipContents;
 
-        public NewGithubReleaseDestination() : base(null)
+        public NewGithubReleaseDestination() : base()
         {
-            
+            // Required for reflection
         }
         
         public void SetRepository(string owner, string repo)
@@ -42,12 +39,6 @@ namespace Wireframe
             m_draft = draft;
             m_prerelease = prerelease;
             m_zipContents = zipContents;
-        }
-        
-        
-        
-        internal NewGithubReleaseDestination(BuildUploaderWindow window) : base(window)
-        {
         }
 
         public override async Task<bool> Upload(BuildTaskReport.StepResult result)

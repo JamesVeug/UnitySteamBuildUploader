@@ -1,13 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public abstract class ABuildConfigModifer
+    public abstract partial class ABuildConfigModifer
     {
+        internal virtual string DisplayName => GetType().GetCustomAttribute<BuildModifierAttribute>()?.DisplayName ?? GetType().Name;
+        internal UIHelpers.BuildDestinationsPopup.DestinationData ModifierType;
+
+        // Required for reflection
+        public ABuildConfigModifer()
+        {
+            
+        }
+
         public abstract bool IsSetup(out string reason);
-        internal abstract void Initialize(Action onChanged);
         public abstract Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult);
         
         public virtual void TryGetWarnings(BuildConfig config, List<string> warnings)
@@ -24,8 +32,7 @@ namespace Wireframe
         {
             
         }
-        
-        public abstract bool OnGUI();
+
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> data);
     }

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using UnityEditor;
+﻿using UnityEditor;
 
 namespace Wireframe
 {
@@ -8,20 +7,19 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [BuildSource("File", "Choose file Upload...")]
     public class FileSource : ABrowsePathSource
     {
-        public override string DisplayName => "File";
-        protected override string ButtonText => "Choose file Upload...";
-
-        public FileSource(string path) : base(null, path)
+        public FileSource() : base()
         {
+            // Required for reflection
         }
         
-        internal FileSource(BuildUploaderWindow window) : base(window)
+        public FileSource(string path) : base(path)
         {
         }
 
-        protected override string SelectFile()
+        internal override string SelectFile()
         {
             return EditorUtility.OpenFilePanel("Select file to Upload", "", "");
         }

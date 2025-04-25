@@ -90,7 +90,7 @@ namespace Wireframe
             return true;
         }
 
-        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
+        public override Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             for (var i = 0; i < buildConfigs.Count; i++)
@@ -110,6 +110,7 @@ namespace Wireframe
                     }
                 }
             }
+            return Task.FromResult(true);
         }
     }
 }

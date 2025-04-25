@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public abstract class AExcludePathsByRegex_BuildModifier : ABuildConfigModifer
+    public abstract partial class AExcludePathsByRegex_BuildModifier : ABuildConfigModifer
     {
         [Serializable]
         public class Selection
@@ -57,12 +57,13 @@ namespace Wireframe
 
         public AExcludePathsByRegex_BuildModifier()
         {
-            
+            Initialize();
         }
 
         public AExcludePathsByRegex_BuildModifier(params Selection[] fileRegexes)
         {
             m_fileRegexes.AddRange(fileRegexes);
+            Initialize();
         }
         
         public AExcludePathsByRegex_BuildModifier(params string[] fileRegexes)
@@ -71,20 +72,18 @@ namespace Wireframe
             {
                 m_fileRegexes.Add(new Selection(fileRegex));
             }
+            Initialize();
         }
         
         public AExcludePathsByRegex_BuildModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false)
         {
             m_fileRegexes.Add(new Selection(fileRegex, true, recursive, searchAllDirectories));
+            Initialize();
         }
 
-        internal override void Initialize(Action onChanged)
+        private void Initialize()
         {
-            m_onChanged = onChanged;
-            m_reorderableList.Initialize(m_fileRegexes, "Exclude Files", regex =>
-            {
-                m_onChanged.Invoke();
-            });
+            m_reorderableList.Initialize(m_fileRegexes, "Exclude");
         }
 
         public override bool IsSetup(out string reason)
@@ -166,11 +165,6 @@ namespace Wireframe
 
             ProgressUtils.Remove(progressId);
             return successful;
-        }
-
-        public override bool OnGUI()
-        {
-            return m_reorderableList.OnGUI();
         }
 
         public override Dictionary<string, object> Serialize()

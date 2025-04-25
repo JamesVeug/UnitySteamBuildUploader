@@ -29,7 +29,7 @@ namespace Wireframe
         
         public abstract StepType Type { get; }
         public abstract Task<bool> Run(BuildTask buildTask, BuildTaskReport report);
-        public abstract void PostRunResult(BuildTask buildTask, BuildTaskReport report);
+        public abstract Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report);
         
         protected void ReportCachedFiles(BuildTask buildTask, BuildTaskReport report)
         {

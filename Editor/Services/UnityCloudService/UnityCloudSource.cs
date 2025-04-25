@@ -13,10 +13,9 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    public class UnityCloudSource : ABuildSource
+    [BuildSource("UnityCloud", "Choose Unity Cloud Build...")]
+    public partial class UnityCloudSource : ABuildSource
     {
-        public override string DisplayName => "Unity Cloud";
-        
         private UnityCloudTarget sourceTarget;
         private UnityCloudBuild sourceBuild;
 
@@ -24,76 +23,6 @@ namespace Wireframe
 
         private string downloadedFilePath;
         private string sourceFilePath;
-
-        internal UnityCloudSource(BuildUploaderWindow window) : base(window)
-        {
-            sourceFilePath = null;
-            uploaderWindow = window;
-        }
-
-        public override void OnGUIExpanded(ref bool isDirty)
-        {
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Target:", GUILayout.Width(120));
-                isDirty |= UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget);
-            }
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Build:", GUILayout.Width(120));
-                using (new EditorGUI.DisabledScope(UnityCloudAPI.IsSyncing))
-                {
-                    if (GUILayout.Button("Refresh", GUILayout.Width(75)))
-                    {
-                        UnityCloudAPI.SyncBuilds();
-                        //UnityCloudAPIEditorUtil.TargetPopup.Refresh();
-                        uploaderWindow.Repaint();
-                    }
-                }
-
-                buildScrollPosition = EditorGUILayout.BeginScrollView(buildScrollPosition, GUILayout.MaxHeight(100));
-                using (new EditorGUILayout.VerticalScope())
-                {
-                    List<UnityCloudBuild> builds = UnityCloudAPI.GetBuildsForTarget(sourceTarget);
-                    if (builds != null)
-                    {
-                        for (int i = 0; i < builds.Count; i++)
-                        {
-                            UnityCloudBuild build = builds[i];
-                            bool isSelected = sourceBuild != null &&
-                                              sourceBuild.CreateBuildName() == build.CreateBuildName();
-                            using (new EditorGUI.DisabledScope(isSelected || UnityCloudAPI.IsSyncing))
-                            {
-                                using (new EditorGUILayout.HorizontalScope())
-                                {
-                                    if (GUILayout.Button(build.CreateBuildName()))
-                                    {
-                                        sourceBuild = build;
-                                        isDirty = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                EditorGUILayout.EndScrollView();
-            }
-        }
-
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
-        {
-            if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget))
-            {
-                isDirty = true;
-            }
-
-            if (UnityCloudAPIEditorUtil.BuildPopup.DrawPopup(sourceTarget, ref sourceBuild))
-            {
-                isDirty = true;
-            }
-        }
 
         public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
         {
@@ -208,15 +137,6 @@ namespace Wireframe
         public override string GetBuildDescription()
         {
             return sourceBuild.CreateBuildName();
-        }
-
-        public override void AssignLatestBuildTarget()
-        {
-            base.AssignLatestBuildTarget();
-
-            List<UnityCloudBuild> unityCloudBuilds = UnityCloudAPI.GetBuildsForTarget(sourceTarget);
-            UnityCloudBuild lastTarget = unityCloudBuilds[unityCloudBuilds.Count - 1];
-            sourceBuild = lastTarget;
         }
 
         public override Dictionary<string, object> Serialize()

@@ -15,8 +15,7 @@ namespace Wireframe
         private string header = "";
         private Action<T> addCallback;
 
-        public void Initialize(List<T> listReference, string listHeader,
-            Action<T> onAddCallback)
+        public void Initialize(List<T> listReference, string listHeader, Action<T> onAddCallback=null)
         {
             header = listHeader;
             addCallback = onAddCallback;

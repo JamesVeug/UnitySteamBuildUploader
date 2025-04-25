@@ -7,20 +7,19 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [BuildSource("Folder", "Choose Folder Upload...")]
     public class FolderSource : ABrowsePathSource
     {
-        public override string DisplayName => "Folder";
-        protected override string ButtonText => "Choose Folder to Upload...";
-
-        public FolderSource(string path) : base(null, path)
+        public FolderSource() : base()
+        {
+            // Required for reflection
+        }
+        
+        public FolderSource(string path) : base(path)
         {
         }
 
-        internal FolderSource(BuildUploaderWindow window) : base(window)
-        {
-        }
-
-        protected override string SelectFile()
+        internal override string SelectFile()
         {
             return EditorUtility.OpenFolderPanel("Select Folder to upload", m_enteredFilePath, "");
         }

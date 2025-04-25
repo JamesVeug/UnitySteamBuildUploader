@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -161,6 +162,35 @@ namespace Wireframe
             });
 
             return allFiles;
+        }
+        
+        public static T CreateInstance<T>(Type type)
+        {
+            ConstructorInfo ci = type.GetConstructor(
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+                null, Type.EmptyTypes, null);
+
+            return (T)ci.Invoke(null);
+        }
+        
+        public static T CreateInstance<T>(object[] paramValues, params Type[] paramTypes)
+        {
+            Type t = typeof(T);
+
+            ConstructorInfo ci = t.GetConstructor(
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null, paramTypes, null);
+
+            return (T)ci.Invoke(paramValues);
+        }
+        
+        public static T CreateInstance<T>(Type type, object[] paramValues, params Type[] paramTypes)
+        {
+            ConstructorInfo ci = type.GetConstructor(
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null, paramTypes, null);
+
+            return (T)ci.Invoke(paramValues);
         }
     }
 }

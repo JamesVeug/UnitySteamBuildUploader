@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public abstract class ABuildDestination : DropdownElement
+    public abstract partial class ABuildDestination : DropdownElement
     {
         protected string m_filePath;
         protected string m_buildDescription;
@@ -11,12 +12,10 @@ namespace Wireframe
         protected float m_uploadProgress;
         protected string m_progressDescription;
         protected bool m_uploadInProgress;
-        internal BuildUploaderWindow uploaderWindow;
 
-        internal ABuildDestination(BuildUploaderWindow window)
+        public ABuildDestination()
         {
-            // Required for Reflection
-            uploaderWindow = window;
+            // Required for reflection
         }
 
         public bool IsRunning => m_uploadInProgress;
@@ -30,15 +29,11 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
-        public abstract string DisplayName { get; }
         public abstract Task<bool> Upload(BuildTaskReport.StepResult stepResult);
         public abstract string ProgressTitle();
         public abstract bool IsSetup(out string reason);
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);
-
-        internal abstract void OnGUIExpanded(ref bool isDirty);
-        internal abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
 
         public virtual void CleanUp(BuildTaskReport.StepResult result)
         {
@@ -56,9 +51,9 @@ namespace Wireframe
             return m_progressDescription;
         }
 
-        public virtual void PostUpload(BuildTaskReport.StepResult report)
+        public virtual Task<bool> PostUpload(BuildTaskReport.StepResult report)
         {
-
+            return Task.FromResult(true);
         }
     }
 }

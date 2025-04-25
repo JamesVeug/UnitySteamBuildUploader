@@ -9,25 +9,20 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [BuildDestination("Nowhere")]
     public class NoUploadDestination : ABuildDestination
     {
-        public override string DisplayName => "Nowhere";
-
-        public NoUploadDestination() : base(null)
+        public NoUploadDestination() : base()
         {
-            
+            // Required for reflection
         }
 
-        internal NoUploadDestination(BuildUploaderWindow window) : base(window)
-        {
-        }
-        
-        internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty)
         {
 
         }
 
-        internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
 
         }

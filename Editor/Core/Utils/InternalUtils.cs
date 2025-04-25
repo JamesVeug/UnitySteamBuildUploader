@@ -4,10 +4,11 @@ using System.Reflection;
 
 namespace Wireframe
 {
-    public static class InternalUtils
+    internal static class InternalUtils
     {
         private static List<AService> allServices = null;
         private static List<Type> allBuildSources = null;
+        private static List<Type> allBuildModifiers = null;
         private static List<Type> allBuildDestinations = null;
         
         public static List<AService> AllServices()
@@ -43,6 +44,16 @@ namespace Wireframe
             return allBuildSources;
         }
         
+        public static List<Type> AllBuildModifiers()
+        {
+            if (allBuildModifiers == null)
+            {
+                FetchAllTypes();
+            }
+            
+            return allBuildModifiers;
+        }
+        
         public static List<Type> AllBuildDestinations()
         {
             if (allBuildDestinations == null)
@@ -57,10 +68,12 @@ namespace Wireframe
         {
             allServices = new List<AService>();
             allBuildSources = new List<Type>();
+            allBuildModifiers = new List<Type>();
             allBuildDestinations = new List<Type>();
             
             Type sourceType = typeof(ABuildSource);
             Type serviceType = typeof(AService);
+            Type modifierType = typeof(ABuildConfigModifer);
             Type destinationType = typeof(ABuildDestination);
             
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -80,6 +93,10 @@ namespace Wireframe
                 else if (destinationType.IsAssignableFrom(type))
                 {
                     allBuildDestinations.Add(type);
+                }
+                else if (modifierType.IsAssignableFrom(type))
+                {
+                    allBuildModifiers.Add(type);
                 }
             }
         }

@@ -274,7 +274,7 @@ namespace Wireframe
             catch (Exception e)
             {
                 stepResult.AddException(e);
-                stepResult.SetFailed("Could not upload to " + appFile.appid + "\n" + e.Message);
+                stepResult.SetFailed("Could not upload to app id: " + appFile.appid + "\n" + e.Message);
             }
 
             await Task.Delay(10);

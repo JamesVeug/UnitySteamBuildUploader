@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Wireframe
 {
@@ -20,15 +21,40 @@ namespace Wireframe
                 List<SourceData> sources = new List<SourceData>();
                 foreach (Type type in InternalUtils.AllBuildSources())
                 {
-                    var temp = Activator.CreateInstance(type, new object[]{null}) as ABuildSource; // Look away
                     sources.Add(new SourceData()
                     {
                         Id = sources.Count + 1,
-                        DisplayName = temp.DisplayName,
+                        DisplayName = type.GetCustomAttribute<BuildSourceAttribute>()?.DisplayName ?? type.Name,
                         Type = type,
                     });
                 }
                 return sources;
+            }
+        }
+        
+        public class BuildModifiersPopup : CustomDropdown<BuildModifiersPopup.ModifierData>
+        {
+            public override string FirstEntryText => "Choose Modifier";
+            public class ModifierData : DropdownElement
+            {
+                public int Id { get; set; }
+                public string DisplayName { get; set; }
+                public Type Type { get; set; }
+            }
+
+            protected override List<ModifierData> FetchAllData()
+            {
+                List<ModifierData> modifiers = new List<ModifierData>();
+                foreach (Type type in InternalUtils.AllBuildModifiers())
+                {
+                    modifiers.Add(new ModifierData()
+                    {
+                        Id = modifiers.Count + 1,
+                        DisplayName = type.GetCustomAttribute<BuildModifierAttribute>()?.DisplayName ?? type.Name,
+                        Type = type,
+                    });
+                }
+                return modifiers;
             }
         }
         
@@ -47,11 +73,10 @@ namespace Wireframe
                 List<DestinationData> destinations = new List<DestinationData>();
                 foreach (Type type in InternalUtils.AllBuildDestinations())
                 {
-                    var temp = Activator.CreateInstance(type, new object[]{null}) as ABuildDestination; // Look away
                     destinations.Add(new DestinationData()
                     {
                         Id = destinations.Count + 1,
-                        DisplayName = temp.DisplayName,
+                        DisplayName = type.GetCustomAttribute<BuildDestinationAttribute>()?.DisplayName ?? type.Name,
                         Type = type,
                     });
                 }
@@ -61,6 +86,9 @@ namespace Wireframe
 
         public static BuildSourcesPopup SourcesPopup => m_sourcesPopup ?? (m_sourcesPopup = new BuildSourcesPopup());
         private static BuildSourcesPopup m_sourcesPopup;
+        
+        public static BuildModifiersPopup ModifiersPopup => m_modifiersPopup ?? (m_modifiersPopup = new BuildModifiersPopup());
+        private static BuildModifiersPopup m_modifiersPopup;
         
         public static BuildDestinationsPopup DestinationsPopup => m_destinationsPopup ?? (m_destinationsPopup = new BuildDestinationsPopup());
         private static BuildDestinationsPopup m_destinationsPopup;

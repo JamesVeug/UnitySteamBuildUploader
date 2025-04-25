@@ -123,8 +123,9 @@ namespace Wireframe
             }
         }
 
-        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
+        public override async Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
+            bool success = true;
             foreach (BuildConfig config in buildTask.BuildConfigs)
             {
                 if (!config.Enabled)
@@ -143,9 +144,19 @@ namespace Wireframe
                     }
 
                     ABuildDestination buildDestination = destination.Destination;
-                    buildDestination.PostUpload(result);
+                    try
+                    {
+                        success &= await buildDestination.PostUpload(result);
+                    }
+                    catch (Exception e)
+                    {
+                        result.AddException(e);
+                        result.SetFailed("Post upload failed: " + e.Message);
+                        success = false;
+                    }
                 }
             }
+            return success;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Wireframe
                 ["enabled"] = Enabled,
                 ["guid"] = GUID,
                 ["sources"] = m_buildSources.Select(a => a.Serialize()).ToList(),
-                ["modifiers"] = m_modifiers.Select(a => a.Serialize()).ToList(),
+                ["allModifiers"] = m_modifiers.Select(a => a.Serialize()).ToList(),
                 ["destinations"] = m_buildDestinations.Select(a => a.Serialize()).ToList(),
             };
 
@@ -41,12 +41,14 @@ namespace Wireframe
             }
 
             m_buildSources = new List<SourceData>();
+            m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
 
             // Migrate any old data
             try
             {
                 Migrate_v120_to_v130(data);
+                Migrate_v210_to_v220(data);
             }
             catch (Exception e)
             {
@@ -76,29 +78,15 @@ namespace Wireframe
             // Modifiers
             try
             {
-                if (data.TryGetValue("modifiers", out object modifiers) && modifiers != null)
+                if (data.TryGetValue("allModifiers", out object modifiers) && modifiers != null)
                 {
-                    m_modifiers = new List<ABuildConfigModifer>(); // Clear so we know its empty
-
                     List<object> modifierList = (List<object>)modifiers;
                     foreach (object modifier in modifierList)
                     {
                         Dictionary<string, object> modifierDictionary = (Dictionary<string, object>)modifier;
-                        if (modifierDictionary.TryGetValue("$type", out object modifierType))
-                        {
-                            Type type = Type.GetType((string)modifierType);
-                            if (type != null)
-                            {
-                                ABuildConfigModifer buildConfigModifer =
-                                    Activator.CreateInstance(type) as ABuildConfigModifer;
-                                if (buildConfigModifer != null)
-                                {
-                                    buildConfigModifer.Initialize(() => m_window.Repaint());
-                                    buildConfigModifer.Deserialize(modifierDictionary);
-                                    m_modifiers.Add(buildConfigModifer);
-                                }
-                            }
-                        }
+                        ModifierData modifierData = new ModifierData();
+                        modifierData.Deserialize(modifierDictionary);
+                        m_modifiers.Add(modifierData);
                     }
                 }
             }
@@ -174,6 +162,52 @@ namespace Wireframe
                         m_buildDestinations.Add(destinationData);
                     }
                 }
+            }
+        }
+        
+        /// <summary>
+        /// v2.2.0 changes modifiers to be list of ModifierData instead of ABuildConfigModifer (Same as sources and destinations)
+        /// </summary>
+        /// <param name="data"></param>
+        private void Migrate_v210_to_v220(Dictionary<string, object> data)
+        {
+            try
+            {
+                if (data.TryGetValue("modifiers", out object modifiers) && modifiers != null)
+                {
+                    m_modifiers = new List<ModifierData>(); // Clear so we know its empty
+
+                    List<object> modifierList = (List<object>)modifiers;
+                    foreach (object modifier in modifierList)
+                    {
+                        Dictionary<string, object> modifierDictionary = (Dictionary<string, object>)modifier;
+                        if (modifierDictionary.TryGetValue("$type", out object modifierType))
+                        {
+                            Type type = Type.GetType((string)modifierType);
+                            if (type != null)
+                            {
+                                ABuildConfigModifer buildConfigModifer = Activator.CreateInstance(type) as ABuildConfigModifer;
+                                if (buildConfigModifer != null)
+                                {
+                                    buildConfigModifer.Deserialize(modifierDictionary);
+                                    
+                                    // Steam DRM had its own 'enabled' field
+                                    bool enabled = true;
+                                    if (modifierDictionary.TryGetValue("enabled", out object enabledValue))
+                                    {
+                                        enabled = (bool)enabledValue;
+                                    }
+                                    ModifierData newModifierData = new ModifierData(buildConfigModifer, enabled);
+                                    m_modifiers.Add(newModifierData);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
             }
         }
     }

@@ -6,7 +6,25 @@ namespace Wireframe
 {
     public partial class LocalPathDestination
     {
-        internal override void OnGUIExpanded(ref bool isDirty)
+        private string ButtonText => "Choose Local Path...";
+        
+        private GUIStyle m_pathButtonExistsStyle;
+        private GUIStyle m_pathButtonDoesNotExistStyle;
+        private GUIStyle m_pathInputFieldExistsStyle;
+        private GUIStyle m_pathInputFieldDoesNotExistStyle;
+
+        private void Setup()
+        {
+            m_pathButtonExistsStyle = new GUIStyle(GUI.skin.button);
+            m_pathButtonDoesNotExistStyle = new GUIStyle(GUI.skin.button);
+            m_pathButtonDoesNotExistStyle.normal.textColor = Color.red;
+            
+            m_pathInputFieldExistsStyle = new GUIStyle(GUI.skin.textField);
+            m_pathInputFieldDoesNotExistStyle = new GUIStyle(GUI.skin.textField);
+            m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.red;
+        }
+
+        protected internal override void OnGUIExpanded(ref bool isDirty)
         {
             Setup();
 
@@ -61,7 +79,7 @@ namespace Wireframe
             GUILayout.Label("Full Path: " + FullPath());
         }
 
-        internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             Setup();
 
@@ -75,6 +93,46 @@ namespace Wireframe
                 string newPath = SelectFile();
                 isDirty |= SetNewPath(newPath);
             }
+        }
+
+        private string GetButtonText(float maxWidth)
+        {
+            string fullPath = FullPath();
+            string displayedPath = fullPath;
+            if (!string.IsNullOrEmpty(displayedPath))
+            {
+                float characterWidth = 8f;
+                int characters = displayedPath.Length;
+                float expectedWidth = characterWidth * characters;
+                if (expectedWidth >= maxWidth)
+                {
+                    int charactersToRemove = (int)((expectedWidth - maxWidth) / characterWidth);
+                    if (charactersToRemove < displayedPath.Length)
+                    {
+                        displayedPath = displayedPath.Substring(charactersToRemove);
+                    }
+                    else
+                    {
+                        displayedPath = "";
+                    }
+                }
+                
+                if(displayedPath.Length < fullPath.Length)
+                {
+                    displayedPath = "..." + displayedPath;
+                }
+            }
+            else
+            {
+                displayedPath = ButtonText;
+            }
+
+            return displayedPath;
+        }
+
+        protected virtual string SelectFile()
+        {
+            return EditorUtility.OpenFolderPanel("Select Folder to upload", m_localPath, "");
         }
     }
 }

@@ -5,13 +5,13 @@ namespace Wireframe
 {
     public partial class NewGithubReleaseDestination
     {
-        internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             string text = $"{m_owner}/{m_repo}/releases/tag/{m_tagName} ({m_target})";
             EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
         }
 
-        internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty)
         {
             if (GUILayout.Button("?", GUILayout.Width(20)))
             {

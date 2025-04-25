@@ -54,8 +54,9 @@ namespace Wireframe
 
                 if (GUILayout.Button("New"))
                 {
-                    BuildConfig buildConfigSetup = new BuildConfig(UploaderWindow);
-                    m_buildsToUpload.Add(buildConfigSetup);
+                    BuildConfig newConfig = new BuildConfig(UploaderWindow);
+                    newConfig.SetupDefaults();
+                    m_buildsToUpload.Add(newConfig);
                     m_isDirty = true;
                 }
 

@@ -35,7 +35,7 @@ namespace Wireframe
                     SourceType.Type = System.Type.GetType(sourceType as string);
                     if (SourceType.Type != null)
                     {
-                        Source = System.Activator.CreateInstance(SourceType.Type, new object[] { null }) as ABuildSource;
+                        Source = Utils.CreateInstance<ABuildSource>(SourceType.Type);
                         if (Source != null)
                         {
                             Source.Deserialize(data["source"] as Dictionary<string, object>);

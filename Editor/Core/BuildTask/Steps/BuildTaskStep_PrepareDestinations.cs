@@ -101,9 +101,10 @@ namespace Wireframe
             return true;
         }
 
-        public override void PostRunResult(BuildTask buildTask, BuildTaskReport report)
+        public override Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
             // Do nothing
+            return Task.FromResult(true);
         }
     }
 }

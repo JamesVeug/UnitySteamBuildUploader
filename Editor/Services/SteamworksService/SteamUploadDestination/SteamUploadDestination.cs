@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -10,10 +9,9 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [BuildDestination("Steamworks")]
     public partial class SteamUploadDestination : ABuildDestination
     {
-        public override string DisplayName => "Steamworks";
-        
         private bool m_createAppFile = true;
         private bool m_createDepotFile = true;
         private bool m_uploadToSteam = true;
@@ -26,13 +24,9 @@ namespace Wireframe
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
 
-        public SteamUploadDestination() : base(null)
+        public SteamUploadDestination() : base()
         {
-            
-        }
-        
-        internal SteamUploadDestination(BuildUploaderWindow window) : base(window)
-        {
+            // Required for reflection
         }
         
         public void SetSteamApp(SteamApp app)

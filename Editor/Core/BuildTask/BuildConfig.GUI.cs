@@ -260,6 +260,18 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!source.Enabled))
                             {
                                 source.Source.OnGUIExpanded(ref isDirty);
+
+                                using (new GUILayout.HorizontalScope())
+                                {
+                                    GUILayout.Label("SubFolder: ", GUILayout.Width(120));
+                                    var newSubFolderPath = EditorGUILayout.TextField(source.SubFolderPath);
+                                    if (source.SubFolderPath != newSubFolderPath)
+                                    {
+                                        source.SubFolderPath = newSubFolderPath;
+                                        isDirty = true;
+                                    }
+                                }
+
                                 List<string> warnings = new List<string>();
                                 foreach (ModifierData modifer in m_modifiers)
                                 {

@@ -83,7 +83,13 @@ namespace Wireframe
                     continue;
                 }
 
-                bool cached = await CacheSource(sourceData, configIndex, i, cacheFolderPath, result);
+                string sourcePath = cacheFolderPath;
+                if (!string.IsNullOrEmpty(sourceData.SubFolderPath))
+                {
+                    sourcePath = Path.Combine(sourcePath, sourceData.SubFolderPath);
+                }
+
+                bool cached = await CacheSource(sourceData, configIndex, i, sourcePath, result);
                 if (!cached)
                 {
                     return false;
@@ -124,13 +130,6 @@ namespace Wireframe
                 Directory.Delete(cacheFolderPath, true);
             }
             Directory.CreateDirectory(cacheFolderPath);
-            
-            // BuildUploader/CachedBuilds/GUID/Last Message_Data\StreamingAssets
-            if (string.IsNullOrEmpty(sourceData.SubFolderPath))
-            {
-                outputDirectory = Path.Combine(cacheFolderPath, sourceData.SubFolderPath);
-                Directory.CreateDirectory(outputDirectory);
-            }
             
             
             // If it's a directory, copy the whole thing to a folder with the same name

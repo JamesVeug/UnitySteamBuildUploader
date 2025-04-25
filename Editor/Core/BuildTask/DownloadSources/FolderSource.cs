@@ -19,7 +19,7 @@ namespace Wireframe
         {
         }
 
-        internal override string SelectFile()
+        protected internal override string SelectFile()
         {
             return EditorUtility.OpenFolderPanel("Select Folder to upload", m_enteredFilePath, "");
         }

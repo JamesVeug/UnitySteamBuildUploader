@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -10,26 +11,33 @@ namespace Wireframe
     /// </summary>
     public abstract partial class ABrowsePathSource : ABuildSource
     {
+        protected enum PathType
+        {
+            Absolute,
+            PathToAssets,
+        } 
+        
         private GUIStyle m_pathButtonExistsStyle;
         private GUIStyle m_pathButtonDoesNotExistStyle;
         private GUIStyle m_pathInputFieldExistsStyle;
         private GUIStyle m_pathInputFieldDoesNotExistStyle;
         
+        private PathType m_pathType;
+        protected string m_enteredFilePath = "";
         
-        protected string m_finalSourcePath;
-        protected string m_enteredFilePath;
+        protected string m_finalSourcePath = "";
 
         public ABrowsePathSource() : base()
         {
             // Required for reflection
         }
 
-        internal ABrowsePathSource(string path) : base()
+        public ABrowsePathSource(string path) : base()
         {
             m_enteredFilePath = path;
         }
 
-        private bool SetNewPath(string newPath)
+        public bool SetNewPath(string newPath)
         {
             if (newPath == m_enteredFilePath || string.IsNullOrEmpty(newPath))
             {
@@ -40,14 +48,15 @@ namespace Wireframe
             return true;
         }
 
-        private bool PathExists()
+        public bool PathExists()
         {
-            if (string.IsNullOrEmpty(m_enteredFilePath))
+            string path = GetFullPath();
+            if (string.IsNullOrEmpty(path))
             {
                 return true;
             }
             
-            return File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath);
+            return File.Exists(path) || Directory.Exists(path);
         }
 
         public override Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
@@ -65,12 +74,12 @@ namespace Wireframe
             // Make copy to avoid sharing conflicts
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory
-            string sourcePath = m_enteredFilePath;
+            string sourcePath = GetFullPath();
             bool isDirectory = Utils.IsPathADirectory(sourcePath);
-            if (!isDirectory && m_enteredFilePath.EndsWith(".exe"))
+            if (!isDirectory && sourcePath.EndsWith(".exe"))
             {
                 // Given a .exe. use the Folder because they likely want to upload the entire folder - not just the .exe
-                sourcePath = Path.GetDirectoryName(m_enteredFilePath);
+                sourcePath = Path.GetDirectoryName(sourcePath);
             }
             
             m_finalSourcePath = sourcePath;
@@ -78,9 +87,33 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
+        private string GetFullPath()
+        {
+            string path = GetSubPath();
+            if (string.IsNullOrEmpty(path))
+            {
+                return m_enteredFilePath;
+            }
+
+            return Path.Combine(path, m_enteredFilePath);
+        }
+
+        private string GetSubPath()
+        {
+            switch (m_pathType)
+            {
+                case PathType.Absolute:
+                    return "";
+                case PathType.PathToAssets:
+                    return Application.dataPath;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public override string SourceFilePath()
         {
-            return m_finalSourcePath;
+            return GetFullPath();
         }
 
         public override float DownloadProgress()
@@ -155,7 +188,8 @@ namespace Wireframe
         {
             return new Dictionary<string, object>()
             {
-                { "enteredFilePath", m_enteredFilePath }
+                { "enteredFilePath", m_enteredFilePath },
+                { "pathType", (long)m_pathType }
             };
         }
 
@@ -164,6 +198,15 @@ namespace Wireframe
             if (data.TryGetValue("enteredFilePath", out object p))
             {
                 m_enteredFilePath = (string)p;
+            }
+            
+            if (data.TryGetValue("pathType", out object pt))
+            {
+                m_pathType = (PathType)(long)pt;
+            }
+            else
+            {
+                m_pathType = PathType.Absolute;
             }
         }
     }

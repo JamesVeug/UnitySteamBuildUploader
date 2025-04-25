@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,9 +6,9 @@ namespace Wireframe
 {
     public abstract partial class ABrowsePathSource
     {
-        internal string ButtonText => GetType().GetCustomAttribute<BuildSourceAttribute>()?.ButtonText ?? GetType().Name;
+        private string ButtonText => GetType().GetCustomAttribute<BuildSourceAttribute>()?.ButtonText ?? GetType().Name;
 
-        internal abstract string SelectFile();
+        protected internal abstract string SelectFile();
 
         private void Setup()
         {
@@ -25,13 +24,25 @@ namespace Wireframe
         public override void OnGUIExpanded(ref bool isDirty)
         {
             Setup();
-            
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Path Type:", GUILayout.Width(120));
+
+                var newPathType = (PathType)EditorGUILayout.EnumPopup(m_pathType);
+                if (newPathType != m_pathType)
+                {
+                    m_pathType = newPathType;
+                    isDirty = true;
+                }
+            }
+
+            bool exists = PathExists();
+            GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Path:", GUILayout.Width(120));
                 
-                bool exists = !string.IsNullOrEmpty(m_enteredFilePath) && (File.Exists(m_enteredFilePath) || Directory.Exists(m_enteredFilePath));
-                GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
                 string newPath = GUILayout.TextField(m_enteredFilePath, style, GUILayout.MaxWidth(200));
                 if (m_enteredFilePath != newPath)
                 {
@@ -47,7 +58,15 @@ namespace Wireframe
 
                 if (GUILayout.Button("Show", GUILayout.Width(50)))
                 {
-                    EditorUtility.RevealInFinder(m_enteredFilePath);
+                    EditorUtility.RevealInFinder(GetFullPath());
+                }
+            }
+            
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(true))
+                {
+                    EditorGUILayout.TextField(GetFullPath(), style);
                 }
             }
         }
@@ -60,10 +79,20 @@ namespace Wireframe
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
             style.alignment = TextAnchor.MiddleLeft;
             
-            string displayedPath = Utils.TruncateText(m_enteredFilePath, maxWidth, ButtonText);
+            string displayedPath = Utils.TruncateText(GetFullPath(), maxWidth, ButtonText);
             if (GUILayout.Button(displayedPath, style))
             {
                 string newPath = SelectFile();
+                if (m_pathType != PathType.Absolute)
+                {
+                    string subPath = GetSubPath();
+                    if (!newPath.StartsWith(subPath))
+                    {
+                        EditorUtility.DisplayDialog("Invalid Path", "The selected path just start in:\n" + subPath + "\n\nOr change the PathType of the source." , "OK");
+                        return;
+                    }
+                }
+                
                 isDirty |= SetNewPath(newPath);
             }
         }

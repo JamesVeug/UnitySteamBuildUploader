@@ -133,13 +133,8 @@ namespace Wireframe
 
         public override bool IsSetup(out string reason)
         {
-            if (string.IsNullOrEmpty(m_enteredFilePath))
-            {
-                reason = "Path not set";
-                return false;
-            }
-
-            if (!File.Exists(m_enteredFilePath) && !Directory.Exists(m_enteredFilePath))
+            string path = GetFullPath();
+            if (!File.Exists(path) && !Directory.Exists(path))
             {
                 reason = "Path does not exist";
                 return false;

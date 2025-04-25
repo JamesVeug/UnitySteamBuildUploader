@@ -51,9 +51,10 @@ namespace Wireframe
             }
         }
         
+        protected abstract string ListHeader { get; }
+        
         private List<Selection> m_fileRegexes = new List<Selection>();
         private ReorderableListOfExcludeFileByRegexSelection m_reorderableList = new ReorderableListOfExcludeFileByRegexSelection();
-        private Action m_onChanged;
 
         public AExcludePathsByRegex_BuildModifier()
         {
@@ -83,7 +84,7 @@ namespace Wireframe
 
         private void Initialize()
         {
-            m_reorderableList.Initialize(m_fileRegexes, "Exclude");
+            m_reorderableList.Initialize(m_fileRegexes, ListHeader);
         }
 
         public override bool IsSetup(out string reason)
@@ -171,7 +172,7 @@ namespace Wireframe
         {
             return new Dictionary<string, object>
             {
-                ["regexes"] = m_fileRegexes.Select(a=>a.Serialize()).ToArray()
+                ["regexes"] = m_fileRegexes.Select(a=>a.Serialize()).ToArray(),
             };
         }
 

@@ -5,6 +5,8 @@ namespace Wireframe
     [BuildModifier("Exclude Files By Regex")]
     public class ExcludeFilesByRegex_BuildModifier : AExcludePathsByRegex_BuildModifier
     {
+        protected override string ListHeader => "Exclude Files";
+        
         public ExcludeFilesByRegex_BuildModifier() : base()
         {
             

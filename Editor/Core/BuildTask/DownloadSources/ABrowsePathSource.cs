@@ -15,7 +15,7 @@ namespace Wireframe
         {
             Absolute,
             PathToAssets,
-        } 
+        }
         
         private GUIStyle m_pathButtonExistsStyle;
         private GUIStyle m_pathButtonDoesNotExistStyle;
@@ -78,7 +78,7 @@ namespace Wireframe
             bool isDirectory = Utils.IsPathADirectory(sourcePath);
             if (!isDirectory && sourcePath.EndsWith(".exe"))
             {
-                // Given a .exe. use the Folder because they likely want to upload the entire folder - not just the .exe
+                // Given a .exe. Use the Folder because they likely want to upload the entire folder - not just the .exe
                 sourcePath = Path.GetDirectoryName(sourcePath);
             }
             
@@ -113,7 +113,7 @@ namespace Wireframe
 
         public override string SourceFilePath()
         {
-            return GetFullPath();
+            return m_finalSourcePath;
         }
 
         public override float DownloadProgress()
@@ -123,7 +123,7 @@ namespace Wireframe
 
         public override string ProgressTitle()
         {
-            return "Getting " + ((DropdownElement)this).DisplayName;
+            return "Getting " + DisplayName;
         }
 
         public override string ProgressDescription()

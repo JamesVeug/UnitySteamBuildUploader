@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -65,9 +66,18 @@ namespace Wireframe
             {
                 var modifer = buildConfig.Modifiers[i];
                 var stepResult = results[i];
-                bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex, stepResult);
-                if (!success)
+                try
                 {
+                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex, stepResult);
+                    if (!success)
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    stepResult.AddException(ex);
+                    stepResult.SetFailed("Modifier failed: " + modifer.Modifier.GetType().Name);
                     return false;
                 }
             }

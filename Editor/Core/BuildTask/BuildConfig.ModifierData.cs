@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -41,15 +43,22 @@ namespace Wireframe
                 ModifierType = new UIHelpers.BuildModifiersPopup.ModifierData();
                 if (data.TryGetValue("modifierType", out object modifierType) && modifierType != null)
                 {
-                    ModifierType.Type = System.Type.GetType(modifierType as string);
-                    if (ModifierType.Type != null)
+                    Type type = Type.GetType(modifierType as string);
+                    if (UIHelpers.ModifiersPopup.TryGetValueFromType(type, out ModifierType))
                     {
-                        Modifier = Utils.CreateInstance<ABuildConfigModifer>(ModifierType.Type);
-                        if (Modifier != null)
+                        if (Utils.CreateInstance(ModifierType.Type, out Modifier))
                         {
                             Modifier.Deserialize(data["modifier"] as Dictionary<string, object>);
                         }
                     }
+                    else
+                    {
+                        Debug.LogError($"Modifier type {modifierType} not found");
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Modifier type not found in data: {modifierType}");
                 }
             }
         }

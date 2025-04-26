@@ -99,15 +99,7 @@ namespace Wireframe
                             if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, GUILayout.MaxWidth(120)))
                             {
                                 isDirty = true;
-                                if (source.SourceType != null)
-                                {
-                                    Type sourceType = source.SourceType.Type;
-                                    source.Source = Utils.CreateInstance<ABuildSource>(sourceType);
-                                }
-                                else
-                                {
-                                    source.Source = null;
-                                }
+                                Utils.CreateInstance(source.SourceType?.Type, out source.Source);
                             }
 
                             // Source
@@ -163,15 +155,7 @@ namespace Wireframe
                             if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType))
                             {
                                 isDirty = true;
-                                if (destinationData.DestinationType != null)
-                                {
-                                    Type sourceTypeType = destinationData.DestinationType.Type;
-                                    destinationData.Destination = Utils.CreateInstance<ABuildDestination>(sourceTypeType);
-                                }
-                                else
-                                {
-                                    destinationData.Destination = null;
-                                }
+                                Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
                             }
 
                             // Destination
@@ -231,15 +215,7 @@ namespace Wireframe
                                 if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType))
                                 {
                                     isDirty = true;
-                                    if (source.SourceType != null)
-                                    {
-                                        Type sourceType = source.SourceType.Type;
-                                        source.Source = Utils.CreateInstance<ABuildSource>(sourceType);
-                                    }
-                                    else
-                                    {
-                                        source.Source = null;
-                                    }
+                                    Utils.CreateInstance(source.SourceType?.Type, out source.Source);
                                 }
                             }
 
@@ -323,15 +299,7 @@ namespace Wireframe
                                 if (UIHelpers.ModifiersPopup.DrawPopup(ref modifiers.ModifierType))
                                 {
                                     isDirty = true;
-                                    if (modifiers.ModifierType != null)
-                                    {
-                                        Type modifierType = modifiers.ModifierType.Type;
-                                        modifiers.Modifier = Utils.CreateInstance<ABuildConfigModifer>(modifierType);
-                                    }
-                                    else
-                                    {
-                                        modifiers.Modifier = null;
-                                    }
+                                    Utils.CreateInstance(modifiers.ModifierType?.Type, out modifiers.Modifier);
                                 }
                             }
 
@@ -387,15 +355,7 @@ namespace Wireframe
                                 if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType))
                                 {
                                     isDirty = true;
-                                    if (destinationData.DestinationType != null)
-                                    {
-                                        Type destinationType = destinationData.DestinationType.Type;
-                                        destinationData.Destination = Utils.CreateInstance<ABuildDestination>(destinationType);
-                                    }
-                                    else
-                                    {
-                                        destinationData.Destination = null;
-                                    }
+                                    Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
                                 }
                             }
                             

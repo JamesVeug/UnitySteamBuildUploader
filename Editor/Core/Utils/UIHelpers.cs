@@ -30,6 +30,24 @@ namespace Wireframe
                 }
                 return sources;
             }
+
+            public bool TryGetValueFromType(Type type, out SourceData data)
+            {
+                if (type != null)
+                {
+                    foreach (SourceData modifier in Values)
+                    {
+                        if (modifier.Type == type)
+                        {
+                            data = modifier;
+                            return true;
+                        }
+                    }
+                }
+
+                data = null;
+                return false;
+            }
         }
         
         public class BuildModifiersPopup : CustomDropdown<BuildModifiersPopup.ModifierData>
@@ -56,6 +74,24 @@ namespace Wireframe
                 }
                 return modifiers;
             }
+            
+            public bool TryGetValueFromType(Type type, out ModifierData data)
+            {
+                if (type != null)
+                {
+                    foreach (ModifierData modifier in Values)
+                    {
+                        if (modifier.Type == type)
+                        {
+                            data = modifier;
+                            return true;
+                        }
+                    }
+                }
+
+                data = null;
+                return false;
+            }
         }
         
         public class BuildDestinationsPopup : CustomDropdown<BuildDestinationsPopup.DestinationData>
@@ -81,6 +117,24 @@ namespace Wireframe
                     });
                 }
                 return destinations;
+            }
+
+            public bool TryGetValueFromType(Type type, out DestinationData data)
+            {
+                if (type != null)
+                {
+                    foreach (DestinationData modifier in Values)
+                    {
+                        if (modifier.Type == type)
+                        {
+                            data = modifier;
+                            return true;
+                        }
+                    }
+                }
+
+                data = null;
+                return false;
             }
         }
 

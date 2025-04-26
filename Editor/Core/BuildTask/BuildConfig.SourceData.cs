@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -32,15 +33,22 @@ namespace Wireframe
                 SourceType = new UIHelpers.BuildSourcesPopup.SourceData();
                 if (data.TryGetValue("sourceType", out object sourceType) && sourceType != null)
                 {
-                    SourceType.Type = System.Type.GetType(sourceType as string);
-                    if (SourceType.Type != null)
+                    var type = System.Type.GetType(sourceType as string);
+                    if (UIHelpers.SourcesPopup.TryGetValueFromType(type, out SourceType))
                     {
-                        Source = Utils.CreateInstance<ABuildSource>(SourceType.Type);
-                        if (Source != null)
+                        if (Utils.CreateInstance(SourceType.Type, out Source))
                         {
                             Source.Deserialize(data["source"] as Dictionary<string, object>);
                         }
                     }
+                    else
+                    {
+                        Debug.LogError($"Cannot find type {sourceType}");
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Source type {sourceType} not found");
                 }
             }
         }

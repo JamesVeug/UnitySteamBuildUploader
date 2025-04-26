@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -28,14 +29,17 @@ namespace Wireframe
                 DestinationType = new UIHelpers.BuildDestinationsPopup.DestinationData();
                 if (data.TryGetValue("destinationType", out object destinationType) && destinationType != null)
                 {
-                    DestinationType.Type = System.Type.GetType(destinationType as string);
-                    if (DestinationType.Type != null)
+                    var type = System.Type.GetType(destinationType as string);
+                    if (UIHelpers.DestinationsPopup.TryGetValueFromType(type, out DestinationType))
                     {
-                        Destination = Utils.CreateInstance<ABuildDestination>(DestinationType.Type);
-                        if (Destination != null)
+                        if (Utils.CreateInstance(DestinationType.Type, out Destination))
                         {
                             Destination.Deserialize(data["destination"] as Dictionary<string, object>);
                         }
+                    }
+                    else
+                    {
+                        Debug.LogError($"Destination type {destinationType} not found");
                     }
                 }
             }

@@ -1,18 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Wireframe
 {
     public abstract partial class ABuildConfigModifer
     {
-        internal virtual string DisplayName => GetType().GetCustomAttribute<BuildModifierAttribute>()?.DisplayName ?? GetType().Name;
         internal UIHelpers.BuildDestinationsPopup.DestinationData ModifierType;
-
-        // Required for reflection
+        
         public ABuildConfigModifer()
         {
-            
+            // Required for reflection
         }
 
         public abstract bool IsSetup(out string reason);

@@ -75,28 +75,31 @@ namespace Wireframe
             Type serviceType = typeof(AService);
             Type modifierType = typeof(ABuildConfigModifer);
             Type destinationType = typeof(ABuildDestination);
-            
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            foreach (Type type in assembly.GetTypes())
+
+            // Slow but only done once per compilation
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (!type.IsClass) continue;
-                if (type.IsAbstract) continue;
-                
-                if (sourceType.IsAssignableFrom(type))
+                foreach (Type type in assembly.GetTypes())
                 {
-                    allBuildSources.Add(type);
-                }
-                else if (serviceType.IsAssignableFrom(type))
-                {
-                    allServices.Add((AService)Activator.CreateInstance(type));
-                }
-                else if (destinationType.IsAssignableFrom(type))
-                {
-                    allBuildDestinations.Add(type);
-                }
-                else if (modifierType.IsAssignableFrom(type))
-                {
-                    allBuildModifiers.Add(type);
+                    if (!type.IsClass) continue;
+                    if (type.IsAbstract) continue;
+
+                    if (sourceType.IsAssignableFrom(type))
+                    {
+                        allBuildSources.Add(type);
+                    }
+                    else if (serviceType.IsAssignableFrom(type))
+                    {
+                        allServices.Add((AService)Activator.CreateInstance(type));
+                    }
+                    else if (destinationType.IsAssignableFrom(type))
+                    {
+                        allBuildDestinations.Add(type);
+                    }
+                    else if (modifierType.IsAssignableFrom(type))
+                    {
+                        allBuildModifiers.Add(type);
+                    }
                 }
             }
         }

@@ -55,24 +55,24 @@ namespace Wireframe
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label("Name (No extension):", GUILayout.Width(120));
-                string newPath = GUILayout.TextField(m_fileName);
-                if (m_fileName != newPath)
-                {
-                    m_fileName = newPath;
-                    isDirty = true;
-                }
-            }
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
                 GUILayout.Label("Zip Contents:", GUILayout.Width(120));
 
-                bool newZip = EditorGUILayout.Toggle(m_zipContent);
+                bool newZip = EditorGUILayout.Toggle(m_zipContent, GUILayout.Width(20));
                 if (m_zipContent != newZip)
                 {
                     m_zipContent = newZip;
                     isDirty = true;
+                }
+
+                using (new EditorGUI.DisabledScope(!m_zipContent))
+                {
+                    GUILayout.Label("Name (No extension):", GUILayout.Width(125));
+                    string newPath = GUILayout.TextField(m_fileName);
+                    if (m_fileName != newPath)
+                    {
+                        m_fileName = newPath;
+                        isDirty = true;
+                    }
                 }
             }
 

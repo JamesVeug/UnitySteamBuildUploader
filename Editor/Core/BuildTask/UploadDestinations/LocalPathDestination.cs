@@ -32,15 +32,9 @@ namespace Wireframe
         private string FullPath()
         {
             string path = m_localPath;
-            string name = m_fileName;
-            if (!string.IsNullOrEmpty(name))
-            {
-                path = Path.Combine(path, name);
-            }
-            
             if (m_zipContent)
             {
-                path += ".zip";
+                path += m_fileName + ".zip";
             }
             
             return path;
@@ -147,13 +141,16 @@ namespace Wireframe
                 reason = "No local path selected";
                 return false;
             }
-            
-            if (string.IsNullOrEmpty(m_fileName))
+
+            if (m_zipContent)
             {
-                reason = "No Name selected";
-                return false;
+                if (string.IsNullOrEmpty(m_fileName))
+                {
+                    reason = "No Name selected";
+                    return false;
+                }
             }
-            
+
             reason = "";
             return true;
         }

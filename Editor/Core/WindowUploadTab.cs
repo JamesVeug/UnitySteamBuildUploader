@@ -178,6 +178,7 @@ namespace Wireframe
             BuildTask buildTask = new BuildTask(m_buildsToUpload, m_buildDescription);
             BuildTaskReport report = new BuildTaskReport("");
             await buildTask.Start(report, ()=> UploaderWindow.Repaint(), (_)=>OnDownloadAndUploadComplete(report));
+            Debug.Log(report.GetReport());
             UploaderWindow.Repaint();
         }
 
@@ -273,12 +274,14 @@ namespace Wireframe
             }
 
             File.WriteAllText(FilePath, json);
+            Debug.Log("BuildUploader Saved build configs to: " + FilePath);
         }
 
         public void Load()
         {
             if (File.Exists(FilePath))
             {
+                Debug.Log("Loading build configs from: " + FilePath);
                 LoadFromPath(FilePath);
             }
             else if (File.Exists(Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json"))

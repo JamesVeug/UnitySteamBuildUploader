@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -216,6 +217,15 @@ namespace Wireframe
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(source.SourceType?.Type, out source.Source);
+                                }
+                            }
+                            
+                            string url = source.SourceType?.Type.GetSourceWikiLink();
+                            if (!string.IsNullOrEmpty(url))
+                            {
+                                if (GUILayout.Button("?", GUILayout.Width(20)))
+                                {
+                                    Application.OpenURL(url);
                                 }
                             }
 

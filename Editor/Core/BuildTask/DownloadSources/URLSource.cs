@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Wireframe
@@ -14,7 +12,7 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    [BuildSource("URL", "Download from URL...")]
+    [BuildSource("URL", "Download from URL...", "url-source")]
     public partial class URLSource : ABuildSource
     {
         private string m_sourcePath;

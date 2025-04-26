@@ -13,7 +13,7 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    [BuildSource("UnityCloud", "Choose Unity Cloud Build...")]
+    [BuildSource("UnityCloud", "Choose Unity Cloud Build...", "unity-cloud-source")]
     public partial class UnityCloudSource : ABuildSource
     {
         private UnityCloudTarget sourceTarget;

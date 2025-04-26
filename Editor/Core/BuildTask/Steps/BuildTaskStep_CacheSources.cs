@@ -83,10 +83,26 @@ namespace Wireframe
                     continue;
                 }
 
+                // BuildUploader/CachedBuilds/GUID/
+                if (i == 0)
+                {
+                    if (Directory.Exists(cacheFolderPath))
+                    {
+                        result.AddWarning(
+                            $"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
+                        Directory.Delete(cacheFolderPath, true);
+                    }
+                }
+
                 string sourcePath = cacheFolderPath;
                 if (!string.IsNullOrEmpty(sourceData.SubFolderPath))
                 {
                     sourcePath = Path.Combine(sourcePath, sourceData.SubFolderPath);
+                }
+                
+                if (!Directory.Exists(sourcePath))
+                {
+                    Directory.CreateDirectory(sourcePath);
                 }
 
                 bool cached = await CacheSource(sourceData, configIndex, i, sourcePath, result);
@@ -121,26 +137,17 @@ namespace Wireframe
                 result.SetFailed($"Source path is empty");
                 return false;
             }
-
-            // BuildUploader/CachedBuilds/GUID/
-            string outputDirectory = cacheFolderPath;
-            if (Directory.Exists(cacheFolderPath))
-            {
-                result.AddWarning($"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
-                Directory.Delete(cacheFolderPath, true);
-            }
-            Directory.CreateDirectory(cacheFolderPath);
             
             
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory
             if (sourceIsADirectory)
             {
-                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, outputDirectory, result);
+                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, cacheFolderPath, result);
                 if (!copiedSuccessfully)
                 {
-                    result.AddError("Failed to copy directory: " + sourcePath + " to " + outputDirectory);
-                    result.SetFailed("Failed to copy directory: " + sourcePath + " to " + outputDirectory);
+                    result.AddError("Failed to copy directory: " + sourcePath + " to " + cacheFolderPath);
+                    result.SetFailed("Failed to copy directory: " + sourcePath + " to " + cacheFolderPath);
                     return false;
                 }
             }
@@ -150,12 +157,12 @@ namespace Wireframe
                 {
                     // Unzip to a different location
                     // BuildUploader/CachedBuilds/GUID/...
-                    ZipUtils.UnZip(sourcePath, outputDirectory);
+                    ZipUtils.UnZip(sourcePath, cacheFolderPath);
                 }
                 catch (IOException e)
                 {
                     result.AddException(e);
-                    result.SetFailed("Failed to unzip file: " + sourcePath + " to " + outputDirectory);
+                    result.SetFailed("Failed to unzip file: " + sourcePath + " to " + cacheFolderPath);
                     return false;
                 }
             }
@@ -163,7 +170,7 @@ namespace Wireframe
             {
                 // Getting a file - put it in its own folder
                 // BuildUploader/CachedBuilds/GUID/FileName.extension
-                string copiedFilePath = Path.Combine(outputDirectory, Path.GetFileName(sourcePath));
+                string copiedFilePath = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
                 await Utils.CopyFileAsync(sourcePath, copiedFilePath);
             }
 

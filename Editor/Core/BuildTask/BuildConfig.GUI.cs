@@ -239,7 +239,7 @@ namespace Wireframe
 
                                 using (new GUILayout.HorizontalScope())
                                 {
-                                    GUILayout.Label("SubFolder: ", GUILayout.Width(120));
+                                    GUILayout.Label("Export Folder: ", GUILayout.Width(120));
                                     var newSubFolderPath = EditorGUILayout.TextField(source.SubFolderPath);
                                     if (source.SubFolderPath != newSubFolderPath)
                                     {

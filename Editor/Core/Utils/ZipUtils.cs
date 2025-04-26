@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 #if UNITY_2021_1_OR_NEWER
 using System.IO.Compression;
@@ -5,7 +6,6 @@ using System.IO.Compression;
 // NOTE: If the below package is red then you need to add the package 'com.unity.sharp-zip-lib' to your project
 using Unity.SharpZipLib.Zip;
 using System;
-using System.IO;
 #endif
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -28,6 +28,16 @@ namespace Wireframe
             {
                 try
                 {
+                    if (zippedfilePath.StartsWith(filePath))
+                    {
+                        // Cannot zip a file into itself
+                        // So zip it to a new folder and then move it
+                        string tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(zippedfilePath));
+                        ZipFile.CreateFromDirectory(filePath, tempPath);
+                        File.Move(tempPath, zippedfilePath);
+                        return true;
+                    }
+
                     ZipFile.CreateFromDirectory(filePath, zippedfilePath);
                     return true;
                 }
@@ -41,8 +51,15 @@ namespace Wireframe
 #else
             // Note: This is VERY slow. Don't know why!
             try{
+                bool zippingIntoSamePath = zippedfilePath.StartsWith(filePath);
+                string zipPath = zippedfilePath;
+                if (zippingIntoSamePath)
+                {
+                    zipPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(zippedfilePath));
+                }
+                
                 string[] filenames = Directory.GetFiles(filePath, "*.*", SearchOption.AllDirectories);
-                using (ZipOutputStream zipStream = new ZipOutputStream(File.Create(zippedfilePath)))
+                using (ZipOutputStream zipStream = new ZipOutputStream(File.Create(zipPath)))
                 {
                     zipStream.SetLevel(9);
                     for (var i = 0; i < filenames.Length; i++)
@@ -59,6 +76,11 @@ namespace Wireframe
 
                     zipStream.Finish();
                     zipStream.Close();
+                }
+                
+                if (zippingIntoSamePath)
+                {
+                    File.Move(zipPath, zippedfilePath);
                 }
                 return true;
             }

@@ -80,9 +80,18 @@ namespace Wireframe
                     continue;
                 }
 
-                bool success = await sourceData.Source.GetSource(buildConfig, result);
-                if (!success)
+                try
                 {
+                    bool success = await sourceData.Source.GetSource(buildConfig, result);
+                    if (!success)
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    result.AddException(e);
+                    result.SetFailed("Source failed - " + e.Message);
                     return false;
                 }
             }

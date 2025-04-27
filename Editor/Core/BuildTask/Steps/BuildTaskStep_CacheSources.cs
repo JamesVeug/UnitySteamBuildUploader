@@ -105,9 +105,18 @@ namespace Wireframe
                     Directory.CreateDirectory(sourcePath);
                 }
 
-                bool cached = await CacheSource(sourceData, configIndex, i, sourcePath, result);
-                if (!cached)
+                try
                 {
+                    bool cached = await CacheSource(sourceData, configIndex, i, sourcePath, result);
+                    if (!cached)
+                    {
+                        return false;
+                    }
+                }
+                catch (IOException e)
+                {
+                    result.AddException(e);
+                    result.SetFailed("Failed to cache source: " + sourceData.Source.SourceFilePath());
                     return false;
                 }
             }

@@ -15,13 +15,13 @@ namespace Wireframe
     [BuildSource("URL", "Download from URL...", "url-source")]
     public partial class URLSource : ABuildSource
     {
-        private string m_sourcePath;
-        
         private string m_url;
         private string m_fileName;
         private WebRequestMethod m_method;
         private List<Tuple<string,string>> m_headers = new List<Tuple<string, string>>();
 
+        private string m_sourcePath;
+        
         public URLSource() : base()
         {
             // Required for reflection
@@ -71,6 +71,9 @@ namespace Wireframe
                     request.SetRequestHeader(header.Item1, header.Item2);
                 }
                 
+                request.downloadHandler = new DownloadHandlerBuffer();
+
+                
                 UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
 
                 // Wait for it to be downloaded?
@@ -90,7 +93,7 @@ namespace Wireframe
 
                 // Save
                 m_progressDescription = "Saving locally...";
-                
+                stepResult.AddLog("Saving content to: " + fullFilePath);
 #if UNITY_2021_2_OR_NEWER
                 await File.WriteAllBytesAsync(fullFilePath, request.downloadHandler.data);
 #else
@@ -109,6 +112,16 @@ namespace Wireframe
             m_downloadProgress = 1.0f;
             stepResult.AddLog("Retrieved URL Build: " + m_sourcePath);
             return true;
+        }
+
+        public override void CleanUp(BuildTaskReport.StepResult result)
+        {
+            base.CleanUp(result);
+            if (File.Exists(m_sourcePath))
+            {
+                result.AddLog("Deleting cached file: " + m_sourcePath);
+                File.Delete(m_sourcePath);
+            }
         }
 
         public override string SourceFilePath()

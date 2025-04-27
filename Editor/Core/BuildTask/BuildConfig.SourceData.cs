@@ -6,11 +6,16 @@ namespace Wireframe
 {
     public partial class BuildConfig
     {
+        [Wiki("Sources", "")]
         public class SourceData
         {
+            [Wiki("Enabled", "When on, this source will not be triggered when making a build.")]
             public bool Enabled;
+            
+            [Wiki("Export Path", "A sub-path in the cached directory of which this source will be saved to before being modified and uploaded. Leave empty to save to the root folder.")]
+            public string ExportFolder;
+            
             public ABuildSource Source;
-            public string SubFolderPath;
             public UIHelpers.BuildSourcesPopup.SourceData SourceType;
 
             public Dictionary<string,object> Serialize()
@@ -18,7 +23,7 @@ namespace Wireframe
                 Dictionary<string, object> data = new Dictionary<string, object>
                 {
                     ["enabled"] = Enabled,
-                    ["subFolderPath"] = SubFolderPath,
+                    ["subFolderPath"] = ExportFolder,
                     ["sourceType"] = SourceType?.Type?.FullName,
                     ["source"] = Source?.Serialize()
                 };
@@ -29,7 +34,7 @@ namespace Wireframe
             public void Deserialize(Dictionary<string,object> data)
             {
                 Enabled = data.ContainsKey("enabled") ? (bool)data["enabled"] : true;
-                SubFolderPath = data.ContainsKey("subFolderPath") ? data["subFolderPath"] as string : "";
+                ExportFolder = data.ContainsKey("subFolderPath") ? data["subFolderPath"] as string : "";
                 SourceType = new UIHelpers.BuildSourcesPopup.SourceData();
                 if (data.TryGetValue("sourceType", out object sourceType) && sourceType != null)
                 {

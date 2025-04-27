@@ -12,12 +12,22 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    [BuildSource("URL", "Download from URL...", "url-source")]
+    [Wiki(nameof(URLSource), "sources", "Specify a url to download content from.")]
+    [BuildSource("URL", "Download from URL...")]
     public partial class URLSource : ABuildSource
     {
+        [Wiki("URL", "The URL to download from: eg: https://github.com/JamesVeug/UnitySteamBuildUploader/raw/refs/heads/main/LargeIcon.png")]
         private string m_url;
+        
+        [Wiki("File Name", "The fileName to download the contents as. eg: MyPicture.png")]
         private string m_fileName;
+        
+        [Wiki("Method", "The method to use when downloading the file.")]
         private WebRequestMethod m_method;
+        
+        [Wiki("Headers", "The headers to send with the request.eg:" +
+                         "\n  - accept = text/html" +
+                         "\n  - accept-language = en-US,en;q=0.9")]
         private List<Tuple<string,string>> m_headers = new List<Tuple<string, string>>();
 
         private string m_sourcePath;

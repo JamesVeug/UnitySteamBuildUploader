@@ -7,7 +7,8 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    [BuildSource("Folder", "Choose Folder Upload..." , "folder-source")]
+    [Wiki(nameof(FolderSource), "sources", "Choose a Folder to upload")]
+    [BuildSource("Folder", "Choose Folder Upload...")]
     public class FolderSource : ABrowsePathSource
     {
         public FolderSource() : base()

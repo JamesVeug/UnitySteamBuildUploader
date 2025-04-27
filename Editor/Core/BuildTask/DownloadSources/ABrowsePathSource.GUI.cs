@@ -7,7 +7,12 @@ namespace Wireframe
     public abstract partial class ABrowsePathSource
     {
         private string ButtonText => GetType().GetCustomAttribute<BuildSourceAttribute>()?.ButtonText ?? GetType().Name;
-
+        
+        private GUIStyle m_pathButtonExistsStyle;
+        private GUIStyle m_pathButtonDoesNotExistStyle;
+        private GUIStyle m_pathInputFieldExistsStyle;
+        private GUIStyle m_pathInputFieldDoesNotExistStyle;
+        
         protected internal abstract string SelectFile();
 
         private void Setup()

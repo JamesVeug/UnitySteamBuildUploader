@@ -219,13 +219,15 @@ namespace Wireframe
                                     Utils.CreateInstance(source.SourceType?.Type, out source.Source);
                                 }
                             }
-                            
-                            string url = source.SourceType?.Type.GetSourceWikiLink();
-                            if (!string.IsNullOrEmpty(url))
+
+                            if (source.SourceType != null)
                             {
-                                if (GUILayout.Button("?", GUILayout.Width(20)))
+                                if (source.SourceType.Type.TryGetSourceWikiLink(out string sourceURL))
                                 {
-                                    Application.OpenURL(url);
+                                    if (GUILayout.Button("?", GUILayout.Width(20)))
+                                    {
+                                        Application.OpenURL(sourceURL);
+                                    }
                                 }
                             }
 
@@ -250,10 +252,10 @@ namespace Wireframe
                                 using (new GUILayout.HorizontalScope())
                                 {
                                     GUILayout.Label("Export Folder: ", GUILayout.Width(120));
-                                    var newSubFolderPath = EditorGUILayout.TextField(source.SubFolderPath);
-                                    if (source.SubFolderPath != newSubFolderPath)
+                                    var newSubFolderPath = EditorGUILayout.TextField(source.ExportFolder);
+                                    if (source.ExportFolder != newSubFolderPath)
                                     {
-                                        source.SubFolderPath = newSubFolderPath;
+                                        source.ExportFolder = newSubFolderPath;
                                         isDirty = true;
                                     }
                                 }

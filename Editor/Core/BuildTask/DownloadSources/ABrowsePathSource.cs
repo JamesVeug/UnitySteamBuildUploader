@@ -13,19 +13,20 @@ namespace Wireframe
     {
         protected enum PathType
         {
+            [Wiki(nameof(Absolute), "Specify the full path of a file or folder.")]
             Absolute,
+            
+            [Wiki(nameof(PathToAssets), "Specify the path starting from the projects Assets folder.")]
             PathToAssets,
         }
         
-        private GUIStyle m_pathButtonExistsStyle;
-        private GUIStyle m_pathButtonDoesNotExistStyle;
-        private GUIStyle m_pathInputFieldExistsStyle;
-        private GUIStyle m_pathInputFieldDoesNotExistStyle;
-        
-        private PathType m_pathType;
+        [Wiki("Path", "The path to the file or folder to upload.")]
         protected string m_enteredFilePath = "";
         
-        protected string m_finalSourcePath = "";
+        [Wiki("Path Type", "Specify which directory to select the content from.")]
+        private PathType m_pathType;
+
+        private string m_finalSourcePath = "";
 
         public ABrowsePathSource() : base()
         {

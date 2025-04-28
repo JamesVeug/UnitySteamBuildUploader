@@ -106,14 +106,29 @@ namespace Wireframe
 #endif
         }
         
-        public static void UnZip(string filePath, string unzippedfilePath)
+        public static async Task<bool> UnZip(string filePath, string unzippedfilePath, BuildTaskReport.StepResult result)
         {
+            return await Task.Run(() =>
+            {
+                try
+                {
 #if UNITY_2021_1_OR_NEWER
-            ZipFile.ExtractToDirectory(filePath, unzippedfilePath);
+                    ZipFile.ExtractToDirectory(filePath, unzippedfilePath);
 #else
-            FastZip fastZip = new FastZip();
-            fastZip.ExtractZip(filePath, unzippedfilePath, null);
+                    FastZip fastZip = new FastZip();
+                    fastZip.ExtractZip(filePath, unzippedfilePath, null);
 #endif
+                }
+                catch (System.Exception e)
+                {
+                    result.AddException(e);
+                    result.SetFailed($"Failed to unzip file: {e.Message}");
+                    return false;
+                }
+
+                result.AddLog("Compressed file: " + filePath + " to " + unzippedfilePath);
+                return true;
+            });
         }
     }
 }

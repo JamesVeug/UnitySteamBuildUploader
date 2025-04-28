@@ -162,18 +162,9 @@ namespace Wireframe
             }
             else if (sourcePath.EndsWith(".zip"))
             {
-                try
-                {
-                    // Unzip to a different location
-                    // BuildUploader/CachedBuilds/GUID/...
-                    ZipUtils.UnZip(sourcePath, cacheFolderPath);
-                }
-                catch (IOException e)
-                {
-                    result.AddException(e);
-                    result.SetFailed("Failed to unzip file: " + sourcePath + " to " + cacheFolderPath);
-                    return false;
-                }
+                // Unzip to a different location
+                // BuildUploader/CachedBuilds/GUID/...
+                return await ZipUtils.UnZip(sourcePath, cacheFolderPath, result);
             }
             else
             {

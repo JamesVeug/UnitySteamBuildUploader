@@ -127,7 +127,8 @@ namespace Wireframe
             {
                 { "compressedFileName", m_compressedFileName },
                 { "subPathToCompress", m_targetPathToCompress },
-                { "compressionType", m_compressionType.ToString() }
+                { "compressionType", m_compressionType.ToString() },
+                { "removeContentAfterCompress", m_removeContentAfterCompress },
             };
         }
 
@@ -146,6 +147,11 @@ namespace Wireframe
             if (data.ContainsKey("compressionType"))
             {
                 m_compressionType = (CompressionType)System.Enum.Parse(typeof(CompressionType), data["compressionType"].ToString());
+            }
+            
+            if (data.ContainsKey("removeContentAfterCompress"))
+            {
+                m_removeContentAfterCompress = (bool)data["removeContentAfterCompress"];
             }
         }
     }

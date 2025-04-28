@@ -3,28 +3,28 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public partial class CompressModifier
+    public partial class DecompressModifier
     {
         protected internal override void OnGUIExpanded(ref bool isDirty)
         {
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("Compression Type", GUILayout.Width(120));
-                var newCompressionType = (CompressionType)EditorGUILayout.EnumPopup(m_compressionType);
-                if (m_compressionType != newCompressionType)
+                GUILayout.Label("Decompression Type", GUILayout.Width(120));
+                var newCompressionType = (DecompressionType)EditorGUILayout.EnumPopup(m_decompressionType);
+                if (m_decompressionType != newCompressionType)
                 {
-                    m_compressionType = newCompressionType;
+                    m_decompressionType = newCompressionType;
                     isDirty = true;
                 }
             }
 
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("Compressed Name", GUILayout.Width(120));
-                var newFileName = EditorGUILayout.TextField(m_compressedFileName);
-                if (m_compressedFileName != newFileName)
+                GUILayout.Label("File Path", GUILayout.Width(120));
+                var newFileName = EditorGUILayout.TextField(m_filePath);
+                if (m_filePath != newFileName)
                 {
-                    m_compressedFileName = newFileName;
+                    m_filePath = newFileName;
                     isDirty = true;
                 }
             }
@@ -42,11 +42,11 @@ namespace Wireframe
 
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("Remove old files", GUILayout.Width(120));
-                var newRemoveContent = EditorGUILayout.Toggle(m_removeContentAfterCompress, GUILayout.Width(20));
-                if (m_removeContentAfterCompress != newRemoveContent)
+                GUILayout.Label("Remove old file", GUILayout.Width(120));
+                var newRemoveContent = EditorGUILayout.Toggle(m_removeCompressedFile, GUILayout.Width(20));
+                if (m_removeCompressedFile != newRemoveContent)
                 {
-                    m_removeContentAfterCompress = newRemoveContent;
+                    m_removeCompressedFile = newRemoveContent;
                     isDirty = true;
                 }
             }

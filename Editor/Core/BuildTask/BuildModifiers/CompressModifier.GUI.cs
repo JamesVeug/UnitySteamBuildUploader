@@ -32,10 +32,10 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Target Path", GUILayout.Width(120));
-                var newSuPath = EditorGUILayout.TextField(m_subPathToCompress);
-                if (m_subPathToCompress != newSuPath)
+                var newSuPath = EditorGUILayout.TextField(m_targetPathToCompress);
+                if (m_targetPathToCompress != newSuPath)
                 {
-                    m_subPathToCompress = newSuPath;
+                    m_targetPathToCompress = newSuPath;
                     isDirty = true;
                 }
             }

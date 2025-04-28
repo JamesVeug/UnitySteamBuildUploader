@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    [Wiki("Compress", "modifiers", "Compresses a file or directory into a smaller file. eg: .zip a directory")]
     [BuildModifier("Compress")]
     public partial class CompressModifier : ABuildConfigModifer
     {
@@ -13,10 +14,17 @@ namespace Wireframe
             Zip,
         }
         
-        private bool m_removeContentAfterCompress = true;
-        private string m_compressedFileName = "";
-        private string m_subPathToCompress = "";
+        [Wiki("Compression Type", "Which format to compress the content to.")]
         private CompressionType m_compressionType = CompressionType.Zip;
+        
+        [Wiki("Compressed Name", "The name of the compressed file. eg: MyCompressedFile.zip")]
+        private string m_compressedFileName = "";
+        
+        [Wiki("Target Path", "The path to the file or directory in the cached directory to compress. If empty, the entire build will be compressed.")]
+        private string m_targetPathToCompress = "";
+        
+        [Wiki("Remove Old files", "If true, the original file or directory will be deleted after compression.")]
+        private bool m_removeContentAfterCompress = true;
         
         public CompressModifier()
         {
@@ -38,9 +46,9 @@ namespace Wireframe
         public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult)
         {
             string pathToCompress = cachedDirectory;
-            if (!string.IsNullOrEmpty(m_subPathToCompress))
+            if (!string.IsNullOrEmpty(m_targetPathToCompress))
             {
-                pathToCompress = Path.Combine(cachedDirectory, m_subPathToCompress);
+                pathToCompress = Path.Combine(cachedDirectory, m_targetPathToCompress);
             }
             
             string compressedFileName = m_compressedFileName;
@@ -118,7 +126,7 @@ namespace Wireframe
             return new Dictionary<string, object>()
             {
                 { "compressedFileName", m_compressedFileName },
-                { "subPathToCompress", m_subPathToCompress },
+                { "subPathToCompress", m_targetPathToCompress },
                 { "compressionType", m_compressionType.ToString() }
             };
         }
@@ -132,7 +140,7 @@ namespace Wireframe
 
             if (data.ContainsKey("subPathToCompress"))
             {
-                m_subPathToCompress = data["subPathToCompress"].ToString();
+                m_targetPathToCompress = data["subPathToCompress"].ToString();
             }
 
             if (data.ContainsKey("compressionType"))

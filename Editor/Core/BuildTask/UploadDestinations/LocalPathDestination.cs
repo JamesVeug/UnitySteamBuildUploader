@@ -10,12 +10,18 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [Wiki("LocalPath", "destinations", "Copy the build to a location on your local pc.")]
     [BuildDestination("LocalPath")]
     public partial class LocalPathDestination : ABuildDestination
     {
+        [Wiki("Directory", "The absolute path of the folder to copy the files to. eg: C:/MyBuilds/TodaysBuild")]
         private string m_localPath = "";
-        private string m_fileName = "";
+        
+        [Wiki("Zip Content", "If true, the content will be zipped into a single file.")]
         private bool m_zipContent = false;
+        
+        [Wiki("Name", "If Zip Content is true, This is the name of the zipped file.")]
+        private string m_zippedFilesName = "";
 
         public LocalPathDestination() : base()
         {
@@ -25,7 +31,7 @@ namespace Wireframe
         public LocalPathDestination(string localPath, string fileName, bool zipContent) : base()
         {
             m_localPath = localPath;
-            m_fileName = fileName;
+            m_zippedFilesName = fileName;
             m_zipContent = zipContent;
         }
 
@@ -34,7 +40,7 @@ namespace Wireframe
             string path = m_localPath;
             if (m_zipContent)
             {
-                path += m_fileName + ".zip";
+                path += m_zippedFilesName + ".zip";
             }
             
             return path;
@@ -144,7 +150,7 @@ namespace Wireframe
 
             if (m_zipContent)
             {
-                if (string.IsNullOrEmpty(m_fileName))
+                if (string.IsNullOrEmpty(m_zippedFilesName))
                 {
                     reason = "No Name selected";
                     return false;
@@ -159,7 +165,7 @@ namespace Wireframe
         {
             Dictionary<string, object> data = new Dictionary<string, object>();
             data["m_localPath"] = m_localPath;
-            data["m_fileName"] = m_fileName;
+            data["m_fileName"] = m_zippedFilesName;
             data["m_zipContent"] = m_zipContent;
             return data;
         }
@@ -167,7 +173,7 @@ namespace Wireframe
         public override void Deserialize(Dictionary<string, object> data)
         {
             m_localPath = (string)data["m_localPath"];
-            m_fileName = (string)data["m_fileName"];
+            m_zippedFilesName = (string)data["m_fileName"];
             m_zipContent = (bool)data["m_zipContent"];
         }
     }

@@ -9,7 +9,7 @@ namespace Wireframe
             // Config
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("Config:", GUILayout.Width(120));
+                GUILayout.Label("App:", GUILayout.Width(120));
                 isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current);
             }
 

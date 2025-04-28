@@ -7,17 +7,20 @@ namespace Wireframe
         public string SubPath { get; }
         public string Name { get; }
         public string Text { get; }
-        public WikiAttribute(string name, string subpath, string text)
+        public int Order { get; }
+        public WikiAttribute(string name, string subpath, string text, int order=0)
         {
             SubPath = subpath;
             Name = name;
             Text = text;
+            Order = order;
         }
         
-        public WikiAttribute(string name, string text)
+        public WikiAttribute(string name, string text, int order=0)
         {
             Name = name;
             Text = text;
+            Order = order;
             SubPath = "";
         }
     }

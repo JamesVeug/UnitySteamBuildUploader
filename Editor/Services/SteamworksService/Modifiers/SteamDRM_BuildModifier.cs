@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 
 namespace Wireframe
 {
+    [Wiki("Steam DRM", "modifiers", "Prevents your executable from being executed unless run from Steam by sending it to Steamworks.")]
     [BuildModifier("Steam DRM")]
     public partial class SteamDRM_BuildModifier : ABuildConfigModifer
     {
-        private SteamApp m_current;
+        [Wiki("App", "The Steam App ID to use for the build. eg: 1141030")]
+        private SteamApp m_app;
+        
+        [Wiki("Flags", "The flags to use when wrapping the build. default: 0. See https://partner.steamgames.com/doc/features/drm")]
         private int m_flags;
 
         /// <summary>
@@ -18,13 +20,13 @@ namespace Wireframe
         /// </summary>
         public SteamDRM_BuildModifier(SteamApp app, int flags = 0)
         {
-            m_current = app;
+            m_app = app;
             m_flags = flags;
         }
         
         public SteamDRM_BuildModifier()
         {
-            m_current = null;
+            m_app = null;
             m_flags = 0;
         }
 
@@ -35,7 +37,7 @@ namespace Wireframe
                 return false;
             }
             
-            if (m_current == null)
+            if (m_app == null)
             {
                 reason = "No Steam App selected";
                 return false;
@@ -58,7 +60,7 @@ namespace Wireframe
             }
             
             int processID = ProgressUtils.Start("Steam DRM Modifier", "Wrapping exe with Steam DRM");
-            bool result = await SteamSDK.Instance.DRMWrap(m_current.App.appid, exePath, exePath, m_flags, stepResult);
+            bool result = await SteamSDK.Instance.DRMWrap(m_app.App.appid, exePath, exePath, m_flags, stepResult);
             ProgressUtils.Remove(processID);
             return result;
         }
@@ -76,7 +78,7 @@ namespace Wireframe
             return new Dictionary<string, object>
             {
                 ["flags"] = m_flags,
-                ["appID"] = m_current?.Id
+                ["appID"] = m_app?.Id
             };
         }
 
@@ -87,7 +89,7 @@ namespace Wireframe
             if (data.TryGetValue("appID", out object configIDString) && configIDString != null)
             {
                 SteamApp[] buildConfigs = SteamUIUtils.ConfigPopup.Values;
-                m_current = buildConfigs.FirstOrDefault(a=> a.Id == (long)configIDString);
+                m_app = buildConfigs.FirstOrDefault(a=> a.Id == (long)configIDString);
             }
         }
     }

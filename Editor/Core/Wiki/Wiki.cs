@@ -33,18 +33,32 @@ namespace Wireframe
                 StartOfHeader = "## Sources",
                 WikiSubPath = "sources",
             });
+            allData.Add(new Data()
+            {
+                DataClass = typeof(BuildConfig.ModifierData),
+                MDFilePath = Path.Combine(Application.dataPath, "../Wiki/Modifiers.md"),
+                StartOfHeader = "## Modifiers",
+                WikiSubPath = "modifiers",
+            });
+            allData.Add(new Data()
+            {
+                DataClass = typeof(BuildConfig.DestinationData),
+                MDFilePath = Path.Combine(Application.dataPath, "../Wiki/Destinations.md"),
+                StartOfHeader = "## Destinations",
+                WikiSubPath = "destinations",
+            });
             
             
             // Get every type matching the WikiSubPath
-            var types = typeof(Wiki).Assembly.GetTypes();
+            var types = typeof(Wiki).Assembly
+                .GetTypes()
+                .Where(t => t.IsDefined(typeof(WikiAttribute)))
+                .ToList();
+            types.Sort(SortTypesByWikiAttribute);
+            
             foreach (var type in types)
             {
                 var wikiAttribute = (WikiAttribute)Attribute.GetCustomAttribute(type, typeof(WikiAttribute));
-                if (wikiAttribute == null)
-                {
-                    continue;
-                }
-
                 Data d = allData.FirstOrDefault(a => a.WikiSubPath == wikiAttribute.SubPath);
                 if (d == null)
                 {
@@ -73,17 +87,17 @@ namespace Wireframe
                     Debug.LogError($"Could not find header: {data.StartOfHeader} in {mdFilePath}");
                     continue;
                 }
-                
-                // Find the end of the header
-                int endIndex = startIndex + data.StartOfHeader.Length;
-                if (endIndex == -1)
+
+                while (text[startIndex] == '\n' || text[startIndex] == '\r')
                 {
-                    Debug.LogError($"Could not find end of header: {data.StartOfHeader} in {mdFilePath}");
-                    continue;
+                    startIndex--;
                 }
                 
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine(text.Substring(0, startIndex));
+                sb.AppendLine();
+                sb.AppendLine();
+                
 
                 WikiAttribute dataWikiAttribute = (WikiAttribute)data.DataClass.GetCustomAttribute(typeof(WikiAttribute));
                 sb.AppendLine($"## {dataWikiAttribute.Name}");
@@ -99,6 +113,18 @@ namespace Wireframe
                 
                 File.WriteAllText(mdFilePath, sb.ToString());
             }
+        }
+
+        private static int SortTypesByWikiAttribute(Type a, Type b)
+        {
+            WikiAttribute aW = (WikiAttribute)a.GetCustomAttribute(typeof(WikiAttribute));
+            WikiAttribute bW = (WikiAttribute)b.GetCustomAttribute(typeof(WikiAttribute));
+            if (aW.Order != bW.Order)
+            {
+                return aW.Order - bW.Order;
+            }
+
+            return string.Compare(aW.Name, bW.Name, StringComparison.Ordinal);
         }
 
         private static void WriteTypeData(Type type, StringBuilder sb, int headerIndent)
@@ -121,7 +147,18 @@ namespace Wireframe
             var fields = ReflectionUtils.GetAllFields(type)
                 .Where(a=> a.IsDefined(typeof(WikiAttribute)))
                 .OrderBy(a=>a.Name)
-                .ToArray();
+                .ToList();
+            fields.Sort((a,b)=>
+            {
+                WikiAttribute aW = (WikiAttribute)a.GetCustomAttribute(typeof(WikiAttribute));
+                WikiAttribute bW = (WikiAttribute)b.GetCustomAttribute(typeof(WikiAttribute));
+                if (aW.Order != bW.Order)
+                {
+                    return aW.Order - bW.Order;
+                }
+
+                return string.Compare(aW.Name, bW.Name, StringComparison.Ordinal);
+            });
 
             foreach (FieldInfo field in fields)
             {

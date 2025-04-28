@@ -67,10 +67,10 @@ namespace Wireframe
                 using (new EditorGUI.DisabledScope(!m_zipContent))
                 {
                     GUILayout.Label("Name (No extension):", GUILayout.Width(125));
-                    string newPath = GUILayout.TextField(m_fileName);
-                    if (m_fileName != newPath)
+                    string newPath = GUILayout.TextField(m_zippedFilesName);
+                    if (m_zippedFilesName != newPath)
                     {
-                        m_fileName = newPath;
+                        m_zippedFilesName = newPath;
                         isDirty = true;
                     }
                 }

@@ -7,8 +7,10 @@ namespace Wireframe
 {
     public partial class BuildConfig
     {
+        [Wiki("Modifiers", "Make changes to the files gathered from sources before uploading. Modifiers are executed in one at a time and in order.")]
         public class ModifierData
         {
+            [Wiki("Enabled", "When on, this modifier will modify the content of the files for a build.")]
             public bool Enabled;
             public ABuildConfigModifer Modifier;
             public UIHelpers.BuildModifiersPopup.ModifierData ModifierType;

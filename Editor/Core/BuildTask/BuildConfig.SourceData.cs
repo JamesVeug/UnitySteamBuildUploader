@@ -6,10 +6,10 @@ namespace Wireframe
 {
     public partial class BuildConfig
     {
-        [Wiki("Sources", "")]
+        [Wiki("Sources", "Specify what data you want to include in your upload. All Sources are executed at the same time then copied to the cached folder 1 by 1.")]
         public class SourceData
         {
-            [Wiki("Enabled", "When on, this source will not be triggered when making a build.")]
+            [Wiki("Enabled", "When on, this source will gather the content from a source and get it ready to be uploaded")]
             public bool Enabled;
             
             [Wiki("Export Path", "A sub-path in the cached directory of which this source will be saved to before being modified and uploaded. Leave empty to save to the root folder.")]

@@ -5,8 +5,10 @@ namespace Wireframe
 {
     public partial class BuildConfig
     {
+        [Wiki("Destinations", "Specify where you want to upload your build. All destinations are executed at the same time.")]
         public class DestinationData
         {
+            [Wiki("Enabled", "When on, this destination will upload all content of the source files.")]
             public bool Enabled;
             public ABuildDestination Destination;
             public UIHelpers.BuildDestinationsPopup.DestinationData DestinationType;

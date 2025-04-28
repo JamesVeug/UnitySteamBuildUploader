@@ -53,6 +53,7 @@ namespace Wireframe
         
         protected abstract string ListHeader { get; }
         
+        [Wiki("Regexes", "A list of regex to select which files/folders that will be excluded/deleted before being uploaded.")]
         private List<Selection> m_fileRegexes = new List<Selection>();
         private ReorderableListOfExcludeFileByRegexSelection m_reorderableList = new ReorderableListOfExcludeFileByRegexSelection();
 

@@ -4,16 +4,32 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    [BuildDestination("New Github Release")]
+    [Wiki("NewGithubRelease", "destinations", "Creates a new release on a specific Github repository.")]
+    [BuildDestination("NewGithubRelease")]
     public partial class NewGithubReleaseDestination : ABuildDestination
     {
+        [Wiki("Owner", "The owner of the repository.")]
         private string m_owner;
+        
+        [Wiki("Repo", "The name of the repository.")]
         private string m_repo;
+        
+        [Wiki("Release Name", "The name of the release that appears on Github.")]
         private string m_releaseName;
+        
+        [Wiki("Tag Name", "The tag that is attached to this release. eg: v1.0.0")]
         private string m_tagName;
+        
+        [Wiki("Target", "Branch name or commit hash to attach to the release. eg: main")]
         private string m_target;
+        
+        [Wiki("Draft", "If true, the release will not be published but be editable on github.")]
         private bool m_draft;
+        
+        [Wiki("Prerelease", "If true, marks the release as pre-release.")]
         private bool m_prerelease;
+        
+        [Wiki("ZipContents", "Each file is uploaded individually to Github as a separate download. If true, all files will be sent as a single compressed file instead.")]
         private bool m_zipContents;
 
         public NewGithubReleaseDestination() : base()

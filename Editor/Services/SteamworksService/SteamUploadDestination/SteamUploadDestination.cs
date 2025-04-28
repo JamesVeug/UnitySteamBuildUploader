@@ -9,16 +9,27 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [Wiki("Steamworks", "destinations", "Uploads files to Steamworks")]
     [BuildDestination("Steamworks")]
     public partial class SteamUploadDestination : ABuildDestination
     {
-        private bool m_createAppFile = true;
-        private bool m_createDepotFile = true;
-        private bool m_uploadToSteam = true;
-
+        [Wiki("App", "Which Steam App to upload to. eg: 1141030", 1)]
         private SteamApp m_current;
+        
+        [Wiki("Depot", "Which Depot to upload to. eg: 1141031", 1)]
         private SteamDepot m_depot;
+        
+        [Wiki("Branch", "Which Branch to upload to. eg: internal-testing", 1)]
         private SteamBranch m_destinationBranch;
+        
+        [Wiki("Create AppFile", "If true, a new App File is creating to upload the build to Steam.", 2)]
+        private bool m_createAppFile = true;
+        
+        [Wiki("Create DepotFile", "If true, a new Depot File is creating to upload the build to Steam.", 2)]
+        private bool m_createDepotFile = true;
+        
+        [Wiki("Upload to Steam", "If true, the build will be uploaded to Steam. Otherwise will still attempt to login. Good for testing if you can login correctly.", 2)]
+        private bool m_uploadToSteam = true;
         
         private SteamApp m_uploadApp;
         private SteamDepot m_uploadDepot;

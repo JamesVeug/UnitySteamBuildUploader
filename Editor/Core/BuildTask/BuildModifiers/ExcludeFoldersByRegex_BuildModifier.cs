@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    [Wiki("Exclude Folders By Regex", "modifiers", "Exclude/delete folders from the build by specifying a regex pattern.")]
+    [Wiki("Exclude Folders", "modifiers", "Exclude/delete folders from the build by specifying a regex pattern.")]
     [BuildModifier("Exclude Folders")]
     public class ExcludeFoldersByRegex_BuildModifier : AExcludePathsByRegex_BuildModifier
     {

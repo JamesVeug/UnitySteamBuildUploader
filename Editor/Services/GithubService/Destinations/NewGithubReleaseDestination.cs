@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    [Wiki("NewGithubRelease", "destinations", "Creates a new release on a specific Github repository.")]
+    [Wiki("NewGithubRelease", "destinations", "Create a new release on a specific Github repository.")]
     [BuildDestination("NewGithubRelease")]
     public partial class NewGithubReleaseDestination : ABuildDestination
     {

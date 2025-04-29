@@ -1,27 +1,46 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEditor;
-
-#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace Wireframe
 {
-    public static class Preferences
+    public class Preferences : SettingsProvider
     {
         public static bool DeleteCacheAfterBuild
         {
             get => EditorPrefs.GetBool("BuildUploader_DeleteCacheAfterBuild", true);
-            set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
+            private set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
         }
         
         public static bool AutoDecompressZippedSourceFiles
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoDecompressZippedSourceFiles", true);
-            set => EditorPrefs.SetBool("BuildUploader_AutoDecompressZippedSourceFiles", value);
+            private set => EditorPrefs.SetBool("BuildUploader_AutoDecompressZippedSourceFiles", value);
         }
         
-        [PreferenceItem("Build Uploader")]
-        private static void OnPreferencesGUI()
+        [SettingsProvider]
+        public static SettingsProvider CreateSettingsProvider()
         {
+            var provider =
+                new Preferences("Preferences/Build Uploader", SettingsScope.User)
+                {
+                    label = "Build Uploader",
+                    keywords = new HashSet<string>(new[]
+                    {
+                        "Steam", "Build", "Uploader", "Pipe", "line", "Github", "Cache"
+                    })
+                };
+
+            return provider;
+        }
+
+        private Preferences(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords)
+        {
+        }
+        
+        public override void OnGUI(string searchContext)
+        {
+            base.OnGUI(searchContext);
             GUILayout.Label("Preferences for the Build Uploader. Required to log into various services.", EditorStyles.wordWrappedLabel);
 
             GUILayout.Space(20);
@@ -47,7 +66,7 @@ namespace Wireframe
             EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
             using (new GUILayout.HorizontalScope())
             {
-                EditorGUILayout.LabelField("Auto decompress .zip files from Sources", GUILayout.Width(170));
+                EditorGUILayout.LabelField("Auto decompress .zip files", GUILayout.Width(170));
 
                 bool autoDecompress = AutoDecompressZippedSourceFiles;
                 bool newAutoDecompress = EditorGUILayout.Toggle(autoDecompress);

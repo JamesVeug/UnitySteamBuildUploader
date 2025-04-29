@@ -12,7 +12,10 @@ namespace Wireframe
                 new ProjectSettings("Project/BuildUploader", SettingsScope.Project)
                 {
                     label = "Build Uploader",
-                    keywords = new HashSet<string>(new[] { "Steam", "Build", "Upload", "Pipe", "line" })
+                    keywords = new HashSet<string>(new[]
+                    {
+                        "Steam", "Build", "Uploader", "Pipe", "line", "Github", "Cache"
+                    })
                 };
 
             return provider;

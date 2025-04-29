@@ -178,27 +178,24 @@ namespace Wireframe
             Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
             BuildTask buildTask = new BuildTask(m_buildsToUpload, m_buildDescription);
             BuildTaskReport report = new BuildTaskReport("");
-            await buildTask.Start(report, ()=> UploaderWindow.Repaint(), (_)=>OnDownloadAndUploadComplete(report));
+            Task asyncBuildTask = buildTask.Start(report);
+            while (!asyncBuildTask.IsCompleted)
+            {
+                // Wait for the task to complete
+                await Task.Delay(100);
+                UploaderWindow.Repaint();
+            }
+
             if (report.Successful)
             {
                 Debug.Log($"[BuildUploader] Build Task successful!\n{report.GetReport()}");
-            }
-            else
-            {
-                Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info\n{report.GetReport()}");
-            }
-            UploaderWindow.Repaint();
-        }
-
-        private void OnDownloadAndUploadComplete(BuildTaskReport report)
-        {
-            if (report.Successful)
-            {
                 EditorUtility.DisplayDialog("Build Uploader", "All builds uploaded successfully!", "Yay!");
             }
             else
             {
-                // Get first 3 failed lines from the report
+                Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info\n{report.GetReport()}");
+                
+                // Get the first 3 failed lines from the report
                 StringBuilder sb = new StringBuilder();
 
                 int logs = 0;

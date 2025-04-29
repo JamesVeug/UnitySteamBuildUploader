@@ -40,7 +40,7 @@ namespace Wireframe
             }
         }
 
-        public async Task Start(BuildTaskReport report, Action tick = null, Action<bool> onComplete = null)
+        public async Task Start(BuildTaskReport report, Action<bool> onComplete = null)
         {
             progressId = ProgressUtils.Start("Build Uploader Window", "Upload Builds");
             cachedLocations = new string[buildConfigs.Count];
@@ -58,22 +58,11 @@ namespace Wireframe
             {
                 ProgressUtils.Report(progressId, (float)i/(steps.Length+1), "Upload Builds");
                 report.SetProcess(ABuildTask_Step.StepProcess.Intra);
-                Task<bool> task = steps[i].Run(this, report);
-                while (!task.IsCompleted)
-                {
-                    tick?.Invoke();
-                    await Task.Delay(10);
-                }
+                bool stepSuccessful = await steps[i].Run(this, report);
                 
                 report.SetProcess(ABuildTask_Step.StepProcess.Post);
-                Task<bool> postTask = steps[i].PostRunResult(this, report);
-                while (!task.IsCompleted)
-                {
-                    tick?.Invoke();
-                    await Task.Delay(10);
-                }
-
-                if (!task.Result || !postTask.Result)
+                bool postStepSuccessful = await steps[i].PostRunResult(this, report);
+                if (!stepSuccessful || !postStepSuccessful)
                 {
                     break;
                 }
@@ -82,7 +71,7 @@ namespace Wireframe
             report.SetProcess(ABuildTask_Step.StepProcess.Intra);
             BuildTaskReport.StepResult beginCleanupResult = report.NewReport(ABuildTask_Step.StepType.Cleanup);
             
-            // Cleanup to make sure nothing is left behind - dirtying up the users computer
+            // Cleanup to make sure nothing is left behind - dirtying up the user's computer
             ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+1), "Cleaning up");
             if (Preferences.DeleteCacheAfterBuild)
             {

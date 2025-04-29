@@ -222,7 +222,7 @@ namespace Wireframe
 
                             if (source.SourceType != null)
                             {
-                                if (source.SourceType.Type.TryGetSourceWikiLink(out string sourceURL))
+                                if (source.SourceType.Type.TryGetWikiLink(out string sourceURL))
                                 {
                                     if (GUILayout.Button("?", GUILayout.Width(20)))
                                     {
@@ -314,6 +314,17 @@ namespace Wireframe
                                     Utils.CreateInstance(modifiers.ModifierType?.Type, out modifiers.Modifier);
                                 }
                             }
+                            
+                            if (modifiers.ModifierType != null)
+                            {
+                                if (modifiers.ModifierType.Type.TryGetWikiLink(out string sourceURL))
+                                {
+                                    if (GUILayout.Button("?", GUILayout.Width(20)))
+                                    {
+                                        Application.OpenURL(sourceURL);
+                                    }
+                                }
+                            }
 
                             if (GUILayout.Button("X", GUILayout.Width(20)))
                             {
@@ -368,6 +379,17 @@ namespace Wireframe
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
+                                }
+                            }
+                            
+                            if (destinationData.DestinationType != null)
+                            {
+                                if (destinationData.DestinationType.Type.TryGetWikiLink(out string sourceURL))
+                                {
+                                    if (GUILayout.Button("?", GUILayout.Width(20)))
+                                    {
+                                        Application.OpenURL(sourceURL);
+                                    }
                                 }
                             }
                             

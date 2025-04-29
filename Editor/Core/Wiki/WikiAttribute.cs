@@ -27,7 +27,7 @@ namespace Wireframe
 
     internal static class WikiAttributeExtensions
     {
-        public static bool TryGetSourceWikiLink(this object source, out string url)
+        public static bool TryGetWikiLink(this object source, out string url)
         {
             if (source == null)
             {
@@ -35,10 +35,10 @@ namespace Wireframe
                 return false;
             }
             
-            return TryGetSourceWikiLink(source.GetType(), out url);
+            return TryGetWikiLink(source.GetType(), out url);
         }
         
-        public static bool TryGetSourceWikiLink(this Type type, out string url)
+        public static bool TryGetWikiLink(this Type type, out string url)
         {
             var wikiAttribute = (WikiAttribute)Attribute.GetCustomAttribute(type, typeof(WikiAttribute));
             if (wikiAttribute == null)

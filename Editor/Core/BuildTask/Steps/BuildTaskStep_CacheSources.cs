@@ -72,6 +72,7 @@ namespace Wireframe
             BuildTaskReport.StepResult[] reports = report.NewReports(Type, buildConfig.Sources.Count);
 
             // Files export to /BuildUploader/CachedBuilds/GUID/*.*
+            int sourceIndex = 0;
             string cacheFolderPath = Path.Combine(directoryPath, buildConfig.GUID);
             for (var i = 0; i < buildConfig.Sources.Count; i++)
             {
@@ -84,7 +85,7 @@ namespace Wireframe
                 }
 
                 // BuildUploader/CachedBuilds/GUID/
-                if (i == 0)
+                if (sourceIndex++ == 0)
                 {
                     if (Directory.Exists(cacheFolderPath))
                     {

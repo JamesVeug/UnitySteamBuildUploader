@@ -11,7 +11,13 @@ namespace Wireframe
         {
             get => EditorPrefs.GetBool("BuildUploader_DeleteCacheAfterBuild", true);
             set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
-        } 
+        }
+        
+        public static bool AutoDecompressZippedSourceFiles
+        {
+            get => EditorPrefs.GetBool("BuildUploader_AutoDecompressZippedSourceFiles", true);
+            set => EditorPrefs.SetBool("BuildUploader_AutoDecompressZippedSourceFiles", value);
+        }
         
         [PreferenceItem("Build Uploader")]
         private static void OnPreferencesGUI()
@@ -19,7 +25,7 @@ namespace Wireframe
             GUILayout.Label("Preferences for the Build Uploader. Required to log into various services.", EditorStyles.wordWrappedLabel);
 
             GUILayout.Space(20);
-            EditorGUILayout.LabelField("Cached Builds");
+            EditorGUILayout.LabelField("Cached Builds", EditorStyles.boldLabel);
             using (new GUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("Open Cache Folder"))
@@ -34,6 +40,20 @@ namespace Wireframe
                 if (newCacheAfterBuild != DeleteCacheAfterBuild)
                 {
                     DeleteCacheAfterBuild = newCacheAfterBuild;
+                }
+            }
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("Auto decompress .zip files from Sources", GUILayout.Width(170));
+
+                bool autoDecompress = AutoDecompressZippedSourceFiles;
+                bool newAutoDecompress = EditorGUILayout.Toggle(autoDecompress);
+                if (newAutoDecompress != AutoDecompressZippedSourceFiles)
+                {
+                    AutoDecompressZippedSourceFiles = newAutoDecompress;
                 }
             }
 

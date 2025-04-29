@@ -160,10 +160,12 @@ namespace Wireframe
                     return false;
                 }
             }
-            else if (sourcePath.EndsWith(".zip"))
+            else if (sourcePath.EndsWith(".zip") && Preferences.AutoDecompressZippedSourceFiles)
             {
                 // Unzip to a different location
                 // BuildUploader/CachedBuilds/GUID/...
+                result.AddLog("Auto-Decompressing .zip source file " + sourcePath + " to " + cacheFolderPath + ".\n" +
+                              "To disable this feature, go to Preferences > Build Uploader > Auto Decompress Zipped Source Files");
                 return await ZipUtils.UnZip(sourcePath, cacheFolderPath, result);
             }
             else

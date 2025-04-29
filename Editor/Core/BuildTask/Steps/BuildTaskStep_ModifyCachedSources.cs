@@ -65,6 +65,11 @@ namespace Wireframe
             for (var i = 0; i < buildConfig.Modifiers.Count; i++)
             {
                 var modifer = buildConfig.Modifiers[i];
+                if (!modifer.Enabled)
+                {
+                    continue;
+                }
+                
                 var stepResult = results[i];
                 try
                 {

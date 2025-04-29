@@ -126,7 +126,6 @@ namespace Wireframe
 
         public override async Task<bool> Upload(BuildTaskReport.StepResult result)
         {
-            result.AddLog("Uploading to steam. Grab a coffee... this will take a while.");
             m_progressDescription = "Uploading to Steam";
             m_uploadProgress = 0.75f;
 

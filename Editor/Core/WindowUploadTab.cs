@@ -175,10 +175,18 @@ namespace Wireframe
         private async Task DownloadAndUpload()
         {
             // Start uploading
+            Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
             BuildTask buildTask = new BuildTask(m_buildsToUpload, m_buildDescription);
             BuildTaskReport report = new BuildTaskReport("");
             await buildTask.Start(report, ()=> UploaderWindow.Repaint(), (_)=>OnDownloadAndUploadComplete(report));
-            Debug.Log(report.GetReport());
+            if (report.Successful)
+            {
+                Debug.Log($"[BuildUploader] Build Task successful!\n{report.GetReport()}");
+            }
+            else
+            {
+                Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info\n{report.GetReport()}");
+            }
             UploaderWindow.Repaint();
         }
 

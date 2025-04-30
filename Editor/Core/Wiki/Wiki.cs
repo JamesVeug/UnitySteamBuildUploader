@@ -102,7 +102,7 @@ namespace Wireframe
                 WikiAttribute dataWikiAttribute = (WikiAttribute)data.DataClass.GetCustomAttribute(typeof(WikiAttribute));
                 sb.AppendLine($"## {dataWikiAttribute.Name}");
                 if(!string.IsNullOrEmpty(dataWikiAttribute.Text))sb.AppendLine($"{dataWikiAttribute.Text}");
-                WriteFields(data.DataClass, sb);
+                WriteFields(data.DataClass, sb, 1);
                 sb.AppendLine();
                 
 
@@ -132,17 +132,12 @@ namespace Wireframe
             var wikiAttribute = (WikiAttribute)Attribute.GetCustomAttribute(type, typeof(WikiAttribute));
             sb.AppendLine(new string('#', headerIndent) + " " + wikiAttribute.Name);
             sb.AppendLine(wikiAttribute.Text);
-
-            foreach (var VARIABLE in type.GetNestedTypes().Where(a=> a.IsDefined(typeof(WikiAttribute))))
-            {
-                WriteTypeData(VARIABLE, sb, headerIndent + 1);
-            }
             
-            WriteFields(type, sb);
+            WriteFields(type, sb, 0);
             sb.AppendLine();
         }
 
-        private static void WriteFields(Type type, StringBuilder sb)
+        private static void WriteFields(Type type, StringBuilder sb, int headerIndent)
         {
             var fields = ReflectionUtils.GetAllFields(type)
                 .Where(a=> a.IsDefined(typeof(WikiAttribute)))
@@ -163,7 +158,7 @@ namespace Wireframe
             foreach (FieldInfo field in fields)
             {
                 WikiAttribute wikiAttribute = (WikiAttribute)Attribute.GetCustomAttribute(field, typeof(WikiAttribute));
-                sb.AppendLine($"- **{wikiAttribute.Name}**: {wikiAttribute.Text}");
+                sb.AppendLine($"{new string(' ', headerIndent*2)}- **{wikiAttribute.Name}**: {wikiAttribute.Text}");
                 if (field.FieldType.IsEnum)
                 {
                     foreach (object e in Enum.GetValues(field.FieldType))
@@ -176,6 +171,14 @@ namespace Wireframe
                         }
                         sb.AppendLine($"  - {enumName}");
                     }
+                }
+                else if (field.FieldType.GetCustomAttribute(typeof(WikiAttribute)) != null)
+                {
+                    WriteFields(field.FieldType, sb, headerIndent + 1);
+                }
+                else if (field.FieldType.GenericTypeArguments.Length > 0 && field.FieldType.GenericTypeArguments[0].GetCustomAttribute(typeof(WikiAttribute)) != null)
+                {
+                    WriteFields(field.FieldType.GenericTypeArguments[0], sb, headerIndent + 1);
                 }
             }
         }

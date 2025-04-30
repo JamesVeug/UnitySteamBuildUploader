@@ -9,7 +9,7 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    [Wiki("Nowhere", "destinations", "Does not move the files anywhere. Useful for testing sources and modifiers.")]
+    [Wiki("NowhereDestination", "destinations", "Does not move the files anywhere. Useful for testing sources and modifiers.")]
     [BuildDestination("Nowhere")]
     public class NoUploadDestination : ABuildDestination
     {

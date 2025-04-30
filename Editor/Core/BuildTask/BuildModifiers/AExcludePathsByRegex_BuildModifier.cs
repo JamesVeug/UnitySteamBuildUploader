@@ -10,13 +10,21 @@ namespace Wireframe
 {
     public abstract partial class AExcludePathsByRegex_BuildModifier : ABuildConfigModifer
     {
+        [Wiki("Regex", "A regex selection to exclude files/folders from the build.")]
         [Serializable]
         public class Selection
         {
+            [Wiki("Enabled", "If true, regex will be used to select files/folders for modification.")]
             public bool Enabled = true;
+            
+            [Wiki("Regex", "Pattern to select files. *.txt will find all .txt files.")]
             public string Regex = "";
-            public bool Recursive = true;
+            
+            [Wiki("SearchAllDirectories", "If true, all directories will be searched for matching files.")]
             public bool SearchAllDirectories = true;
+            
+            [Wiki("Recursive", "If true, folders that are not empty will be deleted - otherwise will error.")]
+            public bool Recursive = true;
 
             public Selection()
             {

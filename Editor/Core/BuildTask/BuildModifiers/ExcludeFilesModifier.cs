@@ -2,28 +2,28 @@
 
 namespace Wireframe
 {
-    [Wiki("Exclude Files", "modifiers", "Exclude/delete files from the build by specifying a regex pattern.")]
+    [Wiki("ExcludeFilesModifier", "modifiers", "Exclude/delete files from the build by specifying a regex pattern.")]
     [BuildModifier("Exclude Files")]
-    public class ExcludeFilesByRegex_BuildModifier : AExcludePathsByRegex_BuildModifier
+    public class ExcludeFilesModifier : AExcludePathsByRegex_BuildModifier
     {
         protected override string ListHeader => "Exclude Files";
         
-        public ExcludeFilesByRegex_BuildModifier() : base()
+        public ExcludeFilesModifier() : base()
         {
             
         }
         
-        public ExcludeFilesByRegex_BuildModifier(params Selection[] fileRegexes) : base(fileRegexes)
+        public ExcludeFilesModifier(params Selection[] fileRegexes) : base(fileRegexes)
         {
             
         }
         
-        public ExcludeFilesByRegex_BuildModifier(params string[] fileRegexes) : base(fileRegexes)
+        public ExcludeFilesModifier(params string[] fileRegexes) : base(fileRegexes)
         {
             
         }
         
-        public ExcludeFilesByRegex_BuildModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false) : base(fileRegex, recursive, searchAllDirectories)
+        public ExcludeFilesModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false) : base(fileRegex, recursive, searchAllDirectories)
         {
             
         }

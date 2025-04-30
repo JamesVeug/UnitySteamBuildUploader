@@ -10,8 +10,8 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    [Wiki("LocalPath", "destinations", "Copy the build to a location on your local pc.")]
-    [BuildDestination("LocalPath")]
+    [Wiki("LocalPathDestination", "destinations", "Copy the build to a location on your local pc.")]
+    [BuildDestination("Local Path")]
     public partial class LocalPathDestination : ABuildDestination
     {
         [Wiki("Directory", "The absolute path of the folder to copy the files to. eg: C:/MyBuilds/TodaysBuild")]

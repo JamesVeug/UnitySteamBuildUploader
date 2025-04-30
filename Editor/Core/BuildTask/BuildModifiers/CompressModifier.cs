@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    [Wiki("Compress", "modifiers", "Compresses a file or directory into a smaller file. eg: .zip a directory")]
+    [Wiki("CompressModifier", "modifiers", "Compresses a file or directory into a smaller file. eg: .zip a directory")]
     [BuildModifier("Compress")]
     public partial class CompressModifier : ABuildConfigModifer
     {

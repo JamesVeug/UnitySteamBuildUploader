@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    [Wiki("Decompress", "modifiers", "Decompresses a file and extract the files. eg: unzip a .zip file")]
+    [Wiki("DecompressModifier", "modifiers", "Decompresses a file and extract the files. eg: unzip a .zip file")]
     [BuildModifier("Decompress")]
     public partial class DecompressModifier : ABuildConfigModifer
     {

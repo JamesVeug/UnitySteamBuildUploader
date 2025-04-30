@@ -47,7 +47,6 @@ namespace Wireframe
             // Migrate any old data
             try
             {
-                Migrate_v120_to_v130(data);
                 Migrate_v210_to_v220(data);
             }
             catch (Exception e)
@@ -115,62 +114,47 @@ namespace Wireframe
                 Debug.LogException(e);
             }
         }
-
-        /// <summary>
-        /// v1.3.0 adds multiple sources and destinations were introduced along with their Data wrapper types
-        /// </summary>
-        private void Migrate_v120_to_v130(Dictionary<string, object> data)
-        {
-            // Source
-            if (data.TryGetValue("sourceFullType", out object sourceFullType) && sourceFullType != null)
-            {
-                string sourceFullPath = (string)sourceFullType;
-                Type sourceType = Type.GetType(sourceFullPath);
-                if (sourceType != null)
-                {
-                    SourceData sourceData = new SourceData();
-                    ABuildSource source = Activator.CreateInstance(sourceType, new object[] { m_window }) as ABuildSource;
-                    if (source != null)
-                    {
-                        // Source
-                        Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
-                        source.Deserialize(sourceDictionary);
-                        sourceData.Source = source;
-                        sourceData.SourceType = UIHelpers.SourcesPopup.Values.FirstOrDefault(a => a.Type == sourceType);
-                        m_buildSources.Add(sourceData);
-                    }
-                }
-            }
-
-            // Destination
-            if (data.TryGetValue("destinationFullType", out object destinationFullType) && destinationFullType != null)
-            {
-                string destinationFullPath = (string)destinationFullType;
-                Type type = Type.GetType(destinationFullPath);
-                if (type != null)
-                {
-                    DestinationData destinationData = new DestinationData();
-                    destinationData.Destination =
-                        Activator.CreateInstance(type, new object[] { m_window }) as ABuildDestination;
-                    if (destinationData.Destination != null)
-                    {
-                        Dictionary<string, object> destinationDictionary =
-                            (Dictionary<string, object>)data["destination"];
-                        destinationData.Destination.Deserialize(destinationDictionary);
-                        destinationData.DestinationType =
-                            UIHelpers.DestinationsPopup.Values.FirstOrDefault(a => a.Type == type);
-                        m_buildDestinations.Add(destinationData);
-                    }
-                }
-            }
-        }
         
         /// <summary>
-        /// v2.2.0 changes modifiers to be list of ModifierData instead of ABuildConfigModifer (Same as sources and destinations)
+        /// v2.2.0 changes
+        /// Adds multiple sources and destinations were introduced along with their Data wrapper types
+        /// Modifiers are now a list of ModifierData instead of ABuildConfigModifer (Same as sources and destinations)
+        /// Wireframe.ExcludeFilesByRegex_BuildModifier was renamed to Wireframe.ExcludeFilesModifier
+        /// Enabled field on Steam DRM moved to the ModifierData
         /// </summary>
         /// <param name="data"></param>
         private void Migrate_v210_to_v220(Dictionary<string, object> data)
         {
+            // Convert single source to a list
+            try
+            {
+                // Source
+                if (data.TryGetValue("sourceFullType", out object sourceFullType) && sourceFullType != null)
+                {
+                    string sourceFullPath = (string)sourceFullType;
+                    Type sourceType = Type.GetType(sourceFullPath);
+                    if (sourceType != null)
+                    {
+                        SourceData sourceData = new SourceData();
+                        sourceData.Enabled = true;
+                        sourceData.Source = Activator.CreateInstance(sourceType, new object[] { }) as ABuildSource;
+                        if (sourceData.Source != null)
+                        {
+                            // Source
+                            Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
+                            sourceData.Source.Deserialize(sourceDictionary);
+                            sourceData.SourceType = UIHelpers.SourcesPopup.Values.FirstOrDefault(a => a.Type == sourceType);
+                            m_buildSources.Add(sourceData);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            
+            // Convert modifiers to list of ModifierData
             try
             {
                 if (data.TryGetValue("modifiers", out object modifiers) && modifiers != null)
@@ -183,7 +167,30 @@ namespace Wireframe
                         Dictionary<string, object> modifierDictionary = (Dictionary<string, object>)modifier;
                         if (modifierDictionary.TryGetValue("$type", out object modifierType))
                         {
-                            Type type = Type.GetType((string)modifierType);
+                            string typeString = (string)modifierType;
+                            if (typeString == "Wireframe.ExcludeFilesByRegex_BuildModifier")
+                            {
+                                // Wireframe.ExcludeFilesByRegex_BuildModifier was renamed to
+                                // Wireframe.ExcludeFilesModifier
+                                Debug.Log("Migrating ExcludeFilesByRegex_BuildModifier to ExcludeFilesModifier");
+                                typeString = typeof(ExcludeFilesModifier).FullName;
+                                if(modifierDictionary.TryGetValue("regexes", out object regexes))
+                                {
+                                    List<object> regexList = (List<object>)regexes;
+                                    if (regexList.Count == 1)
+                                    {
+                                        Dictionary<string,object> regexDictionary = (Dictionary<string,object>)regexList[0];
+                                        string s = (string)regexDictionary["Regex"];
+                                        if (s == "*_DoNotShip")
+                                        {
+                                            Debug.Log("Migrating excluding *_DoNotShip files to ignore to ignore folders.");
+                                            typeString = typeof(ExcludeFoldersModifier).FullName;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            Type type = Type.GetType(typeString);
                             if (type != null)
                             {
                                 ABuildConfigModifer buildConfigModifer = Activator.CreateInstance(type) as ABuildConfigModifer;
@@ -201,6 +208,36 @@ namespace Wireframe
                                     m_modifiers.Add(newModifierData);
                                 }
                             }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            // Convert single destination to a list
+            try
+            {
+                // Destination
+                if (data.TryGetValue("destinationFullType", out object destinationFullType) && destinationFullType != null)
+                {
+                    string destinationFullPath = (string)destinationFullType;
+                    Type type = Type.GetType(destinationFullPath);
+                    if (type != null)
+                    {
+                        DestinationData destinationData = new DestinationData();
+                        destinationData.Enabled = true;
+                        destinationData.Destination = Activator.CreateInstance(type, new object[] { }) as ABuildDestination;
+                        if (destinationData.Destination != null)
+                        {
+                            Dictionary<string, object> destinationDictionary =
+                                (Dictionary<string, object>)data["destination"];
+                            destinationData.Destination.Deserialize(destinationDictionary);
+                            destinationData.DestinationType =
+                                UIHelpers.DestinationsPopup.Values.FirstOrDefault(a => a.Type == type);
+                            m_buildDestinations.Add(destinationData);
                         }
                     }
                 }

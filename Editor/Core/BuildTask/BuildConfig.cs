@@ -78,6 +78,7 @@ namespace Wireframe
                 return false;
             }
             
+            bool atLeastOneSource = false;
             for (var i = 0; i < m_buildSources.Count; i++)
             {
                 var source = m_buildSources[i];
@@ -97,6 +98,13 @@ namespace Wireframe
                     reason = $"Source #{i+1}: " + sourceReason;
                     return false;
                 }
+                
+                atLeastOneSource = true;
+            }
+            if (!atLeastOneSource)
+            {
+                reason = "Need at least 1 Sources";
+                return false;
             }
             
             for (var i = 0; i < m_modifiers.Count; i++)
@@ -120,12 +128,7 @@ namespace Wireframe
                 }
             }
 
-            if (m_buildDestinations.Count == 0)
-            {
-                reason = "No Destination specified";
-                return false;
-            }
-            
+            bool atLeastOneDestination = false;
             for (var i = 0; i < m_buildDestinations.Count; i++)
             {
                 var destination = m_buildDestinations[i];
@@ -145,6 +148,14 @@ namespace Wireframe
                     reason = $"Destination #{i+1}: " + destinationReason;
                     return false;
                 }
+                
+                atLeastOneDestination = true;
+            }
+            
+            if (!atLeastOneDestination)
+            {
+                reason = "Need at least 1 Destination";
+                return false;
             }
 
             reason = "";

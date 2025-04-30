@@ -37,6 +37,11 @@ namespace Wireframe
             List<string> warnings = new List<string>();
             foreach (ModifierData modifer in m_modifiers)
             {
+                if (modifer.ModifierType == null || !modifer.Enabled)
+                {
+                    continue;
+                }
+                
                 foreach (SourceData sourceData in m_buildSources)
                 {
                     modifer.Modifier?.TryGetWarnings(sourceData.Source, warnings);
@@ -51,9 +56,14 @@ namespace Wireframe
             List<string> warnings = new List<string>();
             foreach (ModifierData modifier in m_modifiers)
             {
+                if (modifier.ModifierType == null || !modifier.Enabled)
+                {
+                    continue;
+                }
+                
                 foreach (DestinationData destinationData in m_buildDestinations)
                 {
-                    modifier.Modifier?.TryGetWarnings(destinationData.Destination, warnings);
+                    modifier.Modifier.TryGetWarnings(destinationData.Destination, warnings);
                 }
             }
             

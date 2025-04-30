@@ -263,7 +263,7 @@ namespace Wireframe
                                 List<string> warnings = new List<string>();
                                 foreach (ModifierData modifer in m_modifiers)
                                 {
-                                    if (modifer.Modifier == null)
+                                    if (modifer.Modifier == null || !modifer.Enabled)
                                     {
                                         continue;
                                     }
@@ -414,7 +414,12 @@ namespace Wireframe
                                 List<string> warnings = new List<string>();
                                 foreach (ModifierData modifier in m_modifiers)
                                 {
-                                    modifier.Modifier?.TryGetWarnings(destinationData.Destination, warnings);
+                                    if (modifier.ModifierType == null || !modifier.Enabled)
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    modifier.Modifier.TryGetWarnings(destinationData.Destination, warnings);
                                 }
 
                                 foreach (string warning in warnings)

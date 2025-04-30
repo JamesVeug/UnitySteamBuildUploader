@@ -217,12 +217,6 @@ namespace Wireframe
 
         private bool CanStartBuild(out string reason)
         {
-            if (string.IsNullOrEmpty(m_buildDescription))
-            {
-                reason = "No Description";
-                return false;
-            }
-
             if (m_buildsToUpload == null)
             {
                 reason = "No builds to upload!";
@@ -245,10 +239,20 @@ namespace Wireframe
             }
 
             // Make sure there is at least 1 build to build
-            bool canStartBuild = validBuilds > 0;
-            reason = !canStartBuild ? "No builds set up!" : "";
+            if (validBuilds == 0)
+            {
+                reason = "No builds set up!";
+                return false;
+            }
             
-            return canStartBuild;
+            if (string.IsNullOrEmpty(m_buildDescription))
+            {
+                reason = "No Description";
+                return false;
+            }
+
+            reason = string.Empty;
+            return true;
         }
 
         public override void Save()

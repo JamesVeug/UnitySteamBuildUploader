@@ -2,7 +2,7 @@
 {
     public class ProjectEditorPrefs
     {
-        private static readonly string ProjectKeySuffix = UnityEditor.PlayerSettings.productName + "_";
+        private static readonly string ProjectKeySuffix = $"{UnityEditor.PlayerSettings.companyName}_{UnityEditor.PlayerSettings.productName}_";
 
         public static void SetBool(string key, bool value)
         {

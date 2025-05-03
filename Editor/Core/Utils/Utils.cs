@@ -12,6 +12,13 @@ namespace Wireframe
 {
     public static class Utils
     {
+        public enum FileExistHandling
+        {
+            Error,
+            Skip,
+            Overwrite,
+        }
+        
         public static Texture2D WindowIcon
         {
             get
@@ -46,13 +53,26 @@ namespace Wireframe
             }
         }
 
-        public static async Task<bool> CopyFileAsync(string sourceFile, string destinationFile,
-            BuildTaskReport.StepResult result = null)
+        public static async Task<bool> CopyFileAsync(string source, string destination, FileExistHandling dupeFileHandling, BuildTaskReport.StepResult result = null)
         {
             try{
-                using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                if (File.Exists(destination))
                 {
-                    using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                    switch (dupeFileHandling)
+                    {
+                        case FileExistHandling.Error:
+                            result?.AddError("File already exists: " + destination);
+                            result?.SetFailed("File already exists: " + destination);
+                            return false;
+                        case FileExistHandling.Skip:
+                            result?.AddLog("Skipping duplicate file since it already exists: " + destination);
+                            return true;
+                    }
+                }
+                
+                using (var sourceStream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                {
+                    using (var destinationStream = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
                     {
                         await sourceStream.CopyToAsync(destinationStream);
                     }
@@ -63,7 +83,7 @@ namespace Wireframe
                 if (result != null)
                 {
                     result.AddException(e);
-                    result.SetFailed("Failed to copy directory: " + sourceFile + " to " + destinationFile);
+                    result.SetFailed("Failed to copy directory: " + source + " to " + destination);
                 }
                 else
                 {
@@ -75,7 +95,7 @@ namespace Wireframe
             return true;
         }
         
-        public static async Task<bool> CopyDirectoryAsync(string source, string destination, BuildTaskReport.StepResult result = null)
+        public static async Task<bool> CopyDirectoryAsync(string source, string destination, FileExistHandling dupeFileHandling, BuildTaskReport.StepResult result = null)
         {
             try
             {
@@ -93,7 +113,7 @@ namespace Wireframe
                         Directory.CreateDirectory(directory);
                     }
                     
-                    if (!await CopyFileAsync(newPath, destinationFile, result))
+                    if (!await CopyFileAsync(newPath, destinationFile, dupeFileHandling, result))
                     {
                         return false;
                     }

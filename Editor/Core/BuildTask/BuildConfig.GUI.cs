@@ -278,6 +278,21 @@ namespace Wireframe
                             }
                         }
                         
+                        if (i > 0)
+                        {
+                            using (new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Label("Duplicate Files: ", GUILayout.Width(120));
+                                var newHandler = (Utils.FileExistHandling)EditorGUILayout.EnumPopup(source.DuplicateFileHandling);
+                                if (source.DuplicateFileHandling != newHandler)
+                                {
+                                    source.DuplicateFileHandling = newHandler;
+                                    isDirty = true;
+                                }
+                            }
+                        
+                        }
+                        
                         GUILayout.Space(10);
                     }
 

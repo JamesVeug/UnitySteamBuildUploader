@@ -17,6 +17,9 @@ namespace Wireframe
         [Wiki("Directory", "The absolute path of the folder to copy the files to. eg: C:/MyBuilds/TodaysBuild")]
         private string m_localPath = "";
         
+        [Wiki("Duplicate Files", "When copying files over and there already being the same file, what should we do with the new file?")]
+        private Utils.FileExistHandling m_duplicateFileHandling = Utils.FileExistHandling.Overwrite;
+        
         [Wiki("Zip Content", "If true, the content will be zipped into a single file.")]
         private bool m_zipContent = false;
         
@@ -101,14 +104,14 @@ namespace Wireframe
             }
             else if (Utils.IsPathADirectory(m_filePath))
             {
-                if (!await Utils.CopyDirectoryAsync(m_filePath, fullPath, result))
+                if (!await Utils.CopyDirectoryAsync(m_filePath, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!await Utils.CopyFileAsync(m_filePath, fullPath, result))
+                if (!await Utils.CopyFileAsync(m_filePath, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;
                 }

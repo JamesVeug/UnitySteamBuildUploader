@@ -65,7 +65,7 @@ namespace Wireframe
             // Decide where we want to download to
             m_progressDescription = "Preparing...";
             m_downloadProgress = 0;
-            string directoryPath = Utils.CacheFolder;
+            string directoryPath = Preferences.CacheFolderPath;
             if (!Directory.Exists(directoryPath))
             {
                 stepResult.AddLog("Creating cache directory: " + directoryPath);

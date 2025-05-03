@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEditor;
 
@@ -6,6 +7,8 @@ namespace Wireframe
 {
     public class Preferences : SettingsProvider
     {
+        private static readonly string DefaultCacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
+        
         public static bool DeleteCacheAfterBuild
         {
             get => EditorPrefs.GetBool("BuildUploader_DeleteCacheAfterBuild", true);
@@ -18,6 +21,12 @@ namespace Wireframe
             private set => EditorPrefs.SetBool("BuildUploader_AutoDecompressZippedSourceFiles", value);
         }
         
+        public static string CacheFolderPath
+        {
+            get => ProjectEditorPrefs.GetString("BuildUploader_CacheFolderPath", DefaultCacheFolder);
+            private set => ProjectEditorPrefs.SetString("BuildUploader_CacheFolderPath", value);
+        }
+
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
         {
@@ -41,17 +50,33 @@ namespace Wireframe
         public override void OnGUI(string searchContext)
         {
             base.OnGUI(searchContext);
-            GUILayout.Label("Preferences for the Build Uploader. Required to log into various services.", EditorStyles.wordWrappedLabel);
+            GUILayout.Label("Preferences for the Build Uploader that exists per user and not shared.", EditorStyles.wordWrappedLabel);
 
             GUILayout.Space(20);
             EditorGUILayout.LabelField("Cached Builds", EditorStyles.boldLabel);
             using (new GUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("Open Cache Folder"))
+                string newCachePath = EditorGUILayout.TextField(CacheFolderPath);
+                if (newCachePath != CacheFolderPath)
                 {
-                    EditorUtility.RevealInFinder(Utils.CacheFolder);
+                    CacheFolderPath = newCachePath;
                 }
-                
+                if (GUILayout.Button("...", GUILayout.Width(50)))
+                {
+                    string newPath = EditorUtility.OpenFolderPanel("Select Cache Folder", CacheFolderPath, "");
+                    if (!string.IsNullOrEmpty(newPath))
+                    {
+                        CacheFolderPath = newPath;
+                    }
+                }
+                if (GUILayout.Button("Show", GUILayout.Width(50)))
+                {
+                    EditorUtility.RevealInFinder(CacheFolderPath);
+                }
+            }
+
+            using (new GUILayout.HorizontalScope())
+            {
                 EditorGUILayout.LabelField("Delete cache after uploading", GUILayout.Width(170));
 
                 bool cacheAfterBuild = DeleteCacheAfterBuild;
@@ -61,8 +86,8 @@ namespace Wireframe
                     DeleteCacheAfterBuild = newCacheAfterBuild;
                 }
             }
-            
-            EditorGUILayout.Space();
+
+            GUILayout.Space(20);
             EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
             using (new GUILayout.HorizontalScope())
             {

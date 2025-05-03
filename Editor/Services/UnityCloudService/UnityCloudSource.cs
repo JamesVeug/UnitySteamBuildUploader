@@ -34,7 +34,7 @@ namespace Wireframe
             // Preparing
             m_progressDescription = "Preparing...";
             string buildName = sourceBuild.platform + "-" + sourceBuild.buildtargetid + "-" + sourceBuild.build;
-            string directoryPath = Path.Combine(Utils.CacheFolder, "UnityCloudBuilds");
+            string directoryPath = Path.Combine(Preferences.CacheFolderPath, "UnityCloudBuilds");
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);

@@ -60,7 +60,7 @@ namespace Wireframe
 
             // Preparing
             m_progressDescription = "Preparing...";
-            string directoryPath = Path.Combine(Utils.CacheFolder, "URLBuilds");
+            string directoryPath = Path.Combine(Preferences.CacheFolderPath, "URLBuilds");
             if (!Directory.Exists(directoryPath))
             {
                 stepResult.AddLog("Creating directory: " + directoryPath);

@@ -62,7 +62,7 @@ namespace Wireframe
 
         private async Task<bool> CacheBuildConfigAtIndex(BuildTask task, int configIndex, BuildTaskReport report)
         {
-            string directoryPath = Utils.CacheFolder;
+            string directoryPath = Preferences.CacheFolderPath;
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);

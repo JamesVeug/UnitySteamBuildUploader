@@ -180,6 +180,20 @@ namespace Wireframe
         public override Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
             ReportCachedFiles(buildTask, report);
+
+            if (!report.Successful)
+            {
+                foreach (var failReason in report.GetFailReasons())
+                {
+                    if (failReason.Key == StepType.CacheSources && failReason.FailReason.Contains("Failed to copy directory"))
+                    {
+                        EditorUtility.DisplayDialog("Build Uploader", "Failed to copy directory.\n\n" +
+                            "This is likely because the path is too long.\n\n" +
+                            "Try changing the Cache directory in Preferences to a shorter path and try again.", "OK");
+                        break;
+                    }
+                }
+            }
             return Task.FromResult(true);
         }
     }

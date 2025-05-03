@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using UnityEngine;
+using UnityEditor;
 
 namespace Wireframe
 {
@@ -74,6 +74,7 @@ namespace Wireframe
             // Files export to /BuildUploader/CachedBuilds/GUID/*.*
             int sourceIndex = 0;
             string cacheFolderPath = Path.Combine(directoryPath, buildConfig.GUID);
+            task.CachedLocations[configIndex] = cacheFolderPath;
             for (var i = 0; i < buildConfig.Sources.Count; i++)
             {
                 var sourceData = buildConfig.Sources[i];
@@ -122,8 +123,6 @@ namespace Wireframe
                 }
             }
 
-            task.CachedLocations[configIndex] = cacheFolderPath;
-
             return true;
         }
         
@@ -156,8 +155,6 @@ namespace Wireframe
                 bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, cacheFolderPath, result);
                 if (!copiedSuccessfully)
                 {
-                    result.AddError("Failed to copy directory: " + sourcePath + " to " + cacheFolderPath);
-                    result.SetFailed("Failed to copy directory: " + sourcePath + " to " + cacheFolderPath);
                     return false;
                 }
             }
@@ -174,7 +171,7 @@ namespace Wireframe
                 // Getting a file - put it in its own folder
                 // BuildUploader/CachedBuilds/GUID/FileName.extension
                 string copiedFilePath = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
-                await Utils.CopyFileAsync(sourcePath, copiedFilePath);
+                return await Utils.CopyFileAsync(sourcePath, copiedFilePath, result);
             }
 
             return true;

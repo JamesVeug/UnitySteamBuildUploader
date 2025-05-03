@@ -78,7 +78,7 @@ namespace Wireframe
 
                 if (m_report.m_invokeDebugLogs)
                 {
-                    string err = "[ERROR]" + error;
+                    string err = "[ERROR] " + error;
                     Debug.LogError(err);
                 }
             }
@@ -190,7 +190,7 @@ namespace Wireframe
                 sb.AppendLine($"== -- {stepType} -- ==");
                 if (!StepResults.TryGetValue(stepType, out var stepResults)) // Get Sources
                 {
-                    sb.AppendLine($"[{stepType}] Has No logs");
+                    sb.AppendLine("No logs");
                     continue;
                 }
 

@@ -108,7 +108,10 @@ namespace Wireframe
             }
             else
             {
-                await Utils.CopyFileAsync(m_filePath, fullPath);
+                if (!await Utils.CopyFileAsync(m_filePath, fullPath, result))
+                {
+                    return false;
+                }
             }
             
             m_uploadProgress = 1;

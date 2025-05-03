@@ -46,30 +46,57 @@ namespace Wireframe
             }
         }
 
-        public static async Task CopyFileAsync(string sourceFile, string destinationFile)
+        public static async Task<bool> CopyFileAsync(string sourceFile, string destinationFile,
+            BuildTaskReport.StepResult result = null)
         {
-            using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-            {
-                using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            try{
+                using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
                 {
-                    await sourceStream.CopyToAsync(destinationStream);
+                    using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                    {
+                        await sourceStream.CopyToAsync(destinationStream);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                if (result != null)
+                {
+                    result.AddException(e);
+                    result.SetFailed("Failed to copy directory: " + sourceFile + " to " + destinationFile);
+                }
+                else
+                {
+                    Debug.LogException(e);
+                }
+                return false;
+            }
+
+            return true;
         }
         
-        public static async Task<bool> CopyDirectoryAsync(string sourcePath, string cacheFolderPath,
-            BuildTaskReport.StepResult result = null)
+        public static async Task<bool> CopyDirectoryAsync(string source, string destination, BuildTaskReport.StepResult result = null)
         {
             try
             {
-                foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+                foreach (string dirPath in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
                 {
-                    Directory.CreateDirectory(dirPath.Replace(sourcePath, cacheFolderPath));
+                    Directory.CreateDirectory(dirPath.Replace(source, destination));
                 }
 
-                foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                foreach (string newPath in Directory.GetFiles(source, "*.*", SearchOption.AllDirectories))
                 {
-                    await CopyFileAsync(newPath, newPath.Replace(sourcePath, cacheFolderPath));
+                    string destinationFile = newPath.Replace(source, destination);
+                    string directory = Path.GetDirectoryName(destinationFile);
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+                    
+                    if (!await CopyFileAsync(newPath, destinationFile, result))
+                    {
+                        return false;
+                    }
                 }
 
                 return true;
@@ -79,7 +106,7 @@ namespace Wireframe
                 if (result != null)
                 {
                     result.AddException(e);
-                    result.SetFailed("Failed to copy directory: " + sourcePath + " to " + cacheFolderPath);
+                    result.SetFailed("Failed to copy directory: " + source + " to " + destination);
                 }
                 else
                 {

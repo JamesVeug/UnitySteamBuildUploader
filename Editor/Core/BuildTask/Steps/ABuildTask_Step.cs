@@ -45,6 +45,12 @@ namespace Wireframe
                 }
                 
                 string cachePath = buildTask.CachedLocations[i];
+                if (string.IsNullOrEmpty(cachePath))
+                {
+                    result.AddLog($"Config {i+1} has cached files. Something went wrong.");
+                    continue;
+                }
+                
                 List<string> allFiles = Utils.GetSortedFilesAndDirectories(cachePath);
 
                 StringBuilder sb = new StringBuilder();

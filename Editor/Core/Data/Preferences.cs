@@ -15,6 +15,12 @@ namespace Wireframe
             private set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
         }
         
+        public static bool AutoSaveReportToCacheFolder
+        {
+            get => EditorPrefs.GetBool("BuildUploader_AutoSaveReportToCacheFolder", false);
+            private set => EditorPrefs.SetBool("BuildUploader_AutoSaveReportToCacheFolder", value);
+        }
+        
         public static bool AutoDecompressZippedSourceFiles
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoDecompressZippedSourceFiles", true);
@@ -89,6 +95,18 @@ namespace Wireframe
 
             GUILayout.Space(20);
             EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("Auto save build reports", GUILayout.Width(170));
+
+                bool autoSave = AutoSaveReportToCacheFolder;
+                bool newAutoSave = EditorGUILayout.Toggle(autoSave);
+                if (newAutoSave != AutoSaveReportToCacheFolder)
+                {
+                    AutoSaveReportToCacheFolder = newAutoSave;
+                }
+            }
+            
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField("Auto decompress .zip files", GUILayout.Width(170));

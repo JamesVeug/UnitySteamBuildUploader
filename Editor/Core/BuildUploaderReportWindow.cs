@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class BuildUploaderReportWindow : EditorWindow
+    internal class BuildUploaderReportWindow : EditorWindow
     {
         private BuildTaskReport report;
 
@@ -30,6 +30,16 @@ namespace Wireframe
             {
                 EditorGUILayout.LabelField("No report available.");
                 return;
+            }
+
+            if (GUILayout.Button("Save"))
+            {
+                string fileName = $"BuildReport_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
+                string path = EditorUtility.SaveFilePanel("Save Report", "", fileName, "txt");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    System.IO.File.WriteAllText(path, txt);
+                }
             }
 
             scroll = EditorGUILayout.BeginScrollView(scroll);

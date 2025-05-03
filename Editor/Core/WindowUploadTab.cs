@@ -195,15 +195,18 @@ namespace Wireframe
             string fileName = $"BuildReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
             string reportPath = Path.Combine(Preferences.CacheFolderPath, fileName);
             string taskReport = report.GetReport();
-            try
+            if (Preferences.AutoSaveReportToCacheFolder)
             {
-                Debug.Log($"[BuildUploader] Writing report to {reportPath}");
-                await File.WriteAllTextAsync(reportPath, taskReport);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[BuildUploader] Failed to write report to {reportPath}");
-                Debug.LogException(e);
+                try
+                {
+                    Debug.Log($"[BuildUploader] Writing build task report to {reportPath}");
+                    await File.WriteAllTextAsync(reportPath, taskReport);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[BuildUploader] Failed to write report to {reportPath}");
+                    Debug.LogException(e);
+                }
             }
 
             // Report back to the user

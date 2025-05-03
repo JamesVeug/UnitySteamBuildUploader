@@ -121,26 +121,6 @@ namespace Wireframe
             return true;
         }
 
-        public override Task<bool> PostUpload(BuildTaskReport.StepResult result)
-        {
-            string fullPath = FullPath();
-            if (Path.HasExtension(fullPath))
-            {
-                fullPath = Path.GetDirectoryName(fullPath);
-            }
-            
-            List<string> allFiles = Utils.GetSortedFilesAndDirectories(fullPath);
-
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"LocalPathDestination: " + fullPath);
-            foreach (string file in allFiles)
-            {
-                sb.AppendLine("\t-" + file);
-            }
-            result.AddLog(sb.ToString());
-            return Task.FromResult(true);
-        }
-
         public override string ProgressTitle()
         {
             return "Copying to Local Path";

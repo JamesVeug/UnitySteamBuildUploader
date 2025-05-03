@@ -92,7 +92,6 @@ namespace Wireframe
         
         public override Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report)
         {
-            ReportCachedFiles(buildTask, report);
             return Task.FromResult(true);
         }
     }

@@ -48,7 +48,7 @@ namespace Wireframe
                     break;
                 }
 
-                await Task.Delay(10);
+                await Task.Yield();
             }
 
             return allSuccessful;
@@ -103,7 +103,7 @@ namespace Wireframe
 
                 float progress = completionAmount / destinations.Count;
                 ProgressUtils.Report(uploadID, progress, "Waiting for all to be uploaded...");
-                await Task.Delay(10);
+                await Task.Yield();
             }
             
             return allSuccessful;

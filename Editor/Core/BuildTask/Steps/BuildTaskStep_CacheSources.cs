@@ -53,7 +53,7 @@ namespace Wireframe
 
                 float progress = completionAmount / tasks.Count;
                 ProgressUtils.Report(progressId, progress, "Waiting for all to be cached...");
-                await Task.Delay(10);
+                await Task.Yield();
             }
 
             ProgressUtils.Remove(progressId);

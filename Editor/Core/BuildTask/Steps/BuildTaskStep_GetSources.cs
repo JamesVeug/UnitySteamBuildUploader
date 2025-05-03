@@ -60,7 +60,7 @@ namespace Wireframe
 
                 float progress = completionAmount / totalSources;
                 ProgressUtils.Report(progressId, progress, "Waiting for sources...");
-                await Task.Delay(10);
+                await Task.Yield();
             }
 
             ProgressUtils.Remove(progressId);

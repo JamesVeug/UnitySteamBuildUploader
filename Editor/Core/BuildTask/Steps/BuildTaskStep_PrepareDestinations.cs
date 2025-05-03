@@ -60,7 +60,7 @@ namespace Wireframe
 
                 float progress = completionAmount / totalDestinations;
                 ProgressUtils.Report(progressId, progress, "Waiting for destinations to prepare...");
-                await Task.Delay(10);
+                await Task.Yield();
             }
             
             ProgressUtils.Remove(progressId);

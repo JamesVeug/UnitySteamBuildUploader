@@ -236,6 +236,7 @@ namespace Wireframe
 
                 EditorUtility.DisplayDialog("Build Uploader", sb.ToString(), "Okay");
             }
+            BuildUploaderReportWindow.ShowWindow(report, taskReport);
         }
 
         private bool CanStartBuild(out string reason)

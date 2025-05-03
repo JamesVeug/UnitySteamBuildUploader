@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -174,26 +175,48 @@ namespace Wireframe
 
         private async Task DownloadAndUpload()
         {
-            // Start uploading
+            // Start task
             Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
             BuildTask buildTask = new BuildTask(m_buildsToUpload, m_buildDescription);
-            BuildTaskReport report = new BuildTaskReport("");
+            
+            string guids = string.Join("_", m_buildsToUpload.Select(x => x.GUID));
+            BuildTaskReport report = new BuildTaskReport(guids);
             Task asyncBuildTask = buildTask.Start(report);
+            
+            // Wait for task to complete
             while (!asyncBuildTask.IsCompleted)
             {
                 // Wait for the task to complete
-                await Task.Delay(100);
+                await Task.Yield();
                 UploaderWindow.Repaint();
             }
 
+            // Write report to a txt file
+            string fileName = $"BuildReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
+            string reportPath = Path.Combine(Preferences.CacheFolderPath, fileName);
+            string taskReport = report.GetReport();
+            try
+            {
+                Debug.Log($"[BuildUploader] Writing report to {reportPath}");
+                await File.WriteAllTextAsync(reportPath, taskReport);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[BuildUploader] Failed to write report to {reportPath}");
+                Debug.LogException(e);
+            }
+
+            // Report back to the user
             if (report.Successful)
             {
-                Debug.Log($"[BuildUploader] Build Task successful!\n{report.GetReport()}");
+                Debug.Log($"[BuildUploader] Build Task successful!");
+                Debug.Log($"[BuildUploader] {taskReport}");
                 EditorUtility.DisplayDialog("Build Uploader", "All builds uploaded successfully!", "Yay!");
             }
             else
             {
-                Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info\n{report.GetReport()}");
+                Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info");
+                Debug.Log($"[BuildUploader] {reportPath}");
                 
                 // Get the first 3 failed lines from the report
                 StringBuilder sb = new StringBuilder();

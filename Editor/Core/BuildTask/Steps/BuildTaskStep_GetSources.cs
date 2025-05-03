@@ -113,10 +113,13 @@ namespace Wireframe
                 BuildTaskReport.StepResult[] results = report.NewReports(Type, config.Sources.Count);
                 for (var j = 0; j < config.Sources.Count; j++)
                 {
-                    if(config.Sources[j].Enabled)
+                    if (!config.Sources[j].Enabled)
                     {
-                        results[j].AddLog($"FinalSource: {config.Sources[j].Source.SourceFilePath()}");
+                        continue;
                     }
+
+                    string path = config.Sources[j].Source.SourceFilePath();
+                    ReportFilesAtPath(path, $"FinalSource: {path}", results[j]);
                 }
             }
             return Task.FromResult(true);

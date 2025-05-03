@@ -113,14 +113,14 @@ namespace Wireframe
         
         public DateTime StartTime { get; private set; }
         public DateTime EndTime { get; private set; }
-        public string BuildConfigGUID { get; private set; }
+        public string GUID { get; private set; }
         
         private readonly bool m_invokeDebugLogs;
         private ABuildTask_Step.StepProcess m_process;
 
         public BuildTaskReport(string guid, bool invokeDebugLogs = true)
         {
-            BuildConfigGUID = guid;
+            GUID = guid;
             m_invokeDebugLogs = invokeDebugLogs;
             StartTime = DateTime.UtcNow;
         }
@@ -180,6 +180,11 @@ namespace Wireframe
         public string GetReport()
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Build Task Report");
+            sb.AppendLine("Start Time: " + StartTime.ToLocalTime());
+            sb.AppendLine("End Time: " + EndTime.ToLocalTime());
+            sb.AppendLine("Duration: " + Duration);
+            sb.AppendLine("Successful: " + Successful);
             foreach (ABuildTask_Step.StepType stepType in Enum.GetValues(typeof(ABuildTask_Step.StepType)))
             {
                 if (sb.Length != 0)

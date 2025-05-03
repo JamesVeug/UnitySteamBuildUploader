@@ -44,19 +44,24 @@ namespace Wireframe
                 if (string.IsNullOrEmpty(cachePath))
                 {
                     result.AddLog($"Config {i+1} has cached files. Something went wrong.");
-                    continue;
+                    return;
                 }
                 
-                List<string> allFiles = Utils.GetSortedFilesAndDirectories(cachePath);
-
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine($"Config {i+1} cached files:");
-                foreach (string file in allFiles)
-                {
-                    sb.AppendLine("\t-" + file);
-                }
-                result.AddLog(sb.ToString());
+                ReportFilesAtPath(cachePath, $"Config {i+1} cached files:", result);
             }
+        }
+
+        protected void ReportFilesAtPath(string cachePath, string prefix, BuildTaskReport.StepResult result)
+        {
+            List<string> allFiles = Utils.GetSortedFilesAndDirectories(cachePath);
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(prefix);
+            foreach (string file in allFiles)
+            {
+                sb.AppendLine("\t-" + file);
+            }
+            result.AddLog(sb.ToString());
         }
     }
 }

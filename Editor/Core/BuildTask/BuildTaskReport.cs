@@ -31,9 +31,9 @@ namespace Wireframe
             
             public bool Successful { get; private set; } = true;
             public string FailReason { get; private set; } = "";
-            public List<Log> Logs { get; private set; } = new();
-            
-            private object m_lock = new();
+            public List<Log> Logs { get; private set; } = new List<Log>();
+
+            private object m_lock = new object();
             private readonly BuildTaskReport m_report;
 
             public StepResult(BuildTaskReport report)
@@ -125,13 +125,14 @@ namespace Wireframe
             StartTime = DateTime.UtcNow;
         }
         
-        public Dictionary<ABuildTask_Step.StepType, Dictionary<ABuildTask_Step.StepProcess, List<StepResult>>> StepResults { get; set; } = new();
+        public Dictionary<ABuildTask_Step.StepType, Dictionary<ABuildTask_Step.StepProcess, List<StepResult>>> StepResults { get; set; } = 
+            new Dictionary<ABuildTask_Step.StepType, Dictionary<ABuildTask_Step.StepProcess, List<StepResult>>>();
 
         public StepResult NewReport(ABuildTask_Step.StepType type)
         {
             if (!StepResults.ContainsKey(type))
             {
-                StepResults[type] = new();
+                StepResults[type] = new Dictionary<ABuildTask_Step.StepProcess, List<StepResult>>();
             }
             
             if (!StepResults[type].ContainsKey(m_process))
@@ -148,7 +149,7 @@ namespace Wireframe
         {
             if (!StepResults.ContainsKey(type))
             {
-                StepResults[type] = new();
+                StepResults[type] = new Dictionary<ABuildTask_Step.StepProcess, List<StepResult>>();
             }
             
             if (!StepResults[type].ContainsKey(m_process))

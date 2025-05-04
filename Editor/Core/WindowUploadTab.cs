@@ -200,7 +200,7 @@ namespace Wireframe
                 try
                 {
                     Debug.Log($"[BuildUploader] Writing build task report to {reportPath}");
-                    await File.WriteAllTextAsync(reportPath, taskReport);
+                    await IOUtils.WriteAllTextAsync(reportPath, taskReport);
                 }
                 catch (Exception e)
                 {

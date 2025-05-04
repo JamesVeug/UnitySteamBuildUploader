@@ -13,7 +13,7 @@ namespace Wireframe
         {
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
 
-            List<Tuple<List<BuildConfig.DestinationData>, Task<bool>>> uploads = new();
+            var uploads = new List<Tuple<List<BuildConfig.DestinationData>, Task<bool>>>();
             for (int i = 0; i < buildConfigs.Count; i++)
             {
                 if (!buildConfigs[i].Enabled)
@@ -23,7 +23,7 @@ namespace Wireframe
                 List<BuildConfig.DestinationData> destinations = buildConfigs[i].Destinations.Where(a=>a.Enabled).ToList();
 
                 Task<bool> upload = Upload(buildTask, i, destinations, report);
-                uploads.Add(new (destinations, upload));
+                uploads.Add(new Tuple<List<BuildConfig.DestinationData>, Task<bool>>(destinations, upload));
             }
             
             bool allSuccessful = true;

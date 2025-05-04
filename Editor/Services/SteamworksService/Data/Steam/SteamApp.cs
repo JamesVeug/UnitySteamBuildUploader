@@ -45,6 +45,11 @@ namespace Wireframe
         public string Name = "Template";
         public DepotVDFFile Depot = new DepotVDFFile();
         
+        public SteamDepot()
+        {
+            
+        }
+        
         public SteamDepot(int id, string name)
         {
             ID = id;

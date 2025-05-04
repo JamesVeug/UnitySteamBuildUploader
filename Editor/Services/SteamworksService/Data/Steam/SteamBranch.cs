@@ -10,6 +10,12 @@ namespace Wireframe
 
         public int id;
         public string name;
+        
+        public SteamBranch(string name)
+        {
+            this.id = -1;
+            this.name = name;
+        }
 
         public SteamBranch(int id, string name)
         {

@@ -9,7 +9,7 @@ namespace Wireframe
         public class DestinationData
         {
             [Wiki("Enabled", "When on, this destination will upload all content of the source files.")]
-            public bool Enabled;
+            public bool Enabled = true;
             public ABuildDestination Destination;
             public UIHelpers.BuildDestinationsPopup.DestinationData DestinationType;
 

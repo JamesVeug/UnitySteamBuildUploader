@@ -20,7 +20,7 @@ namespace Wireframe
                 
             }
 
-            public ModifierData(ABuildConfigModifer modifier, bool enabled)
+            public ModifierData(ABuildConfigModifer modifier, bool enabled=true)
             {
                 Enabled = enabled;
                 Modifier = modifier;

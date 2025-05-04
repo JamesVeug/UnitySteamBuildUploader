@@ -10,7 +10,7 @@ namespace Wireframe
         public class SourceData
         {
             [Wiki("Enabled", "When on, this source will gather the content from a source and get it ready to be uploaded")]
-            public bool Enabled;
+            public bool Enabled = true;
             
             [Wiki("Export Path", "A sub-path in the cached directory of which this source will be saved to before being modified and uploaded. Leave empty to save to the root folder.")]
             public string ExportFolder;

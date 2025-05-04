@@ -14,20 +14,27 @@ namespace Wireframe
         
         [Wiki("Flags", "The flags to use when wrapping the build. default: 0. See https://partner.steamgames.com/doc/features/drm")]
         private int m_flags;
+        
+        public SteamDRM_BuildModifier()
+        {
+            // Required for reflection
+            m_app = null;
+            m_flags = 0;
+        }
 
         /// <summary>
         /// https://partner.steamgames.com/doc/features/drm
         /// </summary>
-        public SteamDRM_BuildModifier(SteamApp app, int flags = 0)
+        public SteamDRM_BuildModifier(int appID, int flags = 0)
         {
-            m_app = app;
+            m_app = new SteamApp()
+            {
+                App = new AppVDFFile()
+                {
+                    appid = appID
+                }
+            };
             m_flags = flags;
-        }
-        
-        public SteamDRM_BuildModifier()
-        {
-            m_app = null;
-            m_flags = 0;
         }
 
         public override bool IsSetup(out string reason)

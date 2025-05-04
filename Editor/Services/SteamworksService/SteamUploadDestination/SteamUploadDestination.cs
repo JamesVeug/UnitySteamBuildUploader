@@ -40,19 +40,38 @@ namespace Wireframe
             // Required for reflection
         }
         
-        public void SetSteamApp(SteamApp app)
+        public SteamUploadDestination(int appID, int depotID, string branchName) : base()
         {
-            m_current = app;
+            SetSteamApp(appID);
+            SetSteamDepot(depotID);
+            SetSteamBranch(branchName);
         }
         
-        public void SetSteamDepot(SteamDepot depot)
+        public void SetSteamApp(int appID)
         {
-            m_depot = depot;
+            m_current = new SteamApp()
+            {
+                App = new AppVDFFile()
+                {
+                    appid = appID
+                }
+            };
         }
         
-        public void SetSteamBranch(SteamBranch branch)
+        public void SetSteamDepot(int depotID)
         {
-            m_destinationBranch = branch;
+            m_depot = new SteamDepot()
+            {
+                Depot = new DepotVDFFile()
+                {
+                    DepotID = depotID
+                }
+            };
+        }
+        
+        public void SetSteamBranch(string branchName)
+        {
+            m_destinationBranch = new SteamBranch(branchName);
         }
         
         public void SetFlags(bool createAppFile = true, bool createDepotFile = true, bool uploadToSteam = true)

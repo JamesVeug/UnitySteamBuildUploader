@@ -31,6 +31,14 @@ namespace Wireframe
             // Required for reflection
         }
         
+        public CompressModifier(string fileName, string targetPath, CompressionType compressionType=CompressionType.Zip, bool removeContentAfterCompress=true)
+        {
+            m_compressedFileName = fileName;
+            m_targetPathToCompress = targetPath;
+            m_compressionType = compressionType;
+            m_removeContentAfterCompress = removeContentAfterCompress;
+        }
+        
         public override bool IsSetup(out string reason)
         {
             if (string.IsNullOrEmpty(m_compressedFileName))

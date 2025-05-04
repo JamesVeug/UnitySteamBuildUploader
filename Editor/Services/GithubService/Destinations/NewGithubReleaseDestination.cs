@@ -37,6 +37,13 @@ namespace Wireframe
             // Required for reflection
         }
         
+        public NewGithubReleaseDestination(string owner, string repo, string releaseName, string tagName, string target, bool draft=true, bool prerelease=true, bool zipContents=true) : base()
+        {
+            SetRepository(owner, repo);
+            SetRelease(releaseName, tagName, target);
+            SetContent(draft, prerelease, zipContents);
+        }
+        
         public void SetRepository(string owner, string repo)
         {
             m_owner = owner;

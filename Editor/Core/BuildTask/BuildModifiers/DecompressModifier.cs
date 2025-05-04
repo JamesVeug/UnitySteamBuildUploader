@@ -31,6 +31,14 @@ namespace Wireframe
             // Required for reflection
         }
         
+        public DecompressModifier(string fileName, string targetPath, DecompressionType decompressionType=DecompressionType.Zip, bool removeCompressedFile=true)
+        {
+            m_filePath = fileName;
+            m_targetPathToCompress = targetPath;
+            m_decompressionType = decompressionType;
+            m_removeCompressedFile = removeCompressedFile;
+        }
+        
         public override bool IsSetup(out string reason)
         {
             if (string.IsNullOrEmpty(m_filePath))

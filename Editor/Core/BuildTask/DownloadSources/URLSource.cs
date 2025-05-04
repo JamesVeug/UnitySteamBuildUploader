@@ -37,6 +37,11 @@ namespace Wireframe
             // Required for reflection
         }
         
+        public URLSource(string url, WebRequestMethod method=WebRequestMethod.GET) : base()
+        {
+            SetURL(url, method);
+        }
+        
         public void SetURL(string url, WebRequestMethod method)
         {
             m_url = url;

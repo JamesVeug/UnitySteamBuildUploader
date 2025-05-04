@@ -22,7 +22,7 @@ namespace Wireframe
             public List<Type> Types = new List<Type>();
         }
         
-        [MenuItem("Window/Build Uploader/Export Wiki Data")]
+        [MenuItem("Window/Build Uploader/Export Wiki Data", false, 20)]
         public static void ExportWikiData()
         {
             List<Data> allData = new List<Data>();

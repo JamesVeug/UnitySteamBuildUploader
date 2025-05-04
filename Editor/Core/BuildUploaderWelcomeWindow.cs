@@ -9,7 +9,7 @@ namespace Wireframe {
     {
         private Vector2 scrollPosition;
         
-        [MenuItem("Window/Build Uploader/Welcome")]
+        [MenuItem("Window/Build Uploader/Welcome", false, 1)]
         public static void ShowWindow()
         {
             BuildUploaderWelcomeWindow window = GetWindow<BuildUploaderWelcomeWindow>();
@@ -18,7 +18,7 @@ namespace Wireframe {
             Rect windowPosition = window.position;
             windowPosition.size = new Vector2(400, Screen.currentResolution.height * 0.5f);
             windowPosition.center = new Rect(0f, 0f, Screen.currentResolution.width, Screen.currentResolution.height).center;
-            window.position = windowPosition;
+            window.position = windowPosition; 
             window.Show();
         }
 

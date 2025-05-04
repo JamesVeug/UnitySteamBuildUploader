@@ -22,18 +22,29 @@ namespace Wireframe
         {
             using (new GUILayout.HorizontalScope())
             {
-                UnityCloud.Instance.Organization =
-                    PasswordField.Draw("Organization:", 105, UnityCloud.Instance.Organization);
+                UnityCloud.Instance.Organization = PasswordField.Draw(
+                    "Organization:", 
+                    "The organization/account that owns the project", 
+                    105, 
+                    UnityCloud.Instance.Organization);
             }
 
             using (new GUILayout.HorizontalScope())
             {
-                UnityCloud.Instance.Project = PasswordField.Draw("Project ID:", 105, UnityCloud.Instance.Project);
+                UnityCloud.Instance.Project = PasswordField.Draw(
+                    "Project ID:", 
+                    "The project ID owned by the organization. eg: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", 
+                    105, 
+                    UnityCloud.Instance.Project);
             }
 
             using (new GUILayout.HorizontalScope())
             {
-                UnityCloud.Instance.Secret = PasswordField.Draw("Dev Ops API Key:", 105, UnityCloud.Instance.Secret);
+                UnityCloud.Instance.Secret = PasswordField.Draw(
+                    "Dev Ops API Key:", 
+                    "The secret key used to access Unity Cloud via the API", 
+                    105, 
+                    UnityCloud.Instance.Secret);
             }
         }
     }

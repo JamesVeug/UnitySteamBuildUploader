@@ -7,7 +7,7 @@ namespace Wireframe
     public static class PasswordField
     {
         private static Dictionary<string, bool> m_passwordFieldToggles = new Dictionary<string, bool>();
-        public static string Draw(string label, int labelLength, string password, char mask = '*', Action onHelpPressed = null)
+        public static string Draw(string label, string tooltip, int labelLength, string password, char mask = '*', Action onHelpPressed = null)
         {
             using (new GUILayout.HorizontalScope())
             {
@@ -17,7 +17,7 @@ namespace Wireframe
                     realLabelLength -= 20;
                 }
                 
-                GUILayout.Label(label, GUILayout.Width(realLabelLength));
+                GUILayout.Label(new GUIContent(label, tooltip), GUILayout.Width(realLabelLength));
                 
                 if (onHelpPressed != null)
                 {

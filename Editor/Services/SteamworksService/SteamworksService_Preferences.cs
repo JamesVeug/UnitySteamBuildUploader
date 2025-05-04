@@ -24,7 +24,9 @@ namespace Wireframe
             {
                 Color temp = GUI.color;
                 GUI.color = SteamSDK.Instance.IsInitialized ? Color.green : Color.red;
-                GUILayout.Label("SteamSDK Path:", GUILayout.Width(105));
+                GUILayout.Label(new GUIContent("SteamSDK Path:",
+                        "The path to the SteamSDK folder. Build Uploader uses this to upload builds to Steamworks."), 
+                    GUILayout.Width(105));
                 GUI.color = temp;
 
 
@@ -66,18 +68,18 @@ namespace Wireframe
                 // Steam username
                 using (new GUILayout.HorizontalScope())
                 {
-                    SteamSDK.UserName = PasswordField.Draw("Steam Username:", 105, SteamSDK.UserName);
+                    SteamSDK.UserName = PasswordField.Draw("Steam Username:", "Your Steamworks username used to login", 105, SteamSDK.UserName);
                 }
 
                 // Steam password
                 using (new GUILayout.HorizontalScope())
                 {
-                    SteamSDK.UserPassword = PasswordField.Draw("Steam Password:", 105, SteamSDK.UserPassword);
+                    SteamSDK.UserPassword = PasswordField.Draw("Steam Password:", "Your Steamworks password used to login", 105, SteamSDK.UserPassword);
                 }
             }
             else
             {
-                steamPasswordConfirmation = PasswordField.Draw("Verify Password:", 105, steamPasswordConfirmation);
+                steamPasswordConfirmation = PasswordField.Draw("Verify Password:", "Verify your Steamworks password", 105, steamPasswordConfirmation);
                 if (steamPasswordConfirmation == SteamSDK.UserPassword)
                 {
                     steamPasswordConfirmed = true;

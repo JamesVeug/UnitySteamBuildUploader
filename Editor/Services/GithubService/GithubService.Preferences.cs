@@ -22,7 +22,7 @@ namespace Wireframe
         {
             using (new GUILayout.HorizontalScope())
             {
-                Github.Token = PasswordField.Draw("Token:", 105, Github.Token, onHelpPressed:TokenHelp);
+                Github.Token = PasswordField.Draw("Token:", "Secret required to access your Github account", 105, Github.Token, onHelpPressed:TokenHelp);
             }
         }
 

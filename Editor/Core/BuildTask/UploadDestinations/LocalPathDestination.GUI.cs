@@ -75,6 +75,17 @@ namespace Wireframe
                     }
                 }
             }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Duplicate Files: ", GUILayout.Width(120));
+                var newHandler = (Utils.FileExistHandling)EditorGUILayout.EnumPopup(m_duplicateFileHandling);
+                if (m_duplicateFileHandling != newHandler)
+                {
+                    m_duplicateFileHandling = newHandler;
+                    isDirty = true;
+                }
+            }
 
             GUILayout.Label("Full Path: " + FullPath());
         }

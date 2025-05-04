@@ -15,7 +15,7 @@ namespace Wireframe
     [BuildSource("UnityCloud", "Choose Unity Cloud Build...")]
     public partial class UnityCloudSource : ABuildSource
     {
-        [Wiki("Target", "Which Build Target to select a build from off Unity Cloud.")]
+        [Wiki("Target", "Which Build Target to select a build from off Unity Cloud. eg: Windows/Mac")]
         private UnityCloudTarget sourceTarget;
         
         [Wiki("Build", "Which Build to download.")]
@@ -25,6 +25,17 @@ namespace Wireframe
 
         private string downloadedFilePath;
         private string sourceFilePath;
+
+        public UnityCloudSource()
+        {
+            // Required for reflection
+        }
+        
+        public UnityCloudSource(UnityCloudTarget target, UnityCloudBuild build)
+        {
+            sourceTarget = target;
+            sourceBuild = build;
+        }
 
         public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
         {
@@ -156,7 +167,8 @@ namespace Wireframe
         {
             Dictionary<string, object> data = new Dictionary<string, object>
             {
-                ["sourceTarget"] = sourceTarget?.name
+                ["sourceTarget"] = sourceTarget?.name,
+                ["sourceBuild"] = sourceBuild?.Id
             };
 
             return data;
@@ -174,6 +186,18 @@ namespace Wireframe
                     if (buildTargets[i].name == sourceTargetName)
                     {
                         sourceTarget = buildTargets[i];
+                        List<UnityCloudBuild> builds = UnityCloudAPI.GetBuildsForTarget(sourceTarget);
+                        if (builds != null)
+                        {
+                            for (int j = 0; j < builds.Count; j++)
+                            {
+                                if (builds[j].Id == (long)data["sourceBuild"])
+                                {
+                                    sourceBuild = builds[j];
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }

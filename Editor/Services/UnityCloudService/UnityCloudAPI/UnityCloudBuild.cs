@@ -8,7 +8,7 @@ namespace Wireframe
 	/// <summary>
 	/// Build information retrieved from the Unity Cloud API
 	/// </summary>
-	internal class UnityCloudBuild : DropdownElement
+	public class UnityCloudBuild : DropdownElement
 	{
 		public int Id => build;
 		public string DisplayName => CreateBuildName();

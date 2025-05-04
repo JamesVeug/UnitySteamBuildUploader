@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEditor;
 
@@ -12,25 +11,25 @@ namespace Wireframe
         public static bool DeleteCacheAfterBuild
         {
             get => EditorPrefs.GetBool("BuildUploader_DeleteCacheAfterBuild", true);
-            private set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
+            set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
         }
         
         public static bool AutoSaveReportToCacheFolder
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveReportToCacheFolder", false);
-            private set => EditorPrefs.SetBool("BuildUploader_AutoSaveReportToCacheFolder", value);
+            set => EditorPrefs.SetBool("BuildUploader_AutoSaveReportToCacheFolder", value);
         }
         
         public static bool AutoDecompressZippedSourceFiles
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoDecompressZippedSourceFiles", true);
-            private set => EditorPrefs.SetBool("BuildUploader_AutoDecompressZippedSourceFiles", value);
+            set => EditorPrefs.SetBool("BuildUploader_AutoDecompressZippedSourceFiles", value);
         }
         
         public static string CacheFolderPath
         {
             get => ProjectEditorPrefs.GetString("BuildUploader_CacheFolderPath", DefaultCacheFolder);
-            private set => ProjectEditorPrefs.SetString("BuildUploader_CacheFolderPath", value);
+            set => ProjectEditorPrefs.SetString("BuildUploader_CacheFolderPath", value);
         }
 
         [SettingsProvider]
@@ -59,7 +58,9 @@ namespace Wireframe
             GUILayout.Label("Preferences for the Build Uploader that exists per user and not shared.", EditorStyles.wordWrappedLabel);
 
             GUILayout.Space(20);
-            EditorGUILayout.LabelField("Cached Builds", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(new GUIContent("Cached Builds",
+                    "When starting an upload all source files will be copied to a temporary location to avoid modifying raw files. This is known as the cache."), 
+                EditorStyles.boldLabel);
             using (new GUILayout.HorizontalScope())
             {
                 string newCachePath = EditorGUILayout.TextField(CacheFolderPath);
@@ -83,7 +84,10 @@ namespace Wireframe
 
             using (new GUILayout.HorizontalScope())
             {
-                EditorGUILayout.LabelField("Delete cache after uploading", GUILayout.Width(170));
+                EditorGUILayout.LabelField(
+                    new GUIContent("Delete cache after uploading",
+                        "If enabled, the cache folder of a build will be deleted after completion. This is useful to save space."),
+                    GUILayout.Width(200));
 
                 bool cacheAfterBuild = DeleteCacheAfterBuild;
                 bool newCacheAfterBuild = EditorGUILayout.Toggle(cacheAfterBuild);
@@ -97,7 +101,10 @@ namespace Wireframe
             EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
             using (new GUILayout.HorizontalScope())
             {
-                EditorGUILayout.LabelField("Auto save build reports", GUILayout.Width(170));
+                EditorGUILayout.LabelField(
+                    new GUIContent("Auto save build reports", "" +
+                                  "If enabled, build reports made from the UI will be auto-saved to the cache folder after completion."),
+                    GUILayout.Width(200));
 
                 bool autoSave = AutoSaveReportToCacheFolder;
                 bool newAutoSave = EditorGUILayout.Toggle(autoSave);
@@ -109,7 +116,10 @@ namespace Wireframe
             
             using (new GUILayout.HorizontalScope())
             {
-                EditorGUILayout.LabelField("Auto decompress .zip files", GUILayout.Width(170));
+                EditorGUILayout.LabelField(
+                    new GUIContent("Auto decompress source .zips", 
+                        "If enabled, a Source that contains only a .zip it will be decompressed when being copied over to the cache."), 
+                    GUILayout.Width(200));
 
                 bool autoDecompress = AutoDecompressZippedSourceFiles;
                 bool newAutoDecompress = EditorGUILayout.Toggle(autoDecompress);

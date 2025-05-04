@@ -238,6 +238,7 @@ namespace Wireframe
                     m_uploadProcess.EnableRaisingEvents = true;
                     m_uploadProcess.Start();
                     
+                    stepResult.AddLog($"Uploading to Steam. If you have Steam Guard lookout for a notification on your phone!");
                     Stopwatch stopwatch = Stopwatch.StartNew(); 
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
                     stopwatch.Stop();
@@ -375,7 +376,8 @@ namespace Wireframe
                 return result;
             }
             
-            if (ContainsText(lines, "Steam Guard code:FAILED", "", out index))
+            if (ContainsText(lines, "Steam Guard code:FAILED", "", out index) ||
+                ContainsText(lines, "Steam Guard code:ERROR", "", out index))
             {
                 await SteamGuardWindow.ShowAsync((code) =>
                 {
@@ -536,6 +538,7 @@ namespace Wireframe
                     m_uploadProcess.EnableRaisingEvents = true;
                     m_uploadProcess.Start();
                     
+                    stepResult.AddLog($"Uploading to Steam. If you have Steam Guard lookout for a notification on your phone!");
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
                     
                     // Hide username

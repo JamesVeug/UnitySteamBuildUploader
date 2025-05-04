@@ -119,7 +119,15 @@ namespace Wireframe
                     }
 
                     string path = config.Sources[j].Source.SourceFilePath();
-                    ReportFilesAtPath(path, $"FinalSource: {path}", results[j]);
+                    try{
+                        ReportFilesAtPath(path, $"FinalSource: {path}", results[j]);
+                    }
+                    catch (Exception e)
+                    {
+                        results[j].AddException(e);
+                        results[j].SetFailed("Source failed - " + e.Message);
+                        return Task.FromResult(false);
+                    }
                 }
             }
             return Task.FromResult(true);

@@ -173,6 +173,13 @@ namespace Wireframe
         
         public static List<string> GetSortedFilesAndDirectories(string directory)
         {
+            if (File.Exists(directory)) 
+            {
+                List<string> singleFile = new List<string>();
+                singleFile.Add(directory);
+                return singleFile;
+            }
+            
             // Log out every file in this directory
             string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
             string[] folders = Directory.GetDirectories(directory, "*", SearchOption.AllDirectories);

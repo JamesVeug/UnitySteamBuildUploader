@@ -142,8 +142,6 @@ namespace Wireframe
                 return;
             }
 
-            Debug.Log("[SteamSDK] Application.platform: " + Application.platform);
-            
             string exePath = "";
             if (Application.platform == RuntimePlatform.WindowsEditor)
             {
@@ -240,7 +238,10 @@ namespace Wireframe
                     m_uploadProcess.EnableRaisingEvents = true;
                     m_uploadProcess.Start();
                     
+                    Stopwatch stopwatch = Stopwatch.StartNew(); 
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
+                    stopwatch.Stop();
+                    stepResult.AddLog($"Steam upload took {stopwatch.ElapsedMilliseconds}ms");
                     
                     // Hide username
                     if (UserName != null && UserName.Length > 2)
@@ -254,7 +255,7 @@ namespace Wireframe
 
                     if (!outputResults.successful)
                     {
-                        stepResult.AddError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
+                        stepResult.SetFailed("[Steam] " + outputResults.errorText + "\n\n" + textDump);
                         retry = outputResults.retry;
                         if (!string.IsNullOrEmpty(outputResults.steamGuardCode))
                         {

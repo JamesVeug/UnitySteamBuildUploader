@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public partial class NewGithubReleaseDestination
+    public partial class GithubNewReleaseDestination
     {
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    [Wiki("NewGithubRelease", "destinations", "Create a new release on a specific Github repository.")]
-    [BuildDestination("NewGithubRelease")]
-    public partial class NewGithubReleaseDestination : ABuildDestination
+    [Wiki("GithubNewRelease", "destinations", "Create a new release on a specific Github repository.")]
+    [BuildDestination("GithubNewRelease")]
+    public partial class GithubNewReleaseDestination : ABuildDestination
     {
         [Wiki("Owner", "The owner of the repository.")]
         private string m_owner;
@@ -24,20 +24,20 @@ namespace Wireframe
         private string m_target;
         
         [Wiki("Draft", "If true, the release will not be published but be editable on github.")]
-        private bool m_draft;
+        private bool m_draft = true;
         
         [Wiki("Prerelease", "If true, marks the release as pre-release.")]
-        private bool m_prerelease;
+        private bool m_prerelease = true;
         
         [Wiki("ZipContents", "Each file is uploaded individually to Github as a separate download. If true, all files will be sent as a single compressed file instead.")]
-        private bool m_zipContents;
+        private bool m_zipContents = true;
 
-        public NewGithubReleaseDestination() : base()
+        public GithubNewReleaseDestination() : base()
         {
             // Required for reflection
         }
         
-        public NewGithubReleaseDestination(string owner, string repo, string releaseName, string tagName, string target, bool draft=true, bool prerelease=true, bool zipContents=true) : base()
+        public GithubNewReleaseDestination(string owner, string repo, string releaseName, string tagName, string target, bool draft=true, bool prerelease=true, bool zipContents=true) : base()
         {
             SetRepository(owner, repo);
             SetRelease(releaseName, tagName, target);

@@ -567,7 +567,7 @@ namespace Wireframe
 
                         if (!retry)
                         {
-                            stepResult.SetFailed(stepResult.Logs[^1].Message);
+                            stepResult.SetFailed(stepResult.Logs[stepResult.Logs.Count - 1].Message);
                         }
                     }
                     else

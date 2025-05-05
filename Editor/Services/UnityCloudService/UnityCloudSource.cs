@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -83,12 +84,17 @@ namespace Wireframe
 
                 // Save
                 m_progressDescription = "Saving locally...";
-                
-#if UNITY_2021_2_OR_NEWER
-                await File.WriteAllBytesAsync(downloadedFilePath, request.downloadHandler.data);
-#else
-                File.WriteAllBytes(fullFilePath, request.downloadHandler.data);
-#endif
+
+
+                try
+                {
+                    await IOUtils.WriteAllBytesAsync(downloadedFilePath, request.downloadHandler.data);
+                }
+                catch (Exception e)
+                {
+                    stepResult.SetFailed("Failed to save downloaded file: " + downloadedFilePath + "\n" + e.Message);
+                    return false;
+                }
             }
             else
             {

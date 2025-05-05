@@ -14,7 +14,7 @@ namespace Wireframe
             int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;
             
-            List<Tuple<List<BuildConfig.DestinationData>, Task<bool>>> tasks = new();
+            var tasks = new List<Tuple<List<BuildConfig.DestinationData>, Task<bool>>>();
             for (int j = 0; j < buildConfigs.Count; j++)
             {
                 if (!buildConfigs[j].Enabled)

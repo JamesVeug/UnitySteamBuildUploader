@@ -84,32 +84,30 @@ namespace Wireframe
                     await Task.Yield();
                 }
                 
-                if (www.result == UnityWebRequest.Result.Success && www.responseCode == 201)
-                {
-                    Debug.Log("Release created successfully.");
-                    string jsonResponse = www.downloadHandler.text;
-                    var release = JSON.DeserializeObject<Dictionary<string, object>>(jsonResponse);
-                    string uploadUrl = release["upload_url"].ToString().Split('{')[0];
-                    if (assets != null)
-                    {
-                        foreach (string assetPath in assets)
-                        {
-                            bool uploadAssetSuccess = await UploadReleaseAsset(uploadUrl, token, assetPath, result);
-                            if (!uploadAssetSuccess)
-                            {
-                                Debug.LogError($"Failed to upload release asset: {assetPath} but the release was made. Check Github for the status!");
-                                return false;
-                            }
-                        }
-                        Debug.Log("All assets uploaded successfully.");
-                    }
-                }
-                else
+                if (www.isHttpError || www.isNetworkError)
                 {
                     string downloadHandlerText = www.downloadHandler.text;
                     result.AddError($"Failed to create release: {www.responseCode} - {downloadHandlerText}");
-                    result.SetFailed(result.Logs[^1].Message);
+                    result.SetFailed(result.Logs[result.Logs.Count - 1].Message);
                     return false;
+                }
+
+                result.AddLog("Release created successfully.");
+                string jsonResponse = www.downloadHandler.text;
+                var release = JSON.DeserializeObject<Dictionary<string, object>>(jsonResponse);
+                string uploadUrl = release["upload_url"].ToString().Split('{')[0];
+                if (assets != null)
+                {
+                    foreach (string assetPath in assets)
+                    {
+                        bool uploadAssetSuccess = await UploadReleaseAsset(uploadUrl, token, assetPath, result);
+                        if (!uploadAssetSuccess)
+                        {
+                            result.SetFailed($"Failed to upload release asset: {assetPath} but the release was made. Check Github for the status!");
+                            return false;
+                        }
+                    }
+                    result.AddLog("All assets uploaded successfully.");
                 }
             }
             
@@ -124,7 +122,7 @@ namespace Wireframe
                 byte[] fileContent = null;
                 if (File.Exists(path))
                 {
-                    fileContent = await File.ReadAllBytesAsync(path);
+                    fileContent = await IOUtils.ReadAllBytesAsync(path);
                 }
                 else if(Directory.Exists(path))
                 {
@@ -135,7 +133,7 @@ namespace Wireframe
                         return false;
                     }
 
-                    fileContent = await File.ReadAllBytesAsync(zipPath);
+                    fileContent = await IOUtils.ReadAllBytesAsync(zipPath);
                     assetName += ".zip";
                 }
                 else
@@ -162,17 +160,15 @@ namespace Wireframe
                     }
 
                     result.AddLog("Upload asset result: " + www.responseCode + " - " + www.downloadHandler.text);
-                    if (www.result == UnityWebRequest.Result.Success)
-                    {
-                        result.AddLog("File uploaded successfully.");
-                        return true;
-                    }
-                    else
+                    if (www.isHttpError || www.isNetworkError)
                     {
                         result.AddError($"Failed to upload file: {www.responseCode} - {www.downloadHandler.text}");
-                        result.SetFailed(result.Logs[^1].Message);
+                        result.SetFailed(result.Logs[result.Logs.Count - 1].Message);
                         return false;
                     }
+
+                    result.AddLog("File uploaded successfully.");
+                    return true;
                 }
             }
             catch (Exception e)

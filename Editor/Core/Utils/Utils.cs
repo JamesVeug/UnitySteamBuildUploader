@@ -185,37 +185,39 @@ namespace Wireframe
             string[] folders = Directory.GetDirectories(directory, "*", SearchOption.AllDirectories);
 
             List<string> allFiles = files.Concat(folders).Distinct().ToList();
-            allFiles.Sort(static (a, b) =>
-            {
-                // Order by folder depth first, then by name
-                var aKey = a.Split(Path.DirectorySeparatorChar);
-                int aLength = aKey.Length;
-                    
-                var bKey = b.Split(Path.DirectorySeparatorChar);
-                int bLength = bKey.Length;
-
-                for (int aIndex = 0; aIndex < Mathf.Min(aKey.Length, bKey.Length); aIndex++)
-                {
-                    string strA = bKey[aIndex];
-                    string strB = aKey[aIndex];
-                    int compare = string.Compare(strA, strB, StringComparison.Ordinal);
-                    if (compare != 0)
-                    {
-                        return compare;
-                    }
-                }
-                    
-                if (aLength != bLength)
-                {
-                    return aLength - bLength;
-                }
-                    
-                return string.Compare(a, b, StringComparison.Ordinal);
-            });
+            allFiles.Sort(CompareFileNames);
 
             return allFiles;
         }
-        
+
+        private static int CompareFileNames(string a, string b)
+        {
+            // Order by folder depth first, then by name
+            var aKey = a.Split(Path.DirectorySeparatorChar);
+            int aLength = aKey.Length;
+
+            var bKey = b.Split(Path.DirectorySeparatorChar);
+            int bLength = bKey.Length;
+
+            for (int aIndex = 0; aIndex < Mathf.Min(aKey.Length, bKey.Length); aIndex++)
+            {
+                string strA = bKey[aIndex];
+                string strB = aKey[aIndex];
+                int compare = string.Compare(strA, strB, StringComparison.Ordinal);
+                if (compare != 0)
+                {
+                    return compare;
+                }
+            }
+
+            if (aLength != bLength)
+            {
+                return aLength - bLength;
+            }
+
+            return string.Compare(a, b, StringComparison.Ordinal);
+        }
+
         public static bool CreateInstance<T>(Type type, out T result)
         {
             if (type == null)

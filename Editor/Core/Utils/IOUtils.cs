@@ -8,7 +8,7 @@ namespace Wireframe
         public static Task WriteAllTextAsync(string path, string content)
         {
 #if UNITY_2021_1_OR_NEWER
-            await File.WriteAllTextAsync(path, content);
+            return File.WriteAllTextAsync(path, content);
 #else
             return Task.Run(() =>
             {

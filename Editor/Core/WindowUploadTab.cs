@@ -317,7 +317,6 @@ namespace Wireframe
         {
             if (File.Exists(FilePath))
             {
-                Debug.Log("Loading build configs from: " + FilePath);
                 LoadFromPath(FilePath);
             }
             else if (File.Exists(Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json"))

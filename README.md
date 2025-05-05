@@ -10,13 +10,17 @@
 
 [![LICENSE](https://img.shields.io/github/license/JamesVeug/UnitySteamBuildUploader)](LICENSE)
 [![STARS](https://img.shields.io/github/stars/JamesVeug/UnitySteamBuildUploader)](https://github.com/JamesVeug/UnitySteamBuildUploader)
+[![Github All Releases](https://img.shields.io/github/downloads/JamesVeug/UnitySteamBuildUploader/total.svg)]()
 
 ## Key Points 💡
-- Windows
-- Unity 2021 and above.
-  - No package dependencies
-- Unity 2020 and below.
-  - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
+- Windows, Mac, Linux support
+- Unity Supported
+  - Unity 6000.1
+  - Unity 6000.0
+  - Unity 2022
+  - Unity 2021
+  - Unity 2020 and 2019
+    - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
 - Services
   - Steamworks
     - Uploading a build
@@ -25,6 +29,10 @@
     - View builds
     - Download builds
     - Start new builds
+- Safely modify builds before uploading
+  - Remove files/folders
+  - Compress/Decompress files
+  - Steam DRM wrapping (anti-piracy)
 - Minimal build size impact
 - Can be used commercially
 - Open Source
@@ -47,8 +55,8 @@
 
 #### Unity Asset Store
 - https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907
-- Add to your assets/download
-- Add to your project
+- Add the asset to your list of assets
+- Add to your unity project
 
 #### Manually
 - Open `Window->Package Manager`
@@ -156,8 +164,9 @@ The Build Task has a number of steps that it goes through sequentially while its
 ### 1. Get Source
 
 Download the build from the selected source
-eg: Choose File/Folder will save that location
-eg: Choose Unity Cloud will download the build from Unity Cloud
+eg: 
+- Choosing File/Folder will save that location to be used in the next step
+- Choosing Unity Cloud will download the build from Unity Cloud and save that location to be used in the next step
 
 
 ### 2. Cache Source

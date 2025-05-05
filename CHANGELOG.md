@@ -1,9 +1,50 @@
+# 2.2.0
+- General
+  - Added **Welcome Window** for more information `Window/Build Uploader/Welcome`
+  - Added **Build Report Window** which shows after every build from the UI
+  - Exposed a lot of code, so anyone can create and trigger a BuildTask without UI
+  - BuildTasks create a BuildTaskReport to easily view logs
+  - Made the Description text area bigger and added more options to copy/paste
+  - All Sources/Modifiers/Destinations have a `?` to link to their documentation
+  - Fixed new lines and tabs not serializing correctly
+  - Fixed zipping a folder and saving to the same folder causing IOException
+  - Fixed unzipping a .zip file halting editor 
+  - Fixed many edge cases causing the BuildTask to run indefinitely and not reporting exceptions
+  - Fixed Custom Sources/Modifiers/Destinations made outside the Build Uploader package not showing in the dropdowns
+  - Fixed LocalPathDestination requiring a file name when not compressing to a .zip
+  - Minor UI improvements
+  - Minor Logging improvements
+  - Basic [Wiki](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki) support
+- Sources
+  - Each config can now have multiple Sources
+  - Added `URLSource` to download files from online
+  - Added `FolderSource`
+  - Added PathType to File and Folder Source to select files within the project
+  - Changed File Source to only handle files
+- Modifiers
+  - Can now add/remove any Modifier same as Sources/Destinations
+  - Can now be enabled/disabled
+  - Added `CompressModifier` to turn a selection of files to a .zip file
+  - Added `DecompressModifier` to unzip .zip files
+- Destinations
+  - Each config can now have multiple Destinations
+  - Added `NewGithubRelease` Destination
+  - Added Duplicate File dropdown to LocalPathDestination. Set to Overwrite by default
+  - Changed SteamworksDestination to create files in the Prepare step to fail before uploading starts
+  - Fixed SteamworksDestination not showing Steam Guard popup on first run
+- Preferences
+  - Added new checkbox to enable/disable auto decompressing .zip files from sources (On by default)
+  - Added new checkbox to enable/disable auto saving of build tasks (Off by default)
+  - Added new text field to change directory of cached builds.
+  - Added tooltips to all preferences
+  - Fixed Build Uploader not filtering by certain keywords
+
 # 2.1.1
 - General
   - First pass Mac/linux support
   - Fixed DRM Wrapping not working for games/companies with spaces in the name
   - Fixed DRM Wrapping not working with SteamGuard/Two Factor support properly
-  - Safety guard to add modifiers back in case they disappear
+  - Safety guards to add modifiers back in case they disappear
 
 
 # 2.1.0

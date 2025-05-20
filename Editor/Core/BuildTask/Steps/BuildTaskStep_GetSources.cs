@@ -118,9 +118,10 @@ namespace Wireframe
                         continue;
                     }
 
-                    string path = config.Sources[j].Source.SourceFilePath();
+                    ABuildSource source = config.Sources[j].Source;
+                    string path = source.SourceFilePath();
                     try{
-                        ReportFilesAtPath(path, $"FinalSource: {path}", results[j]);
+                        ReportFilesAtPath(path, $"[{source.DisplayName}] FinalSource: {path}", results[j]);
                     }
                     catch (Exception e)
                     {

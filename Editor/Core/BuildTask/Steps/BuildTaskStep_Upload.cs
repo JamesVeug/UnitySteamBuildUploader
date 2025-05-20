@@ -106,6 +106,8 @@ namespace Wireframe
                 await Task.Yield();
             }
             
+            
+            ProgressUtils.Remove(uploadID);
             return allSuccessful;
         }
 

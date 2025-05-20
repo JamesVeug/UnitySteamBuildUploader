@@ -297,7 +297,7 @@ namespace Wireframe
             }
             
             string uploadArg = upload ? $" +run_app_build \"{fullDirectory}\"" : "";
-            string arguments = string.Format("+login \"{0}\" \"{1}\" {2} {3}", username, password, guard, uploadArg);
+            string arguments = string.Format("+login \"{0}\" \"{1}\"{2}{3}", username, password, guard, uploadArg);
             
             if (quitOnComplete)
             {

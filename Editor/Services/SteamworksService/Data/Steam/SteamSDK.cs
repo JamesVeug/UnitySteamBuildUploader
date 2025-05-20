@@ -350,7 +350,8 @@ namespace Wireframe
             string[] lines = text.Split('\n');
             int index = -1;
             
-            if (!ContainsText(lines, "Loading Steam API", "OK", out index))
+            if (!ContainsText(lines, "Loading Steam API", "OK", out index) &&
+                !ContainsText(lines, "Waiting for confirmation...Loading Steam API", "OK", out index))
             {
                 result.errorText = "Failed to load API.";
                 return result;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -6,14 +7,35 @@ namespace Wireframe
     {
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
-            SteamBranch element = list[index];
-
-            Rect rect1 = new Rect(rect.x, rect.y, Mathf.Min(100, rect.width / 2), rect.height);
-            string n = GUI.TextField(rect1, element.name);
-            if (n != element.name)
+            using (new EditorGUILayout.HorizontalScope())
             {
-                element.name = n;
-                dirty = true;
+                SteamBranch element = list[index];
+
+                float width = Mathf.Min(100, rect.width / 2);
+                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
+                string n = GUI.TextField(rect1, element.name);
+                if (n != element.name)
+                {
+                    element.name = n;
+                    dirty = true;
+                }
+
+                if (n == "default")
+                {
+                    rect1.x += width;
+                    
+                    // Warning - uploading to default branch is not allowed!
+                    rect1.width = 15;
+                    
+                    Color color = GUI.color;
+                    GUI.color = Color.orangeRed;
+                    GUI.Label(rect1, "!!!");
+                    GUI.color = color;
+                    
+                    rect1.x += 15;
+                    rect1.width = rect.width - width - 15;
+                    GUI.Label(rect1, "Uploading to the 'default' branch is not allowed by SteamSDK. Upload to none or an empty branch name then use the dashboard to assign to default.");
+                }
             }
         }
 

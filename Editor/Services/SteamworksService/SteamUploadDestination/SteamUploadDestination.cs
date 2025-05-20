@@ -181,6 +181,12 @@ namespace Wireframe
                 return false;
             }
 
+            if (m_destinationBranch.name == "default")
+            {
+                reason = "Uploading to the 'default' branch is not allowed by SteamSDK. Use none or an empty branch name instead and use the dashboard to assign to default.";
+                return false;
+            }
+
             reason = "";
             return true;
         }

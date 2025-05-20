@@ -126,25 +126,22 @@ namespace Wireframe
             return "Copying to Local Path";
         }
 
-        public override bool IsSetup(out string reason)
+        public override void TryGetErrors(List<string> errors)
         {
+            base.TryGetErrors(errors);
+            
             if (string.IsNullOrEmpty(m_localPath))
             {
-                reason = "No local path selected";
-                return false;
+                errors.Add("No local path selected");
             }
 
             if (m_zipContent)
             {
                 if (string.IsNullOrEmpty(m_zippedFilesName))
                 {
-                    reason = "No Name selected";
-                    return false;
+                    errors.Add("No Zipped Name specified");
                 }
             }
-
-            reason = "";
-            return true;
         }
 
         public override Dictionary<string, object> Serialize()

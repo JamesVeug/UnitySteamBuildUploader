@@ -168,22 +168,19 @@ namespace Wireframe
             return m_progressDescription;
         }
 
-        public override bool IsSetup(out string reason)
+        public override void TryGetErrors(List<string> errors)
         {
+            base.TryGetErrors(errors);
+            
             if (string.IsNullOrEmpty(m_url))
             {
-                reason = "URL not set";
-                return false;
+                errors.Add("URL not set");
             }
 
             if (string.IsNullOrEmpty(m_fileName))
             {
-                reason = "File name not set";
-                return false;
+                errors.Add("File name not set");
             }
-
-            reason = "";
-            return true;
         }
 
         public override string GetBuildDescription()

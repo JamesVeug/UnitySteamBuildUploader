@@ -23,13 +23,22 @@ namespace Wireframe
         public abstract float DownloadProgress();
         public abstract string ProgressTitle();
         public abstract string ProgressDescription();
-        public abstract bool IsSetup(out string reason);
         public abstract string GetBuildDescription();
 
         public virtual void CleanUp(BuildTaskReport.StepResult result)
         {
             m_downloadProgress = 0.0f;
             m_getSourceInProgress = false;
+        }
+
+        public virtual void TryGetWarnings(List<string> warnings)
+        {
+            
+        }
+
+        public virtual void TryGetErrors(List<string> errors)
+        {
+            
         }
 
 

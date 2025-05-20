@@ -22,6 +22,15 @@ namespace Wireframe
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
         }
+        
+        public List<string> GetAllErrors()
+        {
+            List<string> warnings = new List<string>();
+            warnings.AddRange(GetSourceErrors());
+            warnings.AddRange(GetDestinationErrors());
+
+            return warnings;
+        }
 
         public List<string> GetAllWarnings()
         {
@@ -32,12 +41,74 @@ namespace Wireframe
             return warnings;
         }
 
+        public List<string> GetSourceErrors()
+        {
+            List<string> errors = new List<string>();
+            foreach (SourceData sourceData in m_buildSources)
+            {
+                if(sourceData.Enabled && sourceData.Source != null)
+                {
+                    sourceData.Source.TryGetErrors(errors);
+                }
+            }
+            
+            foreach (ModifierData modifer in m_modifiers)
+            {
+                if (!modifer.Enabled || modifer.ModifierType == null)
+                {
+                    continue;
+                }
+                
+                foreach (SourceData sourceData in m_buildSources)
+                {
+                    modifer.Modifier?.TryGetErrors(sourceData.Source, errors);
+                }
+            }
+            
+            return errors;
+        }
+
+        public List<string> GetDestinationErrors()
+        {
+            List<string> errors = new List<string>();
+            foreach (DestinationData destinationData in m_buildDestinations)
+            {
+                if(destinationData.Enabled && destinationData.Destination != null)
+                {
+                    destinationData.Destination.TryGetErrors(errors);
+                }
+            }
+            
+            foreach (ModifierData modifier in m_modifiers)
+            {
+                if (!modifier.Enabled || modifier.ModifierType == null)
+                {
+                    continue;
+                }
+                
+                foreach (DestinationData destinationData in m_buildDestinations)
+                {
+                    modifier.Modifier.TryGetErrors(destinationData.Destination, errors);
+                }
+            }
+            
+            return errors;
+        }
+
         public List<string> GetSourceWarnings()
         {
             List<string> warnings = new List<string>();
+            foreach (SourceData sourceData in m_buildSources)
+            {
+                if (sourceData.Enabled && sourceData.Source != null)
+                {
+                    sourceData.Source?.TryGetWarnings(warnings);
+                }
+            }
+            
             foreach (ModifierData modifer in m_modifiers)
             {
-                if (modifer.ModifierType == null || !modifer.Enabled)
+                if (!modifer.Enabled || modifer.ModifierType == null)
                 {
                     continue;
                 }
@@ -54,9 +125,17 @@ namespace Wireframe
         public List<string> GetDestinationWarnings()
         {
             List<string> warnings = new List<string>();
+            foreach (DestinationData destinationData in m_buildDestinations)
+            {
+                if (destinationData.Enabled && destinationData.Destination != null)
+                {
+                    destinationData.Destination.TryGetWarnings(warnings);
+                }
+            }
+            
             foreach (ModifierData modifier in m_modifiers)
             {
-                if (modifier.ModifierType == null || !modifier.Enabled)
+                if (!modifier.Enabled || modifier.ModifierType == null)
                 {
                     continue;
                 }
@@ -93,9 +172,11 @@ namespace Wireframe
                     return false;
                 }
 
-                if (!source.Source.IsSetup(out string sourceReason))
+                List<string> errors = new List<string>();
+                source.Source.TryGetErrors(errors);
+                if (errors.Count > 0)
                 {
-                    reason = $"Source #{i+1}: " + sourceReason;
+                    reason = $"Source #{i+1}: " + string.Join(", ", errors);
                     return false;
                 }
                 
@@ -103,7 +184,7 @@ namespace Wireframe
             }
             if (!atLeastOneSource)
             {
-                reason = "Need at least 1 Sources";
+                reason = "Need at least 1 Source";
                 return false;
             }
             
@@ -139,13 +220,15 @@ namespace Wireframe
                 
                 if (destination.Destination == null)
                 {
-                    reason = $"Destination #{i+1} is not setup";
+                    reason = $"Destination #{i+1} No destination specified.";
                     return false;
                 }
 
-                if (!destination.Destination.IsSetup(out string destinationReason))
+                List<string> errors = new List<string>();
+                destination.Destination.TryGetErrors(errors);
+                if (errors.Count > 0)
                 {
-                    reason = $"Destination #{i+1}: " + destinationReason;
+                    reason = $"Destination #{i+1}: " + string.Join(", ", errors);
                     return false;
                 }
                 

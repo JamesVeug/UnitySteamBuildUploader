@@ -92,51 +92,44 @@ namespace Wireframe
             return "Uploading a new Github Release";
         }
 
-        public override bool IsSetup(out string reason)
+        public override void TryGetErrors(List<string> errors)
         {
-            if (!InternalUtils.GetService<GithubService>().IsReadyToStartBuild(out reason))
+            base.TryGetErrors(errors);
+            
+            if (!InternalUtils.GetService<GithubService>().IsReadyToStartBuild(out string reason))
             {
-                return false;
+                errors.Add(reason);
             }
             
             if (string.IsNullOrEmpty(Github.Token))
             {
-                reason = "Github Token is not set in Preferences";
-                return false;
+                errors.Add("Github Token is not set in Preferences");
             }
             
             if (string.IsNullOrEmpty(m_owner))
             {
-                reason = "Owner is not set";
-                return false;
+                errors.Add("Owner is not set");
             }
             
             if (string.IsNullOrEmpty(m_repo))
             {
-                reason = "Repo is not set";
-                return false;
+                errors.Add("Repo is not set");
             }
             
             if (string.IsNullOrEmpty(m_releaseName))
             {
-                reason = "Release Name is not set";
-                return false;
+                errors.Add("Release Name is not set");
             }
             
             if (string.IsNullOrEmpty(m_tagName))
             {
-                reason = "Tag Name is not set";
-                return false;
+                errors.Add("Tag Name is not set");
             }
             
             if (string.IsNullOrEmpty(m_target))
             {
-                reason = "Target is not set";
-                return false;
+                errors.Add("Target is not set");
             }
-            
-            reason = "";
-            return true;
         }
 
         public override Dictionary<string, object> Serialize()

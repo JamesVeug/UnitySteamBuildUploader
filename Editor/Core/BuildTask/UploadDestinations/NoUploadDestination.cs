@@ -39,12 +39,6 @@ namespace Wireframe
             return "Uploading nowhere";
         }
 
-        public override bool IsSetup(out string reason)
-        {
-            reason = "";
-            return true;
-        }
-
         public override Dictionary<string, object> Serialize()
         {
             Dictionary<string, object> data = new Dictionary<string, object>();

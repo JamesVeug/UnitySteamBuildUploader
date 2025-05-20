@@ -147,21 +147,19 @@ namespace Wireframe
             return m_progressDescription;
         }
 
-        public override bool IsSetup(out string reason)
+        public override void TryGetErrors(List<string> errors)
         {
-            if (!InternalUtils.GetService<UnityCloudService>().IsReadyToStartBuild(out reason))
+            base.TryGetErrors(errors);
+            
+            if (!InternalUtils.GetService<UnityCloudService>().IsReadyToStartBuild(out string reason))
             {
-                return false;
+                errors.Add(reason);
             }
             
             if (sourceBuild == null)
             {
-                reason = "No build selected";
-                return false;
+                errors.Add("No build selected");
             }
-
-            reason = "";
-            return true;
         }
 
         public override string GetBuildDescription()

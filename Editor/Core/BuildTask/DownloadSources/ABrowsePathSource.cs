@@ -132,17 +132,15 @@ namespace Wireframe
             return m_progressDescription;
         }
 
-        public override bool IsSetup(out string reason)
+        public override void TryGetWarnings(List<string> errors)
         {
+            base.TryGetWarnings(errors);
+            
             string path = GetFullPath();
             if (!File.Exists(path) && !Directory.Exists(path))
             {
-                reason = "Path does not exist";
-                return false;
+                errors.Add("Path does not exist");
             }
-            
-            reason = "";
-            return true;
         }
 
         public override string GetBuildDescription()

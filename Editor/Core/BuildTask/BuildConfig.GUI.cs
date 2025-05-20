@@ -114,6 +114,24 @@ namespace Wireframe
                             }
                         }
                     }
+
+                    List<string> sourceErrors = GetSourceErrors();
+                    if (sourceErrors.Count > 0)
+                    {
+                        foreach (string error in sourceErrors)
+                        {
+                            DrawError(error);
+                        }
+                    }
+                    
+                    List<string> sourceWarnings = GetSourceWarnings();
+                    if (sourceWarnings.Count > 0)
+                    {
+                        foreach (string warning in sourceWarnings)
+                        {
+                            DrawWarning(warning);
+                        }
+                    }
                 }
 
                 // Progress
@@ -170,11 +188,20 @@ namespace Wireframe
                             }
                         }
                     }
-
-                    List<string> warnings = GetAllWarnings();
-                    if (warnings.Count > 0)
+                    
+                    List<string> destinationErrors = GetDestinationErrors();
+                    if (destinationErrors.Count > 0)
                     {
-                        foreach (string warning in warnings)
+                        foreach (string error in destinationErrors)
+                        {
+                            DrawError(error);
+                        }
+                    }
+                    
+                    List<string> destinationWarnings = GetDestinationWarnings();
+                    if (destinationWarnings.Count > 0)
+                    {
+                        foreach (string warning in destinationWarnings)
                         {
                             DrawWarning(warning);
                         }
@@ -192,6 +219,15 @@ namespace Wireframe
                 GUI.color = Color.yellow;
                 GUILayout.Label("Warning: " + warning, EditorStyles.helpBox);
                 GUI.color = color;
+            }
+        }
+
+        private static void DrawError(string error)
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label(Utils.ErrorIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
+                GUILayout.Label("Error: " + error, EditorStyles.helpBox);
             }
         }
 
@@ -260,7 +296,6 @@ namespace Wireframe
                                     }
                                 }
 
-                                List<string> warnings = new List<string>();
                                 foreach (ModifierData modifer in m_modifiers)
                                 {
                                     if (modifer.Modifier == null || !modifer.Enabled)
@@ -268,7 +303,14 @@ namespace Wireframe
                                         continue;
                                     }
                                     
-                                    modifer.Modifier.TryGetWarnings(this, warnings);
+                                    List<string> errors = new List<string>();
+                                    modifer.Modifier.TryGetErrors(source.Source, errors);
+                                    foreach (string warning in errors)
+                                    {
+                                        DrawError(warning);
+                                    }
+                                    
+                                    List<string> warnings = new List<string>();
                                     modifer.Modifier.TryGetWarnings(source.Source, warnings);
                                     foreach (string warning in warnings)
                                     {
@@ -277,7 +319,7 @@ namespace Wireframe
                                 }
                             }
                         }
-                        
+
                         if (i > 0)
                         {
                             using (new GUILayout.HorizontalScope())
@@ -291,6 +333,23 @@ namespace Wireframe
                                 }
                             }
                         
+                        }
+                        
+                        if (source.Source != null)
+                        {
+                            List<string> errors = new List<string>();
+                            source.Source.TryGetErrors(errors);
+                            foreach (string error in errors)
+                            {
+                                DrawError(error);
+                            }
+                            
+                            List<string> warnings = new List<string>();
+                            source.Source.TryGetWarnings(warnings);
+                            foreach (string warning in warnings)
+                            {
+                                DrawWarning(warning);
+                            }
                         }
                         
                         GUILayout.Space(10);
@@ -425,8 +484,16 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                             {
                                 destinationData.Destination.OnGUIExpanded(ref isDirty);
+                                
+                                List<string> errors = new List<string>();
+                                destinationData.Destination.TryGetErrors(errors);
+                                foreach (string error in errors)
+                                {
+                                    DrawError(error);
+                                }
 
                                 List<string> warnings = new List<string>();
+                                destinationData.Destination.TryGetWarnings(warnings);
                                 foreach (ModifierData modifier in m_modifiers)
                                 {
                                     if (modifier.ModifierType == null || !modifier.Enabled)
@@ -446,7 +513,6 @@ namespace Wireframe
                         
                         GUILayout.Space(10);
                     }
-
 
                     using (new GUILayout.HorizontalScope())
                     {

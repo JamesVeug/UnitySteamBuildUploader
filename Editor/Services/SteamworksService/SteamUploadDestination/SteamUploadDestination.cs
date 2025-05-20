@@ -156,41 +156,6 @@ namespace Wireframe
             return "Uploading to Steamworks";
         }
 
-        public override bool IsSetup(out string reason)
-        {
-            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out reason))
-            {
-                return false;
-            }
-            
-            if (m_current == null)
-            {
-                reason = "No App selected";
-                return false;
-            }
-
-            if (m_depot == null)
-            {
-                reason = "No Depot selected";
-                return false;
-            }
-
-            if (m_destinationBranch == null)
-            {
-                reason = "No Branch selected";
-                return false;
-            }
-
-            if (m_destinationBranch.name == "default")
-            {
-                reason = "Uploading to the 'default' branch is not allowed by SteamSDK. Use none or an empty branch name instead and use the dashboard to assign to default.";
-                return false;
-            }
-
-            reason = "";
-            return true;
-        }
-
         public override Dictionary<string, object> Serialize()
         {
             Dictionary<string, object> data = new Dictionary<string, object>
@@ -249,6 +214,45 @@ namespace Wireframe
             else if (data.TryGetValue("m_destinationBranch", out object m_destinationBranchName))
             {
                 m_destinationBranch = m_current.ConfigBranches.FirstOrDefault(a=>a.name == m_destinationBranchName.ToString());
+            }
+        }
+
+        public override void TryGetWarnings(List<string> warnings)
+        {
+            base.TryGetWarnings(warnings);
+
+            if (!m_uploadToSteam)
+            {
+                warnings.Add("Uploading to Steam is disabled but the Build Uploader will still create required and log into Steam.");
+            }
+        }
+
+        public override void TryGetErrors(List<string> errors)
+        {
+            base.TryGetErrors(errors);
+            
+            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out string serviceReason))
+            {
+                errors.Add(serviceReason);
+            }
+            
+            if (m_current == null)
+            {
+                errors.Add("No App selected");
+            }
+
+            if (m_depot == null)
+            {
+                errors.Add("No Depot selected");
+            }
+
+            if (m_destinationBranch == null)
+            {
+                errors.Add("No Branch selected");
+            }
+            else if (m_destinationBranch.name == "default")
+            {
+                errors.Add("Uploading to the 'default' branch is not allowed by the SteamSDK.\nUse none or an empty branch name instead and use the Steamworks dashboard to assign to default.");
             }
         }
     }

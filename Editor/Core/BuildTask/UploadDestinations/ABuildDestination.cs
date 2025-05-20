@@ -30,7 +30,6 @@ namespace Wireframe
 
         public abstract Task<bool> Upload(BuildTaskReport.StepResult stepResult);
         public abstract string ProgressTitle();
-        public abstract bool IsSetup(out string reason);
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);
 
@@ -53,6 +52,16 @@ namespace Wireframe
         public virtual Task<bool> PostUpload(BuildTaskReport.StepResult report)
         {
             return Task.FromResult(true);
+        }
+
+        public virtual void TryGetWarnings(List<string> warnings)
+        {
+                
+        }
+
+        public virtual void  TryGetErrors(List<string> errors)
+        {
+            
         }
     }
 }

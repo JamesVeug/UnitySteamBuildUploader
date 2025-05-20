@@ -29,6 +29,16 @@ namespace Wireframe
             }
         }
         
+        public static Texture2D ErrorIcon
+        {
+            get
+            {
+                var iconPath = "Packages/com.veugeljame.builduploader/erroricon.png";
+                Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
+                return loadAssetAtPath as Texture2D;
+            }
+        }
+        
         public static Texture2D WarningIcon
         {
             get

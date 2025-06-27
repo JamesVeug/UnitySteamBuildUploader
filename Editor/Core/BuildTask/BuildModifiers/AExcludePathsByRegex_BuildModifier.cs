@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -96,21 +94,17 @@ namespace Wireframe
             m_reorderableList.Initialize(m_fileRegexes, ListHeader);
         }
 
-        public override bool IsSetup(out string reason)
+        public override void TryGetErrors(BuildConfig config, List<string> errors)
         {
+            base.TryGetErrors(config, errors);
             for (var i = 0; i < m_fileRegexes.Count; i++)
             {
                 var selection = m_fileRegexes[i];
                 if (string.IsNullOrEmpty(selection.Regex))
                 {
-                    reason = $"Regex at index {i+1} is empty";
-                    return false;
+                    errors.Add($"Regex at index {i+1} is empty");
                 }
-                
             }
-            
-            reason = "";
-            return true;
         }
 
         public void Add(string path, bool recursive, bool searchAllDirectories)

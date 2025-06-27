@@ -132,9 +132,9 @@ namespace Wireframe
             return m_progressDescription;
         }
 
-        public override void TryGetWarnings(List<string> errors)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetWarnings(errors);
+            base.TryGetErrors(errors);
             
             string path = GetFullPath();
             if (!File.Exists(path) && !Directory.Exists(path))

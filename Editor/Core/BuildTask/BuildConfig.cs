@@ -67,6 +67,38 @@ namespace Wireframe
             
             return errors;
         }
+        
+        public List<string> GetModifierErrors()
+        {
+            List<string> errors = new List<string>();
+            foreach (ModifierData modifier in m_modifiers)
+            {
+                if (!modifier.Enabled || modifier.ModifierType == null)
+                {
+                    continue;
+                }
+                
+                modifier.Modifier.TryGetErrors(this, errors);
+            }
+            
+            return errors;
+        }
+        
+        public List<string> GetModifierWarnings()
+        {
+            List<string> warnings = new List<string>();
+            foreach (ModifierData modifier in m_modifiers)
+            {
+                if (!modifier.Enabled || modifier.ModifierType == null)
+                {
+                    continue;
+                }
+                
+                modifier.Modifier.TryGetWarnings(this, warnings);
+            }
+            
+            return warnings;
+        }
 
         public List<string> GetDestinationErrors()
         {
@@ -187,27 +219,6 @@ namespace Wireframe
                 reason = "Need at least 1 Source";
                 return false;
             }
-            
-            for (var i = 0; i < m_modifiers.Count; i++)
-            {
-                var source = m_modifiers[i];
-                if (!source.Enabled)
-                {
-                    continue;
-                }
-                
-                if (source.Modifier == null)
-                {
-                    reason = $"Modifier #{i+1} is not setup";
-                    return false;
-                }
-
-                if (!source.Modifier.IsSetup(out string sourceReason))
-                {
-                    reason = $"Modifier #{i+1}: " + sourceReason;
-                    return false;
-                }
-            }
 
             bool atLeastOneDestination = false;
             for (var i = 0; i < m_buildDestinations.Count; i++)
@@ -239,6 +250,29 @@ namespace Wireframe
             {
                 reason = "Need at least 1 Destination";
                 return false;
+            }
+            
+            for (var i = 0; i < m_modifiers.Count; i++)
+            {
+                var modifier = m_modifiers[i];
+                if (!modifier.Enabled)
+                {
+                    continue;
+                }
+                
+                if (modifier.Modifier == null)
+                {
+                    reason = $"Modifier #{i+1} is not setup";
+                    return false;
+                }
+
+                List<string> errors = new List<string>();
+                modifier.Modifier.TryGetErrors(this, errors);
+                if (errors.Count > 0)
+                {
+                    reason = $"Modifier #{i+1}: " + string.Join(", ", errors);
+                    return false;
+                }
             }
 
             reason = "";

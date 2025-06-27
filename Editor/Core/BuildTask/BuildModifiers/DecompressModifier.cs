@@ -38,17 +38,14 @@ namespace Wireframe
             m_decompressionType = decompressionType;
             m_removeCompressedFile = removeCompressedFile;
         }
-        
-        public override bool IsSetup(out string reason)
+
+        public override void TryGetErrors(BuildConfig config, List<string> errors)
         {
+            base.TryGetErrors(config, errors);
             if (string.IsNullOrEmpty(m_filePath))
             {
-                reason = "No file path set to decompress";
-                return false;
+                errors.Add("No file path set to decompress");
             }
-
-            reason = "";
-            return true;
         }
 
         public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult)

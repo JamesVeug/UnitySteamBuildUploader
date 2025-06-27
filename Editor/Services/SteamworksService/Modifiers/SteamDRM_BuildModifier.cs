@@ -37,21 +37,19 @@ namespace Wireframe
             m_flags = flags;
         }
 
-        public override bool IsSetup(out string reason)
+        public override void TryGetErrors(BuildConfig config, List<string> errors)
         {
-            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out reason))
+            base.TryGetErrors(config, errors);
+            
+            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out string reason))
             {
-                return false;
+                errors.Add(reason);
             }
             
             if (m_app == null)
             {
-                reason = "No Steam App selected";
-                return false;
+                errors.Add("No Steam App selected");
             }
-            
-            reason = "";
-            return true;
         }
 
         public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig,

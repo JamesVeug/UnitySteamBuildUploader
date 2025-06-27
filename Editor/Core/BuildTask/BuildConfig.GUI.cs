@@ -116,6 +116,7 @@ namespace Wireframe
                     }
 
                     List<string> sourceErrors = GetSourceErrors();
+                    sourceErrors.AddRange(GetSourceErrors());
                     if (sourceErrors.Count > 0)
                     {
                         foreach (string error in sourceErrors)
@@ -134,30 +135,55 @@ namespace Wireframe
                     }
                 }
 
-                // Progress
-                string progressText = "->";
-                if (IsBuilding())
+                // Progress / Modifiers
+                using (new EditorGUILayout.VerticalScope())
                 {
-                    // TODO: Get the actual progress value from the task
-                    float progress = 0;
-                    List<SourceData> activeSources = m_buildSources.Where(a => a.Enabled).ToList();
-                    foreach (SourceData sourceData in activeSources)
+                    using (new EditorGUILayout.HorizontalScope())
                     {
-                        progress += sourceData.Source.DownloadProgress();
-                    }
+                        string progressText = "->";
+                        if (IsBuilding())
+                        {
+                            // TODO: Get the actual progress value from the task
+                            float progress = 0;
+                            List<SourceData> activeSources = m_buildSources.Where(a => a.Enabled).ToList();
+                            foreach (SourceData sourceData in activeSources)
+                            {
+                                progress += sourceData.Source.DownloadProgress();
+                            }
 
-                    List<DestinationData> activeDestinations = m_buildDestinations.Where(a => a.Enabled).ToList();
-                    foreach (DestinationData destinationData in activeDestinations)
+                            List<DestinationData> activeDestinations =
+                                m_buildDestinations.Where(a => a.Enabled).ToList();
+                            foreach (DestinationData destinationData in activeDestinations)
+                            {
+                                progress += destinationData.Destination.UploadProgress();
+                            }
+
+                            float ratio = progress / (activeSources.Count + activeDestinations.Count);
+                            int percentage = (int)(ratio * 100);
+                            progressText = string.Format("{0}%", percentage);
+                        }
+
+                        GUILayout.Label(progressText, m_titleStyle, GUILayout.Width(splitWidth));
+                    }
+                    
+                    List<string> modifierErrors = GetModifierErrors();
+                    if (modifierErrors.Count > 0)
                     {
-                        progress += destinationData.Destination.UploadProgress();
+                        foreach (string error in modifierErrors)
+                        {
+                            DrawError(error);
+                        }
                     }
-
-                    float ratio = progress / (activeSources.Count + activeDestinations.Count);
-                    int percentage = (int)(ratio * 100);
-                    progressText = string.Format("{0}%", percentage);
+                    
+                    List<string> modifierWarnings = GetModifierWarnings();
+                    if (modifierWarnings.Count > 0)
+                    {
+                        foreach (string warning in modifierWarnings)
+                        {
+                            DrawWarning(warning);
+                        }
+                    }
                 }
-
-                GUILayout.Label(progressText, m_titleStyle, GUILayout.Width(splitWidth));
 
                 using (new EditorGUILayout.VerticalScope())
                 {
@@ -227,7 +253,10 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label(Utils.ErrorIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
+                Color color = GUI.color;
+                GUI.color = Color.red;
                 GUILayout.Label("Error: " + error, EditorStyles.helpBox);
+                GUI.color = color;
             }
         }
 
@@ -417,6 +446,21 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!modifiers.Enabled))
                             {
                                 modifiers.Modifier.OnGUIExpanded(ref isDirty);
+                            }
+                        
+                            
+                            List<string> errors = new List<string>();
+                            modifiers.Modifier.TryGetErrors(this, errors);
+                            foreach (string error in errors)
+                            {
+                                DrawError(error);
+                            }
+                            
+                            List<string> warnings = new List<string>();
+                            modifiers.Modifier.TryGetWarnings(warnings);
+                            foreach (string warning in warnings)
+                            {
+                                DrawWarning(warning);
                             }
                         }
                         

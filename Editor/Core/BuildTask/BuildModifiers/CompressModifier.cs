@@ -38,17 +38,14 @@ namespace Wireframe
             m_compressionType = compressionType;
             m_removeContentAfterCompress = removeContentAfterCompress;
         }
-        
-        public override bool IsSetup(out string reason)
+
+        public override void TryGetErrors(BuildConfig config, List<string> errors)
         {
+            base.TryGetErrors(config, errors);
             if (string.IsNullOrEmpty(m_compressedFileName))
             {
-                reason = "No compressed file name set";
-                return false;
+                errors.Add("No compressed file name set");
             }
-
-            reason = "";
-            return true;
         }
 
         public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult)

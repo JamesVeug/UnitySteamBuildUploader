@@ -12,7 +12,6 @@ namespace Wireframe
             // Required for reflection
         }
 
-        public abstract bool IsSetup(out string reason);
         public abstract Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult);
         
         public virtual void TryGetErrors(BuildConfig config, List<string> errors)
@@ -44,6 +43,11 @@ namespace Wireframe
         }
         
         public virtual void TryGetErrors(ABuildDestination destination, List<string> errors)
+        {
+            
+        }
+
+        public virtual void TryGetWarnings(List<string> warnings)
         {
             
         }

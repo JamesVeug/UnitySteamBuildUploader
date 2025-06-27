@@ -192,11 +192,11 @@ namespace Wireframe
             }
 
             // Write report to a txt file
-            string fileName = $"BuildReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
-            string reportPath = Path.Combine(Preferences.CacheFolderPath, fileName);
             string taskReport = report.GetReport();
             if (Preferences.AutoSaveReportToCacheFolder)
             {
+                string fileName = $"BuildReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
+                string reportPath = Path.Combine(Preferences.CacheFolderPath, fileName);
                 try
                 {
                     Debug.Log($"[BuildUploader] Writing build task report to {reportPath}");
@@ -219,7 +219,7 @@ namespace Wireframe
             else
             {
                 Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info");
-                Debug.Log($"[BuildUploader] {reportPath}");
+                Debug.Log($"[BuildUploader] {taskReport}");
                 
                 // Get the first 3 failed lines from the report
                 StringBuilder sb = new StringBuilder();

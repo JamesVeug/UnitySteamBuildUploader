@@ -28,7 +28,7 @@ namespace Wireframe
 
         public static async Task ShowAsync(Action<bool> confirmed, Action<string> codeCallback)
         {
-            var window = GetWindow<SteamGuardTwoFactorWindow>();
+            var window = CreateWindow<SteamGuardTwoFactorWindow>();
             window.titleContent = new GUIContent("Steam Guard Two-Factor", Utils.WindowIcon);
             Rect windowPosition = window.position;
             windowPosition.size = new Vector2(400, 320);

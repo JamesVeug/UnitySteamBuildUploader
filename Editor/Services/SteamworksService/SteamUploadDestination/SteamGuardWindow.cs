@@ -26,7 +26,7 @@ namespace Wireframe
 
         public static async Task ShowAsync(Action<string> codeCallback)
         {
-            var window = GetWindow<SteamGuardWindow>();
+            var window = CreateWindow<SteamGuardWindow>();
             window.titleContent = new GUIContent("Steam Guard Verification", Utils.WindowIcon);
             Rect windowPosition = window.position;
             windowPosition.size = new Vector2(300, 200);

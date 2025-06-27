@@ -28,7 +28,7 @@ namespace Wireframe
                     rect1.width = 15;
                     
                     Color color = GUI.color;
-                    GUI.color = Color.orangeRed;
+                    GUI.color = new Color(1f,0.5f,0f);
                     GUI.Label(rect1, "!!!");
                     GUI.color = color;
                     

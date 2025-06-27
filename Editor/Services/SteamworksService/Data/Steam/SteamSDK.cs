@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -67,6 +68,10 @@ namespace Wireframe
 
         private static SteamSDK m_instance;
 
+        // SteamCMD fails if you try to run multiple instances of it at the same time.
+        // So lock uploading builds to one at a time.
+        private static SemaphoreSlim m_lock = new SemaphoreSlim(1);
+        
         private Process m_uploadProcess;
         private string m_scriptPath;
         private string m_contentPath;
@@ -219,6 +224,8 @@ namespace Wireframe
 
         public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam, BuildTaskReport.StepResult stepResult)
         {
+            await m_lock.WaitAsync();
+
             try
             {
                 bool retry = true;
@@ -241,7 +248,8 @@ namespace Wireframe
                     {
                         if (!m_uploadProcess.Start())
                         {
-                            stepResult.SetFailed("Could not start Steam upload process. Is SteamCMD installed or busy? Check the path in the preferences.");
+                            stepResult.SetFailed(
+                                "Could not start Steam upload process. Is SteamCMD installed or busy? Check the path in the preferences.");
                             return false;
                         }
                     }
@@ -252,7 +260,8 @@ namespace Wireframe
                         return false;
                     }
 
-                    stepResult.AddLog("Uploading to Steam. If you have Steam Guard lookout for a notification on your phone!");
+                    stepResult.AddLog(
+                        "Uploading to Steam. If you have Steam Guard lookout for a notification on your phone!");
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
                     stopwatch.Stop();
@@ -277,7 +286,7 @@ namespace Wireframe
                     }
 
                     m_uploadProcess.Close();
-                    
+
 
                     if (!outputResults.successful)
                     {
@@ -304,8 +313,11 @@ namespace Wireframe
                 stepResult.AddException(e);
                 stepResult.SetFailed("Could not upload to app id: " + appFile.appid + "\n" + e.Message);
             }
+            finally
+            {
+                m_lock.Release();
+            }
 
-            await Task.Delay(10);
             return stepResult.Successful;
         }
 

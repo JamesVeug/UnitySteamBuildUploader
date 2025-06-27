@@ -226,7 +226,7 @@ namespace Wireframe
                 while (retry)
                 {
                     retry = false;
-                    
+
                     m_uploadProcess = new Process();
                     m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
@@ -236,23 +236,48 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                     m_uploadProcess.EnableRaisingEvents = true;
-                    m_uploadProcess.Start();
-                    
-                    stepResult.AddLog($"Uploading to Steam. If you have Steam Guard lookout for a notification on your phone!");
-                    Stopwatch stopwatch = Stopwatch.StartNew(); 
+
+                    try
+                    {
+                        if (!m_uploadProcess.Start())
+                        {
+                            stepResult.SetFailed("Could not start Steam upload process. Is SteamCMD installed or busy? Check the path in the preferences.");
+                            return false;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        stepResult.AddException(e);
+                        stepResult.SetFailed("Could not start Steam upload process.\n" + e.Message);
+                        return false;
+                    }
+
+                    stepResult.AddLog("Uploading to Steam. If you have Steam Guard lookout for a notification on your phone!");
+                    Stopwatch stopwatch = Stopwatch.StartNew();
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
                     stopwatch.Stop();
                     stepResult.AddLog($"Steam upload took {stopwatch.ElapsedMilliseconds}ms");
-                    
+
                     // Hide username
                     if (UserName != null && UserName.Length > 2)
                     {
                         textDump = textDump.Replace(UserName, "**********");
                     }
-                    
-                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam, false);
-                    m_uploadProcess.WaitForExit();
+
+                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam, false, appFile.appid);
+
+                    try
+                    {
+                        m_uploadProcess.WaitForExit();
+                    }
+                    catch (Exception e)
+                    {
+                        // SteamCMD.exe doesn't like multiple instances of it running at the same time.
+                        stepResult.AddException(e);
+                    }
+
                     m_uploadProcess.Close();
+                    
 
                     if (!outputResults.successful)
                     {
@@ -262,6 +287,7 @@ namespace Wireframe
                         {
                             steamGuardCode = outputResults.steamGuardCode;
                         }
+
                         if (!string.IsNullOrEmpty(outputResults.steamTwoFactorCode))
                         {
                             steamGuardCode = outputResults.steamTwoFactorCode;
@@ -335,15 +361,32 @@ namespace Wireframe
             public string errorText;
         }
         
-        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading, bool drmWrapping)
+        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading, bool drmWrapping, int appID)
         {
             OutputResultArgs result = new OutputResultArgs();
             
-            int errorTextStartIndex = text.IndexOf("Error!", StringComparison.CurrentCultureIgnoreCase);
+            int errorTextStartIndex = text.IndexOf("Error", StringComparison.CurrentCultureIgnoreCase);
             if (errorTextStartIndex >= 0)
             {
-                int errorNewLine = text.IndexOf('\n', errorTextStartIndex);
-                result.errorText = text.Substring(errorTextStartIndex, errorNewLine - errorTextStartIndex);
+                int errorStartOfLine = text.LastIndexOf('\n', errorTextStartIndex);
+                if(errorStartOfLine < 0)
+                {
+                    errorStartOfLine = 0;
+                }
+                
+                int errorEndOfLine = text.IndexOf('\n', errorTextStartIndex);
+                if (errorEndOfLine < 0)
+                {
+                    errorEndOfLine = text.Length;
+                }
+                
+                result.errorText = text.Substring(errorTextStartIndex, errorEndOfLine - errorStartOfLine).Trim();
+                return result;
+            }
+
+            if (text.Contains($"Successfully finished AppID {appID} build"))
+            {
+                result.successful = true;
                 return result;
             }
 
@@ -490,7 +533,7 @@ namespace Wireframe
                 {
                     bool success = string.IsNullOrEmpty(endsWith) || line.EndsWith(endsWith, StringComparison.Ordinal);
                     startsWithIndex = i;
-                    return true;
+                    return success;
                 }
             }
 
@@ -548,7 +591,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
                     
-                    var outputResults = await LogOutSteamResult(textDump, true, true);
+                    var outputResults = await LogOutSteamResult(textDump, true, true, appID);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 

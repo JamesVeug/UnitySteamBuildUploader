@@ -486,9 +486,9 @@ namespace Wireframe
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i].Trim();
-                if (line.StartsWith(startsWith))
+                if (line.StartsWith(startsWith, StringComparison.Ordinal))
                 {
-                    bool success = string.IsNullOrEmpty(endsWith) || line.EndsWith(endsWith);
+                    bool success = string.IsNullOrEmpty(endsWith) || line.EndsWith(endsWith, StringComparison.Ordinal);
                     startsWithIndex = i;
                     return true;
                 }

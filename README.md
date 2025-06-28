@@ -25,6 +25,8 @@
   - Steamworks
     - Uploading a build
     - DRM Wrapping
+  - Github
+    - Upload a new Release
   - Unity Cloud Build
     - View builds
     - Download builds
@@ -153,53 +155,7 @@ Utilize Unity Cloud to automate make builds of your project.
 
 ## How does it work?
 
-<a href="https://imgur.com/3cKv2zs"><img src="https://i.imgur.com/3cKv2zs.png" alt="Upload process" border="0"></a>
-
-When pressing the `Download and Upload all` button the editor starts an async Build Task to begin the upload process.
-
-The Build Task has a number of steps that it goes through sequentially while its uploading. Each step is async and fires for each Build Config at the same time. When a Step is complete for all Build Configs it will proceed to the next step.
-
-> NOTE: If any Build Config fails at any point then the whole build task will cancel and notify the user of the issue.
-
-### 1. Get Source
-
-Download the build from the selected source
-eg: 
-- Choosing File/Folder will save that location to be used in the next step
-- Choosing Unity Cloud will download the build from Unity Cloud and save that location to be used in the next step
-
-
-### 2. Cache Source
-
-This will copy the selected contents from Source to a cache folder.
-
-`%userprofile%/appdata/locallow/<companyname>/<productname>/BuildUploader/CachedBuilds`
-
-The copied contents are required to be a folder and not a file or zip. The build step will unzip the contents.
-
-### 3. Modify Cached Contents
-
-This is where modifiers are applied to the cached contents.
-- Remove DoNotShip files/folders
-- Apply Steam DRM
-- etc
-
-### 4. Upload Contents
-
-This is the final step where everything is expected to be valid and ready to upload to the selected Destination.
-
-Each build config will upload at the same time.
-
-> NOTE: If 1 build fails to upload it does NOT prevent the others from uploading.
-> 
-> Example: Steam has the incorrect login credentials.
-> 
-> You can test the build before uploading by selecting `Nowhere` as the destination and disabling Deleting Caching in preferences. 
-> This will still go through the same process but not upload the build anywhere.
-
-### 5. Cleanup
-
-After the upload is complete the cache folder is deleted (Unless specified in Preferences to not)
+https://github.com/JamesVeug/UnitySteamBuildUploader/wiki#how-does-it-work
 
 
 

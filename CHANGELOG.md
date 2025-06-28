@@ -1,3 +1,19 @@
+# 2.3.0
+- General
+  - Sources/Destinations/Modifiers show errors/warnings where on the build config instead of just on the button   
+  - Steam Destination 
+    - Uploading multiple builds at once now happens sequentially now due to SteamSDK limitations
+    - Can no longer upload to `default` branch due to SteamSDK limitations
+    - Added more log handling to show errors from uploading
+- Build Report
+  - Shows display name of source type when showing files
+- Fixes
+  - Fixed Upload process not completing when the task completes.
+  - Fixed Uploading to Steam with 2 factor saying it failed but actually succeeded.
+  - Fixed Build Report not logging to console if the build task fails.
+  - Fixed SteamGuard/Two Factor Authentication confirmation popup now showing when uploading multiple builds
+
+
 # 2.2.0
 - General
   - Added **Welcome Window** for more information `Window/Build Uploader/Welcome`

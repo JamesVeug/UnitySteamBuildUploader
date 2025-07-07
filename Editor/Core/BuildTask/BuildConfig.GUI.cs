@@ -116,7 +116,6 @@ namespace Wireframe
                     }
 
                     List<string> sourceErrors = GetSourceErrors();
-                    sourceErrors.AddRange(GetSourceErrors());
                     if (sourceErrors.Count > 0)
                     {
                         foreach (string error in sourceErrors)

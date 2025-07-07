@@ -363,7 +363,7 @@ namespace Wireframe
                         
                         }
                         
-                        if (source.Source != null)
+                        if (source.Source != null && source.Enabled)
                         {
                             List<string> errors = new List<string>();
                             source.Source.TryGetErrors(errors);
@@ -446,20 +446,23 @@ namespace Wireframe
                             {
                                 modifiers.Modifier.OnGUIExpanded(ref isDirty);
                             }
-                        
-                            
-                            List<string> errors = new List<string>();
-                            modifiers.Modifier.TryGetErrors(this, errors);
-                            foreach (string error in errors)
+
+
+                            if (modifiers.Enabled)
                             {
-                                DrawError(error);
-                            }
-                            
-                            List<string> warnings = new List<string>();
-                            modifiers.Modifier.TryGetWarnings(warnings);
-                            foreach (string warning in warnings)
-                            {
-                                DrawWarning(warning);
+                                List<string> errors = new List<string>();
+                                modifiers.Modifier.TryGetErrors(this, errors);
+                                foreach (string error in errors)
+                                {
+                                    DrawError(error);
+                                }
+
+                                List<string> warnings = new List<string>();
+                                modifiers.Modifier.TryGetWarnings(warnings);
+                                foreach (string warning in warnings)
+                                {
+                                    DrawWarning(warning);
+                                }
                             }
                         }
                         
@@ -527,29 +530,32 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                             {
                                 destinationData.Destination.OnGUIExpanded(ref isDirty);
-                                
-                                List<string> errors = new List<string>();
-                                destinationData.Destination.TryGetErrors(errors);
-                                foreach (string error in errors)
-                                {
-                                    DrawError(error);
-                                }
 
-                                List<string> warnings = new List<string>();
-                                destinationData.Destination.TryGetWarnings(warnings);
-                                foreach (ModifierData modifier in m_modifiers)
+                                if (destinationData.Enabled)
                                 {
-                                    if (modifier.ModifierType == null || !modifier.Enabled)
+                                    List<string> errors = new List<string>();
+                                    destinationData.Destination.TryGetErrors(errors);
+                                    foreach (string error in errors)
                                     {
-                                        continue;
+                                        DrawError(error);
                                     }
-                                    
-                                    modifier.Modifier.TryGetWarnings(destinationData.Destination, warnings);
-                                }
 
-                                foreach (string warning in warnings)
-                                {
-                                    DrawWarning(warning);
+                                    List<string> warnings = new List<string>();
+                                    destinationData.Destination.TryGetWarnings(warnings);
+                                    foreach (ModifierData modifier in m_modifiers)
+                                    {
+                                        if (modifier.ModifierType == null || !modifier.Enabled)
+                                        {
+                                            continue;
+                                        }
+
+                                        modifier.Modifier.TryGetWarnings(destinationData.Destination, warnings);
+                                    }
+
+                                    foreach (string warning in warnings)
+                                    {
+                                        DrawWarning(warning);
+                                    }
                                 }
                             }
                         }

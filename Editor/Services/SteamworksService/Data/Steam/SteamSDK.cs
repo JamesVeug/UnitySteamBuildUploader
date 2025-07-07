@@ -180,21 +180,22 @@ namespace Wireframe
         }
 
         public async Task<bool> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch,
-            string description,
-            string sourceFilePath, BuildTaskReport.StepResult result)
+            string description, string sourceFilePath, BuildTaskReport.StepResult result)
         {
             appFile.desc = description;
             appFile.buildoutput = "..\\output\\";
             appFile.contentroot = sourceFilePath;
-            appFile.depots.Clear();
-            appFile.depots.Add(depot.DepotID, string.Format("depot_build_{0}.vdf", depot.DepotID));
             appFile.setlive = branch == "none" ? "" : branch;
+
+            string depotFileName = GetDepotFileName(depot, appFile.setlive);
+            appFile.depots.Clear();
+            appFile.depots.Add(depot.DepotID, depotFileName);
 
             string fullPath = GetAppScriptOutputPath(appFile);
             return await VDFFile.Save(appFile, fullPath, result);
         }
 
-        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, BuildTaskReport.StepResult result)
+        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, string branchName, BuildTaskReport.StepResult result)
         {
             depot.FileExclusion = "*.pdb";
             depot.FileMapping = new DepotFileMapping
@@ -204,22 +205,40 @@ namespace Wireframe
                 recursive = true
             };
 
-            string fullPath = GetDepotScriptOutputPath(depot);
+            string fileName = GetDepotFileName(depot, branchName);
+            string fullPath = Path.Combine(m_scriptPath, fileName);
             return await VDFFile.Save(depot, fullPath, result);
         }
 
         public string GetAppScriptOutputPath(AppVDFFile appFile)
         {
-            string fileName = string.Format("app_build_{0}.vdf", appFile.appid);
+            string fileName;
+            if (string.IsNullOrEmpty(appFile.setlive))
+            {
+                fileName = string.Format("app_build_{0}.vdf", appFile.appid);
+            }
+            else
+            {
+                fileName = string.Format("app_build_{0}_{1}.vdf", appFile.appid, appFile.setlive);
+            }
+
             string fullPath = Path.Combine(m_scriptPath, fileName);
             return fullPath;
         }
 
-        public string GetDepotScriptOutputPath(DepotVDFFile depot)
+        private static string GetDepotFileName(DepotVDFFile depot, string branchName)
         {
-            string fileName = string.Format("depot_build_{0}.vdf", depot.DepotID);
-            string fullPath = Path.Combine(m_scriptPath, fileName);
-            return fullPath;
+            string fileName;
+            if (string.IsNullOrEmpty(branchName))
+            {
+                fileName = string.Format("depot_build_{0}.vdf", depot.DepotID);
+            }
+            else
+            {
+                fileName = string.Format("depot_build_{0}_{1}.vdf", depot.DepotID, branchName);
+            }
+
+            return fileName;
         }
 
         public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam, BuildTaskReport.StepResult stepResult)
@@ -324,23 +343,27 @@ namespace Wireframe
         private string CreateUploadBuildSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload,
             string steamGuardCode, BuildTaskReport.StepResult stepResult)
         {
-            string fullDirectory = GetAppScriptOutputPath(appFile);
-            
             string username = UserName;
             string password = UserPassword;
             string guard = string.IsNullOrEmpty(steamGuardCode) ? "" : " " + steamGuardCode;
-            if (!upload)
+
+            string uploadArg = "";
+            if (upload)
+            {
+                string fullDirectory = GetAppScriptOutputPath(appFile);   
+                uploadArg = $" +run_app_build \"{fullDirectory}\"";
+            }
+            else
             {
                 stepResult.AddLog("Upload to Steam is disabled. Not but still attempting login.");
             }
             
-            string uploadArg = upload ? $" +run_app_build \"{fullDirectory}\"" : "";
             string arguments = string.Format("+login \"{0}\" \"{1}\"{2}{3}", username, password, guard, uploadArg);
-            
             if (quitOnComplete)
             {
                 arguments += " +quit";
             }
+            
             return arguments;
         }
         

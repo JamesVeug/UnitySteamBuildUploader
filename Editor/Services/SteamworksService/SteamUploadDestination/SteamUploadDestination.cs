@@ -129,7 +129,7 @@ namespace Wireframe
                 result.AddLog("Creating new depot file");
                 m_progressDescription = "Creating Depot File";
                 m_uploadProgress = 0.5f;
-                if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot, result))
+                if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot, m_uploadBranch.name, result))
                 {
                     result.SetFailed("Failed to create depot file");
                     return false;

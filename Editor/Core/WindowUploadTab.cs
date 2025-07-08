@@ -214,32 +214,42 @@ namespace Wireframe
             {
                 Debug.Log($"[BuildUploader] Build Task successful!");
                 Debug.Log($"[BuildUploader] {taskReport}");
-                EditorUtility.DisplayDialog("Build Uploader", "All builds uploaded successfully!", "Yay!");
+                if (Preferences.ShowConfirmationWindowAfterUpload)
+                {
+                    EditorUtility.DisplayDialog("Build Uploader", "All builds uploaded successfully!", "Yay!");
+                }
             }
             else
             {
                 Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info");
                 Debug.Log($"[BuildUploader] {taskReport}");
-                
-                // Get the first 3 failed lines from the report
-                StringBuilder sb = new StringBuilder();
 
-                int logs = 0;
-                foreach (var (stepType, log) in report.GetFailReasons())
+                if (Preferences.ShowConfirmationWindowAfterUpload)
                 {
-                    sb.AppendLine($"{stepType}: {log}");
-                    logs++;
-                    if (logs >= 3)
+                    // Get the first 3 failed lines from the report
+                    StringBuilder sb = new StringBuilder();
+
+                    int logs = 0;
+                    foreach (var (stepType, log) in report.GetFailReasons())
                     {
-                        break;
+                        sb.AppendLine($"{stepType}: {log}");
+                        logs++;
+                        if (logs >= 3)
+                        {
+                            break;
+                        }
                     }
+
+                    sb.Append("\n\nSee logs for more info.");
+
+                    EditorUtility.DisplayDialog("Build Uploader", sb.ToString(), "Okay");
                 }
-
-                sb.Append("\n\nSee logs for more info.");
-
-                EditorUtility.DisplayDialog("Build Uploader", sb.ToString(), "Okay");
             }
-            BuildUploaderReportWindow.ShowWindow(report, taskReport);
+
+            if (Preferences.ShowReportAfterUpload)
+            {
+                BuildUploaderReportWindow.ShowWindow(report, taskReport);
+            }
         }
 
         private bool CanStartBuild(out string reason)

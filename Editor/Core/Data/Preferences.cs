@@ -8,16 +8,28 @@ namespace Wireframe
     {
         private static readonly string DefaultCacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
         
-        public static bool DeleteCacheAfterBuild
+        public static bool DeleteCacheAfterUpload
         {
             get => EditorPrefs.GetBool("BuildUploader_DeleteCacheAfterBuild", true);
             set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
+        }
+        
+        public static bool ShowConfirmationWindowAfterUpload
+        {
+            get => EditorPrefs.GetBool("BuildUploader_ShowConfirmationWindowAfterUpload", true);
+            set => EditorPrefs.SetBool("BuildUploader_ShowConfirmationWindowAfterUpload", value);
         }
         
         public static bool AutoSaveReportToCacheFolder
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveReportToCacheFolder", false);
             set => EditorPrefs.SetBool("BuildUploader_AutoSaveReportToCacheFolder", value);
+        }
+        
+        public static bool ShowReportAfterUpload
+        {
+            get => EditorPrefs.GetBool("BuildUploader_ShowReportAfterUpload", true);
+            set => EditorPrefs.SetBool("BuildUploader_ShowReportAfterUpload", value);
         }
         
         public static bool AutoDecompressZippedSourceFiles
@@ -89,11 +101,11 @@ namespace Wireframe
                         "If enabled, the cache folder of a build will be deleted after completion. This is useful to save space."),
                     GUILayout.Width(200));
 
-                bool cacheAfterBuild = DeleteCacheAfterBuild;
+                bool cacheAfterBuild = DeleteCacheAfterUpload;
                 bool newCacheAfterBuild = EditorGUILayout.Toggle(cacheAfterBuild);
-                if (newCacheAfterBuild != DeleteCacheAfterBuild)
+                if (newCacheAfterBuild != DeleteCacheAfterUpload)
                 {
-                    DeleteCacheAfterBuild = newCacheAfterBuild;
+                    DeleteCacheAfterUpload = newCacheAfterBuild;
                 }
             }
 
@@ -102,8 +114,23 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
+                    new GUIContent("Auto decompress source .zips", 
+                        "If enabled, a Source that contains only a .zip it will be decompressed when being copied over to the cache."), 
+                    GUILayout.Width(200));
+
+                bool autoDecompress = AutoDecompressZippedSourceFiles;
+                bool newAutoDecompress = EditorGUILayout.Toggle(autoDecompress);
+                if (newAutoDecompress != AutoDecompressZippedSourceFiles)
+                {
+                    AutoDecompressZippedSourceFiles = newAutoDecompress;
+                }
+            }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
                     new GUIContent("Auto save build reports", "" +
-                                  "If enabled, build reports made from the UI will be auto-saved to the cache folder after completion."),
+                                                              "If enabled, build reports made from the UI will be auto-saved to the cache folder after completion."),
                     GUILayout.Width(200));
 
                 bool autoSave = AutoSaveReportToCacheFolder;
@@ -117,15 +144,30 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
-                    new GUIContent("Auto decompress source .zips", 
-                        "If enabled, a Source that contains only a .zip it will be decompressed when being copied over to the cache."), 
+                    new GUIContent("Show upload confirmation window", 
+                        "If enabled, a popup window will appear indicating if the upload was successful and if not why not."), 
                     GUILayout.Width(200));
 
-                bool autoDecompress = AutoDecompressZippedSourceFiles;
+                bool autoDecompress = ShowConfirmationWindowAfterUpload;
                 bool newAutoDecompress = EditorGUILayout.Toggle(autoDecompress);
-                if (newAutoDecompress != AutoDecompressZippedSourceFiles)
+                if (newAutoDecompress != ShowConfirmationWindowAfterUpload)
                 {
-                    AutoDecompressZippedSourceFiles = newAutoDecompress;
+                    ShowConfirmationWindowAfterUpload = newAutoDecompress;
+                }
+            }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent("Show Build report after uploading", "" +
+                                                              "If enabled, when an upload completes a window will appear showing all information about what it did."),
+                    GUILayout.Width(200));
+
+                bool autoSave = ShowReportAfterUpload;
+                bool newAutoSave = EditorGUILayout.Toggle(autoSave);
+                if (newAutoSave != ShowReportAfterUpload)
+                {
+                    ShowReportAfterUpload = newAutoSave;
                 }
             }
 

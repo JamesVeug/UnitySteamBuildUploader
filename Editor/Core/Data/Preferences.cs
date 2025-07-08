@@ -26,6 +26,12 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_AutoSaveReportToCacheFolder", value);
         }
         
+        public static bool AutoSaveBuildConfigsAfterChanges
+        {
+            get => EditorPrefs.GetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", true);
+            set => EditorPrefs.SetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", value);
+        }
+        
         public static bool ShowReportAfterUpload
         {
             get => EditorPrefs.GetBool("BuildUploader_ShowReportAfterUpload", true);
@@ -126,11 +132,26 @@ namespace Wireframe
                         "\n{version} will be replaced with the version of the build. eg: 1.0.0"), 
                     GUILayout.Width(200));
 
-                string autoDecompress = DefaultDescriptionFormat;
-                string newAutoDecompress = EditorGUILayout.TextField(autoDecompress);
-                if (newAutoDecompress != DefaultDescriptionFormat)
+                string descFormat = DefaultDescriptionFormat;
+                string newDescFormat = EditorGUILayout.TextField(descFormat);
+                if (newDescFormat != DefaultDescriptionFormat)
                 {
-                    DefaultDescriptionFormat = newAutoDecompress;
+                    DefaultDescriptionFormat = newDescFormat;
+                }
+            }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent("Auto Save Build Configs", 
+                        "If enabled, after every change made to build configs in the upload tab they will be saved. If disabled then requires pressing the save button to retain your changes."), 
+                    GUILayout.Width(200));
+
+                bool autoSave = AutoSaveBuildConfigsAfterChanges;
+                bool newAutoSave = EditorGUILayout.Toggle(autoSave);
+                if (newAutoSave != AutoSaveBuildConfigsAfterChanges)
+                {
+                    AutoSaveBuildConfigsAfterChanges = newAutoSave;
                 }
             }
             
@@ -171,11 +192,11 @@ namespace Wireframe
                         "If enabled, a popup window will appear indicating if the upload was successful and if not why not."), 
                     GUILayout.Width(200));
 
-                bool autoDecompress = ShowConfirmationWindowAfterUpload;
-                bool newAutoDecompress = EditorGUILayout.Toggle(autoDecompress);
-                if (newAutoDecompress != ShowConfirmationWindowAfterUpload)
+                bool showConfirmations = ShowConfirmationWindowAfterUpload;
+                bool newShowConfirmations = EditorGUILayout.Toggle(showConfirmations);
+                if (newShowConfirmations != ShowConfirmationWindowAfterUpload)
                 {
-                    ShowConfirmationWindowAfterUpload = newAutoDecompress;
+                    ShowConfirmationWindowAfterUpload = newShowConfirmations;
                 }
             }
             
@@ -186,11 +207,11 @@ namespace Wireframe
                                                               "If enabled, when an upload completes a window will appear showing all information about what it did."),
                     GUILayout.Width(200));
 
-                bool autoSave = ShowReportAfterUpload;
-                bool newAutoSave = EditorGUILayout.Toggle(autoSave);
-                if (newAutoSave != ShowReportAfterUpload)
+                bool showReport = ShowReportAfterUpload;
+                bool newShowReport = EditorGUILayout.Toggle(showReport);
+                if (newShowReport != ShowReportAfterUpload)
                 {
-                    ShowReportAfterUpload = newAutoSave;
+                    ShowReportAfterUpload = newShowReport;
                 }
             }
 

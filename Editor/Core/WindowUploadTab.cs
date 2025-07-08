@@ -58,14 +58,21 @@ namespace Wireframe
             using (new GUILayout.VerticalScope())
             {
                 GUILayout.Label("Builds to Upload", m_titleStyle);
-                DrawSaveButton();
-
-                if (GUILayout.Button("New"))
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    BuildConfig newConfig = new BuildConfig(UploaderWindow);
-                    newConfig.SetupDefaults();
-                    m_buildsToUpload.Add(newConfig);
-                    m_isDirty = true;
+                    if (GUILayout.Button("New"))
+                    {
+                        BuildConfig newConfig = new BuildConfig(UploaderWindow);
+                        newConfig.SetupDefaults();
+                        m_buildsToUpload.Add(newConfig);
+                        m_isDirty = true;
+                    }
+                    
+                    string text = m_isDirty ? "*Save" : "Save";
+                    if (GUILayout.Button(text, GUILayout.Width(100)))
+                    {
+                        Save();
+                    }
                 }
 
                 // Builds to upload
@@ -104,6 +111,11 @@ namespace Wireframe
                             buildConfig.Collapsed = !buildConfig.Collapsed;
                         }
                     }
+                }
+
+                if (m_isDirty && Preferences.AutoSaveBuildConfigsAfterChanges)
+                {
+                    Save();
                 }
 
                 EditorGUILayout.EndScrollView();
@@ -223,15 +235,6 @@ namespace Wireframe
                 m_buildDescription += "\n\n" + text;
             });
             menu.ShowAsContext();
-        }
-
-        private void DrawSaveButton()
-        {
-            string text = m_isDirty ? "Save*" : "Save";
-            if (GUILayout.Button(text))
-            {
-                Save();
-            }
         }
 
         private async Task BuildAndUpload()
@@ -493,7 +496,7 @@ namespace Wireframe
             }
 
             File.WriteAllText(FilePath, json);
-            Debug.Log("BuildUploader Saved build configs to: " + FilePath);
+            // Debug.Log("BuildUploader Saved build configs to: " + FilePath);
         }
 
         public void Load()

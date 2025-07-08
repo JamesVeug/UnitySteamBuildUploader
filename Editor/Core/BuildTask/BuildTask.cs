@@ -73,7 +73,7 @@ namespace Wireframe
             
             // Cleanup to make sure nothing is left behind - dirtying up the user's computer
             ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+1), "Cleaning up");
-            if (Preferences.DeleteCacheAfterBuild)
+            if (Preferences.DeleteCacheAfterUpload)
             {
                 // Delete cache
                 int cleanupProgressId = ProgressUtils.Start("Cleanup", "Deleting cached files");

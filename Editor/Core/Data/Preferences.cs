@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -90,7 +91,7 @@ namespace Wireframe
             GUILayout.Label("Preferences for the Build Uploader that exists per user and not shared.", EditorStyles.wordWrappedLabel);
 
             GUILayout.Space(20);
-            EditorGUILayout.LabelField(new GUIContent("Cached Builds",
+            EditorGUILayout.LabelField(new GUIContent($"Cached Builds ({GetSizeOfCacheFolder()})",
                     "When starting an upload all source files will be copied to a temporary location to avoid modifying raw files. This is known as the cache."), 
                 EditorStyles.boldLabel);
             using (new GUILayout.HorizontalScope())
@@ -230,6 +231,44 @@ namespace Wireframe
             }
 
             GUILayout.Space(20);
+        }
+        
+        private string cachedSize = null;
+        private DateTime cachedSizeTime = DateTime.MinValue;
+        private string GetSizeOfCacheFolder()
+        {
+            // Fetch the size once a minute to avoid iterating the entire cache folder every time GUI is drawn.
+            if (!string.IsNullOrEmpty(cachedSize) && (DateTime.UtcNow - cachedSizeTime).TotalSeconds < 60)
+            {
+                return cachedSize;
+            }
+            
+            if (!System.IO.Directory.Exists(CacheFolderPath))
+            {
+                cachedSize = "0 bytes";
+                return cachedSize;
+            }
+
+            long size = 0;
+            try
+            {
+                foreach (string file in System.IO.Directory.GetFiles(CacheFolderPath, "*",
+                             System.IO.SearchOption.AllDirectories))
+                {
+                    size += new System.IO.FileInfo(file).Length;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Failed to calculate cache folder size: " + e.Message);
+                cachedSize = "Error calculating size";
+                return cachedSize;
+            }
+
+
+            cachedSize = EditorUtility.FormatBytes(size);
+            cachedSizeTime = DateTime.UtcNow;
+            return cachedSize;
         }
     }
 }

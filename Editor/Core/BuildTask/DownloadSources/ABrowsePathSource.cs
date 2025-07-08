@@ -88,7 +88,7 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
-        private string GetFullPath()
+        public string GetFullPath()
         {
             string path = GetSubPath();
             if (string.IsNullOrEmpty(path))

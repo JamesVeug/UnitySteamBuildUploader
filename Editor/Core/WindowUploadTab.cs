@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -127,20 +128,73 @@ namespace Wireframe
 
                 // Upload all
                 bool startButtonDisabled = !CanStartBuild(out string reason);
+                if (startButtonDisabled)
+                {
+                    string text = "Cannot continue: \nReason: " + reason;
+                    EditorGUILayout.HelpBox(text, MessageType.Error);
+                }
+                
                 using (new EditorGUI.DisabledScope(startButtonDisabled))
                 {
-                    string text = startButtonDisabled ? ("Cannot continue: \nReason: " + reason) : "Download and Upload all";
-                    if (GUILayout.Button(text, GUILayout.Height(100)))
+                    using (new EditorGUILayout.HorizontalScope())
                     {
-                        if (EditorUtility.DisplayDialog("Download and Upload all",
-                                "Are you sure you want to upload all enabled builds?",
-                                "Yes", "Cancel"))
+                        if (GUILayout.Button(GetBuildButtonText(), GUILayout.Height(100)))
                         {
-                            DownloadAndUpload();
+                            if (EditorUtility.DisplayDialog("Start build and Upload",
+                                    "Are you sure you want to start a new build then upload all enabled builds?" +
+                                    "\n\nNOTE: You can not cancel this operation once started!",
+                                    "Yes", "Cancel"))
+                            {
+                                BuildAndUpload();
+                            }
+                        }
+                        
+                        if (GUILayout.Button("Upload All", GUILayout.Height(100)))
+                        {
+                            if (EditorUtility.DisplayDialog("Upload All",
+                                    "Are you sure you want to upload all enabled builds?" +
+                                    "\n\nNOTE: You can not cancel this operation once started!",
+                                    "Yes", "Cancel"))
+                            {
+                                DownloadAndUpload();
+                            }
                         }
                     }
                 }
             }
+        }
+
+        private string GetBuildButtonText()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Build and Upload");
+            sb.AppendLine(EditorUserBuildSettings.activeBuildTarget.ToString());
+
+
+            List<string> flags = new List<string>();
+            if (EditorUserBuildSettings.development)
+                flags.Add("Development Build");
+
+            if (EditorUserBuildSettings.allowDebugging)
+                flags.Add("Allow Debugging");
+
+            if (EditorUserBuildSettings.buildScriptsOnly)
+                flags.Add("Build Scripts Only");
+
+            if (EditorUserBuildSettings.connectProfiler)
+                flags.Add("Connect Profiler");
+            
+            if (EditorUserBuildSettings.buildWithDeepProfilingSupport)
+                flags.Add("Deep Profiling Support");
+
+            if (flags.Count > 0)
+            {
+                string flagsText = string.Join(", ", flags);
+                sb.AppendLine($"({flagsText})");
+            }
+            
+
+            return sb.ToString();
         }
 
         private void ShowEditDescriptionMenu()
@@ -178,6 +232,118 @@ namespace Wireframe
             {
                 Save();
             }
+        }
+
+        private async Task BuildAndUpload()
+        {
+            // Get where we should build to
+            string buildPath = EditorPrefs.GetString("BuildUploader.BuildPath", "");
+            if (!string.IsNullOrEmpty(buildPath))
+            {
+                buildPath = Path.GetDirectoryName(buildPath);
+            }
+            
+            buildPath = EditorUtility.OpenFolderPanel("Select Build Folder", buildPath, "");
+            if (string.IsNullOrEmpty(buildPath))
+            {
+                Debug.Log("[BuildUploader] No build path selected. Aborting build and upload.");
+                return;
+            }
+            
+            EditorPrefs.SetString("BuildUploader.BuildPath", buildPath);
+
+            // Validate the path so all configs reference the path
+            int configsReferencingBuildPath = 0;
+            int totalConfigs = 0;
+            foreach (BuildConfig config in m_buildsToUpload)
+            {
+                if (!config.Enabled)
+                    continue;
+
+                totalConfigs++;
+                foreach (BuildConfig.SourceData source in config.Sources)
+                {
+                    if (!source.Enabled)
+                        continue;
+                    
+                    if (source.Source is ABrowsePathSource browsePathSource)
+                    {
+                        string sourcePath = browsePathSource.GetFullPath();
+                        if (sourcePath.StartsWith(buildPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            configsReferencingBuildPath++;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (totalConfigs != configsReferencingBuildPath)
+            {
+                if (!EditorUtility.DisplayDialog("Warning",
+                        "1 or more Build Configs have no sources pointing to the build path. This may result in no files being uploaded. " +
+                        "Are you sure you want to continue?", "Yes", "No"))
+                {
+                    Debug.Log("[BuildUploader] User cancelled the build and upload due to invalid build path references.");
+                    return;
+                }
+            }
+
+            // Build
+            BuildReport report = await Build(buildPath);
+            if (report.summary.result != BuildResult.Succeeded)
+            {
+                Debug.Log("[BuildUploader] Build failed! Skipping uploading step.");
+                return;
+            }
+
+            // Upload
+            DownloadAndUpload();
+        }
+
+        private async Task<BuildReport> Build(string buildPath)
+        {
+            // Get all enabled scenes in build settings
+            string[] scenes = EditorBuildSettings.scenes
+                .Where(s => s.enabled)
+                .Select(s => s.path)
+                .ToArray();
+
+#if UNITY_STANDALONE_WIN
+            string executableName = Application.productName + ".exe"; // For Windows, the executable is a .exe file
+#elif UNITY_MAC
+            string executableName = Application.productName + ".app"; // For macOS, the executable is a .app bundle
+#else
+            string executableName = Application.productName; // Default for other platforms
+#endif
+
+            BuildOptions buildOptions = BuildOptions.None;
+            if (EditorUserBuildSettings.development)
+                buildOptions |= BuildOptions.Development;
+
+            if (EditorUserBuildSettings.allowDebugging)
+                buildOptions |= BuildOptions.AllowDebugging;
+
+            if (EditorUserBuildSettings.buildScriptsOnly)
+                buildOptions |= BuildOptions.BuildScriptsOnly;
+
+            if (EditorUserBuildSettings.connectProfiler)
+                buildOptions |= BuildOptions.ConnectWithProfiler;
+            
+            if (EditorUserBuildSettings.buildWithDeepProfilingSupport)
+                buildOptions |= BuildOptions.EnableDeepProfilingSupport;
+            
+            BuildPlayerOptions options = new BuildPlayerOptions
+            {
+                scenes = scenes,
+                locationPathName = Path.Combine(buildPath, executableName),
+                targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
+                target = EditorUserBuildSettings.activeBuildTarget,
+                options = buildOptions,
+            };
+
+            // Build the player
+            return BuildPipeline.BuildPlayer(options);
         }
 
         private async Task DownloadAndUpload()

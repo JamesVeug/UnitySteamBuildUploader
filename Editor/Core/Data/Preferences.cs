@@ -38,6 +38,12 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_AutoDecompressZippedSourceFiles", value);
         }
         
+        public static string DefaultDescriptionFormat
+        {
+            get => EditorPrefs.GetString("BuildUploader_DefaultDescriptionFormat", "v{version} - ");
+            set => EditorPrefs.SetString("BuildUploader_DefaultDescriptionFormat", value);
+        }
+        
         public static string CacheFolderPath
         {
             get => ProjectEditorPrefs.GetString("BuildUploader_CacheFolderPath", DefaultCacheFolder);
@@ -111,6 +117,23 @@ namespace Wireframe
 
             GUILayout.Space(20);
             EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent("Default Description:", 
+                        "Description in the Upload tab to start with when opened." +
+                        "\n\nFormats:" +
+                        "\n{version} will be replaced with the version of the build. eg: 1.0.0"), 
+                    GUILayout.Width(200));
+
+                string autoDecompress = DefaultDescriptionFormat;
+                string newAutoDecompress = EditorGUILayout.TextField(autoDecompress);
+                if (newAutoDecompress != DefaultDescriptionFormat)
+                {
+                    DefaultDescriptionFormat = newAutoDecompress;
+                }
+            }
+            
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(

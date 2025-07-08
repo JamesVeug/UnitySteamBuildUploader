@@ -31,6 +31,12 @@ namespace Wireframe
         private bool m_isDirty;
         private Vector2 m_descriptionScrollPosition;
 
+        public override void Initialize(BuildUploaderWindow uploaderWindow)
+        {
+            base.Initialize(uploaderWindow);
+            m_buildDescription = FormatDescription();
+        }
+
         private void Setup()
         {
             m_titleStyle = new GUIStyle(GUI.skin.label)
@@ -141,6 +147,7 @@ namespace Wireframe
         {
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Clear"), false, () => m_buildDescription = "");
+            menu.AddItem(new GUIContent("Reset"), false, () => m_buildDescription = FormatDescription());
             menu.AddItem(new GUIContent("Set/Text file"), false, () =>
             {
                 // Choose file
@@ -374,6 +381,12 @@ namespace Wireframe
                     }
                 }
             }
+        }
+
+        private string FormatDescription()
+        {
+            string format = Preferences.DefaultDescriptionFormat;
+            return format.Replace("{version}", Application.version);
         }
     }
 }

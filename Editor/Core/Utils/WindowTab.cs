@@ -7,7 +7,7 @@
 
         public virtual bool Enabled => true;
 
-        public void Initialize(BuildUploaderWindow uploaderWindow)
+        public virtual void Initialize(BuildUploaderWindow uploaderWindow)
         {
             this.UploaderWindow = uploaderWindow;
         }

@@ -16,25 +16,7 @@ namespace Wireframe
         
         public virtual void TryGetErrors(BuildConfig config, List<string> errors)
         {
-            foreach (BuildConfig.SourceData data in config.Sources)
-            {
-                if(!data.Enabled || data.Source == null)
-                {
-                    continue;
-                }
-                
-                TryGetErrors(data.Source, errors);
-            }
             
-            foreach (BuildConfig.DestinationData destination in config.Destinations)
-            {
-                if(!destination.Enabled || destination.Destination == null)
-                {
-                    continue;
-                }
-                
-                TryGetErrors(destination.Destination, errors);
-            }
         }
         
         public virtual void TryGetErrors(ABuildSource source, List<string> errors)
@@ -54,25 +36,7 @@ namespace Wireframe
         
         public virtual void TryGetWarnings(BuildConfig config, List<string> warnings)
         {
-            foreach (BuildConfig.SourceData data in config.Sources)
-            {
-                if(!data.Enabled || data.Source == null)
-                {
-                    continue;
-                }
-                
-                TryGetWarnings(data.Source, warnings);
-            }
             
-            foreach (BuildConfig.DestinationData destination in config.Destinations)
-            {
-                if(!destination.Enabled || destination.Destination == null)
-                {
-                    continue;
-                }
-                
-                TryGetWarnings(destination.Destination, warnings);
-            }
         }
         
         public virtual void TryGetWarnings(ABuildSource source, List<string> warnings)

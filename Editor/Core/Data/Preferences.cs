@@ -7,6 +7,14 @@ namespace Wireframe
     public class Preferences : SettingsProvider
     {
         private static readonly string DefaultCacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
+
+        public enum ShowIf
+        {
+            Always,
+            Never,
+            Successful,
+            Failed,
+        }
         
         public static bool DeleteCacheAfterUpload
         {
@@ -14,10 +22,10 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_DeleteCacheAfterBuild", value);
         }
         
-        public static bool ShowConfirmationWindowAfterUpload
+        public static ShowIf ShowConfirmationWindowAfterUpload
         {
-            get => EditorPrefs.GetBool("BuildUploader_ShowConfirmationWindowAfterUpload", true);
-            set => EditorPrefs.SetBool("BuildUploader_ShowConfirmationWindowAfterUpload", value);
+            get => (ShowIf)EditorPrefs.GetInt("BuildUploader_ShowConfirmationWindowAfterUpload", (int)ShowIf.Always);
+            set => EditorPrefs.SetInt("BuildUploader_ShowConfirmationWindowAfterUpload", (int)value);
         }
         
         public static bool AutoSaveReportToCacheFolder
@@ -32,10 +40,10 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", value);
         }
         
-        public static bool ShowReportAfterUpload
+        public static ShowIf ShowReportAfterUpload
         {
-            get => EditorPrefs.GetBool("BuildUploader_ShowReportAfterUpload", true);
-            set => EditorPrefs.SetBool("BuildUploader_ShowReportAfterUpload", value);
+            get => (ShowIf)EditorPrefs.GetInt("BuildUploader_ShowReportAfterUpload", (int)ShowIf.Always);
+            set => EditorPrefs.SetInt("BuildUploader_ShowReportAfterUpload", (int)value);
         }
         
         public static bool AutoDecompressZippedSourceFiles
@@ -192,8 +200,8 @@ namespace Wireframe
                         "If enabled, a popup window will appear indicating if the upload was successful and if not why not."), 
                     GUILayout.Width(200));
 
-                bool showConfirmations = ShowConfirmationWindowAfterUpload;
-                bool newShowConfirmations = EditorGUILayout.Toggle(showConfirmations);
+                ShowIf showConfirmations = ShowConfirmationWindowAfterUpload;
+                ShowIf newShowConfirmations = (ShowIf)EditorGUILayout.EnumPopup(showConfirmations);
                 if (newShowConfirmations != ShowConfirmationWindowAfterUpload)
                 {
                     ShowConfirmationWindowAfterUpload = newShowConfirmations;
@@ -207,8 +215,8 @@ namespace Wireframe
                                                               "If enabled, when an upload completes a window will appear showing all information about what it did."),
                     GUILayout.Width(200));
 
-                bool showReport = ShowReportAfterUpload;
-                bool newShowReport = EditorGUILayout.Toggle(showReport);
+                ShowIf showReport = ShowReportAfterUpload;
+                ShowIf newShowReport = (ShowIf)EditorGUILayout.EnumPopup(showReport);
                 if (newShowReport != ShowReportAfterUpload)
                 {
                     ShowReportAfterUpload = newShowReport;

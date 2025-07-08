@@ -390,9 +390,14 @@ namespace Wireframe
             {
                 Debug.Log($"[BuildUploader] Build Task successful!");
                 Debug.Log($"[BuildUploader] {taskReport}");
-                if (Preferences.ShowConfirmationWindowAfterUpload)
+                if (Preferences.ShowConfirmationWindowAfterUpload is Preferences.ShowIf.Always or Preferences.ShowIf.Successful)
                 {
                     EditorUtility.DisplayDialog("Build Uploader", "All builds uploaded successfully!", "Yay!");
+                }
+                
+                if (Preferences.ShowReportAfterUpload is Preferences.ShowIf.Always or Preferences.ShowIf.Successful)
+                {
+                    BuildUploaderReportWindow.ShowWindow(report, taskReport);
                 }
             }
             else
@@ -400,7 +405,7 @@ namespace Wireframe
                 Debug.LogError($"[BuildUploader] Build Task Failed! See logs for more info");
                 Debug.Log($"[BuildUploader] {taskReport}");
 
-                if (Preferences.ShowConfirmationWindowAfterUpload)
+                if (Preferences.ShowConfirmationWindowAfterUpload is Preferences.ShowIf.Always or Preferences.ShowIf.Failed)
                 {
                     // Get the first 3 failed lines from the report
                     StringBuilder sb = new StringBuilder();
@@ -420,11 +425,11 @@ namespace Wireframe
 
                     EditorUtility.DisplayDialog("Build Uploader", sb.ToString(), "Okay");
                 }
-            }
-
-            if (Preferences.ShowReportAfterUpload)
-            {
-                BuildUploaderReportWindow.ShowWindow(report, taskReport);
+                
+                if (Preferences.ShowReportAfterUpload is Preferences.ShowIf.Always or Preferences.ShowIf.Failed)
+                {
+                    BuildUploaderReportWindow.ShowWindow(report, taskReport);
+                }
             }
         }
 

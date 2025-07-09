@@ -9,7 +9,7 @@ namespace Wireframe {
     {
         private Vector2 scrollPosition;
         
-        [MenuItem("Window/Build Uploader/Welcome", false, 1)]
+        [MenuItem("Window/Build Uploader/Welcome", false, 0)]
         public static void ShowWindow()
         {
             BuildUploaderWelcomeWindow window = GetWindow<BuildUploaderWelcomeWindow>();

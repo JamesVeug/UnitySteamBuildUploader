@@ -26,6 +26,7 @@ namespace Wireframe
         
         private List<BuildConfig> m_buildsToUpload;
 
+        private string m_buildPath;
         private GUIStyle m_titleStyle;
         private Vector2 m_scrollPosition;
         private string m_buildDescription;
@@ -35,6 +36,7 @@ namespace Wireframe
         public override void Initialize(BuildUploaderWindow uploaderWindow)
         {
             base.Initialize(uploaderWindow);
+            m_buildPath = EditorPrefs.GetString("BuildUploader.BuildPath", "");
             m_buildDescription = FormatDescription();
         }
 
@@ -138,39 +140,111 @@ namespace Wireframe
                 m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
                 GUILayout.EndScrollView();
 
-                // Upload all
-                bool startButtonDisabled = !CanStartBuild(out string reason);
-                if (startButtonDisabled)
+
+                bool canUpload = CanStartUpload(out string reason);
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    string text = "Cannot continue: \nReason: " + reason;
-                    EditorGUILayout.HelpBox(text, MessageType.Error);
-                }
-                
-                using (new EditorGUI.DisabledScope(startButtonDisabled))
-                {
-                    using (new EditorGUILayout.HorizontalScope())
+                    using (new EditorGUILayout.VerticalScope())
                     {
-                        if (GUILayout.Button(GetBuildButtonText(), GUILayout.Height(100)))
+                        if (!canUpload)
                         {
-                            if (EditorUtility.DisplayDialog("Start build and Upload",
-                                    "Are you sure you want to start a new build then upload all enabled builds?" +
-                                    "\n\nNOTE: You can not cancel this operation once started!",
-                                    "Yes", "Cancel"))
-                            {
-                                BuildAndUpload();
-                            }
+                            string warning = "There are errors that may prevent uploading to start once a build is complete";
+                            EditorGUILayout.HelpBox(warning, MessageType.Warning);
                         }
                         
-                        if (GUILayout.Button("Upload All", GUILayout.Height(100)))
+                        DrawUploadButton();
+                    }
+
+                    // Upload all
+                    using (new EditorGUILayout.VerticalScope())
+                    {
+                        if (!canUpload)
                         {
-                            if (EditorUtility.DisplayDialog("Upload All",
-                                    "Are you sure you want to upload all enabled builds?" +
-                                    "\n\nNOTE: You can not cancel this operation once started!",
-                                    "Yes", "Cancel"))
+                            EditorGUILayout.HelpBox(reason, MessageType.Error);
+                        }
+
+                        using (new EditorGUI.DisabledScope(canUpload))
+                        {
+                            if (GUILayout.Button("Upload All", GUILayout.Height(100)))
                             {
-                                DownloadAndUpload();
+                                if (EditorUtility.DisplayDialog("Upload All",
+                                        "Are you sure you want to upload all enabled builds?" +
+                                        "\n\nNOTE: You can not cancel this operation once started!",
+                                        "Yes", "Cancel"))
+                                {
+                                    DownloadAndUpload();
+                                }
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        private string GetFormattedBuildPath()
+        {
+            if (string.IsNullOrEmpty(m_buildPath))
+            {
+                return "";
+            }
+            
+            return m_buildPath.Replace("{version}", Application.version);
+        }
+
+        private void DrawUploadButton()
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Build Path", GUILayout.MaxWidth(70));
+                var newPath = EditorGUILayout.TextField(m_buildPath);
+                if (newPath != m_buildPath)
+                {
+                    m_buildPath = newPath;
+                    EditorPrefs.SetString("BuildUploader.BuildPath", m_buildPath);
+                }
+                
+                if (GUILayout.Button("...", GUILayout.MaxWidth(20)))
+                {
+                    string path = EditorUtility.OpenFolderPanel("Select Build Folder", GetFormattedBuildPath(), "");
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        m_buildPath = path;
+                        EditorPrefs.SetString("BuildUploader.BuildPath", m_buildPath);
+                    }
+                }
+                
+                if (GUILayout.Button("Show", GUILayout.MaxWidth(100)))
+                {
+                    if (Directory.Exists(GetFormattedBuildPath()))
+                    {
+                        EditorUtility.RevealInFinder(GetFormattedBuildPath());
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Error", "Build path does not exist!", "OK");
+                    }
+                }
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Final Path", GUILayout.MaxWidth(70));
+                string formattedPath = GetFormattedBuildPath();
+                EditorGUILayout.LabelField(formattedPath, GUILayout.ExpandWidth(true));
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button(GetBuildButtonText(), GUILayout.Height(60)))
+                {
+                    if (EditorUtility.DisplayDialog("Start build and Upload",
+                            "Are you sure you want to start a new build then upload all enabled builds?" +
+                            "\nPath: " + GetFormattedBuildPath() +
+                            
+                            "\n\nNOTE: You can not cancel this operation once started!",
+                            "Yes", "Cancel"))
+                    {
+                        BuildAndUpload(GetFormattedBuildPath());
                     }
                 }
             }
@@ -237,24 +311,8 @@ namespace Wireframe
             menu.ShowAsContext();
         }
 
-        private async Task BuildAndUpload()
+        private async Task BuildAndUpload(string buildPath)
         {
-            // Get where we should build to
-            string buildPath = EditorPrefs.GetString("BuildUploader.BuildPath", "");
-            if (!string.IsNullOrEmpty(buildPath))
-            {
-                buildPath = Path.GetDirectoryName(buildPath);
-            }
-            
-            buildPath = EditorUtility.OpenFolderPanel("Select Build Folder", buildPath, "");
-            if (string.IsNullOrEmpty(buildPath))
-            {
-                Debug.Log("[BuildUploader] No build path selected. Aborting build and upload.");
-                return;
-            }
-            
-            EditorPrefs.SetString("BuildUploader.BuildPath", buildPath);
-
             // Validate the path so all configs reference the path
             int configsReferencingBuildPath = 0;
             int totalConfigs = 0;
@@ -448,7 +506,7 @@ namespace Wireframe
             }
         }
 
-        private bool CanStartBuild(out string reason)
+        private bool CanStartUpload(out string reason)
         {
             if (m_buildsToUpload == null)
             {

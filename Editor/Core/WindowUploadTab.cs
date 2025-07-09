@@ -278,6 +278,10 @@ namespace Wireframe
                             break;
                         }
                     }
+                    else if (source.Source is LastBuildSource)
+                    {
+                        configsReferencingBuildPath++;
+                    }
                 }
             }
             
@@ -346,7 +350,14 @@ namespace Wireframe
             };
 
             // Build the player
-            return BuildPipeline.BuildPlayer(options);
+            BuildReport report = BuildPipeline.BuildPlayer(options);
+            if (report.summary.result == BuildResult.Succeeded)
+            {
+                LastBuildDirectoryUtil.LastBuildDirectory = Path.GetDirectoryName(report.summary.outputPath);
+            }
+            
+            
+            return report;
         }
 
         private async Task DownloadAndUpload()

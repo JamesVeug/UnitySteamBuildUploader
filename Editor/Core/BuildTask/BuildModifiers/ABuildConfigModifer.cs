@@ -14,6 +14,11 @@ namespace Wireframe
 
         public abstract Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult);
         
+        public virtual bool IgnoreFileDuringCacheSource(string path, int buildIndex, BuildTaskReport.StepResult stepResult)
+        {
+            return false;
+        }
+        
         public virtual void TryGetErrors(BuildConfig config, List<string> errors)
         {
             
@@ -48,7 +53,7 @@ namespace Wireframe
         {
             
         }
-
+        
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> data);
     }

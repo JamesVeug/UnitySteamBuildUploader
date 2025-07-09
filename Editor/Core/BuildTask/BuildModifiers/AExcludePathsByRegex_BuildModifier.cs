@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -56,11 +57,21 @@ namespace Wireframe
                 SearchAllDirectories = (bool)data["SearchAllDirectories"];
             }
         }
+
+        public enum WhenToExclude
+        {
+            DoNotCopyFromSource,
+            DeleteFromCache,
+        }
         
         protected abstract string ListHeader { get; }
         
+        [Wiki("WhenToExclude", "If set Source then files matching the regex will not be copied. If set to Cache then files already copied will be removed.")]
+        private WhenToExclude m_WhenToExclude = WhenToExclude.DoNotCopyFromSource;
+        
         [Wiki("Regexes", "A list of regex to select which files/folders that will be excluded/deleted before being uploaded.")]
         private List<Selection> m_fileRegexes = new List<Selection>();
+        
         private ReorderableListOfExcludeFileByRegexSelection m_reorderableList = new ReorderableListOfExcludeFileByRegexSelection();
 
         public AExcludePathsByRegex_BuildModifier()
@@ -119,9 +130,39 @@ namespace Wireframe
 
         protected abstract string[] GetFiles(string cachedDirectory, Selection regex);
         
+        public override bool IgnoreFileDuringCacheSource(string path, int buildIndex, BuildTaskReport.StepResult stepResult)
+        {
+            if (m_WhenToExclude != WhenToExclude.DoNotCopyFromSource)
+            {
+                return false;
+            }
+            
+            for (var i = 0; i < m_fileRegexes.Count; i++)
+            {
+                var regex = m_fileRegexes[i];
+                if (!regex.Enabled)
+                {
+                    stepResult.AddLog($"Skipping regex {i} because it's disabled");
+                    continue;
+                }
+
+                if (Regex.IsMatch(path, regex.Regex))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig,
             int buildIndex, BuildTaskReport.StepResult stepResult)
         {
+            if (m_WhenToExclude != WhenToExclude.DeleteFromCache)
+            {
+                return true;
+            }
+            
             int progressId = ProgressUtils.Start("Exclude Files Modifier", "Removing files from cache...");
             int active = m_fileRegexes.Count(a => a.Enabled);
 
@@ -134,12 +175,12 @@ namespace Wireframe
                     stepResult.AddLog($"Skipping regex {i} because it's disabled");
                     continue;
                 }
-
+            
                 await Task.Yield();
-
+            
                 float percentDone = (float)i / active;
                 ProgressUtils.Report(progressId, percentDone, $"Removing {regex.Regex} files");
-
+            
                 int deleteCount = 0;
                 try
                 {
@@ -175,12 +216,36 @@ namespace Wireframe
         {
             return new Dictionary<string, object>
             {
+                ["ExcludedUploadStep"] = m_WhenToExclude.ToString(),
                 ["regexes"] = m_fileRegexes.Select(a=>a.Serialize()).ToArray(),
             };
         }
 
         public override void Deserialize(Dictionary<string, object> data)
         {
+            if (data == null)
+            {
+                return;
+            }
+            
+            if (data.TryGetValue("ExcludedUploadStep", out var value))
+            {
+                string step = (string)value;
+                if (Enum.TryParse(step, out WhenToExclude uploadStep))
+                {
+                    m_WhenToExclude = uploadStep;
+                }
+                else
+                {
+                    m_WhenToExclude = WhenToExclude.DoNotCopyFromSource; // Default to Source if parsing fails
+                }
+            }
+            else
+            {
+                // Migrate old data people expected it to happen to the cache
+                m_WhenToExclude = WhenToExclude.DeleteFromCache;
+            }
+            
             var allRegexes = (List<object>)data["regexes"];
             m_fileRegexes.Clear();
             foreach (object o in allRegexes)

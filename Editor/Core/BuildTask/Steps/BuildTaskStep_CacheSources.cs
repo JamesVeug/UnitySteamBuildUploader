@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 
@@ -71,6 +73,11 @@ namespace Wireframe
             BuildConfig buildConfig = task.BuildConfigs[configIndex];
             BuildTaskReport.StepResult[] reports = report.NewReports(Type, buildConfig.Sources.Count);
 
+            ABuildConfigModifer[] modifiers = buildConfig.Modifiers
+                .Where(a => a.Enabled && a.Modifier != null)
+                .Select(a => a.Modifier)
+                .ToArray();
+
             // Files export to /BuildUploader/CachedBuilds/GUID/*.*
             int sourceIndex = 0;
             string cacheFolderPath = Path.Combine(directoryPath, buildConfig.GUID);
@@ -109,13 +116,13 @@ namespace Wireframe
 
                 try
                 {
-                    bool cached = await CacheSource(sourceData, configIndex, i, sourcePath, result);
+                    bool cached = await CacheSource(sourceData, modifiers, configIndex, i, sourcePath, result);
                     if (!cached)
                     {
                         return false;
                     }
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     result.AddException(e);
                     result.SetFailed("Failed to cache source: " + sourceData.Source.SourceFilePath());
@@ -126,8 +133,8 @@ namespace Wireframe
             return true;
         }
         
-        private async Task<bool> CacheSource(BuildConfig.SourceData sourceData, int configIndex, int sourceIndex,
-            string cacheFolderPath, BuildTaskReport.StepResult result)
+        private async Task<bool> CacheSource(BuildConfig.SourceData sourceData, ABuildConfigModifer[] modifiers,
+            int configIndex, int sourceIndex, string cacheFolderPath, BuildTaskReport.StepResult result)
         {
             string sourcePath = sourceData.Source.SourceFilePath();
             bool sourceIsADirectory = Utils.IsPathADirectory(sourcePath);
@@ -146,35 +153,54 @@ namespace Wireframe
                 result.SetFailed($"Source path is empty");
                 return false;
             }
+
+
+            bool IgnorePath(string path)
+            {
+                // Check if any modifiers want to ignore this file
+                foreach (ABuildConfigModifer modifier in modifiers)
+                {
+                    if (modifier.IgnoreFileDuringCacheSource(path, configIndex, result))
+                    {
+                        result.AddLog($"Skipping copying source file {path} because it was ignored by modifier: {modifier.GetType().Name}");
+                        return true;
+                    }
+                }
+
+                return false;
+            }
             
             
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory
             if (sourceIsADirectory)
             {
-                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, cacheFolderPath, sourceData.DuplicateFileHandling, result);
-                if (!copiedSuccessfully)
-                {
-                    return false;
-                }
+                bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, cacheFolderPath, sourceData.DuplicateFileHandling, result, IgnorePath);
+                return copiedSuccessfully;
             }
-            else if (sourcePath.EndsWith(".zip") && Preferences.AutoDecompressZippedSourceFiles)
+
+            if (IgnorePath(sourcePath))
+            {
+                return true;
+            }
+            
+            if (sourcePath.EndsWith(".zip") && Preferences.AutoDecompressZippedSourceFiles)
             {
                 // Unzip to a different location
                 // BuildUploader/CachedBuilds/GUID/...
                 result.AddLog("Auto-Decompressing .zip source file " + sourcePath + " to " + cacheFolderPath + ".\n" +
                               "To disable this feature, go to Preferences > Build Uploader > Auto Decompress Zipped Source Files");
-                return await ZipUtils.UnZip(sourcePath, cacheFolderPath, result);
+                bool unzippedSuccessfully = await ZipUtils.UnZip(sourcePath, cacheFolderPath, result);
+                return unzippedSuccessfully;
             }
             else
             {
                 // Getting a file - put it in its own folder
                 // BuildUploader/CachedBuilds/GUID/FileName.extension
                 string copiedFilePath = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
-                return await Utils.CopyFileAsync(sourcePath, copiedFilePath, sourceData.DuplicateFileHandling, result);
+                bool copiedFileSuccessfully = await Utils.CopyFileAsync(sourcePath, copiedFilePath, sourceData.DuplicateFileHandling, result);
+                return copiedFileSuccessfully;
             }
-
-            return true;
         }
         
         public override Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report)

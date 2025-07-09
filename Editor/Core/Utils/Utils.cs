@@ -105,17 +105,26 @@ namespace Wireframe
             return true;
         }
         
-        public static async Task<bool> CopyDirectoryAsync(string source, string destination, FileExistHandling dupeFileHandling, BuildTaskReport.StepResult result = null)
+        public static async Task<bool> CopyDirectoryAsync(string source, string destination, FileExistHandling dupeFileHandling, BuildTaskReport.StepResult result = null, Func<string, bool> ignore = null)
         {
             try
             {
                 foreach (string dirPath in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
                 {
+                    if (ignore != null && ignore(dirPath))
+                    {
+                        continue;
+                    }
                     Directory.CreateDirectory(dirPath.Replace(source, destination));
                 }
 
                 foreach (string newPath in Directory.GetFiles(source, "*.*", SearchOption.AllDirectories))
                 {
+                    if (ignore != null && ignore(newPath))
+                    {
+                        continue;
+                    }
+                    
                     string destinationFile = newPath.Replace(source, destination);
                     string directory = Path.GetDirectoryName(destinationFile);
                     if (!Directory.Exists(directory))

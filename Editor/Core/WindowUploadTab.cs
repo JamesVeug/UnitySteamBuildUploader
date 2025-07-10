@@ -362,6 +362,19 @@ namespace Wireframe
                 return;
             }
 
+            // Make sure we CAN upload
+            if (!CanStartUpload(out string reason))
+            {
+                Debug.LogError($"[BuildUploader] Build successful but can not start upload: {reason}");
+                if (Preferences.ShowConfirmationWindowAfterUpload == Preferences.ShowIf.Always || 
+                    Preferences.ShowConfirmationWindowAfterUpload == Preferences.ShowIf.Failed)
+                {
+                    // Show error dialog
+                    EditorUtility.DisplayDialog("Build Uploader", reason, "Okay");
+                }
+                return;
+            }
+
             // Upload
             DownloadAndUpload();
         }

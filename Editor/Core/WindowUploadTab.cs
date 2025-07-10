@@ -27,9 +27,12 @@ namespace Wireframe
         private List<BuildConfig> m_buildsToUpload;
 
         private string m_buildPath;
+        private bool m_showFormattedBuildPath = false;
+        
         private GUIStyle m_titleStyle;
         private Vector2 m_scrollPosition;
         private string m_buildDescription;
+        private bool m_showFormattedDescription = false;
         private bool m_isDirty;
         private Vector2 m_descriptionScrollPosition;
 
@@ -37,7 +40,7 @@ namespace Wireframe
         {
             base.Initialize(uploaderWindow);
             m_buildPath = EditorPrefs.GetString("BuildUploader.BuildPath", "");
-            m_buildDescription = FormatDescription();
+            m_buildDescription = Preferences.DefaultDescriptionFormat;
         }
 
         private void Setup()
@@ -128,7 +131,15 @@ namespace Wireframe
                 // Description
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Description:");
+                    m_showFormattedDescription = EditorGUILayout.Toggle(m_showFormattedDescription, GUILayout.Width(15));
+                    
+                    GUIContent label = new GUIContent("Build Description", "A description of the build that will be uploaded." +
+                                                                           "\nDescription is included in some destinations such as Steamworks so keep it short." +
+                                                                           "\nGood practice is to include the version number and a short summary of the changes since the last build." +
+                                                                           "\neg: v1.2.9 - Hotfix for missing player texture and balance changes." +
+                                                                           "\n\nPress checkbox to see formatted description." +
+                                                                           "\nSee docs for string formats such as {version}.");
+                    GUILayout.Label(label);
                     GUILayout.FlexibleSpace();
                     if (GUILayout.Button("Edit", GUILayout.MaxWidth(50)))
                     {
@@ -137,13 +148,26 @@ namespace Wireframe
                 }
 
                 m_descriptionScrollPosition = GUILayout.BeginScrollView(m_descriptionScrollPosition, GUILayout.Height(100));
-                m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
+                if (m_showFormattedDescription)
+                {
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        string formattedDescription = StringFormatter.FormatString(m_buildDescription);
+                        GUILayout.TextArea(formattedDescription, GUILayout.ExpandHeight(true));
+                    }
+                }
+                else
+                {
+                    m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
+                }
+
                 GUILayout.EndScrollView();
 
 
                 bool canUpload = CanStartUpload(out string reason);
                 using (new EditorGUILayout.HorizontalScope())
                 {
+                    // Build and upload
                     using (new EditorGUILayout.VerticalScope())
                     {
                         if (!canUpload)
@@ -163,7 +187,7 @@ namespace Wireframe
                             EditorGUILayout.HelpBox(reason, MessageType.Error);
                         }
 
-                        using (new EditorGUI.DisabledScope(canUpload))
+                        using (new EditorGUI.DisabledScope(!canUpload))
                         {
                             if (GUILayout.Button("Upload All", GUILayout.Height(100)))
                             {
@@ -185,15 +209,29 @@ namespace Wireframe
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIContent label = new GUIContent("Build Path", "The path where the build will be saved. See docs for string formats such as {version}.");
-                GUILayout.Label(label, GUILayout.MaxWidth(70));
-                var newPath = EditorGUILayout.TextField(m_buildPath);
-                if (newPath != m_buildPath)
-                {
-                    m_buildPath = newPath;
-                    EditorPrefs.SetString("BuildUploader.BuildPath", m_buildPath);
-                }
+                m_showFormattedBuildPath = EditorGUILayout.Toggle(m_showFormattedBuildPath, GUILayout.Width(15));
                 
+                GUIContent label = new GUIContent("Build Path", "The path where the build will be saved. " +
+                                                                "\n\nPress checkbox to see formatted build path." +
+                                                                "\nSee docs for string formats such as {version}.");
+                GUILayout.Label(label, GUILayout.MaxWidth(70));
+                if (m_showFormattedBuildPath)
+                {
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        EditorGUILayout.TextField(StringFormatter.FormatString(m_buildPath));
+                    }
+                }
+                else
+                {
+                    var newPath = EditorGUILayout.TextField(m_buildPath);
+                    if (newPath != m_buildPath)
+                    {
+                        m_buildPath = newPath;
+                        EditorPrefs.SetString("BuildUploader.BuildPath", m_buildPath);
+                    }
+                }
+
                 if (GUILayout.Button("...", GUILayout.MaxWidth(20)))
                 {
                     string path = EditorUtility.OpenFolderPanel("Select Build Folder", StringFormatter.FormatString(m_buildPath), "");
@@ -219,17 +257,9 @@ namespace Wireframe
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIContent label = new GUIContent("Final Path", "The formatted path where the build will be saved after parsing any arguments like {version}");
-                GUILayout.Label(label, GUILayout.MaxWidth(70));
-                string formattedPath = StringFormatter.FormatString(m_buildPath);
-                EditorGUILayout.LabelField(formattedPath, GUILayout.ExpandWidth(true));
-            }
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                if (GUILayout.Button(GetBuildButtonText(), GUILayout.Height(60)))
+                if (GUILayout.Button(GetBuildButtonText(), GUILayout.Height(80)))
                 {
-                    if (EditorUtility.DisplayDialog("Start build and Upload",
+                    if (EditorUtility.DisplayDialog("Start build and Upload all",
                             "Are you sure you want to start a new build then upload all enabled builds?" +
                             "\nPath: " + StringFormatter.FormatString(m_buildPath) +
                             
@@ -279,7 +309,7 @@ namespace Wireframe
         {
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Clear"), false, () => m_buildDescription = "");
-            menu.AddItem(new GUIContent("Reset"), false, () => m_buildDescription = FormatDescription());
+            menu.AddItem(new GUIContent("Reset"), false, () => m_buildDescription = Preferences.DefaultDescriptionFormat);
             menu.AddItem(new GUIContent("Set/Text file"), false, () =>
             {
                 // Choose file
@@ -454,7 +484,7 @@ namespace Wireframe
         {
             // Start task
             Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
-            BuildTask buildTask = new BuildTask(m_buildsToUpload, m_buildDescription);
+            BuildTask buildTask = new BuildTask(m_buildsToUpload, StringFormatter.FormatString(m_buildDescription));
             
             string guids = string.Join("_", m_buildsToUpload.Select(x => x.GUID));
             BuildTaskReport report = new BuildTaskReport(guids);
@@ -660,12 +690,6 @@ namespace Wireframe
                     }
                 }
             }
-        }
-
-        private string FormatDescription()
-        {
-            string format = Preferences.DefaultDescriptionFormat;
-            return format.Replace("{version}", Application.version);
         }
     }
 }

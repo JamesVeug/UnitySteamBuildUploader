@@ -136,9 +136,7 @@ namespace Wireframe
             {
                 EditorGUILayout.LabelField(
                     new GUIContent("Default Description:", 
-                        "Description in the Upload tab to start with when opened." +
-                        "\n\nFormats:" +
-                        "\n{version} will be replaced with the version of the build. eg: 1.0.0"), 
+                        "Description in the Upload tab to start with when opened. See docs for possible string formats such as {version}."), 
                     GUILayout.Width(200));
 
                 string descFormat = DefaultDescriptionFormat;

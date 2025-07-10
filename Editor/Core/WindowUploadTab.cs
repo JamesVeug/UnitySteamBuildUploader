@@ -181,21 +181,11 @@ namespace Wireframe
             }
         }
 
-        private string GetFormattedBuildPath()
-        {
-            if (string.IsNullOrEmpty(m_buildPath))
-            {
-                return "";
-            }
-            
-            return m_buildPath.Replace("{version}", Application.version);
-        }
-
         private void DrawUploadButton()
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIContent label = new GUIContent("Build Path", "The path where the build will be saved. You can use {version} to automatically replace it with the current application version.");
+                GUIContent label = new GUIContent("Build Path", "The path where the build will be saved. See docs for string formats such as {version}.");
                 GUILayout.Label(label, GUILayout.MaxWidth(70));
                 var newPath = EditorGUILayout.TextField(m_buildPath);
                 if (newPath != m_buildPath)
@@ -206,7 +196,7 @@ namespace Wireframe
                 
                 if (GUILayout.Button("...", GUILayout.MaxWidth(20)))
                 {
-                    string path = EditorUtility.OpenFolderPanel("Select Build Folder", GetFormattedBuildPath(), "");
+                    string path = EditorUtility.OpenFolderPanel("Select Build Folder", StringFormatter.FormatString(m_buildPath), "");
                     if (!string.IsNullOrEmpty(path))
                     {
                         m_buildPath = path;
@@ -216,9 +206,9 @@ namespace Wireframe
                 
                 if (GUILayout.Button("Show", GUILayout.MaxWidth(100)))
                 {
-                    if (Directory.Exists(GetFormattedBuildPath()))
+                    if (Directory.Exists(StringFormatter.FormatString(m_buildPath)))
                     {
-                        EditorUtility.RevealInFinder(GetFormattedBuildPath());
+                        EditorUtility.RevealInFinder(StringFormatter.FormatString(m_buildPath));
                     }
                     else
                     {
@@ -231,7 +221,7 @@ namespace Wireframe
             {
                 GUIContent label = new GUIContent("Final Path", "The formatted path where the build will be saved after parsing any arguments like {version}");
                 GUILayout.Label(label, GUILayout.MaxWidth(70));
-                string formattedPath = GetFormattedBuildPath();
+                string formattedPath = StringFormatter.FormatString(m_buildPath);
                 EditorGUILayout.LabelField(formattedPath, GUILayout.ExpandWidth(true));
             }
 
@@ -241,12 +231,12 @@ namespace Wireframe
                 {
                     if (EditorUtility.DisplayDialog("Start build and Upload",
                             "Are you sure you want to start a new build then upload all enabled builds?" +
-                            "\nPath: " + GetFormattedBuildPath() +
+                            "\nPath: " + StringFormatter.FormatString(m_buildPath) +
                             
                             "\n\nNOTE: You can not cancel this operation once started!",
                             "Yes", "Cancel"))
                     {
-                        BuildAndUpload(GetFormattedBuildPath());
+                        BuildAndUpload(StringFormatter.FormatString(m_buildPath));
                     }
                 }
             }
@@ -360,7 +350,34 @@ namespace Wireframe
             BuildReport report = await Build(buildPath);
             if (report.summary.result != BuildResult.Succeeded)
             {
-                Debug.Log("[BuildUploader] Build failed! Skipping uploading step.");
+                Debug.LogError("[BuildUploader] Build failed! Skipping uploading step.");
+                Debug.LogError(report.SummarizeErrors());
+                foreach (BuildStep step in report.steps)
+                {
+                    foreach (BuildStepMessage message in step.messages)
+                    {
+                        switch (message.type)
+                        {
+                            case LogType.Error:
+                                Debug.LogError($"[BuildUploader][{step.name}] {message.content}");
+                                break;
+                            case LogType.Assert:
+                                Debug.LogError($"[BuildUploader][{step.name}] Assert: {message.content}");
+                                break;
+                            case LogType.Warning:
+                                Debug.LogWarning($"[BuildUploader][{step.name}] Warning: {message.content}");
+                                break;
+                            case LogType.Log:
+                                Debug.Log($"[BuildUploader][{step.name}] Log: {message.content}");
+                                break;
+                            case LogType.Exception:
+                                Debug.LogException(new Exception($"[BuildUploader][{step.name}] Exception: {message.content}"));
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                }
                 return;
             }
 

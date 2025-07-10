@@ -14,7 +14,8 @@ namespace Wireframe
     [BuildDestination("Local Path")]
     public partial class LocalPathDestination : ABuildDestination
     {
-        [Wiki("Directory", "The absolute path of the folder to copy the files to. eg: C:/MyBuilds/TodaysBuild")]
+        [Wiki("Directory", "The absolute path of the folder to copy the files to. eg: C:/MyBuilds/TodaysBuild" +
+                           "\n\nSee docs for formatting options like {version} and {time} to use in the path.")]
         private string m_localPath = "";
         
         [Wiki("Duplicate Files", "When copying files over and there already being the same file, what should we do with the new file?")]
@@ -40,10 +41,10 @@ namespace Wireframe
 
         private string FullPath()
         {
-            string path = m_localPath;
+            string path = StringFormatter.FormatString(m_localPath);
             if (m_zipContent)
             {
-                path += m_zippedFilesName + ".zip";
+                path += StringFormatter.FormatString(m_zippedFilesName) + ".zip";
             }
             
             return path;

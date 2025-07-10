@@ -37,7 +37,9 @@ namespace Wireframe
             bool exists = PathExists();
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label("Directory:", GUILayout.Width(120));
+                GUIContent label = new GUIContent("Directory:", "Where the contents of the sources should be copied to." +
+                                                                "\nSee docs for format options such as {buildNumber} and {date}.");
+                GUILayout.Label(label, GUILayout.Width(120));
 
                 GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
                 string newPath = GUILayout.TextField(m_localPath, style);
@@ -72,7 +74,9 @@ namespace Wireframe
 
                 using (new EditorGUI.DisabledScope(!m_zipContent))
                 {
-                    GUILayout.Label("Name (No extension):", GUILayout.Width(125));
+                    GUIContent label = new GUIContent("Name (No extension):", "Name of the zipped file that will be created." +
+                                                                              "\nSee docs for format options such as {buildNumber} and {date}.");
+                    GUILayout.Label(label, GUILayout.Width(125));
                     string newPath = GUILayout.TextField(m_zippedFilesName);
                     if (m_zippedFilesName != newPath)
                     {

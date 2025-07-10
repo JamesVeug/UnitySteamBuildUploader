@@ -125,6 +125,26 @@ namespace Wireframe
                 
                 File.WriteAllText(mdFilePath, sb.ToString());
             }
+            
+            
+            // Write the String Formatter commands
+            StringBuilder stringFormatWikiBuilder = new StringBuilder();
+            stringFormatWikiBuilder.AppendLine("## String Formatter Commands");
+            stringFormatWikiBuilder.AppendLine("The String Formatter is used to format strings in the build task. It supports commands that can be used to insert values into the string.");
+            stringFormatWikiBuilder.AppendLine();
+            stringFormatWikiBuilder.AppendLine("The following commands are available:");
+            foreach (StringFormatter.Command command in StringFormatter.Commands.OrderBy(a=>a.Key))
+            {
+                stringFormatWikiBuilder.AppendLine($"- **{command.Key}**: {command.Tooltip}");
+            }
+            
+            string filePath = Path.Combine(Application.dataPath, "../Wiki/StringFormatter.md");
+            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            }
+            
+            File.WriteAllText(filePath, stringFormatWikiBuilder.ToString());
         }
 
         private static int SortTypesByWikiAttribute(Type a, Type b)

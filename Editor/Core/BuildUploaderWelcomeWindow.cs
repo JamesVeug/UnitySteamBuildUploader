@@ -32,30 +32,135 @@ namespace Wireframe {
 
             Links();
 
-            Changes();
+            GUILayout.Label("Changelog");
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                Changes();
+            }
         }
 
         private void Changes()
         {
-            GUILayout.Label("Changelog");
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-            using (new EditorGUI.DisabledScope(true))
+            var path = "Packages/com.veugeljame.builduploader/CHANGELOG.md";
+            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(path, typeof(TextAsset));
+            string allText = loadAssetAtPath is TextAsset textAsset ? textAsset.text : "";
+            string[] lines = allText.Split('\n');
+            
+            // Draw allText as markdown
+            // # is header
+            // - bullet point
+
+            for (int i = 0; i < lines.Length; i++)
             {
-                GUIStyle style = GUI.skin.textArea;
-                // style.richText = true;
-                EditorGUILayout.TextArea(GetChangeLog(), style);
+                GUIStyle style = new GUIStyle(GUI.skin.label);
+                style.richText = true;
+                
+                // Get text and style based on the line content
+                string line = lines[i];
+                if (string.IsNullOrEmpty(line))
+                {
+                    line = "";
+                }
+                else if (line.StartsWith("##"))
+                {
+                    // Sub-Header
+                    line = line.Substring(2).Trim();
+                    style = new GUIStyle(EditorStyles.boldLabel);
+                    style.fontSize = 16;
+                }
+                else if (line.StartsWith("#"))
+                {
+                    // Header
+                    line = line.Substring(1).Trim();
+                    style = new GUIStyle(EditorStyles.boldLabel);
+                    style.fontSize = 24;
+                }
+                else if (line.Trim().StartsWith("-"))
+                {
+                    // Bullet point
+                    int indents = Mathf.CeilToInt(line.IndexOf('-') / 2f);
+
+                    int artificialIndent = (indents + 1) * 10;
+                    line = new string(' ', artificialIndent) + line.Trim().Substring(1).Trim();
+                    // line = line.Substring(1).Trim();
+                    // GUILayout.Label($"- {bulletText}");
+                }
+                
+                // replace **XXXX** with <b>XXXX</b>
+                int boldStartIndex = line.IndexOf("**");
+                while (boldStartIndex != -1)
+                {
+                    int boldEndIndex = line.IndexOf("**", boldStartIndex + 2);
+                    if (boldEndIndex == -1)
+                    {
+                        break; // No closing bold found
+                    }
+
+                    string boldText = line.Substring(boldStartIndex + 2, boldEndIndex - boldStartIndex - 2);
+                    string coloredBoldText = $"<b>{boldText}</b>";
+                    line = line.Replace($"**{boldText}**", coloredBoldText);
+                    
+                    boldStartIndex = line.IndexOf("**", boldEndIndex + 2);
+                }
+                
+                
+                // replace `XXXX` with colorization
+                int startIndex = line.IndexOf('`');
+                while (startIndex != -1)
+                {
+                    int endIndex = line.IndexOf('`', startIndex + 1);
+                    if (endIndex == -1)
+                    {
+                        break; // No closing backtick found
+                    }
+
+                    string codeSnippet = line.Substring(startIndex + 1, endIndex - startIndex - 1);
+                    string coloredSnippet = $"<color=yellow>{codeSnippet}</color>";
+                    line = line.Replace($"`{codeSnippet}`", coloredSnippet);
+                    
+                    startIndex = line.IndexOf('`', endIndex + 1);
+                }
+                
+                // replace [docs](XXX) with a button
+                int linkStartIndex = line.IndexOf('[');
+                if (linkStartIndex != -1)
+                {
+                    int linkEndIndex = line.IndexOf(']', linkStartIndex + 1);
+                    if (linkEndIndex > -1)
+                    {
+
+                        int urlStartIndex = line.IndexOf('(', linkEndIndex + 1);
+                        if (urlStartIndex > -1)
+                        {
+
+                            int urlEndIndex = line.IndexOf(')', urlStartIndex + 1);
+                            if (urlEndIndex > -1)
+                            {
+
+                                string linkText = line.Substring(linkStartIndex + 1, linkEndIndex - linkStartIndex - 1);
+                                string url = line.Substring(urlStartIndex + 1, urlEndIndex - urlStartIndex - 1);
+
+                                line = line.Replace($"[{linkText}]({url})",
+                                    $"<b><color=blue><u>{linkText}</u></color></b>");
+                                if (GUILayout.Button(line, style))
+                                {
+                                    Application.OpenURL(url);
+                                }
+                                continue;
+                            }
+                        }
+                    }
+                }
+                
+                
+                EditorGUILayout.LabelField(line, style);
             }
+            
+            
 
             EditorGUILayout.EndScrollView();
-        }
-
-        private string GetChangeLog()
-        {
-            var iconPath = "Packages/com.veugeljame.builduploader/CHANGELOG.md";
-            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(TextAsset));
-            string allText = loadAssetAtPath is TextAsset textAsset ? textAsset.text : "";
-            return allText;
         }
 
         private static void Links()

@@ -195,7 +195,8 @@ namespace Wireframe
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label("Build Path", GUILayout.MaxWidth(70));
+                GUIContent label = new GUIContent("Build Path", "The path where the build will be saved. You can use {version} to automatically replace it with the current application version.");
+                GUILayout.Label(label, GUILayout.MaxWidth(70));
                 var newPath = EditorGUILayout.TextField(m_buildPath);
                 if (newPath != m_buildPath)
                 {
@@ -228,7 +229,8 @@ namespace Wireframe
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label("Final Path", GUILayout.MaxWidth(70));
+                GUIContent label = new GUIContent("Final Path", "The formatted path where the build will be saved after parsing any arguments like {version}");
+                GUILayout.Label(label, GUILayout.MaxWidth(70));
                 string formattedPath = GetFormattedBuildPath();
                 EditorGUILayout.LabelField(formattedPath, GUILayout.ExpandWidth(true));
             }

@@ -56,7 +56,8 @@ namespace Wireframe
                 return true;
             }
             
-            return File.Exists(m_localPath) || Directory.Exists(m_localPath);
+            string fullPath = FullPath();
+            return File.Exists(fullPath) || Directory.Exists(fullPath);
         }
 
         private bool SetNewPath(string newPath)
@@ -141,6 +142,16 @@ namespace Wireframe
                 {
                     errors.Add("No Zipped Name specified");
                 }
+            }
+        }
+
+        public override void TryGetWarnings(List<string> warnings)
+        {
+            base.TryGetWarnings(warnings);
+
+            if (!PathExists())
+            {
+                warnings.Add("Path does not exist but may be created during upload.");
             }
         }
 

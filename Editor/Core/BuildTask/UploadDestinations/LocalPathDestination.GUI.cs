@@ -12,27 +12,33 @@ namespace Wireframe
         private GUIStyle m_pathButtonDoesNotExistStyle;
         private GUIStyle m_pathInputFieldExistsStyle;
         private GUIStyle m_pathInputFieldDoesNotExistStyle;
+        private GUIStyle m_pathLabelExistsStyle;
+        private GUIStyle m_pathLabelDoesNotExistStyle;
 
         private void Setup()
         {
             m_pathButtonExistsStyle = new GUIStyle(GUI.skin.button);
             m_pathButtonDoesNotExistStyle = new GUIStyle(GUI.skin.button);
-            m_pathButtonDoesNotExistStyle.normal.textColor = Color.red;
+            m_pathButtonDoesNotExistStyle.normal.textColor = Color.yellow;
             
             m_pathInputFieldExistsStyle = new GUIStyle(GUI.skin.textField);
             m_pathInputFieldDoesNotExistStyle = new GUIStyle(GUI.skin.textField);
-            m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.red;
+            m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.yellow;
+            
+            m_pathLabelExistsStyle = new GUIStyle(GUI.skin.label);
+            m_pathLabelDoesNotExistStyle = new GUIStyle(GUI.skin.label);
+            m_pathLabelDoesNotExistStyle.normal.textColor = Color.yellow;
         }
 
         protected internal override void OnGUIExpanded(ref bool isDirty)
         {
             Setup();
 
+            bool exists = PathExists();
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Directory:", GUILayout.Width(120));
 
-                bool exists = !string.IsNullOrEmpty(m_localPath) && Directory.Exists(m_localPath);
                 GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
                 string newPath = GUILayout.TextField(m_localPath, style);
                 if (m_localPath != newPath)
@@ -87,7 +93,9 @@ namespace Wireframe
                 }
             }
 
-            GUILayout.Label("Full Path: " + FullPath());
+            GUIStyle fullPathStyle = exists ? m_pathLabelExistsStyle : m_pathLabelDoesNotExistStyle;
+            fullPathStyle.alignment = TextAnchor.MiddleLeft;
+            GUILayout.Label("Full Path: " + FullPath(), fullPathStyle);
         }
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)

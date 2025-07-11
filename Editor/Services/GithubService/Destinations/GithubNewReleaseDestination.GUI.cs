@@ -7,7 +7,11 @@ namespace Wireframe
     {
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            string text = $"{m_owner}/{m_repo}/releases/tag/{m_tagName} ({m_target})";
+            string owner = StringFormatter.FormatString(m_owner);
+            string repo = StringFormatter.FormatString(m_repo);
+            string tagName = StringFormatter.FormatString(m_tagName);
+            string target = StringFormatter.FormatString(m_target);
+            string text = $"{owner}/{repo}/releases/tag/{tagName} ({target})";
             EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
         }
 

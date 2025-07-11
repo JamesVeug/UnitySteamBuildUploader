@@ -53,10 +53,10 @@ namespace Wireframe
             string pathToCompress = cachedDirectory;
             if (!string.IsNullOrEmpty(m_targetPathToCompress))
             {
-                pathToCompress = Path.Combine(cachedDirectory, m_targetPathToCompress);
+                pathToCompress = Path.Combine(cachedDirectory, StringFormatter.FormatString(m_targetPathToCompress));
             }
             
-            string compressedFileName = m_compressedFileName;
+            string compressedFileName = StringFormatter.FormatString(m_compressedFileName);
             if (!compressedFileName.EndsWith(".zip"))
             {
                 compressedFileName += ".zip";

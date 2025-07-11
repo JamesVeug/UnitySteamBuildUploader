@@ -66,24 +66,32 @@ namespace Wireframe
 
         public override async Task<bool> Upload(BuildTaskReport.StepResult result)
         {
+            string filePath = StringFormatter.FormatString(m_filePath);
+            
             List<string> files = new List<string>();
             if (m_zipContents)
             {
                 // Before uploading the directory we'll zip all its contents
-                files.Add(m_filePath);
+                files.Add(filePath);
             }
             else
             {
                 // Get all files at the top level so each can be uploaded individually
                 // Sub-Folders will be zipped 
-                files.AddRange(Directory.GetFiles(m_filePath, "*.*", SearchOption.TopDirectoryOnly));
+                files.AddRange(Directory.GetFiles(filePath, "*.*", SearchOption.TopDirectoryOnly));
             }
 
+
+            string owner = StringFormatter.FormatString(m_owner);
+            string repo = StringFormatter.FormatString(m_repo);
+            string releaseName = StringFormatter.FormatString(m_releaseName);
+            string tagName = StringFormatter.FormatString(m_tagName);
+            string target = StringFormatter.FormatString(m_target);
+            
             int processID = ProgressUtils.Start("Github Release", ProgressTitle());
-            
-            bool success = await Github.NewRelease(m_owner, m_repo, m_releaseName, m_buildDescription, m_tagName, m_target, m_draft, m_prerelease, Github.Token, result, files);
-            
+            bool success = await Github.NewRelease(owner, repo, releaseName, m_buildDescription, tagName, target, m_draft, m_prerelease, Github.Token, result, files);
             ProgressUtils.Remove(processID);
+            
             return success;
         }
 

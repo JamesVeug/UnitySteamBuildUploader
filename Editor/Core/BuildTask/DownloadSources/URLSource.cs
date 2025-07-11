@@ -72,15 +72,16 @@ namespace Wireframe
                 Directory.CreateDirectory(directoryPath);
             }
 
-            string fullFilePath = Path.Combine(directoryPath, m_fileName);
+            string fullFilePath = Path.Combine(directoryPath, StringFormatter.FormatString(m_fileName));
+            string url = StringFormatter.FormatString(m_url);
 
             // Only download if we don't have it
             if (!File.Exists(fullFilePath))
             {
-                stepResult.AddLog("Downloading from URL: " + m_url);
+                stepResult.AddLog("Downloading from URL: " + url);
 
                 m_progressDescription = "Fetching...";
-                UnityWebRequest request = new UnityWebRequest(m_url, m_method.ToString());
+                UnityWebRequest request = new UnityWebRequest(url, m_method.ToString());
                 foreach (Tuple<string,string> header in m_headers)
                 {
                     request.SetRequestHeader(header.Item1, header.Item2);
@@ -101,7 +102,7 @@ namespace Wireframe
                 
                 if (request.isHttpError || request.isNetworkError)
                 {
-                    string message = $"Could not download build from url {m_url}:\nError: {request.error}";
+                    string message = $"Could not download build from url {url}:\nError: {request.error}";
                     stepResult.AddError(message);
                     return false;
                 }

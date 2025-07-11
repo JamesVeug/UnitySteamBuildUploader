@@ -19,7 +19,8 @@ namespace Wireframe
                 }
 
                 float width = maxWidth - 120;
-                string truncatedText = Utils.TruncateText(m_url, width, "No URL entered...");
+                string url = StringFormatter.FormatString(m_url);
+                string truncatedText = Utils.TruncateText(url, width, "No URL entered...");
                 GUILayout.Label(truncatedText, GUILayout.Width(width));
             }
         }

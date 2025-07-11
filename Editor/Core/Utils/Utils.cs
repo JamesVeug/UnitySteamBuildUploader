@@ -66,6 +66,11 @@ namespace Wireframe
         public static async Task<bool> CopyFileAsync(string source, string destination, FileExistHandling dupeFileHandling, BuildTaskReport.StepResult result = null)
         {
             try{
+                if (destination.Length > MaxFilePath)
+                {
+                    throw new FilePathTooIsLongException();
+                }
+                
                 if (File.Exists(destination))
                 {
                     switch (dupeFileHandling)
@@ -115,7 +120,14 @@ namespace Wireframe
                     {
                         continue;
                     }
-                    Directory.CreateDirectory(dirPath.Replace(source, destination));
+
+                    string newDirectory = dirPath.Replace(source, destination);
+                    if (newDirectory.Length > MaxFilePath)
+                    {
+                        throw new FilePathTooIsLongException();
+                    }
+                    
+                    Directory.CreateDirectory(newDirectory);
                 }
 
                 foreach (string newPath in Directory.GetFiles(source, "*.*", SearchOption.AllDirectories))
@@ -126,6 +138,11 @@ namespace Wireframe
                     }
                     
                     string destinationFile = newPath.Replace(source, destination);
+                    if (destinationFile.Length > MaxFilePath)
+                    {
+                        throw new FilePathTooIsLongException();
+                    }
+                    
                     string directory = Path.GetDirectoryName(destinationFile);
                     if (!Directory.Exists(directory))
                     {
@@ -272,6 +289,25 @@ namespace Wireframe
             Debug.LogError($"Could not create Type {type}. Missing empty constructor.");
             result = default(T);
             return false;
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/7140575/mac-os-x-lion-what-is-the-max-path-length
+        /// </summary>
+        public static int MaxFilePath
+        {
+            get
+            {
+#if UNITY_EDITOR_WIN
+                return 260; // Windows
+#elif UNITY_EDITOR_OSX
+                return 255; // macOS (or 1024 for HFS+ if you believe
+#elif UNITY_EDITOR_LINUX
+                return 4096; // macOS (or 255 for HFS+ if you believe Apple)
+#else
+                return 4096; // unknown but this seems random and
+#endif
+            }
         }
     }
 }

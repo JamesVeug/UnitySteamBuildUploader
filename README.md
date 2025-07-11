@@ -35,6 +35,7 @@
   - Remove files/folders
   - Compress/Decompress files
   - Steam DRM wrapping (anti-piracy)
+- Start a new Unity build then upload with 1 button
 - Minimal build size impact
 - Can be used commercially
 - Open Source
@@ -71,7 +72,7 @@
 
 ### 2. Setup
 
-<a href="https://imgur.com/CSyR6M4"><img src="https://i.imgur.com/CSyR6M4.png" alt="Screenshot-2025-01-03-213527" border="0"></a>
+<a href="https://imgur.com/hO5Cr7m"><img src="https://imgur.com/hO5Cr7m.png" alt="Screenshot-2025-01-03-213527" border="0"></a>
 
 - a. Go to `Edit->Preferences->Build Uploader`
   - Steamworks
@@ -90,7 +91,7 @@
       
 <a href="https://imgur.com/QxMZ09b"><img src="https://imgur.com/QxMZ09b.png" alt="Screenshot-2025-01-03-212949" border="0"></a>
 
-- b. Go to `Edit->ProjectSettings->Build Uploader`
+- b. Go to `Edit->ProjectSettings->Build Uploader->Open Window`
   - Press `New`
   - Enter the name of your game
   - Enter the AppID of your game. (Found in the URL of your games store page. eg: `1141030`)
@@ -99,8 +100,8 @@
     - Enter the depot ID (Found in the Steamworks website eg: `1141031`)
   - Add any branches that you need (`none` is also known as default on Steamworks)
 
-- c. Go to `Window->Build Uploader->Build Configs`
-  - Go to Upload Tab
+- c. Go to `Window->Build Uploader->Open Window`
+  - Go to Upload Tab (Will already be open if Unity Cloud is disabled in preferences)
   - Press `New` to create a Build Config
   - Choose where your build will come from (AKA: Source)
     - Choose `Folder` if you have already build game or DLC pack you want to upload
@@ -121,19 +122,19 @@
 
 ### 3. Upload
 
-- Go to `Window->Build Uploader`
+- Go to `Window->Build Uploader->Open Window`
 - Go to Upload Tab
   - NOTE: If you have no Builds Configs setup yet see #2c
 - Enable each of the Build Configs you want to upload (Checkbox at the beginning)
 - Enter description of the build (eg: `v1.0.1 - Hotfix to fix jumping bug`)
-- Press `Download and Upload all`
+- Press `Upload all`
   - If this button does not show then there will be errors mentioned in the giant button at the bottom. Fix them and repeat.
 
 > !NOTE: If you have no Builds Configs setup yet see #2c
 
 
 ## Upload Tab
-<a href="https://imgur.com/pBnYzJR"><img src="https://imgur.com/pBnYzJR.png" alt="Git-Sync-Tab-Pic" border="0"></a>
+<a href="https://imgur.com/7t3VlKw"><img src="https://imgur.com/7t3VlKw.png" alt="Git-Sync-Tab-Pic" border="0"></a>
 
 Specify where you want builds to come from and where you want them to go.
 - You can specify a file/file on your computer or choose from your Unity Cloud builds.

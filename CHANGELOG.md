@@ -1,10 +1,38 @@
+# 2.4.0
+- General
+  - Added menu item to open the build task report window `Window/Build Uploader/Build Task Report`
+  - Welcome Window changelog text is now showing formatted text
+- Upload Tab
+  - Added `Build and Upload All` button
+  - Added `LastBuildDirectory` source that chooses the directory of the last build made using the Build Uploader
+  - Added button to start a new unity build and upload if successful
+  - Fixed warning and error message UI double ups
+  - Fixed errors and warnings showing when source/modifier/destination is disabled
+- Exclude FIle/Folder Modifiers
+  - Added `When To Exclude` dropdown to choose when to exclude files/folders. 
+    - Set to `DoNotCopyFromSource` by default.
+    - Existing modifiers will migrate to `DeleteFromCache`
+- Steam Destination
+  - Fixed uploading to multiple branches on Steam only appearing on 1
+- LocalPathDestination
+  - Can now use string formatting to change the file name and path
+    - See [docs](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/StringFormatter) for all formats you can use
+  - Fixed non-existent path showing as an error and now shows as a yellow warning
+- Preferences
+  - Added toggle to toggle auto saving of build config changes
+  - Added dropdown in preferences to change when confirmation popups show
+  - Added dropdown in preferences to change when build task report shows
+  - Added field in preferences to change what the default description is in the upload tab
+    - See [docs](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/StringFormatter) for all formats you can use
+  - Now shows size of the cached builds folder
+
 # 2.3.0
 - General
   - Sources/Destinations/Modifiers show errors/warnings where on the build config instead of just on the button   
-  - Steam Destination 
-    - Uploading multiple builds at once now happens sequentially now due to SteamSDK limitations
-    - Can no longer upload to `default` branch due to SteamSDK limitations
-    - Added more log handling to show errors from uploading
+- Steam Destination 
+  - Uploading multiple builds at once now happens sequentially now due to SteamSDK limitations
+  - Can no longer upload to `default` branch due to SteamSDK limitations
+  - Added more log handling to show errors from uploading
 - Build Report
   - Shows display name of source type when showing files
 - Fixes

@@ -115,6 +115,17 @@ namespace Wireframe
                 {
                     errors.Add($"Regex at index {i+1} is empty");
                 }
+                else
+                {
+                    try
+                    {
+                        Regex.IsMatch("", selection.Regex);
+                    }
+                    catch (Exception e)
+                    {
+                        errors.Add("Bad Regex: " + e.Message);
+                    }
+                }
             }
         }
 

@@ -125,7 +125,7 @@ namespace Wireframe
                 catch (Exception e)
                 {
                     result.AddException(e);
-                    result.SetFailed("Failed to cache source: " + sourceData.Source.SourceFilePath());
+                    result.SetFailed("Failed to cache source: " + sourceData.Source.SourceFilePath() + ".\n\n" + e.Message);
                     return false;
                 }
             }

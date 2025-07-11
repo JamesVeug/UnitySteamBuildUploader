@@ -16,9 +16,23 @@ namespace Wireframe
                 dirty = true;
             }
             
+            string regex = element.Regex;
+            bool valid = true;
+            try
+            {
+                System.Text.RegularExpressions.Regex.IsMatch("", regex);
+            }
+            catch
+            {
+                valid = false;
+            }
+            
+            
+            
             Rect rect1 = new Rect(rect0.x + rect0.width, rect.y, Mathf.Min(120, rect.width / 4), rect.height);
-            string n = GUI.TextField(rect1, element.Regex);
-            if (n != element.Regex)
+            GUIStyle style = valid ? GUI.skin.textField : new GUIStyle(GUI.skin.textField) { normal = { textColor = Color.red } };
+            string n = GUI.TextField(rect1, regex, style);
+            if (n != regex)
             {
                 element.Regex = n;
                 dirty = true;

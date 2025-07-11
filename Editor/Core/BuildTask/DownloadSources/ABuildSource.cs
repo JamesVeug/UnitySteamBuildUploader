@@ -8,7 +8,6 @@ namespace Wireframe
         public bool IsRunning => m_getSourceInProgress;
         
         protected float m_downloadProgress;
-        protected string m_progressDescription;
         protected bool m_getSourceInProgress;
 
 
@@ -21,9 +20,6 @@ namespace Wireframe
         public abstract Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult);
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();
-        public abstract string ProgressTitle();
-        public abstract string ProgressDescription();
-        public abstract string GetBuildDescription();
 
         public virtual void CleanUp(BuildTaskReport.StepResult result)
         {

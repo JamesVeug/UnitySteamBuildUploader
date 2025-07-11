@@ -34,11 +34,6 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
-        public override string ProgressTitle()
-        {
-            return "Uploading nowhere";
-        }
-
         public override Dictionary<string, object> Serialize()
         {
             Dictionary<string, object> data = new Dictionary<string, object>();

@@ -63,7 +63,6 @@ namespace Wireframe
         public override Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
         {
             // Decide where we want to download to
-            m_progressDescription = "Preparing...";
             m_downloadProgress = 0;
             string directoryPath = Preferences.CacheFolderPath;
             if (!Directory.Exists(directoryPath))
@@ -84,7 +83,6 @@ namespace Wireframe
             }
             
             m_finalSourcePath = sourcePath;
-            m_progressDescription = "Done!";
             return Task.FromResult(true);
         }
 
@@ -123,16 +121,6 @@ namespace Wireframe
             return m_downloadProgress;
         }
 
-        public override string ProgressTitle()
-        {
-            return "Getting " + DisplayName;
-        }
-
-        public override string ProgressDescription()
-        {
-            return m_progressDescription;
-        }
-
         public override void TryGetErrors(List<string> errors)
         {
             base.TryGetErrors(errors);
@@ -142,41 +130,6 @@ namespace Wireframe
             {
                 errors.Add("Path does not exist");
             }
-        }
-
-        public override string GetBuildDescription()
-        {
-            // Windows #44 Release
-            string description = "";
-
-            string fileName = Path.GetFileNameWithoutExtension(m_enteredFilePath);
-            if (fileName.Contains("windows"))
-            {
-                description += "Windows ";
-            }
-            else if (fileName.Contains("windows"))
-            {
-                description += "Mac ";
-            }
-
-            if (fileName.LastIndexOf("-") > 0)
-            {
-                if (int.TryParse(fileName.Substring(fileName.LastIndexOf("-") + 1), out int i))
-                {
-                    description += "#" + i + " ";
-                }
-            }
-
-            if (fileName.Contains("development"))
-            {
-                description += "Dev";
-            }
-            else
-            {
-                description += "Release";
-            }
-
-            return description;
         }
 
         public override Dictionary<string, object> Serialize()

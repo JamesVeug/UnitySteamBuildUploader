@@ -9,7 +9,6 @@ namespace Wireframe
         protected string m_buildDescription;
         
         protected float m_uploadProgress;
-        protected string m_progressDescription;
         protected bool m_uploadInProgress;
 
         public ABuildDestination()
@@ -29,7 +28,6 @@ namespace Wireframe
         }
 
         public abstract Task<bool> Upload(BuildTaskReport.StepResult stepResult);
-        public abstract string ProgressTitle();
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);
 
@@ -42,11 +40,6 @@ namespace Wireframe
         public virtual float UploadProgress()
         {
             return m_uploadProgress;
-        }
-
-        public virtual string ProgressDescription()
-        {
-            return m_progressDescription;
         }
 
         public virtual Task<bool> PostUpload(BuildTaskReport.StepResult report)

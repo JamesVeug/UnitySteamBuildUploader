@@ -64,7 +64,6 @@ namespace Wireframe
             m_downloadProgress = 0.0f;
 
             // Preparing
-            m_progressDescription = "Preparing...";
             string directoryPath = Path.Combine(Preferences.CacheFolderPath, "URLBuilds");
             if (!Directory.Exists(directoryPath))
             {
@@ -80,7 +79,6 @@ namespace Wireframe
             {
                 stepResult.AddLog("Downloading from URL: " + url);
 
-                m_progressDescription = "Fetching...";
                 UnityWebRequest request = new UnityWebRequest(url, m_method.ToString());
                 foreach (Tuple<string,string> header in m_headers)
                 {
@@ -93,7 +91,6 @@ namespace Wireframe
                 UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
 
                 // Wait for it to be downloaded?
-                m_progressDescription = "Downloading from URL...";
                 while (!webRequest.isDone)
                 {
                     await Task.Delay(10);
@@ -108,7 +105,6 @@ namespace Wireframe
                 }
 
                 // Save
-                m_progressDescription = "Saving locally...";
                 stepResult.AddLog("Saving content to: " + fullFilePath);
 #if UNITY_2021_2_OR_NEWER
                 await File.WriteAllBytesAsync(fullFilePath, request.downloadHandler.data);
@@ -120,8 +116,6 @@ namespace Wireframe
             {
                 stepResult.AddLog("Skipping downloading from URL since it already exists: " + fullFilePath);
             }
-
-            m_progressDescription = "Done!";
 
             // Record where the game is saved to
             m_sourcePath = fullFilePath;
@@ -150,25 +144,6 @@ namespace Wireframe
             return m_downloadProgress;
         }
 
-        public override string ProgressTitle()
-        {
-            string domainName = m_url;
-            if (m_url.Contains("/"))
-            {
-                domainName = m_url.Split('/')[2];
-            }
-            else if (m_url.Contains(":"))
-            {
-                domainName = m_url.Split(':')[0];
-            }
-            return "Downloading from " + domainName;
-        }
-
-        public override string ProgressDescription()
-        {
-            return m_progressDescription;
-        }
-
         public override void TryGetErrors(List<string> errors)
         {
             base.TryGetErrors(errors);
@@ -182,11 +157,6 @@ namespace Wireframe
             {
                 errors.Add("File name not set");
             }
-        }
-
-        public override string GetBuildDescription()
-        {
-            return "";
         }
 
         public override Dictionary<string, object> Serialize()

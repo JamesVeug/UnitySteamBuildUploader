@@ -88,16 +88,11 @@ namespace Wireframe
             string tagName = StringFormatter.FormatString(m_tagName);
             string target = StringFormatter.FormatString(m_target);
             
-            int processID = ProgressUtils.Start("Github Release", ProgressTitle());
+            int processID = ProgressUtils.Start("Github Release", "Uploading a new Github Release");
             bool success = await Github.NewRelease(owner, repo, releaseName, m_buildDescription, tagName, target, m_draft, m_prerelease, Github.Token, result, files);
             ProgressUtils.Remove(processID);
             
             return success;
-        }
-
-        public override string ProgressTitle()
-        {
-            return "Uploading a new Github Release";
         }
 
         public override void TryGetErrors(List<string> errors)

@@ -123,11 +123,6 @@ namespace Wireframe
             return true;
         }
 
-        public override string ProgressTitle()
-        {
-            return "Copying to Local Path";
-        }
-
         public override void TryGetErrors(List<string> errors)
         {
             base.TryGetErrors(errors);

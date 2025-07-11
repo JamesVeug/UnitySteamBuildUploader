@@ -77,21 +77,6 @@ namespace Wireframe
             return 0.0f; // No download progress for last build source
         }
 
-        public override string ProgressTitle()
-        {
-            return "Last Build Source";
-        }
-
-        public override string ProgressDescription()
-        {
-            return "Using the last build directory from Unity.";
-        }
-
-        public override string GetBuildDescription()
-        {
-            return "Last Build Directory";
-        }
-
         public override Dictionary<string, object> Serialize()
         {
             return new Dictionary<string, object> { };

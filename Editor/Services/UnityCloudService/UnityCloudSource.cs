@@ -44,7 +44,6 @@ namespace Wireframe
             m_downloadProgress = 0.0f;
 
             // Preparing
-            m_progressDescription = "Preparing...";
             string buildName = sourceBuild.platform + "-" + sourceBuild.buildtargetid + "-" + sourceBuild.build;
             string directoryPath = Path.Combine(Preferences.CacheFolderPath, "UnityCloudBuilds");
             if (!Directory.Exists(directoryPath))
@@ -70,7 +69,6 @@ namespace Wireframe
 
                 stepResult.AddLog("Downloading from: " + downloadUrl);
 
-                m_progressDescription = "Fetching...";
                 UnityWebRequest request = UnityWebRequest.Get(downloadUrl);
                 UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
 
@@ -79,11 +77,9 @@ namespace Wireframe
                 {
                     await Task.Delay(10);
                     m_downloadProgress = request.downloadProgress;
-                    m_progressDescription = "Downloading from UnityCloud...";
                 }
 
                 // Save
-                m_progressDescription = "Saving locally...";
 
 
                 try
@@ -101,7 +97,6 @@ namespace Wireframe
                 stepResult.AddLog("Skipping downloading form UnityCloud since it already exists: " + downloadedFilePath);
             }
 
-            m_progressDescription = "Done!";
             stepResult.AddLog("Retrieved UnityCloud Build: " + downloadedFilePath);
 
             // Record where the game is saved to
@@ -137,16 +132,6 @@ namespace Wireframe
             return m_downloadProgress;
         }
 
-        public override string ProgressTitle()
-        {
-            return "Downloading from UnityCloud";
-        }
-
-        public override string ProgressDescription()
-        {
-            return m_progressDescription;
-        }
-
         public override void TryGetErrors(List<string> errors)
         {
             base.TryGetErrors(errors);
@@ -160,11 +145,6 @@ namespace Wireframe
             {
                 errors.Add("No build selected");
             }
-        }
-
-        public override string GetBuildDescription()
-        {
-            return sourceBuild.CreateBuildName();
         }
 
         public override Dictionary<string, object> Serialize()

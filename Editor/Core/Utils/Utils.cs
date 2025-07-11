@@ -190,6 +190,21 @@ namespace Wireframe
             return displayedPath;
         }
         
+        public static string Replace(string text, string otherString, string with, StringComparison compare)
+        {
+#if UNITY_2021_1_OR_NEWER
+            return text.Replace(otherString, with, compare);
+#else
+            int index = text.IndexOf(otherString, compare);
+            while(index >= 0)
+            {
+                text = text.Remove(index, otherString.Length).Insert(index, with);
+                index = text.IndexOf(otherString, index + with.Length, compare);
+            }
+            return text;
+#endif
+        }
+        
         public static List<string> GetSortedFilesAndDirectories(string directory)
         {
             if (File.Exists(directory)) 

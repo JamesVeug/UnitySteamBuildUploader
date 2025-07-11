@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Wireframe;
 
 internal static class StringFormatter
 {
@@ -40,7 +41,7 @@ internal static class StringFormatter
 
         foreach (var command in Commands)
         {
-            format = format.Replace(command.Key, command.Formatter(), StringComparison.OrdinalIgnoreCase);
+            format = Utils.Replace(format, command.Key, command.Formatter(), StringComparison.OrdinalIgnoreCase);
         }
 
         return format;

@@ -381,7 +381,28 @@ namespace Wireframe
             if (report.summary.result != BuildResult.Succeeded)
             {
                 Debug.LogError("[BuildUploader] Build failed! Skipping uploading step.");
-                Debug.LogError(report.SummarizeErrors());
+                
+                // report.SummarizeErrors() - Not valid in 2021
+                StringBuilder summarizedErrors = new StringBuilder();
+                summarizedErrors.AppendLine($"Build failed with result: {report.summary.result}");
+                foreach (BuildStep step in report.steps)
+                {
+                    foreach (BuildStepMessage message in step.messages)
+                    {
+                        switch (message.type)
+                        {
+                            case LogType.Error:
+                            case LogType.Exception:
+                                summarizedErrors.AppendLine(message.content);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                }
+                Debug.LogError(summarizedErrors.ToString());
+                
+                
                 foreach (BuildStep step in report.steps)
                 {
                     foreach (BuildStepMessage message in step.messages)

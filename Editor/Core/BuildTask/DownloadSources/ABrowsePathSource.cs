@@ -91,12 +91,13 @@ namespace Wireframe
         public string GetFullPath()
         {
             string path = GetSubPath();
+            string enteredPath = StringFormatter.FormatString(m_enteredFilePath);
             if (string.IsNullOrEmpty(path))
             {
-                return m_enteredFilePath;
+                return enteredPath;
             }
 
-            return Path.Combine(path, m_enteredFilePath);
+            return Path.Combine(path, enteredPath);
         }
 
         private string GetSubPath()

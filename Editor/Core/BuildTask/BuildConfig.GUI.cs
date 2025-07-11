@@ -42,7 +42,7 @@ namespace Wireframe
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
             ExcludeFoldersModifier regexBuildModifier = new ExcludeFoldersModifier();
-            regexBuildModifier.Add("*_DoNotShip", true, false);
+            regexBuildModifier.Add(".*DoNotShip", true, false);
             AddModifier(new ModifierData(regexBuildModifier, true));
         }
         

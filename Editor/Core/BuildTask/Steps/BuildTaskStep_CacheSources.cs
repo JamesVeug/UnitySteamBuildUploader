@@ -106,7 +106,7 @@ namespace Wireframe
                 string sourcePath = cacheFolderPath;
                 if (!string.IsNullOrEmpty(sourceData.ExportFolder))
                 {
-                    sourcePath = Path.Combine(sourcePath, sourceData.ExportFolder);
+                    sourcePath = Path.Combine(sourcePath, StringFormatter.FormatString(sourceData.ExportFolder));
                 }
                 
                 if (!Directory.Exists(sourcePath))

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -14,6 +13,9 @@ namespace Wireframe
         private GUIStyle m_pathInputFieldDoesNotExistStyle;
         private GUIStyle m_pathLabelExistsStyle;
         private GUIStyle m_pathLabelDoesNotExistStyle;
+        
+        private bool m_showFormattedLocalPath = false;
+        private bool m_showFormattedZippedFilesName = false;
 
         private void Setup()
         {
@@ -37,15 +39,12 @@ namespace Wireframe
             bool exists = PathExists();
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIContent label = new GUIContent("Directory:", "Where the contents of the sources should be copied to." +
-                                                                "\nSee docs for format options such as {buildNumber} and {date}.");
+                GUIContent label = new GUIContent("Directory:", "Where the contents of the sources should be copied to.");
                 GUILayout.Label(label, GUILayout.Width(120));
 
                 GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
-                string newPath = GUILayout.TextField(m_localPath, style);
-                if (m_localPath != newPath)
+                if (EditorUtils.FormatStringTextField(ref m_localPath, ref m_showFormattedLocalPath, style))
                 {
-                    m_localPath = newPath;
                     isDirty = true;
                 }
 
@@ -77,10 +76,9 @@ namespace Wireframe
                     GUIContent label = new GUIContent("Name (No extension):", "Name of the zipped file that will be created." +
                                                                               "\nSee docs for format options such as {buildNumber} and {date}.");
                     GUILayout.Label(label, GUILayout.Width(125));
-                    string newPath = GUILayout.TextField(m_zippedFilesName);
-                    if (m_zippedFilesName != newPath)
+                    
+                    if (EditorUtils.FormatStringTextField(ref m_zippedFilesName, ref m_showFormattedZippedFilesName))
                     {
-                        m_zippedFilesName = newPath;
                         isDirty = true;
                     }
                 }

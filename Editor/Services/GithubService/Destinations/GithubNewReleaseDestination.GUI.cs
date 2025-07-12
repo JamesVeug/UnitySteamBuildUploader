@@ -5,12 +5,19 @@ namespace Wireframe
 {
     public partial class GithubNewReleaseDestination
     {
+        private bool m_showFormattedOwner;
+        private bool m_showFormattedRepo;
+        private bool m_showFormattedReleaseName;
+        private bool m_showFormattedTagName;
+        private bool m_showFormattedTarget;
+
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             string owner = StringFormatter.FormatString(m_owner);
             string repo = StringFormatter.FormatString(m_repo);
             string tagName = StringFormatter.FormatString(m_tagName);
             string target = StringFormatter.FormatString(m_target);
+            
             string text = $"{owner}/{repo}/releases/tag/{tagName} ({target})";
             EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
         }
@@ -26,31 +33,31 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Owner:", GUILayout.Width(120));
-                isDirty |= CustomTextField.Draw(ref m_owner);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_owner, ref m_showFormattedOwner);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Repo:", GUILayout.Width(120));
-                isDirty |= CustomTextField.Draw(ref m_repo);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_repo, ref m_showFormattedRepo);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Release Name:", GUILayout.Width(120));
-                isDirty |= CustomTextField.Draw(ref m_releaseName);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_releaseName, ref m_showFormattedReleaseName);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Tag:", GUILayout.Width(120));
-                isDirty |= CustomTextField.Draw(ref m_tagName);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_tagName, ref m_showFormattedTagName);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Branch or Commit:", GUILayout.Width(120));
-                isDirty |= CustomTextField.Draw(ref m_target);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_target, ref m_showFormattedTarget);
             }
 
             using (new GUILayout.HorizontalScope())

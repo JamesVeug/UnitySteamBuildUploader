@@ -5,6 +5,9 @@ namespace Wireframe
 {
     public partial class CompressModifier
     {
+        private bool m_showFormattedCompressedFileName = false;
+        private bool m_showFormattedTargetPathToCompress = false;
+        
         protected internal override void OnGUIExpanded(ref bool isDirty)
         {
             using (new GUILayout.HorizontalScope())
@@ -21,10 +24,8 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Compressed Name", GUILayout.Width(120));
-                var newFileName = EditorGUILayout.TextField(m_compressedFileName);
-                if (m_compressedFileName != newFileName)
+                if (EditorUtils.FormatStringTextField(ref m_compressedFileName, ref m_showFormattedCompressedFileName))
                 {
-                    m_compressedFileName = newFileName;
                     isDirty = true;
                 }
             }
@@ -32,10 +33,8 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Target Path", GUILayout.Width(120));
-                var newSuPath = EditorGUILayout.TextField(m_targetPathToCompress);
-                if (m_targetPathToCompress != newSuPath)
+                if (EditorUtils.FormatStringTextField(ref m_targetPathToCompress, ref m_showFormattedTargetPathToCompress))
                 {
-                    m_targetPathToCompress = newSuPath;
                     isDirty = true;
                 }
             }

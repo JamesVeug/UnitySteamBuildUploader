@@ -13,6 +13,8 @@ namespace Wireframe
         private GUIStyle m_pathInputFieldExistsStyle;
         private GUIStyle m_pathInputFieldDoesNotExistStyle;
         
+        private bool m_showFormattedFilePath = false;
+        
         protected internal abstract string SelectFile();
 
         private void Setup()
@@ -47,11 +49,8 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Path:", GUILayout.Width(120));
-                
-                string newPath = GUILayout.TextField(m_enteredFilePath, style, GUILayout.MaxWidth(200));
-                if (m_enteredFilePath != newPath)
+                if(EditorUtils.FormatStringTextField(ref m_enteredFilePath, ref m_showFormattedFilePath, GUILayout.MaxWidth(200)))
                 {
-                    m_enteredFilePath = newPath;
                     isDirty = true;
                 }
 

@@ -316,10 +316,8 @@ namespace Wireframe
                                 using (new GUILayout.HorizontalScope())
                                 {
                                     GUILayout.Label("Export Folder: ", GUILayout.Width(120));
-                                    var newSubFolderPath = EditorGUILayout.TextField(source.ExportFolder);
-                                    if (source.ExportFolder != newSubFolderPath)
+                                    if (EditorUtils.FormatStringTextField(ref source.ExportFolder, ref source.ShowFormattedExportFolder))
                                     {
-                                        source.ExportFolder = newSubFolderPath;
                                         isDirty = true;
                                     }
                                 }

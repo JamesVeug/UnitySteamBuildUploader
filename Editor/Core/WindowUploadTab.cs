@@ -131,14 +131,13 @@ namespace Wireframe
                 // Description
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    m_showFormattedDescription = EditorGUILayout.Toggle(m_showFormattedDescription, GUILayout.Width(15));
+                    GUIContent content = new GUIContent("F", EditorUtils.FormatStringTextFieldTooltip);
+                    m_showFormattedDescription = GUILayout.Toggle(m_showFormattedDescription, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
                     
                     GUIContent label = new GUIContent("Build Description", "A description of the build that will be uploaded." +
                                                                            "\nDescription is included in some destinations such as Steamworks so keep it short." +
                                                                            "\nGood practice is to include the version number and a short summary of the changes since the last build." +
-                                                                           "\neg: v1.2.9 - Hotfix for missing player texture and balance changes." +
-                                                                           "\n\nPress checkbox to see formatted description." +
-                                                                           "\nSee docs for string formats such as {version}.");
+                                                                           "\nexample: v1.2.9 - Hotfix for missing player texture and balance changes.");
                     GUILayout.Label(label);
                     GUILayout.FlexibleSpace();
                     if (GUILayout.Button("Edit", GUILayout.MaxWidth(50)))
@@ -209,27 +208,12 @@ namespace Wireframe
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                m_showFormattedBuildPath = EditorGUILayout.Toggle(m_showFormattedBuildPath, GUILayout.Width(15));
-                
-                GUIContent label = new GUIContent("Build Path", "The path where the build will be saved. " +
-                                                                "\n\nPress checkbox to see formatted build path." +
-                                                                "\nSee docs for string formats such as {version}.");
+                GUIContent label = new GUIContent("Build Path", "The path where the new build will be saved.");
                 GUILayout.Label(label, GUILayout.MaxWidth(70));
-                if (m_showFormattedBuildPath)
+
+                if (EditorUtils.FormatStringTextField(ref m_buildPath, ref m_showFormattedBuildPath))
                 {
-                    using (new EditorGUI.DisabledScope(true))
-                    {
-                        EditorGUILayout.TextField(StringFormatter.FormatString(m_buildPath));
-                    }
-                }
-                else
-                {
-                    var newPath = EditorGUILayout.TextField(m_buildPath);
-                    if (newPath != m_buildPath)
-                    {
-                        m_buildPath = newPath;
-                        EditorPrefs.SetString("BuildUploader.BuildPath", m_buildPath);
-                    }
+                    EditorPrefs.SetString("BuildUploader.BuildPath", m_buildPath);
                 }
 
                 if (GUILayout.Button("...", GUILayout.MaxWidth(20)))

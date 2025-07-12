@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -9,6 +10,9 @@ namespace Wireframe
         [Wiki("Sources", "Specify what data you want to include in your upload. All Sources are executed at the same time then copied to the cached folder 1 by 1.")]
         public class SourceData
         {
+            [NonSerialized]
+            public bool ShowFormattedExportFolder = false;
+            
             [Wiki("Enabled", "When on, this source will gather the content from a source and get it ready to be uploaded")]
             public bool Enabled = true;
             
@@ -20,6 +24,7 @@ namespace Wireframe
             
             public ABuildSource Source;
             public UIHelpers.BuildSourcesPopup.SourceData SourceType;
+            
 
             public Dictionary<string,object> Serialize()
             {

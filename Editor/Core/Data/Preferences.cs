@@ -100,6 +100,7 @@ namespace Wireframe
                 if (newCachePath != CacheFolderPath)
                 {
                     CacheFolderPath = newCachePath;
+                    cachedSizeTime = DateTime.MinValue;
                 }
                 if (GUILayout.Button("...", GUILayout.Width(50)))
                 {
@@ -107,6 +108,7 @@ namespace Wireframe
                     if (!string.IsNullOrEmpty(newPath))
                     {
                         CacheFolderPath = newPath;
+                        cachedSizeTime = DateTime.MinValue;
                     }
                 }
                 if (GUILayout.Button("Show", GUILayout.Width(50)))

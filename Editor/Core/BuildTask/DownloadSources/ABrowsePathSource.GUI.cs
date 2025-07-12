@@ -49,7 +49,7 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Path:", GUILayout.Width(120));
-                if(EditorUtils.FormatStringTextField(ref m_enteredFilePath, ref m_showFormattedFilePath, GUILayout.MaxWidth(200)))
+                if(EditorUtils.FormatStringTextField(ref m_enteredFilePath, ref m_showFormattedFilePath))
                 {
                     isDirty = true;
                 }

@@ -131,7 +131,7 @@ namespace Wireframe
                 // Description
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUIContent content = new GUIContent("F", EditorUtils.FormatStringTextFieldTooltip);
+                    GUIContent content = new GUIContent("F", EditorUtils.GetFormatStringTextFieldTooltip());
                     m_showFormattedDescription = GUILayout.Toggle(m_showFormattedDescription, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
                     
                     GUIContent label = new GUIContent("Build Description", "A description of the build that will be uploaded." +

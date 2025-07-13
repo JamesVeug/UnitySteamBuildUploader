@@ -1,3 +1,15 @@
+# 2.4.1
+- Upload tab
+  - Added pre-upload error reporting when Exclude files/folders has bad regex
+  - Added warning when cache file path exceeds OS limit (Windows 260, Mac 255, Linux 4096 characters)
+  - Added string format examples  to "Show as Formatted text" toggle
+  - Fixed new modifiers starting with bad regex 
+  - Fixed string formatting not working in most sources, modifiers, destinations
+  - Fixed file/folder source text field not filling the entire container
+- Preferences
+  - Fixed cache build folder size not updating when changing the path
+
+
 # 2.4.0
 - General
   - Added menu item to open the build task report window `Window/Build Uploader/Build Task Report`

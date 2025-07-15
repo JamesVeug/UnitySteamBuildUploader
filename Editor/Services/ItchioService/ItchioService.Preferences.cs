@@ -24,8 +24,8 @@ namespace Wireframe
             {
                 Color temp = GUI.color;
                 GUI.color = Itchio.Instance.IsInitialized ? Color.green : Color.red;
-                GUILayout.Label(new GUIContent("Itchio Path:",
-                        "The path to the Itchio folder. Build Uploader uses this to upload builds to Steamworks."), 
+                GUILayout.Label(new GUIContent("Butler Path:",
+                        "The path a folder that contains Butler.exe. Build Uploader uses this to upload builds to Itch.io"), 
                     GUILayout.Width(105));
                 GUI.color = temp;
 
@@ -34,7 +34,7 @@ namespace Wireframe
                 {
                     if (GUILayout.Button("?", GUILayout.Width(20)))
                     {
-                        Application.OpenURL("https://partner.steamgames.com/doc/sdk");
+                        Application.OpenURL("https://itch.io/docs/butler/installing.html");
                     }
                 }
 

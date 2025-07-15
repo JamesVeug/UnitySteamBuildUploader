@@ -30,12 +30,9 @@ namespace Wireframe
                 GUI.color = temp;
 
 
-                if (!SteamSDK.Instance.IsInitialized)
+                if (GUILayout.Button("?", GUILayout.Width(20)))
                 {
-                    if (GUILayout.Button("?", GUILayout.Width(20)))
-                    {
-                        Application.OpenURL("https://partner.steamgames.com/doc/sdk");
-                    }
+                    Application.OpenURL("https://partner.steamgames.com/doc/sdk");
                 }
 
                 string newPath = GUILayout.TextField(SteamSDK.SteamSDKPath);

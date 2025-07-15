@@ -13,16 +13,11 @@ namespace Wireframe
                 Github.Enabled = GUILayout.Toggle(Github.Enabled, "Enabled");
                 using (new EditorGUI.DisabledScope(!Github.Enabled))
                 {
-                    Draw();
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        Github.Token = PasswordField.Draw("Token:", "Secret required to access your Github account", 105, Github.Token, onHelpPressed:TokenHelp);
+                    }
                 }
-            }
-        }
-
-        private static void Draw()
-        {
-            using (new GUILayout.HorizontalScope())
-            {
-                Github.Token = PasswordField.Draw("Token:", "Secret required to access your Github account", 105, Github.Token, onHelpPressed:TokenHelp);
             }
         }
 

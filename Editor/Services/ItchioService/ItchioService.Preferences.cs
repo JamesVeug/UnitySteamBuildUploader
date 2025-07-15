@@ -30,12 +30,9 @@ namespace Wireframe
                 GUI.color = temp;
 
 
-                if (!Itchio.Instance.IsInitialized)
+                if (GUILayout.Button("?", GUILayout.Width(20)))
                 {
-                    if (GUILayout.Button("?", GUILayout.Width(20)))
-                    {
-                        Application.OpenURL("https://itch.io/docs/butler/installing.html");
-                    }
+                    Application.OpenURL("https://itch.io/docs/butler/installing.html");
                 }
 
                 string newPath = GUILayout.TextField(Itchio.ItchioSDKPath);

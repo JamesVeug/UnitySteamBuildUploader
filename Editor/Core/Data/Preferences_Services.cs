@@ -29,7 +29,7 @@ namespace Wireframe
         public override void OnGUI(string searchContext)
         {
             base.OnGUI(searchContext);
-            GUILayout.Label("PreferencesSettings for the Build Uploader that exists per user and not shared.", EditorStyles.wordWrappedLabel);
+            GUILayout.Label("Preferences for the Build Uploader that exists per user and not shared.", EditorStyles.wordWrappedLabel);
 
             foreach (AService service in InternalUtils.AllServices())
             {

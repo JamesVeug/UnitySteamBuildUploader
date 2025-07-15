@@ -15,7 +15,6 @@ namespace Wireframe
         {
             string user = StringFormatter.FormatString(m_user);
             string game = StringFormatter.FormatString(m_game);
-            string version = StringFormatter.FormatString(m_version);
             string target = "";
             if(m_channels == null || m_channels.Count == 0)
             {
@@ -29,7 +28,7 @@ namespace Wireframe
             
             
             // https://jamesgamesbro.itch.io/builduploadertest-windows-mac v1.2.3
-            string text = $"{user}/{game}:{target} v{version}";
+            string text = $"{user}/{game}:{target}";
             EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
         }
 
@@ -50,12 +49,6 @@ namespace Wireframe
             {
                 GUILayout.Label("Game:", GUILayout.Width(120));
                 isDirty |= EditorUtils.FormatStringTextField(ref m_game, ref m_showFormattedGame);
-            }
-
-            using (new GUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Version:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_version, ref m_showFormattedVersion);
             }
 
             GUILayout.Label("Channels:", GUILayout.Width(120));

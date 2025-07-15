@@ -16,22 +16,17 @@ namespace Wireframe
         
         [Wiki("Channels", "Which platforms to upload to (lower case). eg: windows,mac,linux,android.")]
         private List<string> m_channels;
-        
-        [Wiki("Version", "What version this build is. eg: 1.0.0")]
-        private string m_version;
 
         public ItchioDestination() : base()
         {
             // Required for reflection
             m_channels = new List<string>();
-            m_version = "{version}";
         }
         
         public ItchioDestination(string user, string game, string version=null, string[] channels=null) : this()
         {
             m_user = user;
             m_game = game;
-            m_version = version ?? "";
             m_channels = channels != null ? new List<string>(channels) : new List<string>();
         }
         
@@ -45,11 +40,6 @@ namespace Wireframe
         {
             m_channels = new List<string>(channels);
         }
-        
-        public void SetVersion(string version)
-        {
-            m_version = version;
-        }
 
         public override async Task<bool> Upload(BuildTaskReport.StepResult result)
         {
@@ -57,7 +47,7 @@ namespace Wireframe
 
             string user = StringFormatter.FormatString(m_user);
             string game = StringFormatter.FormatString(m_game);
-            string version = StringFormatter.FormatString(m_version);
+            string version = m_buildDescription;
             List<string> channels = m_channels.ConvertAll(StringFormatter.FormatString);
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
@@ -90,11 +80,6 @@ namespace Wireframe
             {
                 errors.Add("No channels specified");
             }
-            
-            if (string.IsNullOrEmpty(m_version))
-            {
-                errors.Add("Version not specified");
-            }
         }
 
         public override Dictionary<string, object> Serialize()
@@ -103,7 +88,6 @@ namespace Wireframe
             {
                 ["user"] = m_user,
                 ["game"] = m_game,
-                ["version"] = m_version,
                 ["channels"] = m_channels
             };
             return dict;
@@ -118,10 +102,6 @@ namespace Wireframe
             if (s.TryGetValue("game", out object game))
             {
                 m_game = (string)game;
-            }
-            if (s.TryGetValue("version", out object version))
-            {
-                m_version = (string)version;
             }
 
             if (s.TryGetValue("channels", out object channels))

@@ -126,8 +126,8 @@ namespace Wireframe
         public static SteamConfigPopup ConfigPopup => m_configPopup ?? (m_configPopup = new SteamConfigPopup());
         private static SteamConfigPopup m_configPopup;
 
-        public static SteamDepotPopup DepotPopup => _mDepotPopup ?? (_mDepotPopup = new SteamDepotPopup());
-        private static SteamDepotPopup _mDepotPopup;
+        public static SteamDepotPopup DepotPopup => m_depotPopup ?? (m_depotPopup = new SteamDepotPopup());
+        private static SteamDepotPopup m_depotPopup;
 
         public static SteamBranchPopup BranchPopup => m_branchPopup ?? (m_branchPopup = new SteamBranchPopup());
         private static SteamBranchPopup m_branchPopup;

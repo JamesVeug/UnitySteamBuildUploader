@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,23 +14,8 @@ namespace Wireframe
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            string user = StringFormatter.FormatString(m_user);
-            string game = StringFormatter.FormatString(m_game);
-            string target = "";
-            if(m_channels == null || m_channels.Count == 0)
-            {
-                target = "???";
-            }
-            else
-            {
-                target = m_channels.ConvertAll(StringFormatter.FormatString)
-                    .Aggregate((current, next) => $"{current}-{next}");
-            }
-            
-            
-            // https://jamesgamesbro.itch.io/builduploadertest-windows-mac v1.2.3
-            string text = $"{user}/{game}:{target}";
-            EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
+            isDirty |= ItchioUIUtils.UserPopup.DrawPopup(ref m_user);
+            isDirty |= ItchioUIUtils.GamePopup.DrawPopup(m_user, ref m_game);
         }
 
         protected internal override void OnGUIExpanded(ref bool isDirty)
@@ -38,17 +24,17 @@ namespace Wireframe
             {
                 Application.OpenURL("https://itch.io/docs/butler/pushing.html");
             }
-
+            
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("User:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_user, ref m_showFormattedUser);
+                isDirty |= ItchioUIUtils.UserPopup.DrawPopup(ref m_user);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Game:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_game, ref m_showFormattedGame);
+                isDirty |= ItchioUIUtils.GamePopup.DrawPopup(m_user, ref m_game);
             }
 
             GUILayout.Label("Channels:", GUILayout.Width(120));
@@ -57,19 +43,19 @@ namespace Wireframe
 
         private void DrawChannels(ref bool isDirty)
         {
-            string[] allChannels = { "windows", "mac", "linux", "android" };
+            List<ItchioChannel> allChannels = ItchioUIUtils.GetItchioBuildData().Channels;
             int v = m_channels.RemoveAll(channel => !allChannels.Contains(channel));
             if(v > 0)
             {
                 isDirty = true;
             }
             
-            foreach (string channel in allChannels)
+            foreach (ItchioChannel channel in allChannels)
             {
                 using (new GUILayout.HorizontalScope())
                 {
                     bool active = m_channels.Contains(channel);
-                    bool newActive = GUILayout.Toggle(active, channel, GUILayout.Width(100));
+                    bool newActive = GUILayout.Toggle(active, channel.DisplayName, GUILayout.Width(100));
                     if (newActive != active)
                     {
                         isDirty = true;
@@ -84,7 +70,6 @@ namespace Wireframe
                         {
                             m_channels.Remove(channel);
                         }
-                        m_channels.Sort();
                     }
                 }
             }

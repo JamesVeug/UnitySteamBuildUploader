@@ -25,10 +25,5 @@
             reason = "";
             return true;
         }
-
-        public override void ProjectSettingsGUI()
-        {
-            
-        }
     }
 }

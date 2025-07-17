@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -9,46 +10,54 @@ namespace Wireframe
     public partial class ItchioDestination : ABuildDestination
     {
         [Wiki("User", "Account that owns owns the game.")]
-        private string m_user;
+        private ItchioUser m_user;
         
         [Wiki("Game", "ID of the game as seen in the URL.")]
-        private string m_game;
+        private ItchioGameData m_game;
         
         [Wiki("Channels", "Which platforms to upload to (lower case). eg: windows,mac,linux,android.")]
-        private List<string> m_channels;
+        private List<ItchioChannel> m_channels;
 
         public ItchioDestination() : base()
         {
             // Required for reflection
-            m_channels = new List<string>();
+            m_channels = new List<ItchioChannel>();
         }
         
         public ItchioDestination(string user, string game, string version=null, string[] channels=null) : this()
         {
-            m_user = user;
-            m_game = game;
-            m_channels = channels != null ? new List<string>(channels) : new List<string>();
+            m_user = new ItchioUser(){Name = user};
+            m_game = new ItchioGameData(){Name = game};
+            SetChannels(channels);
         }
         
         public void SetGame(string user, string game)
         {
-            m_user = user;
-            m_game = game;
+            m_user = new ItchioUser(){Name = user};
+            m_game = new ItchioGameData(){Name = game};
         }
         
         public void SetChannels(params string[] channels)
         {
-            m_channels = new List<string>(channels);
+            if(channels == null || channels.Length == 0)
+            {
+                // Default channels if none specified
+                m_channels = new List<ItchioChannel>();
+            }
+            else
+            {
+                m_channels = channels.Select(c => new ItchioChannel(){Name = c}).ToList();
+            }
         }
 
         public override async Task<bool> Upload(BuildTaskReport.StepResult result)
         {
             string filePath = StringFormatter.FormatString(m_filePath);
 
-            string user = StringFormatter.FormatString(m_user);
-            string game = StringFormatter.FormatString(m_game);
+            string user = StringFormatter.FormatString(m_user.Name);
+            string game = StringFormatter.FormatString(m_game.Name);
             string version = m_buildDescription;
-            List<string> channels = m_channels.ConvertAll(StringFormatter.FormatString);
+            List<string> channels = m_channels.ConvertAll((a)=>StringFormatter.FormatString(a.Name));
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
             bool success = await Itchio.Instance.Upload(filePath, user, game, channels, version, result);
@@ -66,12 +75,12 @@ namespace Wireframe
                 errors.Add(serviceReason);
             }
             
-            if (string.IsNullOrEmpty(m_user))
+            if (m_user == null || string.IsNullOrEmpty(m_user.Name))
             {
                 errors.Add("User not specified");
             }
 
-            if (string.IsNullOrEmpty(m_game))
+            if (m_game == null || string.IsNullOrEmpty(m_game.Name))
             {
                 errors.Add("Game not specified");
             }
@@ -86,27 +95,31 @@ namespace Wireframe
         {
             Dictionary<string, object> dict = new Dictionary<string, object>
             {
-                ["user"] = m_user,
-                ["game"] = m_game,
-                ["channels"] = m_channels
+                ["user"] = m_user?.Id,
+                ["game"] = m_game?.Id,
+                ["channels"] = m_channels.Select(a=>a.Id).ToList()
             };
             return dict;
         }
 
         public override void Deserialize(Dictionary<string, object> s)
         {
+            ItchioUser[] users = ItchioUIUtils.UserPopup.Values;
             if (s.TryGetValue("user", out object user))
             {
-                m_user = (string)user;
+                m_user = users.FirstOrDefault(a=>a.Id == (long)user);
             }
-            if (s.TryGetValue("game", out object game))
+            
+            if (s.TryGetValue("game", out object game) && m_user != null)
             {
-                m_game = (string)game;
+                m_game = m_user.GameIds.FirstOrDefault(a=>a.ID == (long)game);
             }
 
             if (s.TryGetValue("channels", out object channels))
             {
-                m_channels = ((List<object>)channels).ConvertAll(a => (string)a);
+                List<ItchioChannel> allChannels = ItchioUIUtils.GetItchioBuildData().Channels;
+                List<long> channelNames = ((List<object>)channels).Select(a=>(long)a).ToList();
+                m_channels = allChannels.Where(c => channelNames.Contains(c.ID)).ToList();
             }
         }
     }

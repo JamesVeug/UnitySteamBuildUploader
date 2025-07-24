@@ -31,6 +31,8 @@ namespace Wireframe
             new Command("{date}", () => DateTime.Now.ToString("yyyy-MM-dd"), "The current local date in the format YYYY-MM-DD."),
             new Command("{time}", () => DateTime.Now.ToString("HH-mm-ss"), "The current local time in the format HH-MM-SS."),
             new Command("{dateTime}", () => DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"), "The current local date and time in the format YYYY-MM-DD HH-MM-SS."),
+            new Command("{machineName}", () => Environment.MachineName, "The name of the machine running the build."),
+            
         };
         
         public static string FormatString(string format)

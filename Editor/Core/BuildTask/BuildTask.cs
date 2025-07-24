@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -16,6 +12,7 @@ namespace Wireframe
         public string[] CachedLocations => cachedLocations;
         
         private List<BuildConfig> buildConfigs;
+        private List<BuildConfig.PostUploadActionData> postUploadActions;
         private string[] cachedLocations;
         private int progressId;
         private string buildDescription;
@@ -24,12 +21,21 @@ namespace Wireframe
         {
             this.buildDescription = buildDescription;
             this.buildConfigs = buildConfigs;
+            this.postUploadActions = new List<BuildConfig.PostUploadActionData>();
+        }
+        
+        public BuildTask(List<BuildConfig> buildConfigs, string buildDescription, List<BuildConfig.PostUploadActionData> postUploadActions)
+        {
+            this.buildDescription = buildDescription;
+            this.buildConfigs = buildConfigs;
+            this.postUploadActions = postUploadActions ?? new List<BuildConfig.PostUploadActionData>();
         }
         
         public BuildTask()
         {
             buildDescription = "";
             buildConfigs = new List<BuildConfig>();
+            postUploadActions = new List<BuildConfig.PostUploadActionData>();
         }
 
         ~BuildTask()
@@ -68,11 +74,65 @@ namespace Wireframe
                 }
             }
             
+            await PostUpload_Step(report, steps);
+            
+            await Cleanup_Step(report, steps);
+
+            ProgressUtils.Remove(progressId);
+            report.Complete();
+            onComplete?.Invoke(report.Successful);
+        }
+
+        private async Task PostUpload_Step(BuildTaskReport report, ABuildTask_Step[] steps)
+        {
+            report.SetProcess(ABuildTask_Step.StepProcess.Intra);
+            BuildTaskReport.StepResult actionResult = report.NewReport(ABuildTask_Step.StepType.PostUpload);
+            
+            // Cleanup to make sure nothing is left behind - dirtying up the user's computer
+            ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+2), "Post Upload Actions");
+            
+            int cleanupProgressId = ProgressUtils.Start("Post Upload", "Executing Post Upload Actions");
+            for (var i = 0; i < postUploadActions.Count; i++)
+            {
+                BuildConfig.PostUploadActionData actionData = postUploadActions[i];
+                if (actionData == null || actionData.BuildAction == null)
+                {
+                    actionResult.AddLog("Skipping post upload action because it's null");
+                    continue;
+                }
+
+                BuildConfig.PostUploadActionData.UploadCompleteStatus status = actionData.WhenToExecute;
+                if (status == BuildConfig.PostUploadActionData.UploadCompleteStatus.Never ||
+                    (status == BuildConfig.PostUploadActionData.UploadCompleteStatus.Successful && !report.Successful) ||
+                    (status == BuildConfig.PostUploadActionData.UploadCompleteStatus.Failed && report.Successful))
+                {
+                    actionResult.AddLog($"Skipping post upload action {i+1} because it doesn't match the current status");
+                    continue;
+                }
+
+                await Task.Yield();
+                ProgressUtils.Report(cleanupProgressId, 0, $"Executing action " + (i+1) + "/" + postUploadActions.Count);
+                    
+                actionResult.AddLog($"Executing post upload action: {i+1}");
+
+                bool prepared = await actionData.BuildAction.Prepare(report.Successful, buildDescription, actionResult);
+                if (!prepared)
+                {
+                    actionResult.AddError($"Failed to prepare post upload action: {actionData.BuildAction.GetType().Name}");
+                    continue;
+                }
+                
+                await actionData.BuildAction.Execute(actionResult);
+            }
+        }
+
+        private async Task Cleanup_Step(BuildTaskReport report, ABuildTask_Step[] steps)
+        {
             report.SetProcess(ABuildTask_Step.StepProcess.Intra);
             BuildTaskReport.StepResult beginCleanupResult = report.NewReport(ABuildTask_Step.StepType.Cleanup);
             
             // Cleanup to make sure nothing is left behind - dirtying up the user's computer
-            ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+1), "Cleaning up");
+            ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+2), "Cleaning up");
             if (Preferences.DeleteCacheAfterUpload)
             {
                 // Delete cache
@@ -123,12 +183,8 @@ namespace Wireframe
             {
                 beginCleanupResult.AddLog("Skipping deleting cache. Re-enable in preferences.");
             }
-            
-            ProgressUtils.Remove(progressId);
-            report.Complete();
-            onComplete?.Invoke(report.Successful);
         }
-        
+
         public void AddConfig(BuildConfig config)
         {
             if (config == null)
@@ -137,6 +193,16 @@ namespace Wireframe
             }
             
             buildConfigs.Add(config);
+        }
+        
+        public void AddPostUploadAction(BuildConfig.PostUploadActionData action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+            
+            postUploadActions.Add(action);
         }
         
         public void SetBuildDescription(string description)

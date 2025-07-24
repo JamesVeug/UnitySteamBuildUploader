@@ -20,16 +20,19 @@ namespace Wireframe
         public class UploadTabData
         {
             [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
+            [SerializeField] public List<Dictionary<string, object>> PostUploads = new List<Dictionary<string, object>>();
         }
 
         public override string TabName => "Upload";
         
         private List<BuildConfig> m_buildsToUpload;
+        private List<BuildConfig.PostUploadActionData> m_postUploadActions;
 
         private string m_buildPath;
         private bool m_showFormattedBuildPath = false;
         
         private GUIStyle m_titleStyle;
+        private GUIStyle m_subTitleStyle;
         private Vector2 m_scrollPosition;
         private string m_buildDescription;
         private bool m_showFormattedDescription = false;
@@ -49,6 +52,13 @@ namespace Wireframe
             {
                 fontSize = 17,
                 alignment = TextAnchor.MiddleCenter,
+                fontStyle = FontStyle.Bold
+            };
+            
+            m_subTitleStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 14,
+                alignment = TextAnchor.MiddleLeft,
                 fontStyle = FontStyle.Bold
             };
 
@@ -117,6 +127,83 @@ namespace Wireframe
                         }
                     }
                 }
+                
+                GUILayout.Space(10);
+                
+                // Post upload actions
+                GUILayout.Label("Post Upload Actions", m_subTitleStyle);
+                for (int i = 0; i < m_postUploadActions.Count; i++)
+                {
+                    BuildConfig.PostUploadActionData actionData = m_postUploadActions[i];
+                    using (new GUILayout.HorizontalScope("box"))
+                    {
+                        if (GUILayout.Button("X", GUILayout.MaxWidth(20)))
+                        {
+                            if (EditorUtility.DisplayDialog("Remove Post Upload Action",
+                                    "Are you sure you want to remove this post upload action?", "Yes"))
+                            {
+                                m_postUploadActions.RemoveAt(i--);
+                                m_isDirty = true;
+                                continue;
+                            }
+                        }
+
+                        var status = (BuildConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumFlagsField(actionData.WhenToExecute, GUILayout.Width(20));
+                        if (status != actionData.WhenToExecute)
+                        {
+                            actionData.WhenToExecute = status;
+                            m_isDirty = true;
+                        }
+
+                        bool disabled = actionData.WhenToExecute == BuildConfig.PostUploadActionData.UploadCompleteStatus.Never;
+                        using (new EditorGUI.DisabledScope(disabled))
+                        {
+                            GUILayout.Label("Action Type: ", GUILayout.Width(100));
+                            if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, GUILayout.Width(200)))
+                            {
+                                m_isDirty = true;
+                                Utils.CreateInstance(actionData.ActionType?.Type, out actionData.BuildAction);
+                            }
+                        }
+
+                        using (new GUILayout.VerticalScope())
+                        {
+                            if (actionData.ActionType != null)
+                            {
+                                float maxWidth = UploaderWindow.position.width - 400;
+                                if (actionData.Collapsed)
+                                {
+                                    using (new GUILayout.HorizontalScope())
+                                    {
+                                        actionData.BuildAction.OnGUICollapsed(ref m_isDirty, maxWidth);
+                                    }
+                                }
+                                else
+                                {
+                                    using (new EditorGUILayout.VerticalScope())
+                                    {
+                                        actionData.BuildAction.OnGUIExpanded(ref m_isDirty);
+                                    }
+                                }
+                            }
+                        }
+
+                        bool collapse = actionData.Collapsed;
+                        if (GUILayout.Button(collapse ? ">" : "\\/", GUILayout.Width(20)))
+                        {
+                            actionData.Collapsed = !actionData.Collapsed;
+                        }
+                    }
+                }
+
+                if (GUILayout.Button("Add"))
+                {
+                    // Show a popup to select an action
+                    BuildConfig.PostUploadActionData actionData = new BuildConfig.PostUploadActionData();
+                    actionData.SetupDefaults();
+                    m_postUploadActions.Add(actionData);
+                }
+                
 
                 if (m_isDirty && Preferences.AutoSaveBuildConfigsAfterChanges)
                 {
@@ -489,7 +576,8 @@ namespace Wireframe
         {
             // Start task
             Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
-            BuildTask buildTask = new BuildTask(m_buildsToUpload, StringFormatter.FormatString(m_buildDescription));
+            string description = StringFormatter.FormatString(m_buildDescription);
+            BuildTask buildTask = new BuildTask(m_buildsToUpload, description, m_postUploadActions);
             
             string guids = string.Join("_", m_buildsToUpload.Select(x => x.GUID));
             BuildTaskReport report = new BuildTaskReport(guids);
@@ -626,6 +714,10 @@ namespace Wireframe
             {
                 data.Data.Add(m_buildsToUpload[i].Serialize());
             }
+            for (int i = 0; i < m_postUploadActions.Count; i++)
+            {
+                data.PostUploads.Add(m_postUploadActions[i].Serialize());
+            }
 
             string directory = Path.GetDirectoryName(FilePath);
             if (!Directory.Exists(directory))
@@ -660,6 +752,7 @@ namespace Wireframe
             {
                 Debug.Log("SteamBuildData does not exist. Creating new file");
                 m_buildsToUpload = new List<BuildConfig>();
+                m_postUploadActions = new List<BuildConfig.PostUploadActionData>();
                 Save();
             }
         }
@@ -672,6 +765,7 @@ namespace Wireframe
             {
                 Debug.Log("Config is null. Creating new config");
                 m_buildsToUpload = new List<BuildConfig>();
+                m_postUploadActions = new List<BuildConfig.PostUploadActionData>();
                 Save();
             }
             else
@@ -692,6 +786,22 @@ namespace Wireframe
                         Debug.LogException(e);
                         BuildConfig buildConfig = new BuildConfig(UploaderWindow);
                         m_buildsToUpload.Add(buildConfig);
+                    }
+                }
+                
+                m_postUploadActions = new List<BuildConfig.PostUploadActionData>();
+                for (int i = 0; i < config.PostUploads.Count; i++)
+                {
+                    try
+                    {
+                        BuildConfig.PostUploadActionData actionData = new BuildConfig.PostUploadActionData();
+                        actionData.Deserialize(config.PostUploads[i]);
+                        m_postUploadActions.Add(actionData);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("Failed to load post upload action: #" + (i+1));
+                        Debug.LogException(e);
                     }
                 }
             }

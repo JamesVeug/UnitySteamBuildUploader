@@ -36,6 +36,21 @@ namespace Wireframe
         
         public static bool FormatStringTextField(ref string text, ref bool pressed, GUIStyle style = null, GUILayoutOption textFieldOption = null)
         {
+            return FormatStringText(ref text, ref pressed, style, textFieldOption, true);
+        }
+
+        public static bool FormatStringTextArea(ref string text, ref bool pressed, GUILayoutOption textFieldOption)
+        {
+            return FormatStringTextField(ref text, ref pressed, null, textFieldOption);
+        }
+        
+        public static bool FormatStringTextArea(ref string text, ref bool pressed, GUIStyle style = null, GUILayoutOption textFieldOption = null)
+        {
+            return FormatStringText(ref text, ref pressed, style, textFieldOption, false);
+        }
+        
+        private static bool FormatStringText(ref string text, ref bool pressed, GUIStyle style, GUILayoutOption textFieldOption, bool textField)
+        {
             if (style == null)
             {
                 style = EditorStyles.textField;
@@ -59,11 +74,17 @@ namespace Wireframe
                     
                     if (textFieldOption == null)
                     {
-                        newText = EditorGUILayout.TextField(displayText, style);
+                        if(textField)
+                            newText = EditorGUILayout.TextField(displayText, style);
+                        else
+                            newText = EditorGUILayout.TextArea(displayText, style);
                     }
                     else
                     {
-                        newText = EditorGUILayout.TextField(displayText, style, textFieldOption);
+                        if(textField)
+                            newText = EditorGUILayout.TextField(displayText, style, textFieldOption);
+                        else
+                            newText = EditorGUILayout.TextArea(displayText, style, textFieldOption);
                     }
 
                     if (!pressed && newText != text)

@@ -137,6 +137,50 @@ namespace Wireframe
                 return false;
             }
         }
+        
+        public class BuildActionPopup : CustomDropdown<BuildActionPopup.ActionData>
+        {
+            public override string FirstEntryText => "Choose Action";
+            public class ActionData : DropdownElement
+            {
+                public int Id { get; set; }
+                public string DisplayName { get; set; }
+                public Type Type { get; set; }
+            }
+
+            protected override List<ActionData> FetchAllData()
+            {
+                List<ActionData> actions = new List<ActionData>();
+                foreach (Type type in InternalUtils.AllBuildActions())
+                {
+                    actions.Add(new ActionData()
+                    {
+                        Id = actions.Count + 1,
+                        DisplayName = type.GetCustomAttribute<BuildActionAttribute>()?.DisplayName ?? type.Name,
+                        Type = type,
+                    });
+                }
+                return actions;
+            }
+
+            public bool TryGetValueFromType(Type type, out ActionData data)
+            {
+                if (type != null)
+                {
+                    foreach (ActionData action in Values)
+                    {
+                        if (action.Type == type)
+                        {
+                            data = action;
+                            return true;
+                        }
+                    }
+                }
+
+                data = null;
+                return false;
+            }
+        }
 
         public static BuildSourcesPopup SourcesPopup => m_sourcesPopup ?? (m_sourcesPopup = new BuildSourcesPopup());
         private static BuildSourcesPopup m_sourcesPopup;
@@ -146,6 +190,9 @@ namespace Wireframe
         
         public static BuildDestinationsPopup DestinationsPopup => m_destinationsPopup ?? (m_destinationsPopup = new BuildDestinationsPopup());
         private static BuildDestinationsPopup m_destinationsPopup;
+        
+        public static BuildActionPopup ActionsPopup => m_actionsPopup ?? (m_actionsPopup = new BuildActionPopup());
+        private static BuildActionPopup m_actionsPopup;
 
     }
 }

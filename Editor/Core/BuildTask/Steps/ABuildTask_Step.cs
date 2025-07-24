@@ -13,6 +13,7 @@ namespace Wireframe
             ModifyCacheSources,
             PrepareDestinations,
             Upload,
+            PostUpload,
             Cleanup
         }
 

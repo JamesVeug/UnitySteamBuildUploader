@@ -10,6 +10,7 @@ namespace Wireframe
         private static List<Type> allBuildSources = null;
         private static List<Type> allBuildModifiers = null;
         private static List<Type> allBuildDestinations = null;
+        private static List<Type> allBuildActions = null;
         
         public static List<AService> AllServices()
         {
@@ -64,17 +65,29 @@ namespace Wireframe
             return allBuildDestinations;
         }
         
+        public static List<Type> AllBuildActions()
+        {
+            if (allBuildActions == null)
+            {
+                FetchAllTypes();
+            }
+            
+            return allBuildActions;
+        }
+        
         private static void FetchAllTypes()
         {
             allServices = new List<AService>();
             allBuildSources = new List<Type>();
             allBuildModifiers = new List<Type>();
             allBuildDestinations = new List<Type>();
+            allBuildActions = new List<Type>();
             
             Type sourceType = typeof(ABuildSource);
             Type serviceType = typeof(AService);
             Type modifierType = typeof(ABuildConfigModifer);
             Type destinationType = typeof(ABuildDestination);
+            Type actionType = typeof(ABuildAction);
 
             // Slow but only done once per compilation
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -99,6 +112,10 @@ namespace Wireframe
                     else if (modifierType.IsAssignableFrom(type))
                     {
                         allBuildModifiers.Add(type);
+                    }
+                    else if (actionType.IsAssignableFrom(type))
+                    {
+                        allBuildActions.Add(type);
                     }
                 }
             }

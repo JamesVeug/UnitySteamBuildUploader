@@ -6,6 +6,7 @@ namespace Wireframe
     public partial class DiscordMessageChannelAction
     {
         private bool m_showFormattedText;
+        private ReorderableListOfDiscordMessageEmbeds m_embedList;
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
@@ -53,6 +54,10 @@ namespace Wireframe
                 {
                     GUILayout.Label("No server selected", GUILayout.Width(120));
                 }
+                else
+                {
+                    isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, GUILayout.Width(120));
+                }
             }
 
             
@@ -61,9 +66,22 @@ namespace Wireframe
             {
                 isDirty = true;
             }
-            using (new EditorGUILayout.HorizontalScope())
+
+            if (m_embedList == null)
             {
+                m_embedList = new ReorderableListOfDiscordMessageEmbeds();
+                m_embedList.Initialize(m_embeds, "Embeds", (_) =>
+                {
+                    
+                });
             }
+
+            if (m_embedList.OnGUI())
+            {
+                isDirty = true;
+            }
+            
+            
         }
     }
 }

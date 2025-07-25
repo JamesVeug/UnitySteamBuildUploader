@@ -21,7 +21,7 @@ namespace Wireframe
                 }
                 else
                 {
-                    Debug.Log("ItchioBuildData does not exist. Creating new file");
+                    Debug.Log("ItchioConfig does not exist. Creating new file");
                     data = new ItchioAppData();
                     data.Initialize();
                     Save();

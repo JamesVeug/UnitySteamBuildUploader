@@ -10,7 +10,7 @@ namespace Wireframe
         private bool m_showFormattedURL = false;
         private bool m_showFormattedFileName = false;
         
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -22,18 +22,18 @@ namespace Wireframe
                 }
 
                 float width = maxWidth - 120;
-                string url = StringFormatter.FormatString(m_url);
+                string url = StringFormatter.FormatString(m_url, ctx);
                 string truncatedText = Utils.TruncateText(url, width, "No URL entered...");
                 GUILayout.Label(truncatedText, GUILayout.Width(width));
             }
         }
 
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("URL:", GUILayout.Width(120));
-                if (EditorUtils.FormatStringTextField(ref m_url, ref m_showFormattedURL))
+                if (EditorUtils.FormatStringTextField(ref m_url, ref m_showFormattedURL, ctx))
                 {
                     isDirty = true;
                 }
@@ -53,7 +53,7 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("File Name:", GUILayout.Width(120));
-                if (EditorUtils.FormatStringTextField(ref m_fileName, ref m_showFormattedFileName))
+                if (EditorUtils.FormatStringTextField(ref m_fileName, ref m_showFormattedFileName, ctx))
                 {
                     isDirty = true;
                 }

@@ -5,7 +5,7 @@ namespace Wireframe
 {
     public partial class SteamDRM_BuildModifier
     {
-        protected internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             using (new GUILayout.HorizontalScope())
             {

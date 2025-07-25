@@ -32,18 +32,18 @@ namespace Wireframe
             m_pathLabelDoesNotExistStyle.normal.textColor = Color.yellow;
         }
 
-        protected internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             Setup();
 
-            bool exists = PathExists();
+            bool exists = PathExists(ctx);
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUIContent label = new GUIContent("Directory:", "Where the contents of the sources should be copied to.");
                 GUILayout.Label(label, GUILayout.Width(120));
 
                 GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
-                if (EditorUtils.FormatStringTextField(ref m_localPath, ref m_showFormattedLocalPath, style))
+                if (EditorUtils.FormatStringTextField(ref m_localPath, ref m_showFormattedLocalPath, ctx, style))
                 {
                     isDirty = true;
                 }
@@ -77,7 +77,7 @@ namespace Wireframe
                                                                               "\nSee docs for format options such as {buildNumber} and {date}.");
                     GUILayout.Label(label, GUILayout.Width(125));
                     
-                    if (EditorUtils.FormatStringTextField(ref m_zippedFilesName, ref m_showFormattedZippedFilesName))
+                    if (EditorUtils.FormatStringTextField(ref m_zippedFilesName, ref m_showFormattedZippedFilesName, ctx))
                     {
                         isDirty = true;
                     }
@@ -97,18 +97,18 @@ namespace Wireframe
 
             GUIStyle fullPathStyle = exists ? m_pathLabelExistsStyle : m_pathLabelDoesNotExistStyle;
             fullPathStyle.alignment = TextAnchor.MiddleLeft;
-            GUILayout.Label("Full Path: " + FullPath(), fullPathStyle);
+            GUILayout.Label("Full Path: " + FullPath(ctx), fullPathStyle);
         }
 
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             Setup();
 
-            bool exists = PathExists();
+            bool exists = PathExists(ctx);
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
             style.alignment = TextAnchor.MiddleLeft;
 
-            string displayedPath = GetButtonText(maxWidth);
+            string displayedPath = GetButtonText(maxWidth, ctx);
             if (GUILayout.Button(displayedPath, style))
             {
                 string newPath = SelectFile();
@@ -116,9 +116,9 @@ namespace Wireframe
             }
         }
 
-        private string GetButtonText(float maxWidth)
+        private string GetButtonText(float maxWidth, StringFormatter.Context ctx)
         {
-            string fullPath = FullPath();
+            string fullPath = FullPath(ctx);
             string displayedPath = fullPath;
             if (!string.IsNullOrEmpty(displayedPath))
             {

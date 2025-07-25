@@ -4,7 +4,7 @@ namespace Wireframe
 {
     public partial class SteamUploadDestination
     {
-        protected internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             // Config
             using (new GUILayout.HorizontalScope())
@@ -48,7 +48,7 @@ namespace Wireframe
             }
         }
 
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current);
             isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot);

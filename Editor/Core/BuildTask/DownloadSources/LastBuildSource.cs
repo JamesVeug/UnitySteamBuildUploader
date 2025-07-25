@@ -15,7 +15,7 @@ namespace Wireframe
     [BuildSource("LastBuildSource", "Last Build Directory")]
     public class LastBuildSource : ABuildSource
     {
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             EditorGUILayout.LabelField("Last Build Directory", LastBuildDirectoryUtil.LastBuildDirectory);
             if (GUILayout.Button("Open Last Build Directory"))
@@ -31,12 +31,13 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             EditorGUILayout.LabelField(LastBuildDirectoryUtil.LastBuildDirectory, GUILayout.MaxWidth(maxWidth));
         }
 
-        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
+        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult,
+            StringFormatter.Context ctx)
         {
             if (string.IsNullOrEmpty(LastBuildDirectoryUtil.LastBuildDirectory))
             {
@@ -58,9 +59,9 @@ namespace Wireframe
             return LastBuildDirectoryUtil.LastBuildDirectory;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
             if (string.IsNullOrEmpty(LastBuildDirectoryUtil.LastBuildDirectory))
             {

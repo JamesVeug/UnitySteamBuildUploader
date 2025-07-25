@@ -38,7 +38,8 @@ namespace Wireframe
             sourceBuild = build;
         }
 
-        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
+        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult,
+            StringFormatter.Context ctx)
         {
             m_getSourceInProgress = true;
             m_downloadProgress = 0.0f;
@@ -132,9 +133,9 @@ namespace Wireframe
             return m_downloadProgress;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
             if (!InternalUtils.GetService<UnityCloudService>().IsReadyToStartBuild(out string reason))
             {

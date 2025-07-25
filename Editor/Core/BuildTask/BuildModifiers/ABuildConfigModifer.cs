@@ -12,7 +12,8 @@ namespace Wireframe
             // Required for reflection
         }
 
-        public abstract Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult);
+        public abstract Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex,
+            BuildTaskReport.StepResult stepResult, StringFormatter.Context ctx);
         
         public virtual bool IgnoreFileDuringCacheSource(string path, int buildIndex, BuildTaskReport.StepResult stepResult)
         {

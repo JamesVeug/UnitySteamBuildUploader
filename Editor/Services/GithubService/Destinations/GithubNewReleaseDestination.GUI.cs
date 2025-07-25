@@ -11,18 +11,18 @@ namespace Wireframe
         private bool m_showFormattedTagName;
         private bool m_showFormattedTarget;
 
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            string owner = StringFormatter.FormatString(m_owner);
-            string repo = StringFormatter.FormatString(m_repo);
-            string tagName = StringFormatter.FormatString(m_tagName);
-            string target = StringFormatter.FormatString(m_target);
+            string owner = StringFormatter.FormatString(m_owner, ctx);
+            string repo = StringFormatter.FormatString(m_repo, ctx);
+            string tagName = StringFormatter.FormatString(m_tagName, ctx);
+            string target = StringFormatter.FormatString(m_target, ctx);
             
             string text = $"{owner}/{repo}/releases/tag/{tagName} ({target})";
             EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
         }
 
-        protected internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             if (GUILayout.Button("?", GUILayout.Width(20)))
             {
@@ -33,31 +33,31 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Owner:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_owner, ref m_showFormattedOwner);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_owner, ref m_showFormattedOwner, ctx);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Repo:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_repo, ref m_showFormattedRepo);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_repo, ref m_showFormattedRepo, ctx);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Release Name:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_releaseName, ref m_showFormattedReleaseName);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_releaseName, ref m_showFormattedReleaseName, ctx);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Tag:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_tagName, ref m_showFormattedTagName);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_tagName, ref m_showFormattedTagName, ctx);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Branch or Commit:", GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextField(ref m_target, ref m_showFormattedTarget);
+                isDirty |= EditorUtils.FormatStringTextField(ref m_target, ref m_showFormattedTarget, ctx);
             }
 
             using (new GUILayout.HorizontalScope())

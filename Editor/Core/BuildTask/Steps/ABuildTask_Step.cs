@@ -28,6 +28,13 @@ namespace Wireframe
         public abstract Task<bool> Run(BuildTask buildTask, BuildTaskReport report);
         public abstract Task<bool> PostRunResult(BuildTask buildTask, BuildTaskReport report);
         
+        protected StringFormatter.Context m_context;
+
+        public ABuildTask_Step(StringFormatter.Context ctx)
+        {
+            m_context = ctx;
+        }
+        
         protected void ReportCachedFiles(BuildTask buildTask, BuildTaskReport report)
         {
             List<BuildConfig> buildConfigs = buildTask.BuildConfigs;

@@ -39,25 +39,25 @@ namespace Wireframe
             m_zipContent = zipContent;
         }
 
-        private string FullPath()
+        private string FullPath(StringFormatter.Context ctx)
         {
-            string path = StringFormatter.FormatString(m_localPath);
+            string path = StringFormatter.FormatString(m_localPath, ctx);
             if (m_zipContent)
             {
-                path += StringFormatter.FormatString(m_zippedFilesName) + ".zip";
+                path += StringFormatter.FormatString(m_zippedFilesName, ctx) + ".zip";
             }
             
             return path;
         }
         
-        private bool PathExists()
+        private bool PathExists(StringFormatter.Context ctx)
         {
             if (string.IsNullOrEmpty(m_localPath))
             {
                 return true;
             }
             
-            string fullPath = FullPath();
+            string fullPath = FullPath(ctx);
             return File.Exists(fullPath) || Directory.Exists(fullPath);
         }
 
@@ -72,9 +72,9 @@ namespace Wireframe
             return true;
         }
 
-        public override async Task<bool> Upload(BuildTaskReport.StepResult result)
+        public override async Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            string fullPath = FullPath();
+            string fullPath = FullPath(ctx);
             string directory = m_zipContent ? Path.GetDirectoryName(fullPath) : fullPath;
 
             // Delete existing content
@@ -123,9 +123,9 @@ namespace Wireframe
             return true;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
             if (string.IsNullOrEmpty(m_localPath))
             {
@@ -141,11 +141,11 @@ namespace Wireframe
             }
         }
 
-        public override void TryGetWarnings(List<string> warnings)
+        public override void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
         {
-            base.TryGetWarnings(warnings);
+            base.TryGetWarnings(warnings, ctx);
 
-            if (!PathExists())
+            if (!PathExists(ctx))
             {
                 warnings.Add("Path does not exist but may be created during upload.");
             }

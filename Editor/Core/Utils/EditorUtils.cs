@@ -7,7 +7,7 @@ namespace Wireframe
 {
     public static class EditorUtils
     {
-        public static string GetFormatStringTextFieldTooltip()
+        public static string GetFormatStringTextFieldTooltip(StringFormatter.Context ctx)
         {
             StringBuilder tooltipBuilder = new StringBuilder();
             tooltipBuilder.AppendLine("Show the text as it will appear with formats:");
@@ -23,20 +23,20 @@ namespace Wireframe
                 
                 tooltipBuilder.Append(command.Key);
                 tooltipBuilder.Append(" - ");
-                tooltipBuilder.AppendLine(command.Formatter());
+                tooltipBuilder.AppendLine(command.Formatter(ctx));
             }
             
             return tooltipBuilder.ToString();
         }
 
-        public static bool FormatStringTextField(ref string text, ref bool pressed, GUILayoutOption textFieldOption)
+        public static bool FormatStringTextField(ref string text, ref bool pressed, StringFormatter.Context ctx, GUILayoutOption textFieldOption)
         {
-            return FormatStringTextField(ref text, ref pressed, null, textFieldOption);
+            return FormatStringTextField(ref text, ref pressed, ctx, null, textFieldOption);
         }
         
-        public static bool FormatStringTextField(ref string text, ref bool pressed, GUIStyle style = null, GUILayoutOption textFieldOption = null)
+        public static bool FormatStringTextField(ref string text, ref bool pressed, StringFormatter.Context ctx, GUIStyle style = null, GUILayoutOption textFieldOption = null)
         {
-            return FormatStringText(ref text, ref pressed, style, textFieldOption, true);
+            return FormatStringText(ref text, ref pressed, style, textFieldOption, true, ctx);
         }
 
         public static bool FormatStringTextArea(ref string text, ref bool pressed, GUILayoutOption textFieldOption)
@@ -44,12 +44,12 @@ namespace Wireframe
             return FormatStringTextField(ref text, ref pressed, null, textFieldOption);
         }
         
-        public static bool FormatStringTextArea(ref string text, ref bool pressed, GUIStyle style = null, GUILayoutOption textFieldOption = null)
+        public static bool FormatStringTextArea(ref string text, ref bool pressed, StringFormatter.Context ctx, GUIStyle style = null, GUILayoutOption textFieldOption = null)
         {
-            return FormatStringText(ref text, ref pressed, style, textFieldOption, false);
+            return FormatStringText(ref text, ref pressed, style, textFieldOption, false, ctx);
         }
         
-        private static bool FormatStringText(ref string text, ref bool pressed, GUIStyle style, GUILayoutOption textFieldOption, bool textField)
+        private static bool FormatStringText(ref string text, ref bool pressed, GUIStyle style, GUILayoutOption textFieldOption, bool textField, StringFormatter.Context ctx)
         {
             if (style == null)
             {
@@ -58,7 +58,7 @@ namespace Wireframe
             
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIContent content = new GUIContent("F", GetFormatStringTextFieldTooltip());
+                GUIContent content = new GUIContent("F", GetFormatStringTextFieldTooltip(ctx));
                 
                 var newPressed = GUILayout.Toggle(pressed, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
                 if (newPressed != pressed)
@@ -69,7 +69,7 @@ namespace Wireframe
 
                 using (new EditorGUI.DisabledScope(pressed))
                 {
-                    string displayText = pressed ? StringFormatter.FormatString(text) : text;
+                    string displayText = pressed ? StringFormatter.FormatString(text, ctx) : text;
                     string newText = "";
                     
                     if (textFieldOption == null)

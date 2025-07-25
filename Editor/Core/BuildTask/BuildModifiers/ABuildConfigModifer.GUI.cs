@@ -1,7 +1,10 @@
-﻿namespace Wireframe
+﻿using System.Reflection;
+
+namespace Wireframe
 {
     public abstract partial class ABuildConfigModifer
     {
-        protected internal abstract void OnGUIExpanded(ref bool isDirty);
+        public string DisplayName => GetType().GetCustomAttribute<BuildModifierAttribute>()?.DisplayName ?? GetType().Name;
+        protected internal abstract void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx);
     }
 }

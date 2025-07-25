@@ -18,17 +18,17 @@ namespace Wireframe
             // Required for reflection
         }
 
-        protected internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
 
         }
 
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
 
         }
 
-        public override Task<bool> Upload(BuildTaskReport.StepResult result)
+        public override Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
         {
             m_uploadProgress = 1;
             return Task.FromResult(true);

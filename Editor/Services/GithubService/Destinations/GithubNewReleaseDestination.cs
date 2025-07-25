@@ -64,9 +64,9 @@ namespace Wireframe
             m_zipContents = zipContents;
         }
 
-        public override async Task<bool> Upload(BuildTaskReport.StepResult result)
+        public override async Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            string filePath = StringFormatter.FormatString(m_filePath);
+            string filePath = StringFormatter.FormatString(m_filePath, ctx);
             
             List<string> files = new List<string>();
             if (m_zipContents)
@@ -82,11 +82,11 @@ namespace Wireframe
             }
 
 
-            string owner = StringFormatter.FormatString(m_owner);
-            string repo = StringFormatter.FormatString(m_repo);
-            string releaseName = StringFormatter.FormatString(m_releaseName);
-            string tagName = StringFormatter.FormatString(m_tagName);
-            string target = StringFormatter.FormatString(m_target);
+            string owner = StringFormatter.FormatString(m_owner, ctx);
+            string repo = StringFormatter.FormatString(m_repo, ctx);
+            string releaseName = StringFormatter.FormatString(m_releaseName, ctx);
+            string tagName = StringFormatter.FormatString(m_tagName, ctx);
+            string target = StringFormatter.FormatString(m_target, ctx);
             
             int processID = ProgressUtils.Start("Github Release", "Uploading a new Github Release");
             bool success = await Github.NewRelease(owner, repo, releaseName, m_buildDescription, tagName, target, m_draft, m_prerelease, Github.Token, result, files);
@@ -95,9 +95,9 @@ namespace Wireframe
             return success;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
             if (!InternalUtils.GetService<GithubService>().IsReadyToStartBuild(out string reason))
             {

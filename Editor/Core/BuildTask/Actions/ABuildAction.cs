@@ -20,7 +20,7 @@ namespace Wireframe
             return Task.FromResult(true);
         }
         
-        public abstract Task<bool> Execute(BuildTaskReport.StepResult stepResult);
+        public abstract Task<bool> Execute(BuildTaskReport.StepResult stepResult, StringFormatter.Context ctx);
         
         public virtual void CleanUp(BuildTaskReport.StepResult result)
         {

@@ -6,6 +6,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_ModifyCachedSources : ABuildTask_Step
     {
+        public BuildTaskStep_ModifyCachedSources(StringFormatter.Context context) : base(context)
+        {
+            
+        }
+
         public override StepType Type => StepType.ModifyCacheSources;
         
         public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
@@ -21,7 +26,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = ModifyBuild(buildTask, j, report);
+                Task<bool> task = ModifyBuild(buildTask, j, report, m_context);
                 tasks.Add(task);
             }
 
@@ -58,7 +63,7 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> ModifyBuild(BuildTask task, int sourceIndex, BuildTaskReport report)
+        private async Task<bool> ModifyBuild(BuildTask task, int sourceIndex, BuildTaskReport report, StringFormatter.Context ctx)
         {
             BuildConfig buildConfig = task.BuildConfigs[sourceIndex];
             BuildTaskReport.StepResult[] results = report.NewReports(Type, buildConfig.Modifiers.Count);
@@ -73,7 +78,7 @@ namespace Wireframe
                 var stepResult = results[i];
                 try
                 {
-                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex, stepResult);
+                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], buildConfig, sourceIndex, stepResult, ctx);
                     if (!success)
                     {
                         return false;

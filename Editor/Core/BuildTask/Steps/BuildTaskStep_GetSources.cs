@@ -8,6 +8,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_GetSources : ABuildTask_Step
     {
+        public BuildTaskStep_GetSources(StringFormatter.Context context) : base(context)
+        {
+            
+        }
+
         public override StepType Type => StepType.GetSources;
 
         public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
@@ -23,7 +28,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = GetSources(buildConfigs[j], report);
+                Task<bool> task = GetSources(buildConfigs[j], report, m_context);
                 List<BuildConfig.SourceData> activeSources = buildConfigs[j].Sources.Where(a=>a.Enabled).ToList();
                 tasks.Add(new Tuple<List<BuildConfig.SourceData>, Task<bool>>(activeSources, task));
             }
@@ -67,7 +72,7 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> GetSources(BuildConfig buildConfig, BuildTaskReport report)
+        private async Task<bool> GetSources(BuildConfig buildConfig, BuildTaskReport report, StringFormatter.Context ctx)
         {
             BuildTaskReport.StepResult[] results = report.NewReports(Type, buildConfig.Sources.Count);
             for (var i = 0; i < buildConfig.Sources.Count; i++)
@@ -82,7 +87,7 @@ namespace Wireframe
 
                 try
                 {
-                    bool success = await sourceData.Source.GetSource(buildConfig, result);
+                    bool success = await sourceData.Source.GetSource(buildConfig, result, ctx);
                     if (!success)
                     {
                         return false;

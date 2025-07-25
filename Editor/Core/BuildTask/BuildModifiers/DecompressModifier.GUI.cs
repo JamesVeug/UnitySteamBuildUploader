@@ -8,7 +8,7 @@ namespace Wireframe
         private bool m_showFormattedFilePath = false;
         private bool m_showFormattedTargetPathToCompress = false;
         
-        protected internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             using (new GUILayout.HorizontalScope())
             {
@@ -24,7 +24,7 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("File Path", GUILayout.Width(120));
-                if (EditorUtils.FormatStringTextField(ref m_filePath, ref m_showFormattedFilePath))
+                if (EditorUtils.FormatStringTextField(ref m_filePath, ref m_showFormattedFilePath, ctx))
                 {
                     isDirty = true;
                 }
@@ -33,7 +33,7 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Target Path", GUILayout.Width(120));
-                if (EditorUtils.FormatStringTextField(ref m_targetPathToCompress, ref m_showFormattedTargetPathToCompress))
+                if (EditorUtils.FormatStringTextField(ref m_targetPathToCompress, ref m_showFormattedTargetPathToCompress, ctx))
                 {
                     isDirty = true;
                 }

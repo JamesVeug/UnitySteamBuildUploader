@@ -7,6 +7,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_Upload : ABuildTask_Step
     {
+        public BuildTaskStep_Upload(StringFormatter.Context context) : base(context)
+        {
+            
+        }
+
         public override StepType Type => StepType.Upload;
         
         public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)
@@ -71,7 +76,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = UploadDestinationWrapper(destinationData.Destination, result);
+                Task<bool> task = UploadDestinationWrapper(destinationData.Destination, result, m_context);
                 uploadTasks.Add(task);
             }
 
@@ -111,11 +116,11 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> UploadDestinationWrapper(ABuildDestination destinationDataDestination, BuildTaskReport.StepResult result)
+        private async Task<bool> UploadDestinationWrapper(ABuildDestination destinationDataDestination, BuildTaskReport.StepResult result, StringFormatter.Context ctx)
         {
             try
             {
-                return await destinationDataDestination.Upload(result);
+                return await destinationDataDestination.Upload(result, ctx);
             }
             catch (Exception e)
             {

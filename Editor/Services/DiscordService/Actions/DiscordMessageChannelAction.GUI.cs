@@ -7,7 +7,7 @@ namespace Wireframe
     {
         private bool m_showFormattedText;
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, GUILayout.Width(120));
             isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, GUILayout.Width(120));
@@ -31,7 +31,7 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -57,7 +57,7 @@ namespace Wireframe
 
             
             GUILayout.Label("Text:", GUILayout.Width(50));
-            if(EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText))
+            if(EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, ctx))
             {
                 isDirty = true;
             }

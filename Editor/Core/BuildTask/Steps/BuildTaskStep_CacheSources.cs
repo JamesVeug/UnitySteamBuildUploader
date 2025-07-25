@@ -9,6 +9,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_CacheSources : ABuildTask_Step
     {
+        public BuildTaskStep_CacheSources(StringFormatter.Context context) : base(context)
+        {
+            
+        }
+
         public override StepType Type => StepType.CacheSources;
         
         
@@ -106,7 +111,7 @@ namespace Wireframe
                 string sourcePath = cacheFolderPath;
                 if (!string.IsNullOrEmpty(sourceData.ExportFolder))
                 {
-                    sourcePath = Path.Combine(sourcePath, StringFormatter.FormatString(sourceData.ExportFolder));
+                    sourcePath = Path.Combine(sourcePath, StringFormatter.FormatString(sourceData.ExportFolder, m_context));
                 }
                 
                 if (!Directory.Exists(sourcePath))

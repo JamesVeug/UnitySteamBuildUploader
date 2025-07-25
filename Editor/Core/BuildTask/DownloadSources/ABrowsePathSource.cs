@@ -49,9 +49,9 @@ namespace Wireframe
             return true;
         }
 
-        public bool PathExists()
+        public bool PathExists(StringFormatter.Context ctx)
         {
-            string path = GetFullPath();
+            string path = GetFullPath(ctx);
             if (string.IsNullOrEmpty(path))
             {
                 return true;
@@ -60,7 +60,8 @@ namespace Wireframe
             return File.Exists(path) || Directory.Exists(path);
         }
 
-        public override Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
+        public override Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult,
+            StringFormatter.Context ctx)
         {
             // Decide where we want to download to
             m_downloadProgress = 0;
@@ -74,7 +75,7 @@ namespace Wireframe
             // Make copy to avoid sharing conflicts
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory
-            string sourcePath = GetFullPath();
+            string sourcePath = GetFullPath(ctx);
             bool isDirectory = Utils.IsPathADirectory(sourcePath);
             if (!isDirectory && sourcePath.EndsWith(".exe"))
             {
@@ -86,10 +87,10 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
-        public string GetFullPath()
+        public string GetFullPath(StringFormatter.Context ctx)
         {
             string path = GetSubPath();
-            string enteredPath = StringFormatter.FormatString(m_enteredFilePath);
+            string enteredPath = StringFormatter.FormatString(m_enteredFilePath, ctx);
             if (string.IsNullOrEmpty(path))
             {
                 return enteredPath;
@@ -121,11 +122,11 @@ namespace Wireframe
             return m_downloadProgress;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
-            string path = GetFullPath();
+            string path = GetFullPath(ctx);
             if (!File.Exists(path) && !Directory.Exists(path))
             {
                 errors.Add("Path does not exist");

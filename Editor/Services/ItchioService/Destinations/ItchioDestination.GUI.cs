@@ -12,13 +12,13 @@ namespace Wireframe
         private bool m_showFormattedVersion;
         private bool m_showFormattedChannels;
 
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             isDirty |= ItchioUIUtils.UserPopup.DrawPopup(ref m_user);
             isDirty |= ItchioUIUtils.GamePopup.DrawPopup(m_user, ref m_game);
         }
 
-        protected internal override void OnGUIExpanded(ref bool isDirty)
+        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             if (GUILayout.Button("?", GUILayout.Width(20)))
             {

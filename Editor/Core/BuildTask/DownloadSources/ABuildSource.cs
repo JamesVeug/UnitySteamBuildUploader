@@ -17,7 +17,8 @@ namespace Wireframe
         }
 
         public int Id { get; set; }
-        public abstract Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult);
+        public abstract Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult,
+            StringFormatter.Context ctx);
         public abstract string SourceFilePath();
         public abstract float DownloadProgress();
 
@@ -32,7 +33,7 @@ namespace Wireframe
             
         }
 
-        public virtual void TryGetErrors(List<string> errors)
+        public virtual void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
             
         }

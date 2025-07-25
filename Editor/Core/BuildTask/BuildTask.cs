@@ -13,22 +13,24 @@ namespace Wireframe
         
         private List<BuildConfig> buildConfigs;
         private List<BuildConfig.PostUploadActionData> postUploadActions;
+        private StringFormatter.Context context;
         private string[] cachedLocations;
         private int progressId;
         private string buildDescription;
 
-        public BuildTask(List<BuildConfig> buildConfigs, string buildDescription)
+        public BuildTask(List<BuildConfig> buildConfigs, string buildDescription) : this(buildConfigs, buildDescription, null)
         {
-            this.buildDescription = buildDescription;
-            this.buildConfigs = buildConfigs;
-            this.postUploadActions = new List<BuildConfig.PostUploadActionData>();
+
         }
-        
+
         public BuildTask(List<BuildConfig> buildConfigs, string buildDescription, List<BuildConfig.PostUploadActionData> postUploadActions)
         {
             this.buildDescription = buildDescription;
             this.buildConfigs = buildConfigs;
             this.postUploadActions = postUploadActions ?? new List<BuildConfig.PostUploadActionData>();
+            
+            context = new StringFormatter.Context();
+            context.TaskDescription = ()=>buildDescription;
         }
         
         public BuildTask()
@@ -53,11 +55,11 @@ namespace Wireframe
 
             ABuildTask_Step[] steps = new ABuildTask_Step[]
             {
-                new BuildTaskStep_GetSources(), // Download content from services or get local folder
-                new BuildTaskStep_CacheSources(), // Cache the content in Utils.CachePath
-                new BuildTaskStep_ModifyCachedSources(), // Modify the build so it's ready to be uploaded (Remove/add files)
-                new BuildTaskStep_PrepareDestinations(), // Make sure the destination is ready to receive the content
-                new BuildTaskStep_Upload() // Upload cached content
+                new BuildTaskStep_GetSources(context), // Download content from services or get local folder
+                new BuildTaskStep_CacheSources(context), // Cache the content in Utils.CachePath
+                new BuildTaskStep_ModifyCachedSources(context), // Modify the build so it's ready to be uploaded (Remove/add files)
+                new BuildTaskStep_PrepareDestinations(context), // Make sure the destination is ready to receive the content
+                new BuildTaskStep_Upload(context) // Upload cached content
             };
             
             for (int i = 0; i < steps.Length; i++)
@@ -121,8 +123,16 @@ namespace Wireframe
                     actionResult.AddError($"Failed to prepare post upload action: {actionData.BuildAction.GetType().Name}");
                     continue;
                 }
-                
-                await actionData.BuildAction.Execute(actionResult);
+
+                try
+                {
+                    await actionData.BuildAction.Execute(actionResult, context);
+                }
+                catch (Exception e)
+                {
+                    actionResult.AddException(e);
+                    continue;
+                }
             }
         }
 

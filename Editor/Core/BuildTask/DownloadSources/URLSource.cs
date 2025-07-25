@@ -58,7 +58,8 @@ namespace Wireframe
             m_headers.Add(new Tuple<string, string>(key, value));
         }
 
-        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult)
+        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult,
+            StringFormatter.Context ctx)
         {
             m_getSourceInProgress = true;
             m_downloadProgress = 0.0f;
@@ -71,8 +72,8 @@ namespace Wireframe
                 Directory.CreateDirectory(directoryPath);
             }
 
-            string fullFilePath = Path.Combine(directoryPath, StringFormatter.FormatString(m_fileName));
-            string url = StringFormatter.FormatString(m_url);
+            string fullFilePath = Path.Combine(directoryPath, StringFormatter.FormatString(m_fileName, ctx));
+            string url = StringFormatter.FormatString(m_url, ctx);
 
             // Only download if we don't have it
             if (!File.Exists(fullFilePath))
@@ -144,9 +145,9 @@ namespace Wireframe
             return m_downloadProgress;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
             if (string.IsNullOrEmpty(m_url))
             {

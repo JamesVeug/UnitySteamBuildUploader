@@ -6,7 +6,7 @@ namespace Wireframe
 {
     public partial class UnityCloudSource
     {
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -57,7 +57,7 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget))
             {

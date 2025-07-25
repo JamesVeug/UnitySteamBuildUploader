@@ -141,7 +141,7 @@ namespace Wireframe
             return true;
         }
 
-        public override async Task<bool> Upload(BuildTaskReport.StepResult result)
+        public override async Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
         {
             m_uploadProgress = 0.75f;
 
@@ -209,9 +209,9 @@ namespace Wireframe
             }
         }
 
-        public override void TryGetWarnings(List<string> warnings)
+        public override void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
         {
-            base.TryGetWarnings(warnings);
+            base.TryGetWarnings(warnings, ctx);
 
             if (!m_uploadToSteam)
             {
@@ -219,9 +219,9 @@ namespace Wireframe
             }
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
             if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out string serviceReason))
             {

@@ -28,7 +28,7 @@ namespace Wireframe
             m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.red;
         }
 
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             Setup();
 
@@ -44,12 +44,12 @@ namespace Wireframe
                 }
             }
 
-            bool exists = PathExists();
+            bool exists = PathExists(ctx);
             GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Path:", GUILayout.Width(120));
-                if(EditorUtils.FormatStringTextField(ref m_enteredFilePath, ref m_showFormattedFilePath))
+                if(EditorUtils.FormatStringTextField(ref m_enteredFilePath, ref m_showFormattedFilePath, ctx))
                 {
                     isDirty = true;
                 }
@@ -62,7 +62,7 @@ namespace Wireframe
 
                 if (GUILayout.Button("Show", GUILayout.Width(50)))
                 {
-                    EditorUtility.RevealInFinder(GetFullPath());
+                    EditorUtility.RevealInFinder(GetFullPath(ctx));
                 }
             }
             
@@ -70,20 +70,20 @@ namespace Wireframe
             {
                 using (new EditorGUI.DisabledScope(true))
                 {
-                    EditorGUILayout.TextField(GetFullPath(), style);
+                    EditorGUILayout.TextField(GetFullPath(ctx), style);
                 }
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             Setup();
             
-            bool exists = PathExists();
+            bool exists = PathExists(ctx);
             GUIStyle style = exists ? m_pathButtonExistsStyle : m_pathButtonDoesNotExistStyle;
             style.alignment = TextAnchor.MiddleLeft;
             
-            string displayedPath = Utils.TruncateText(GetFullPath(), maxWidth, ButtonText);
+            string displayedPath = Utils.TruncateText(GetFullPath(ctx), maxWidth, ButtonText);
             if (GUILayout.Button(displayedPath, style))
             {
                 string newPath = SelectFile();

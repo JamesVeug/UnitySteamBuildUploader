@@ -50,14 +50,14 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> Upload(BuildTaskReport.StepResult result)
+        public override async Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            string filePath = StringFormatter.FormatString(m_filePath);
+            string filePath = StringFormatter.FormatString(m_filePath, ctx);
 
-            string user = StringFormatter.FormatString(m_user.Name);
-            string game = StringFormatter.FormatString(m_game.Name);
+            string user = StringFormatter.FormatString(m_user.Name, ctx);
+            string game = StringFormatter.FormatString(m_game.Name, ctx);
             string version = m_buildDescription;
-            List<string> channels = m_channels.ConvertAll((a)=>StringFormatter.FormatString(a.Name));
+            List<string> channels = m_channels.ConvertAll((a)=>StringFormatter.FormatString(a.Name, ctx));
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
             bool success = await Itchio.Instance.Upload(filePath, user, game, channels, version, result);
@@ -66,9 +66,9 @@ namespace Wireframe
             return success;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
             
             if (!InternalUtils.GetService<ItchioService>().IsReadyToStartBuild(out string serviceReason))
             {

@@ -14,41 +14,43 @@ namespace Wireframe
         private List<SourceData> m_buildSources;
         private List<ModifierData> m_modifiers;
         private List<DestinationData> m_buildDestinations;
+        private StringFormatter.Context m_context;
 
         public BuildConfig(string guid)
         {
             GUID = guid;
+            
             m_buildSources = new List<SourceData>();
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
         }
         
-        public List<string> GetAllErrors()
+        public List<string> GetAllErrors(StringFormatter.Context ctx)
         {
             List<string> warnings = new List<string>();
-            warnings.AddRange(GetSourceErrors());
-            warnings.AddRange(GetDestinationErrors());
+            warnings.AddRange(GetSourceErrors(ctx));
+            warnings.AddRange(GetDestinationErrors(ctx));
 
             return warnings;
         }
 
-        public List<string> GetAllWarnings()
+        public List<string> GetAllWarnings(StringFormatter.Context ctx)
         {
             List<string> warnings = new List<string>();
-            warnings.AddRange(GetSourceWarnings());
-            warnings.AddRange(GetDestinationWarnings());
+            warnings.AddRange(GetSourceWarnings(ctx));
+            warnings.AddRange(GetDestinationWarnings(ctx));
 
             return warnings;
         }
 
-        public List<string> GetSourceErrors()
+        public List<string> GetSourceErrors(StringFormatter.Context ctx)
         {
             List<string> errors = new List<string>();
             foreach (SourceData sourceData in m_buildSources)
             {
                 if(sourceData.Enabled && sourceData.Source != null)
                 {
-                    sourceData.Source.TryGetErrors(errors);
+                    sourceData.Source.TryGetErrors(errors, ctx);
                 }
             }
             
@@ -100,14 +102,14 @@ namespace Wireframe
             return warnings;
         }
 
-        public List<string> GetDestinationErrors()
+        public List<string> GetDestinationErrors(StringFormatter.Context ctx)
         {
             List<string> errors = new List<string>();
             foreach (DestinationData destinationData in m_buildDestinations)
             {
                 if(destinationData.Enabled && destinationData.Destination != null)
                 {
-                    destinationData.Destination.TryGetErrors(errors);
+                    destinationData.Destination.TryGetErrors(errors, ctx);
                 }
             }
             
@@ -127,7 +129,7 @@ namespace Wireframe
             return errors;
         }
 
-        public List<string> GetSourceWarnings()
+        public List<string> GetSourceWarnings(StringFormatter.Context ctx)
         {
             List<string> warnings = new List<string>();
             foreach (SourceData sourceData in m_buildSources)
@@ -154,14 +156,14 @@ namespace Wireframe
             return warnings;
         }
 
-        public List<string> GetDestinationWarnings()
+        public List<string> GetDestinationWarnings(StringFormatter.Context ctx)
         {
             List<string> warnings = new List<string>();
             foreach (DestinationData destinationData in m_buildDestinations)
             {
                 if (destinationData.Enabled && destinationData.Destination != null)
                 {
-                    destinationData.Destination.TryGetWarnings(warnings);
+                    destinationData.Destination.TryGetWarnings(warnings, ctx);
                 }
             }
             
@@ -181,7 +183,7 @@ namespace Wireframe
             return warnings;
         }
 
-        public bool CanStartBuild(out string reason)
+        public bool CanStartBuild(out string reason, StringFormatter.Context ctx)
         {
             if(m_buildSources.Count == 0)
             {
@@ -205,7 +207,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                source.Source.TryGetErrors(errors);
+                source.Source.TryGetErrors(errors, ctx);
                 if (errors.Count > 0)
                 {
                     reason = $"Source #{i+1}: " + string.Join(", ", errors);
@@ -236,7 +238,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                destination.Destination.TryGetErrors(errors);
+                destination.Destination.TryGetErrors(errors, ctx);
                 if (errors.Count > 0)
                 {
                     reason = $"Destination #{i+1}: " + string.Join(", ", errors);

@@ -7,6 +7,11 @@ namespace Wireframe
 {
     public class BuildTaskStep_PrepareDestinations : ABuildTask_Step
     {
+        public BuildTaskStep_PrepareDestinations(StringFormatter.Context context) : base(context)
+        {
+            
+        }
+
         public override StepType Type => StepType.PrepareDestinations;
         
         public override async Task<bool> Run(BuildTask buildTask, BuildTaskReport report)

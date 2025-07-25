@@ -53,7 +53,7 @@ namespace Wireframe
         }
 
         public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig,
-            int buildIndex, BuildTaskReport.StepResult stepResult)
+            int buildIndex, BuildTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             // Find .exe
             string exePath = System.IO.Directory.GetFiles(cachedDirectory, "*.exe", System.IO.SearchOption.TopDirectoryOnly)[0];

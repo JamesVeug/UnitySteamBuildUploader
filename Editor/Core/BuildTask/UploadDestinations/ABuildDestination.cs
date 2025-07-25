@@ -27,7 +27,7 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
-        public abstract Task<bool> Upload(BuildTaskReport.StepResult stepResult);
+        public abstract Task<bool> Upload(BuildTaskReport.StepResult stepResult, StringFormatter.Context ctx);
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);
 
@@ -47,12 +47,12 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
-        public virtual void TryGetWarnings(List<string> warnings)
+        public virtual void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
         {
                 
         }
 
-        public virtual void  TryGetErrors(List<string> errors)
+        public virtual void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
             
         }

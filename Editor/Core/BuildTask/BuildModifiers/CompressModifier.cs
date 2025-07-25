@@ -48,15 +48,16 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig, int buildIndex, BuildTaskReport.StepResult stepResult)
+        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig,
+            int buildIndex, BuildTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             string pathToCompress = cachedDirectory;
             if (!string.IsNullOrEmpty(m_targetPathToCompress))
             {
-                pathToCompress = Path.Combine(cachedDirectory, StringFormatter.FormatString(m_targetPathToCompress));
+                pathToCompress = Path.Combine(cachedDirectory, StringFormatter.FormatString(m_targetPathToCompress, ctx));
             }
             
-            string compressedFileName = StringFormatter.FormatString(m_compressedFileName);
+            string compressedFileName = StringFormatter.FormatString(m_compressedFileName, ctx);
             if (!compressedFileName.EndsWith(".zip"))
             {
                 compressedFileName += ".zip";

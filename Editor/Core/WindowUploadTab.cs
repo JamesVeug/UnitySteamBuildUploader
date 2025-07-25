@@ -25,6 +25,7 @@ namespace Wireframe
 
         public override string TabName => "Upload";
         
+        private StringFormatter.Context m_context;
         private List<BuildConfig> m_buildsToUpload;
         private List<BuildConfig.PostUploadActionData> m_postUploadActions;
 
@@ -42,6 +43,9 @@ namespace Wireframe
         public override void Initialize(BuildUploaderWindow uploaderWindow)
         {
             base.Initialize(uploaderWindow);
+            m_context = new StringFormatter.Context();
+            m_context.TaskDescription = ()=> m_buildDescription;
+            
             m_buildPath = EditorPrefs.GetString("BuildUploader.BuildPath", "");
             m_buildDescription = Preferences.DefaultDescriptionFormat;
         }
@@ -117,7 +121,7 @@ namespace Wireframe
 
                         using (new GUILayout.VerticalScope())
                         {
-                            buildConfig.OnGUI(ref m_isDirty, UploaderWindow);
+                            buildConfig.OnGUI(ref m_isDirty, m_context);
                         }
 
                         bool collapse = buildConfig.Collapsed;
@@ -175,14 +179,14 @@ namespace Wireframe
                                 {
                                     using (new GUILayout.HorizontalScope())
                                     {
-                                        actionData.BuildAction.OnGUICollapsed(ref m_isDirty, maxWidth);
+                                        actionData.BuildAction.OnGUICollapsed(ref m_isDirty, maxWidth, m_context);
                                     }
                                 }
                                 else
                                 {
                                     using (new EditorGUILayout.VerticalScope())
                                     {
-                                        actionData.BuildAction.OnGUIExpanded(ref m_isDirty);
+                                        actionData.BuildAction.OnGUIExpanded(ref m_isDirty, m_context);
                                     }
                                 }
                             }
@@ -218,7 +222,7 @@ namespace Wireframe
                 // Description
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUIContent content = new GUIContent("F", EditorUtils.GetFormatStringTextFieldTooltip());
+                    GUIContent content = new GUIContent("F", EditorUtils.GetFormatStringTextFieldTooltip(m_context));
                     m_showFormattedDescription = GUILayout.Toggle(m_showFormattedDescription, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
                     
                     GUIContent label = new GUIContent("Build Description", "A description of the build that will be uploaded." +
@@ -238,7 +242,7 @@ namespace Wireframe
                 {
                     using (new EditorGUI.DisabledScope(true))
                     {
-                        string formattedDescription = StringFormatter.FormatString(m_buildDescription);
+                        string formattedDescription = StringFormatter.FormatString(m_buildDescription, m_context);
                         GUILayout.TextArea(formattedDescription, GUILayout.ExpandHeight(true));
                     }
                 }
@@ -298,14 +302,14 @@ namespace Wireframe
                 GUIContent label = new GUIContent("Build Path", "The path where the new build will be saved.");
                 GUILayout.Label(label, GUILayout.MaxWidth(70));
 
-                if (EditorUtils.FormatStringTextField(ref m_buildPath, ref m_showFormattedBuildPath))
+                if (EditorUtils.FormatStringTextField(ref m_buildPath, ref m_showFormattedBuildPath, m_context))
                 {
                     EditorPrefs.SetString("BuildUploader.BuildPath", m_buildPath);
                 }
 
                 if (GUILayout.Button("...", GUILayout.MaxWidth(20)))
                 {
-                    string path = EditorUtility.OpenFolderPanel("Select Build Folder", StringFormatter.FormatString(m_buildPath), "");
+                    string path = EditorUtility.OpenFolderPanel("Select Build Folder", StringFormatter.FormatString(m_buildPath, m_context), "");
                     if (!string.IsNullOrEmpty(path))
                     {
                         m_buildPath = path;
@@ -315,9 +319,9 @@ namespace Wireframe
                 
                 if (GUILayout.Button("Show", GUILayout.MaxWidth(100)))
                 {
-                    if (Directory.Exists(StringFormatter.FormatString(m_buildPath)))
+                    if (Directory.Exists(StringFormatter.FormatString(m_buildPath, m_context)))
                     {
-                        EditorUtility.RevealInFinder(StringFormatter.FormatString(m_buildPath));
+                        EditorUtility.RevealInFinder(StringFormatter.FormatString(m_buildPath, m_context));
                     }
                     else
                     {
@@ -332,12 +336,12 @@ namespace Wireframe
                 {
                     if (EditorUtility.DisplayDialog("Start build and Upload all",
                             "Are you sure you want to start a new build then upload all enabled builds?" +
-                            "\nPath: " + StringFormatter.FormatString(m_buildPath) +
+                            "\nPath: " + StringFormatter.FormatString(m_buildPath, m_context) +
                             
                             "\n\nNOTE: You can not cancel this operation once started!",
                             "Yes", "Cancel"))
                     {
-                        BuildAndUpload(StringFormatter.FormatString(m_buildPath));
+                        BuildAndUpload(StringFormatter.FormatString(m_buildPath, m_context));
                     }
                 }
             }
@@ -422,7 +426,7 @@ namespace Wireframe
                     
                     if (source.Source is ABrowsePathSource browsePathSource)
                     {
-                        string sourcePath = browsePathSource.GetFullPath();
+                        string sourcePath = browsePathSource.GetFullPath(m_context);
                         if (sourcePath.StartsWith(buildPath, StringComparison.OrdinalIgnoreCase))
                         {
                             configsReferencingBuildPath++;
@@ -576,7 +580,7 @@ namespace Wireframe
         {
             // Start task
             Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
-            string description = StringFormatter.FormatString(m_buildDescription);
+            string description = StringFormatter.FormatString(m_buildDescription, m_context);
             BuildTask buildTask = new BuildTask(m_buildsToUpload, description, m_postUploadActions);
             
             string guids = string.Join("_", m_buildsToUpload.Select(x => x.GUID));
@@ -675,7 +679,7 @@ namespace Wireframe
                 if (!m_buildsToUpload[i].Enabled)
                     continue;
 
-                if (!m_buildsToUpload[i].CanStartBuild(out string buildReason))
+                if (!m_buildsToUpload[i].CanStartBuild(out string buildReason, m_context))
                 {
                     reason = $"Build {i+1}: {buildReason}";
                     return false;

@@ -2,11 +2,11 @@
 
 namespace Wireframe
 {
-    public class ReorderableListOfExcludeFileByRegexSelection : InternalReorderableList<AExcludePathsByRegex_BuildModifier.Selection>
+    public class ReorderableListOfExcludeFileByRegexSelection : InternalReorderableList<AExcludePathsByRegex_UploadModifier.Selection>
     {
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
-            AExcludePathsByRegex_BuildModifier.Selection element = list[index];
+            AExcludePathsByRegex_UploadModifier.Selection element = list[index];
             
             Rect rect0 = new Rect(rect.x, rect.y, Mathf.Min(20, rect.width / 4), rect.height);
             bool e = GUI.Toggle(rect0, element.Enabled, "");
@@ -55,9 +55,9 @@ namespace Wireframe
             }
         }
 
-        protected override AExcludePathsByRegex_BuildModifier.Selection CreateItem(int index)
+        protected override AExcludePathsByRegex_UploadModifier.Selection CreateItem(int index)
         {
-            return new AExcludePathsByRegex_BuildModifier.Selection();
+            return new AExcludePathsByRegex_UploadModifier.Selection();
         }
     }
 }

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 namespace Wireframe
 {
     [Wiki("Itchio", "destinations", "Upload a file or folder for a game.")]
-    [BuildDestination("Itchio")]
-    public partial class ItchioDestination : ABuildDestination
+    [UploadDestination("Itchio")]
+    public partial class ItchioDestination : AUploadDestination
     {
         [Wiki("User", "Account that owns owns the game.")]
         private ItchioUser m_user;
@@ -50,7 +50,7 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
             string filePath = StringFormatter.FormatString(m_filePath, ctx);
 

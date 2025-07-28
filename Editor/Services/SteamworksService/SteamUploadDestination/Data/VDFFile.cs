@@ -17,7 +17,7 @@ namespace Wireframe
         public abstract string FileName { get; }
 
 
-        public static async Task<bool> Save<T>(T t, string path, BuildTaskReport.StepResult result) where T : VDFFile, new()
+        public static async Task<bool> Save<T>(T t, string path, UploadTaskReport.StepResult result) where T : VDFFile, new()
         {
             string content = ConvertToString(t, "\"" + t.FileName + "\"", "");
             if (!File.Exists(path))

@@ -180,7 +180,7 @@ namespace Wireframe
         }
 
         public async Task<bool> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch,
-            string description, string sourceFilePath, BuildTaskReport.StepResult result)
+            string description, string sourceFilePath, UploadTaskReport.StepResult result)
         {
             appFile.desc = description;
             appFile.buildoutput = "..\\output\\";
@@ -195,7 +195,7 @@ namespace Wireframe
             return await VDFFile.Save(appFile, fullPath, result);
         }
 
-        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, string branchName, BuildTaskReport.StepResult result)
+        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, string branchName, UploadTaskReport.StepResult result)
         {
             depot.FileExclusion = "*.pdb";
             depot.FileMapping = new DepotFileMapping
@@ -241,7 +241,7 @@ namespace Wireframe
             return fileName;
         }
 
-        public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam, BuildTaskReport.StepResult stepResult)
+        public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam, UploadTaskReport.StepResult stepResult)
         {
             await m_lock.WaitAsync();
 
@@ -341,7 +341,7 @@ namespace Wireframe
         }
 
         private string CreateUploadBuildSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload,
-            string steamGuardCode, BuildTaskReport.StepResult stepResult)
+            string steamGuardCode, UploadTaskReport.StepResult stepResult)
         {
             string username = UserName;
             string password = UserPassword;
@@ -593,7 +593,7 @@ namespace Wireframe
         /// Works by uploading the .exe of your game and applies the DRM then writes it back to the output path.
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> DRMWrap(int appID, string sourceExe, string resultEXE, int flags, BuildTaskReport.StepResult stepResult)
+        public async Task<bool> DRMWrap(int appID, string sourceExe, string resultEXE, int flags, UploadTaskReport.StepResult stepResult)
         {
             // Get name of sourceExe
             string sourceExeName = Path.GetFileName(sourceExe);

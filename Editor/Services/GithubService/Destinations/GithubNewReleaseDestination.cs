@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 namespace Wireframe
 {
     [Wiki("GithubNewRelease", "destinations", "Create a new release on a specific Github repository.")]
-    [BuildDestination("GithubNewRelease")]
-    public partial class GithubNewReleaseDestination : ABuildDestination
+    [UploadDestination("GithubNewRelease")]
+    public partial class GithubNewReleaseDestination : AUploadDestination
     {
         [Wiki("Owner", "The owner of the repository.")]
         private string m_owner;
@@ -64,7 +64,7 @@ namespace Wireframe
             m_zipContents = zipContents;
         }
 
-        public override async Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
             string filePath = StringFormatter.FormatString(m_filePath, ctx);
             

@@ -40,21 +40,21 @@ namespace Wireframe
             List<Data> allData = new List<Data>();
             allData.Add(new Data()
             {
-                DataClass = typeof(BuildConfig.SourceData),
+                DataClass = typeof(UploadConfig.SourceData),
                 MDFilePath = Path.Combine(Application.dataPath, "../Wiki/Sources.md"),
                 StartOfHeader = "## Sources",
                 WikiSubPath = "sources",
             });
             allData.Add(new Data()
             {
-                DataClass = typeof(BuildConfig.ModifierData),
+                DataClass = typeof(UploadConfig.ModifierData),
                 MDFilePath = Path.Combine(Application.dataPath, "../Wiki/Modifiers.md"),
                 StartOfHeader = "## Modifiers",
                 WikiSubPath = "modifiers",
             });
             allData.Add(new Data()
             {
-                DataClass = typeof(BuildConfig.DestinationData),
+                DataClass = typeof(UploadConfig.DestinationData),
                 MDFilePath = Path.Combine(Application.dataPath, "../Wiki/Destinations.md"),
                 StartOfHeader = "## Destinations",
                 WikiSubPath = "destinations",

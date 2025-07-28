@@ -21,7 +21,7 @@ namespace Wireframe
     /// </summary>
     public static class ZipUtils
     {
-        public static async Task<bool> Zip(string filePath, string zippedfilePath, BuildTaskReport.StepResult result)
+        public static async Task<bool> Zip(string filePath, string zippedfilePath, UploadTaskReport.StepResult result)
         {
 #if UNITY_2021_1_OR_NEWER
             return await Task.Run(() =>
@@ -106,7 +106,7 @@ namespace Wireframe
 #endif
         }
         
-        public static async Task<bool> UnZip(string filePath, string unzippedfilePath, BuildTaskReport.StepResult result)
+        public static async Task<bool> UnZip(string filePath, string unzippedfilePath, UploadTaskReport.StepResult result)
         {
             return await Task.Run(() =>
             {

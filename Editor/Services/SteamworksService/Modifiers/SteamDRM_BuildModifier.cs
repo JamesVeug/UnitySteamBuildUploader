@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 namespace Wireframe
 {
     [Wiki("Steam DRM", "modifiers", "Prevents your executable from being executed unless run from Steam by sending it to Steamworks.")]
-    [BuildModifier("Steam DRM")]
-    public partial class SteamDRM_BuildModifier : ABuildConfigModifer
+    [UploadModifier("Steam DRM")]
+    public partial class SteamDRM_BuildModifier : AUploadModifer
     {
         [Wiki("App", "The Steam App ID to use for the build. eg: 1141030")]
         private SteamApp m_app;
@@ -37,7 +37,7 @@ namespace Wireframe
             m_flags = flags;
         }
 
-        public override void TryGetErrors(BuildConfig config, List<string> errors)
+        public override void TryGetErrors(UploadConfig config, List<string> errors)
         {
             base.TryGetErrors(config, errors);
             
@@ -52,8 +52,8 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, BuildConfig buildConfig,
-            int buildIndex, BuildTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, UploadConfig uploadConfig,
+            int buildIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             // Find .exe
             string exePath = System.IO.Directory.GetFiles(cachedDirectory, "*.exe", System.IO.SearchOption.TopDirectoryOnly)[0];
@@ -70,7 +70,7 @@ namespace Wireframe
             return result;
         }
 
-        public override void TryGetWarnings(ABuildDestination destination, List<string> warnings)
+        public override void TryGetWarnings(AUploadDestination destination, List<string> warnings)
         {
             if (!(destination is SteamUploadDestination) && !(destination is NoUploadDestination))
             {

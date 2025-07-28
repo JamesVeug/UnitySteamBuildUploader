@@ -63,7 +63,7 @@ namespace Wireframe
             }
         }
 
-        public static async Task<bool> CopyFileAsync(string source, string destination, FileExistHandling dupeFileHandling, BuildTaskReport.StepResult result = null)
+        public static async Task<bool> CopyFileAsync(string source, string destination, FileExistHandling dupeFileHandling, UploadTaskReport.StepResult result = null)
         {
             try{
                 if (destination.Length > MaxFilePath)
@@ -110,7 +110,7 @@ namespace Wireframe
             return true;
         }
         
-        public static async Task<bool> CopyDirectoryAsync(string source, string destination, FileExistHandling dupeFileHandling, BuildTaskReport.StepResult result = null, Func<string, bool> ignore = null)
+        public static async Task<bool> CopyDirectoryAsync(string source, string destination, FileExistHandling dupeFileHandling, UploadTaskReport.StepResult result = null, Func<string, bool> ignore = null)
         {
             try
             {

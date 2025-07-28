@@ -26,8 +26,8 @@ namespace Wireframe
         public override string TabName => "Upload";
         
         private StringFormatter.Context m_context;
-        private List<BuildConfig> m_buildsToUpload;
-        private List<BuildConfig.PostUploadActionData> m_postUploadActions;
+        private List<UploadConfig> m_buildsToUpload;
+        private List<UploadConfig.PostUploadActionData> m_postUploadActions;
 
         private string m_buildPath;
         private bool m_showFormattedBuildPath = false;
@@ -81,7 +81,7 @@ namespace Wireframe
                 {
                     if (GUILayout.Button("New"))
                     {
-                        BuildConfig newConfig = new BuildConfig(UploaderWindow);
+                        UploadConfig newConfig = new UploadConfig(UploaderWindow);
                         newConfig.SetupDefaults();
                         m_buildsToUpload.Add(newConfig);
                         m_isDirty = true;
@@ -111,23 +111,23 @@ namespace Wireframe
                             }
                         }
 
-                        BuildConfig buildConfig = m_buildsToUpload[i];
-                        bool e = EditorGUILayout.Toggle(buildConfig.Enabled, GUILayout.Width(20));
-                        if (e != buildConfig.Enabled)
+                        UploadConfig uploadConfig = m_buildsToUpload[i];
+                        bool e = EditorGUILayout.Toggle(uploadConfig.Enabled, GUILayout.Width(20));
+                        if (e != uploadConfig.Enabled)
                         {
-                            buildConfig.Enabled = e;
+                            uploadConfig.Enabled = e;
                             m_isDirty = true;
                         }
 
                         using (new GUILayout.VerticalScope())
                         {
-                            buildConfig.OnGUI(ref m_isDirty, m_context);
+                            uploadConfig.OnGUI(ref m_isDirty, m_context);
                         }
 
-                        bool collapse = buildConfig.Collapsed;
+                        bool collapse = uploadConfig.Collapsed;
                         if (GUILayout.Button(collapse ? ">" : "\\/", GUILayout.Width(20)))
                         {
-                            buildConfig.Collapsed = !buildConfig.Collapsed;
+                            uploadConfig.Collapsed = !uploadConfig.Collapsed;
                         }
                     }
                 }
@@ -138,7 +138,7 @@ namespace Wireframe
                 GUILayout.Label("Post Upload Actions", m_subTitleStyle);
                 for (int i = 0; i < m_postUploadActions.Count; i++)
                 {
-                    BuildConfig.PostUploadActionData actionData = m_postUploadActions[i];
+                    UploadConfig.PostUploadActionData actionData = m_postUploadActions[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
                         if (GUILayout.Button("X", GUILayout.MaxWidth(20)))
@@ -152,21 +152,21 @@ namespace Wireframe
                             }
                         }
 
-                        var status = (BuildConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumFlagsField(actionData.WhenToExecute, GUILayout.Width(20));
+                        var status = (UploadConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumFlagsField(actionData.WhenToExecute, GUILayout.Width(20));
                         if (status != actionData.WhenToExecute)
                         {
                             actionData.WhenToExecute = status;
                             m_isDirty = true;
                         }
 
-                        bool disabled = actionData.WhenToExecute == BuildConfig.PostUploadActionData.UploadCompleteStatus.Never;
+                        bool disabled = actionData.WhenToExecute == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never;
                         using (new EditorGUI.DisabledScope(disabled))
                         {
                             GUILayout.Label("Action Type: ", GUILayout.Width(100));
                             if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, GUILayout.Width(200)))
                             {
                                 m_isDirty = true;
-                                Utils.CreateInstance(actionData.ActionType?.Type, out actionData.BuildAction);
+                                Utils.CreateInstance(actionData.ActionType?.Type, out actionData.UploadAction);
                             }
                         }
 
@@ -179,14 +179,14 @@ namespace Wireframe
                                 {
                                     using (new GUILayout.HorizontalScope())
                                     {
-                                        actionData.BuildAction.OnGUICollapsed(ref m_isDirty, maxWidth, m_context);
+                                        actionData.UploadAction.OnGUICollapsed(ref m_isDirty, maxWidth, m_context);
                                     }
                                 }
                                 else
                                 {
                                     using (new EditorGUILayout.VerticalScope())
                                     {
-                                        actionData.BuildAction.OnGUIExpanded(ref m_isDirty, m_context);
+                                        actionData.UploadAction.OnGUIExpanded(ref m_isDirty, m_context);
                                     }
                                 }
                             }
@@ -203,7 +203,7 @@ namespace Wireframe
                 if (GUILayout.Button("Add"))
                 {
                     // Show a popup to select an action
-                    BuildConfig.PostUploadActionData actionData = new BuildConfig.PostUploadActionData();
+                    UploadConfig.PostUploadActionData actionData = new UploadConfig.PostUploadActionData();
                     actionData.SetupDefaults();
                     m_postUploadActions.Add(actionData);
                 }
@@ -413,13 +413,13 @@ namespace Wireframe
             // Validate the path so all configs reference the path
             int configsReferencingBuildPath = 0;
             int totalConfigs = 0;
-            foreach (BuildConfig config in m_buildsToUpload)
+            foreach (UploadConfig config in m_buildsToUpload)
             {
                 if (!config.Enabled)
                     continue;
 
                 totalConfigs++;
-                foreach (BuildConfig.SourceData source in config.Sources)
+                foreach (UploadConfig.SourceData source in config.Sources)
                 {
                     if (!source.Enabled)
                         continue;
@@ -433,7 +433,7 @@ namespace Wireframe
                             break;
                         }
                     }
-                    else if (source.Source is LastBuildSource)
+                    else if (source.Source is LastUploadSource)
                     {
                         configsReferencingBuildPath++;
                     }
@@ -581,11 +581,11 @@ namespace Wireframe
             // Start task
             Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
             string description = StringFormatter.FormatString(m_buildDescription, m_context);
-            BuildTask buildTask = new BuildTask(m_buildsToUpload, description, m_postUploadActions);
+            UploadTask uploadTask = new UploadTask(m_buildsToUpload, description, m_postUploadActions);
             
             string guids = string.Join("_", m_buildsToUpload.Select(x => x.GUID));
-            BuildTaskReport report = new BuildTaskReport(guids);
-            Task asyncBuildTask = buildTask.Start(report);
+            UploadTaskReport report = new UploadTaskReport(guids);
+            Task asyncBuildTask = uploadTask.Start(report);
             
             // Wait for task to complete
             while (!asyncBuildTask.IsCompleted)
@@ -599,11 +599,11 @@ namespace Wireframe
             string taskReport = report.GetReport();
             if (Preferences.AutoSaveReportToCacheFolder)
             {
-                string fileName = $"BuildReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
+                string fileName = $"UploadReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
                 string reportPath = Path.Combine(Preferences.CacheFolderPath, fileName);
                 try
                 {
-                    Debug.Log($"[BuildUploader] Writing build task report to {reportPath}");
+                    Debug.Log($"[BuildUploader] Writing upload task report to {reportPath}");
                     await IOUtils.WriteAllTextAsync(reportPath, taskReport);
                 }
                 catch (Exception e)
@@ -616,7 +616,7 @@ namespace Wireframe
             // Report back to the user
             if (report.Successful)
             {
-                Debug.Log($"[BuildUploader] Build Task successful!");
+                Debug.Log($"[BuildUploader] Upload Task successful!");
                 Debug.Log($"[BuildUploader] {taskReport}");
                 if (Preferences.ShowConfirmationWindowAfterUpload == Preferences.ShowIf.Always || 
                     Preferences.ShowConfirmationWindowAfterUpload == Preferences.ShowIf.Successful)
@@ -627,7 +627,7 @@ namespace Wireframe
                 if (Preferences.ShowReportAfterUpload == Preferences.ShowIf.Always || 
                     Preferences.ShowReportAfterUpload == Preferences.ShowIf.Successful)
                 {
-                    BuildUploaderReportWindow.ShowWindow(report, taskReport);
+                    UploadTaskReportWindow.ShowWindow(report, taskReport);
                 }
             }
             else
@@ -660,7 +660,7 @@ namespace Wireframe
                 if (Preferences.ShowReportAfterUpload == Preferences.ShowIf.Always ||
                     Preferences.ShowReportAfterUpload == Preferences.ShowIf.Failed)
                 {
-                    BuildUploaderReportWindow.ShowWindow(report, taskReport);
+                    UploadTaskReportWindow.ShowWindow(report, taskReport);
                 }
             }
         }
@@ -710,7 +710,7 @@ namespace Wireframe
             m_isDirty = false;
             if (m_buildsToUpload == null)
             {
-                m_buildsToUpload = new List<BuildConfig>();
+                m_buildsToUpload = new List<UploadConfig>();
             }
 
             UploadTabData data = new UploadTabData();
@@ -755,8 +755,8 @@ namespace Wireframe
             else
             {
                 Debug.Log("SteamBuildData does not exist. Creating new file");
-                m_buildsToUpload = new List<BuildConfig>();
-                m_postUploadActions = new List<BuildConfig.PostUploadActionData>();
+                m_buildsToUpload = new List<UploadConfig>();
+                m_postUploadActions = new List<UploadConfig.PostUploadActionData>();
                 Save();
             }
         }
@@ -768,37 +768,37 @@ namespace Wireframe
             if (config == null)
             {
                 Debug.Log("Config is null. Creating new config");
-                m_buildsToUpload = new List<BuildConfig>();
-                m_postUploadActions = new List<BuildConfig.PostUploadActionData>();
+                m_buildsToUpload = new List<UploadConfig>();
+                m_postUploadActions = new List<UploadConfig.PostUploadActionData>();
                 Save();
             }
             else
             {
-                m_buildsToUpload = new List<BuildConfig>();
+                m_buildsToUpload = new List<UploadConfig>();
                 for (int i = 0; i < config.Data.Count; i++)
                 {
                     try
                     {
-                        BuildConfig buildConfig = new BuildConfig(UploaderWindow);
+                        UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
                         var jObject = config.Data[i];
-                        buildConfig.Deserialize(jObject);
-                        m_buildsToUpload.Add(buildConfig);
+                        uploadConfig.Deserialize(jObject);
+                        m_buildsToUpload.Add(uploadConfig);
                     }
                     catch (Exception e)
                     {
                         Debug.LogError("Failed to load build config: #" + (i+1));
                         Debug.LogException(e);
-                        BuildConfig buildConfig = new BuildConfig(UploaderWindow);
-                        m_buildsToUpload.Add(buildConfig);
+                        UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
+                        m_buildsToUpload.Add(uploadConfig);
                     }
                 }
                 
-                m_postUploadActions = new List<BuildConfig.PostUploadActionData>();
+                m_postUploadActions = new List<UploadConfig.PostUploadActionData>();
                 for (int i = 0; i < config.PostUploads.Count; i++)
                 {
                     try
                     {
-                        BuildConfig.PostUploadActionData actionData = new BuildConfig.PostUploadActionData();
+                        UploadConfig.PostUploadActionData actionData = new UploadConfig.PostUploadActionData();
                         actionData.Deserialize(config.PostUploads[i]);
                         m_postUploadActions.Add(actionData);
                     }

@@ -12,8 +12,8 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(DiscordMessageChannelAction), "actions", "Use a bot to send a message to a channel on a discord server.")]
-    [BuildAction("Discord Message Channel", "Discord Send Message to Channel")]
-    public partial class DiscordMessageChannelAction : ABuildAction
+    [UploadAction("Discord Message Channel", "Discord Send Message to Channel")]
+    public partial class DiscordMessageChannelAction : AUploadAction
     {
         [Serializable]
         [Wiki("Embed", "An embed to send with the message. This is optional and can be used to format the message nicely.")]
@@ -44,7 +44,7 @@ namespace Wireframe
         [Wiki("Embeds", "A list of embeds to send with the message. This is optional and can be used to format the message nicely.", 5)]
         private List<Embed> m_embeds;
         
-        public override async Task<bool> Execute(BuildTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             List<Dictionary<string, object>> embeds = new List<Dictionary<string, object>>();
             foreach (Embed embed in m_embeds)

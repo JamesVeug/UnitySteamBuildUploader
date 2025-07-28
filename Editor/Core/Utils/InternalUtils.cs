@@ -83,11 +83,11 @@ namespace Wireframe
             allBuildDestinations = new List<Type>();
             allBuildActions = new List<Type>();
             
-            Type sourceType = typeof(ABuildSource);
+            Type sourceType = typeof(AUploadSource);
             Type serviceType = typeof(AService);
-            Type modifierType = typeof(ABuildConfigModifer);
-            Type destinationType = typeof(ABuildDestination);
-            Type actionType = typeof(ABuildAction);
+            Type modifierType = typeof(AUploadModifer);
+            Type destinationType = typeof(AUploadDestination);
+            Type actionType = typeof(AUploadAction);
 
             // Slow but only done once per compilation
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())

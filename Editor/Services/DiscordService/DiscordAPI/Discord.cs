@@ -20,7 +20,7 @@ namespace Wireframe
         /// <summary>
         /// https://discord.com/developers/docs/resources/message#create-message-jsonform-params
         /// </summary>
-        public static async Task<bool> SendMessageToChannel(long channelID, string text, string token, bool isBot, List<Dictionary<string, object>> embeds = null, BuildTaskReport.StepResult result = null)
+        public static async Task<bool> SendMessageToChannel(long channelID, string text, string token, bool isBot, List<Dictionary<string, object>> embeds = null, UploadTaskReport.StepResult result = null)
         {
             string url = $"https://discord.com/api/v10/channels/{channelID}/messages";
             Dictionary<string, object> messageData = new Dictionary<string, object>

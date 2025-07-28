@@ -10,8 +10,8 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki("Steamworks", "destinations", "Uploads files to Steamworks")]
-    [BuildDestination("Steamworks")]
-    public partial class SteamUploadDestination : ABuildDestination
+    [UploadDestination("Steamworks")]
+    public partial class SteamUploadDestination : AUploadDestination
     {
         [Wiki("App", "Which Steam App to upload to. eg: 1141030", 1)]
         private SteamApp m_current;
@@ -81,7 +81,7 @@ namespace Wireframe
             m_uploadToSteam = uploadToSteam;
         }
 
-        public override async Task<bool> Prepare(string filePath, string buildDescription, BuildTaskReport.StepResult result)
+        public override async Task<bool> Prepare(string filePath, string buildDescription, UploadTaskReport.StepResult result)
         {
             await base.Prepare(filePath, buildDescription, result);
 
@@ -141,7 +141,7 @@ namespace Wireframe
             return true;
         }
 
-        public override async Task<bool> Upload(BuildTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
             m_uploadProgress = 0.75f;
 

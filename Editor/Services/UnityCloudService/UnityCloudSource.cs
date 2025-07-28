@@ -13,8 +13,8 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(UnityCloudSource), "sources", "Downloads a zipped build from Unity Cloud")]
-    [BuildSource("UnityCloud", "Choose Unity Cloud Build...")]
-    public partial class UnityCloudSource : ABuildSource
+    [UploadSource("UnityCloud", "Choose Unity Cloud Build...")]
+    public partial class UnityCloudSource : AUploadSource
     {
         [Wiki("Target", "Which Build Target to select a build from off Unity Cloud. eg: Windows/Mac")]
         private UnityCloudTarget sourceTarget;
@@ -38,7 +38,7 @@ namespace Wireframe
             sourceBuild = build;
         }
 
-        public override async Task<bool> GetSource(BuildConfig buildConfig, BuildTaskReport.StepResult stepResult,
+        public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             StringFormatter.Context ctx)
         {
             m_getSourceInProgress = true;
@@ -106,7 +106,7 @@ namespace Wireframe
             return true;
         }
 
-        public override void CleanUp(BuildTaskReport.StepResult result)
+        public override void CleanUp(UploadTaskReport.StepResult result)
         {
             base.CleanUp(result);
             if (File.Exists(downloadedFilePath))

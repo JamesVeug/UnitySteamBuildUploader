@@ -36,7 +36,7 @@ namespace Wireframe
             bool draft,
             bool prerelease,
             string token,
-            BuildTaskReport.StepResult result,
+            UploadTaskReport.StepResult result,
             List<string> assets = null)
         {
             // Verify paths first
@@ -114,7 +114,7 @@ namespace Wireframe
             return true;
         }
         
-        private static async Task<bool> UploadReleaseAsset(string uploadUrl, string token, string path, BuildTaskReport.StepResult result)
+        private static async Task<bool> UploadReleaseAsset(string uploadUrl, string token, string path, UploadTaskReport.StepResult result)
         {
             try
             {

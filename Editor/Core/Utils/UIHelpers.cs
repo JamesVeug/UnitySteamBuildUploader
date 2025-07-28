@@ -24,7 +24,7 @@ namespace Wireframe
                     sources.Add(new SourceData()
                     {
                         Id = sources.Count + 1,
-                        DisplayName = type.GetCustomAttribute<BuildSourceAttribute>()?.DisplayName ?? type.Name,
+                        DisplayName = type.GetCustomAttribute<UploadSourceAttribute>()?.DisplayName ?? type.Name,
                         Type = type,
                     });
                 }
@@ -68,7 +68,7 @@ namespace Wireframe
                     modifiers.Add(new ModifierData()
                     {
                         Id = modifiers.Count + 1,
-                        DisplayName = type.GetCustomAttribute<BuildModifierAttribute>()?.DisplayName ?? type.Name,
+                        DisplayName = type.GetCustomAttribute<UploadModifierAttribute>()?.DisplayName ?? type.Name,
                         Type = type,
                     });
                 }
@@ -112,7 +112,7 @@ namespace Wireframe
                     destinations.Add(new DestinationData()
                     {
                         Id = destinations.Count + 1,
-                        DisplayName = type.GetCustomAttribute<BuildDestinationAttribute>()?.DisplayName ?? type.Name,
+                        DisplayName = type.GetCustomAttribute<UploadDestinationAttribute>()?.DisplayName ?? type.Name,
                         Type = type,
                     });
                 }
@@ -156,7 +156,7 @@ namespace Wireframe
                     actions.Add(new ActionData()
                     {
                         Id = actions.Count + 1,
-                        DisplayName = type.GetCustomAttribute<BuildActionAttribute>()?.DisplayName ?? type.Name,
+                        DisplayName = type.GetCustomAttribute<UploadActionAttribute>()?.DisplayName ?? type.Name,
                         Type = type,
                     });
                 }

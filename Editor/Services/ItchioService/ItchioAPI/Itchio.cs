@@ -105,7 +105,7 @@ namespace Wireframe
             m_initialized = true;
         }
 
-        public async Task<bool> Upload(string pathToUpload, string user, string game, List<string> channels, string version, BuildTaskReport.StepResult stepResult)
+        public async Task<bool> Upload(string pathToUpload, string user, string game, List<string> channels, string version, UploadTaskReport.StepResult stepResult)
         {
             await m_lock.WaitAsync();
 

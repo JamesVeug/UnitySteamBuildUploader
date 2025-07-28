@@ -10,6 +10,16 @@ namespace Wireframe
         public override void PreferencesGUI()
         {
             GUILayout.Label("Discord", EditorStyles.boldLabel);
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Apps are created on the developer dashboard.");
+                if (GUILayout.Button("Developer Dashboard", GUILayout.Width(150)))
+                {
+                    Application.OpenURL("https://discord.com/developers/applications");
+                }
+            }
+
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 Discord.Enabled = GUILayout.Toggle(Discord.Enabled, "Enabled");

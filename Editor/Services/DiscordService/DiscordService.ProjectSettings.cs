@@ -85,6 +85,17 @@ namespace Wireframe
                         (_) => { DiscordUIUtils.Save(); });
                 }
 
+                GUILayout.Label("Apps");
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    GUILayout.Label("Apps are created on the developer dashboard.");
+                    if (GUILayout.Button("Developer Dashboard", GUILayout.Width(150)))
+                    {
+                        Application.OpenURL("https://discord.com/developers/applications");
+                    }
+                }
+                GUILayout.Label("See Edit->Preferences->Build Uploader->Services->Discord to enter App Token");
+                
                 if (_reorderableListOfDiscordAppsProjectSettings.OnGUI())
                 {
                     DiscordUIUtils.Save();

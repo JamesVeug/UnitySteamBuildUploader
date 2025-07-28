@@ -34,7 +34,7 @@ namespace Wireframe
                 GUI.Label(rect0, "Token");
                 rect0.x += rect0.width;
                 
-                rect0.width = textWidth;
+                rect0.width = containerRect.width - (textWidth * 2) - labelWidth * 2 - 20; // Adjust width for padding and toggle
                 string dt = element.Token;
                 if (showToken)
                 {
@@ -59,7 +59,7 @@ namespace Wireframe
                 
                 // Show Token Toggle
                 rect0.width = 100;
-                showToken = GUI.Toggle(rect0, showToken, "Show Token");
+                showToken = GUI.Toggle(rect0, showToken, "Show");
             }
         }
 

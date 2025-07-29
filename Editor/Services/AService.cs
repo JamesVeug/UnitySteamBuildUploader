@@ -6,5 +6,6 @@
         public abstract bool IsReadyToStartBuild(out string reason);
         public abstract void PreferencesGUI();
         public abstract void ProjectSettingsGUI();
+        public virtual bool HasProjectSettingsGUI => false;
     }
 }

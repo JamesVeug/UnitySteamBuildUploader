@@ -10,11 +10,12 @@ namespace Wireframe
         private static ReorderableListOfDiscordChannels _reorderableListOfDiscordChannels;
         private static DiscordConfig.DiscordServer m_SelectedServer;
 
+        public override bool HasProjectSettingsGUI => true;
+
         public override void ProjectSettingsGUI()
         {
             using (new GUILayout.VerticalScope("box"))
             {
-                GUILayout.Label("Discord", EditorStyles.boldLabel);
                 DiscordConfig discordConfig = DiscordUIUtils.GetConfig();
 
                 GUILayout.Label("Servers");

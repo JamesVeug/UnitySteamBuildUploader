@@ -6,18 +6,18 @@ namespace Wireframe
 {
     internal partial class ItchioService
     {
+        public override bool HasProjectSettingsGUI => true;
+        
         private ItchioUser m_currentUser;
 
         private ReorderableListOfGames m_gameList = new ReorderableListOfGames();
         private ReorderableListOfChannels m_channelList;
         
+        
         public override void ProjectSettingsGUI()
         {
             using (new GUILayout.VerticalScope("box"))
             {
-                GUILayout.Label("Itchio", EditorStyles.boldLabel);
-                
-
                 // Current Config
                 using (new EditorGUILayout.HorizontalScope())
                 {

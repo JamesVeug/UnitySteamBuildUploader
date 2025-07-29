@@ -7,6 +7,8 @@ namespace Wireframe
 {
     internal partial class SteamworksService
     {
+        public override bool HasProjectSettingsGUI => true;
+        
         private SteamApp _current;
 
         private ReorderableListOfBranches m_branchesList = new ReorderableListOfBranches();
@@ -16,8 +18,6 @@ namespace Wireframe
         {
             using (new GUILayout.VerticalScope("box"))
             {
-                GUILayout.Label("Steamworks", EditorStyles.boldLabel);
-
                 // Current Config
                 using (new EditorGUILayout.HorizontalScope())
                 {

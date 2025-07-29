@@ -18,7 +18,7 @@ namespace Wireframe
             {
                 DiscordConfig discordConfig = DiscordUIUtils.GetConfig();
 
-                GUILayout.Label("Servers");
+                GUILayout.Label("Servers", EditorStyles.boldLabel);
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     DiscordUIUtils.ServerPopup.DrawPopup(ref m_SelectedServer, GUILayout.Width(120));
@@ -31,6 +31,24 @@ namespace Wireframe
                         DiscordUIUtils.Save();
                         DiscordUIUtils.ServerPopup.Refresh();
                         m_SelectedServer = config;
+                    }
+                    
+                    GUILayout.FlexibleSpace();
+
+                    using (new EditorGUI.DisabledGroupScope(m_SelectedServer == null))
+                    {
+                        if (GUILayout.Button("Remove Server", GUILayout.Width(100)))
+                        {
+                            if (EditorUtility.DisplayDialog("Remove Server",
+                                    "Are you sure you want to remove the selected discord server?", "Yes", "No"))
+                            {
+                                List<DiscordConfig.DiscordServer> servers = DiscordUIUtils.GetConfig().servers;
+                                servers.Remove(m_SelectedServer);
+                                DiscordUIUtils.Save();
+                                DiscordUIUtils.ServerPopup.Refresh();
+                                m_SelectedServer = null;
+                            }
+                        }
                     }
                 }
 
@@ -86,7 +104,7 @@ namespace Wireframe
                         (_) => { DiscordUIUtils.Save(); });
                 }
 
-                GUILayout.Label("Apps");
+                GUILayout.Label("Apps", EditorStyles.boldLabel);
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     GUILayout.Label("Apps are created on the developer dashboard.");

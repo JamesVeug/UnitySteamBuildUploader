@@ -35,12 +35,13 @@ namespace Wireframe
         public override void OnGUI(string searchContext)
         {
             base.OnGUI(searchContext);
+            GUILayout.Label("Services are external APIs that the Build Uploader can use when uploading builds. Either Uploading to websites or sending messages when completed (e.g. Discord)\n", EditorStyles.wordWrappedLabel);
     
             foreach (AService service in InternalUtils.AllServices().OrderBy(a=>a.GetType().Name))
             {
                 if (service.HasProjectSettingsGUI)
                 {
-                    GUILayout.Label(service.GetType().Name, EditorStyles.whiteLargeLabel);
+                    GUILayout.Label(service.GetType().Name.Replace("Service", ""), EditorStyles.whiteLargeLabel);
                     service.ProjectSettingsGUI();
                 }
             }

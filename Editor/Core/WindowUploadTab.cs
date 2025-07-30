@@ -285,7 +285,7 @@ namespace Wireframe
                             menu.ShowAsContext();
                         }
 
-                        var status = (UploadConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumFlagsField(actionData.WhenToExecute, GUILayout.Width(20));
+                        var status = (UploadConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumPopup(actionData.WhenToExecute, GUILayout.Width(100));
                         if (status != actionData.WhenToExecute)
                         {
                             actionData.WhenToExecute = status;
@@ -295,31 +295,31 @@ namespace Wireframe
                         bool disabled = actionData.WhenToExecute == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never;
                         using (new EditorGUI.DisabledScope(disabled))
                         {
-                            GUILayout.Label("Action Type: ", GUILayout.Width(100));
+                            // GUILayout.Label("Action Type: ", GUILayout.Width(100));
                             if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, GUILayout.Width(200)))
                             {
                                 m_isDirty = true;
                                 Utils.CreateInstance(actionData.ActionType?.Type, out actionData.UploadAction);
                             }
-                        }
 
-                        using (new GUILayout.VerticalScope())
-                        {
-                            if (actionData.ActionType != null)
+                            using (new GUILayout.VerticalScope())
                             {
-                                float maxWidth = UploaderWindow.position.width - 400;
-                                if (actionData.Collapsed)
+                                if (actionData.ActionType != null)
                                 {
-                                    using (new GUILayout.HorizontalScope())
+                                    float maxWidth = UploaderWindow.position.width - 400;
+                                    if (actionData.Collapsed)
                                     {
-                                        actionData.UploadAction.OnGUICollapsed(ref m_isDirty, maxWidth, m_context);
+                                        using (new GUILayout.HorizontalScope())
+                                        {
+                                            actionData.UploadAction.OnGUICollapsed(ref m_isDirty, maxWidth, m_context);
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    using (new EditorGUILayout.VerticalScope())
+                                    else
                                     {
-                                        actionData.UploadAction.OnGUIExpanded(ref m_isDirty, m_context);
+                                        using (new EditorGUILayout.VerticalScope())
+                                        {
+                                            actionData.UploadAction.OnGUIExpanded(ref m_isDirty, m_context);
+                                        }
                                     }
                                 }
                             }

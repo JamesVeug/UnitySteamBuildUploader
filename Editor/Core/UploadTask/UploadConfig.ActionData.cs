@@ -15,8 +15,8 @@ namespace Wireframe
             {
                 Always = 0,
                 Never = 1,
-                Successful = 2,
-                Failed = 3,
+                IfSuccessful = 2,
+                IfFailed = 3,
             }
             
             [Wiki("When To Execute", "Choose when you want this action to execute.")]

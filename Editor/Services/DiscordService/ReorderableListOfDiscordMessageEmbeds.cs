@@ -40,30 +40,7 @@ namespace Wireframe
                 
                 
                 rect1.x += rect1.width;
-                rect1.width = 100;
-                
-                Color t = GUI.color;
-                try
-                {
-                    string tC = element.color;
-                    if (!tC.StartsWith("#", StringComparison.OrdinalIgnoreCase))
-                    {
-                        tC = "#" + tC;
-                    }
-                    
-                    if (ColorUtility.TryParseHtmlString(tC, out Color color))
-                    {
-                        GUI.color = color;
-                    }
-                    else
-                    {
-                        GUI.color = Color.white;
-                    }
-                }
-                catch
-                {
-                    // ignored
-                }
+                rect1.width = 70;
 
                 string c = GUI.TextArea(rect1, element.color);
                 if (c != element.color)
@@ -72,7 +49,45 @@ namespace Wireframe
                     dirty = true;
                 }
                 
-                GUI.color = t;
+                Color newColor = Color.white;
+                try
+                {
+                    string tC = element.color;
+                    if (tC.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    {
+                        tC = "#" + tC.Substring(2);
+                    }
+                    else if (!tC.StartsWith("#", StringComparison.OrdinalIgnoreCase))
+                    {
+                        tC = "#" + tC;
+                    }
+                    
+                    if (!ColorUtility.TryParseHtmlString(tC, out newColor))
+                    {
+                        newColor = Color.white;
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+
+                rect1.x += rect1.width;
+                rect1.width = 20;
+                int pictureSize = (int)rect1.width * 10;
+                Texture2D t2 = new Texture2D(pictureSize, pictureSize);
+                for (int i = 0; i < pictureSize; i++)
+                {
+                    for (int j = 0; j < pictureSize; j++)
+                    {
+                        t2.SetPixel(i, j, newColor);
+                    }
+                }
+                t2.Apply();
+                if (GUI.Button(rect1, t2, GUI.skin.button))
+                {
+                    Application.OpenURL("https://www.w3schools.com/colors/colors_hexadecimal.asp");
+                }
             }
         }
 

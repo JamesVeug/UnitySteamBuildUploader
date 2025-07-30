@@ -105,8 +105,8 @@ namespace Wireframe
 
                 UploadConfig.PostUploadActionData.UploadCompleteStatus status = actionData.WhenToExecute;
                 if (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never ||
-                    (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.Successful && !report.Successful) ||
-                    (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.Failed && report.Successful))
+                    (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfSuccessful && !report.Successful) ||
+                    (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfFailed && report.Successful))
                 {
                     actionResult.AddLog($"Skipping post upload action {i+1} because it doesn't match the current status");
                     continue;

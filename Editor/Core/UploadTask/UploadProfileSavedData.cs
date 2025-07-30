@@ -12,6 +12,9 @@ namespace Wireframe
         // Used to migrate data between different versions of the BuildUploader package
         public int Version;
         
+        // Unique identifier for the profile, used to differentiate between with the same name
+        public string GUID;
+        
         // The name of the profile, used to identify it in the UI
         public string ProfileName;
         

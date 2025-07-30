@@ -94,15 +94,15 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
-                    new GUIContent("Auto Save Build Configs", 
-                        "If enabled, after every change made to build configs in the upload tab they will be saved. If disabled then requires pressing the save button to retain your changes."), 
+                    new GUIContent("Auto save upload configs", 
+                        "If enabled, after every change made to upload configs in the upload tab they will be saved. If disabled then requires pressing the save button to retain your changes."), 
                     GUILayout.Width(200));
 
-                bool autoSave = Preferences.AutoSaveBuildConfigsAfterChanges;
+                bool autoSave = Preferences.AutoSaveUploadConfigsAfterChanges;
                 bool newAutoSave = EditorGUILayout.Toggle(autoSave);
-                if (newAutoSave != Preferences.AutoSaveBuildConfigsAfterChanges)
+                if (newAutoSave != Preferences.AutoSaveUploadConfigsAfterChanges)
                 {
-                    Preferences.AutoSaveBuildConfigsAfterChanges = newAutoSave;
+                    Preferences.AutoSaveUploadConfigsAfterChanges = newAutoSave;
                 }
             }
             
@@ -124,8 +124,8 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
-                    new GUIContent("Auto save build reports", "" +
-                                                              "If enabled, build reports made from the UI will be auto-saved to the cache folder after completion."),
+                    new GUIContent("Auto save upload reports", "" +
+                                                              "If enabled, upload reports made from the UI will be auto-saved to the cache folder after completion."),
                     GUILayout.Width(200));
 
                 bool autoSave = Preferences.AutoSaveReportToCacheFolder;

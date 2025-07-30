@@ -19,8 +19,9 @@ namespace Wireframe
         public override string TabName => "Upload";
         
         private StringFormatter.Context m_context;
-        private List<UploadProfile> m_uploadProfiles;
+        private List<UploadProfileMeta> m_unloadedUploadProfiles;
         private UploadProfile m_currentUploadProfile;
+        private UploadProfileMeta m_currentUploadProfileData;
 
         private string m_buildPath;
         private bool m_showFormattedBuildPath = false;
@@ -36,7 +37,6 @@ namespace Wireframe
         public override void Initialize(BuildUploaderWindow uploaderWindow)
         {
             base.Initialize(uploaderWindow);
-            m_uploadProfiles = new List<UploadProfile>();
             
             m_context = new StringFormatter.Context();
             m_context.TaskDescription = ()=> m_buildDescription;
@@ -61,7 +61,7 @@ namespace Wireframe
                 fontStyle = FontStyle.Bold
             };
 
-            if (m_currentUploadProfile == null)
+            if (m_unloadedUploadProfiles == null)
                 Load();
         }
 
@@ -82,19 +82,13 @@ namespace Wireframe
                         m_isDirty = true;
                     }
                     
-                    string text = m_isDirty ? "*Save" : "Save";
-                    if (GUILayout.Button(text, GUILayout.Width(100)))
-                    {
-                        Save();
-                    }
-                    
                     // Dropdown to select upload profile
-                    string[] profileNames = m_uploadProfiles.Select(p => p.ProfileName).ToArray();
-                    int selectedIndex = m_uploadProfiles.IndexOf(m_currentUploadProfile);
-                    var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames, GUILayout.Width(200));
-                    if (newSelectedIndex < 0 || newSelectedIndex >= m_uploadProfiles.Count)
+                    string[] profileNames = m_unloadedUploadProfiles.Select(p => p.ProfileName).ToArray();
+                    int selectedIndex = m_unloadedUploadProfiles.FindIndex(a=>a.GUID == m_currentUploadProfile.GUID);
+                    var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames, GUILayout.Width(150));
+                    if (newSelectedIndex < 0)
                     {
-                        newSelectedIndex = 0;
+                        newSelectedIndex = selectedIndex;
                     }
                     
                     if (newSelectedIndex != selectedIndex)
@@ -107,29 +101,76 @@ namespace Wireframe
                             {
                                 Save();
                             }
-                            else
-                            {
-                                m_isDirty = false;
-                            }
                         }
-                        m_currentUploadProfile = m_uploadProfiles[newSelectedIndex];
+                        LoadMetaDataFromPath(m_unloadedUploadProfiles[newSelectedIndex]);
                     }
 
-                    if (GUILayout.Button("+", GUILayout.Width(20)))
+                    if (!Preferences.AutoSaveUploadConfigsAfterChanges)
                     {
-                        // Create a new profile
-                        string newProfileName = "New Profile";
-                        int i = 1;
-                        while (m_uploadProfiles.Any(p => p.ProfileName == newProfileName))
+                        string text = m_isDirty ? "*Save" : "Save";
+                        if (GUILayout.Button(text, GUILayout.Width(100)))
                         {
-                            newProfileName = $"New Profile {i++}";
+                            Save();
                         }
+                    }
 
-                        UploadProfile newProfile = new UploadProfile();
-                        newProfile.ProfileName = newProfileName;
-                        m_uploadProfiles.Add(newProfile);
-                        m_currentUploadProfile = newProfile;
-                        m_isDirty = true;
+                    string dropdownText = m_isDirty ? "*" : "";
+                    if (EditorGUILayout.DropdownButton(new GUIContent(dropdownText), FocusType.Passive, GUILayout.Width(20)))
+                    {
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent(dropdownText + "Save"), false, Save);
+                        
+                        menu.AddItem(new GUIContent("Rename"), false, () =>
+                        {
+                            TextInputPopup.ShowWindow(newName =>
+                            {
+                                if (!string.IsNullOrEmpty(newName))
+                                {
+                                    m_currentUploadProfile.ProfileName = newName;
+                                    m_currentUploadProfileData.ProfileName = newName;
+                                    m_isDirty = true;
+                                    // Save or update as needed
+                                }
+                            });
+                        });
+
+                        if (m_unloadedUploadProfiles.Count > 1)
+                        {
+                            menu.AddItem(new GUIContent("Delete"), false, () =>
+                            {
+                                if (EditorUtility.DisplayDialog("Delete Upload Profile",
+                                        "Are you sure you want to delete this upload profile?", "Yes", "No"))
+                                {
+                                    int index = m_unloadedUploadProfiles.FindIndex(a =>
+                                        a.GUID == m_currentUploadProfile.GUID);
+                                    UploadProfileMeta meta = m_unloadedUploadProfiles[index];
+                                    if (!string.IsNullOrEmpty(meta.FilePath))
+                                    {
+                                        File.Delete(meta.FilePath);
+                                    }
+
+                                    m_unloadedUploadProfiles.RemoveAt(index);
+                                    int newIndex = Mathf.Clamp(index, 0, m_unloadedUploadProfiles.Count - 1);
+                                    LoadMetaDataFromPath(m_unloadedUploadProfiles[newIndex]);
+                                    m_isDirty = true;
+                                }
+                            });
+                        }
+                        
+                        menu.AddSeparator("");
+                        menu.AddItem(new GUIContent("-- Create New Upload Profile --"), false, () =>
+                        {
+                            TextInputPopup.ShowWindow((profileName) =>
+                            {
+                                if (!string.IsNullOrEmpty(profileName))
+                                {
+                                    CreateDefaultUploadConfig(profileName);
+                                    Save();
+                                }
+                            });
+                        });
+
+                        menu.ShowAsContext();
                     }
                 }
 
@@ -248,7 +289,7 @@ namespace Wireframe
                 }
                 
 
-                if (m_isDirty && Preferences.AutoSaveBuildConfigsAfterChanges)
+                if (m_isDirty && Preferences.AutoSaveUploadConfigsAfterChanges)
                 {
                     Save();
                 }
@@ -750,6 +791,7 @@ namespace Wireframe
 
             UploadProfileSavedData data = new UploadProfileSavedData();
             data.Version = UploadProfileSavedData.CurrentVersion;
+            data.GUID = m_currentUploadProfile.GUID;
             data.ProfileName = m_currentUploadProfile.ProfileName;
             for (int i = 0; i < m_currentUploadProfile.UploadConfigs.Count; i++)
             {
@@ -760,7 +802,7 @@ namespace Wireframe
                 data.PostUploads.Add(m_currentUploadProfile.PostUploadActions[i].Serialize());
             }
             
-            string filePath = Path.Combine(UploadProfilePath, $"{m_currentUploadProfile.ProfileName}.json");
+            string filePath = Path.Combine(UploadProfilePath, $"{m_currentUploadProfile.GUID}.json");
             string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
             {
@@ -779,7 +821,9 @@ namespace Wireframe
 
         public void Load()
         {
-            m_uploadProfiles.Clear();
+            m_unloadedUploadProfiles = new List<UploadProfileMeta>();
+            m_currentUploadProfile = null;
+            
             if (!Directory.Exists(UploadProfilePath))
             {
                 Directory.CreateDirectory(UploadProfilePath);
@@ -809,68 +853,106 @@ namespace Wireframe
                 string[] files = Directory.GetFiles(UploadProfilePath, "*.json");
                 if (files.Length > 0)
                 {
-                    foreach (string file in files)
+                    for (int j = 0; j < files.Length; j++)
                     {
+                        var file = files[j];
                         string json = File.ReadAllText(file);
                         UploadProfileSavedData savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
                         if (savedData == null)
                         {
                             continue;
                         }
-                        
-                        Debug.Log("Loading upload profile: " + savedData.ProfileName);
-                        UploadProfile loadedProfile = new UploadProfile();
-                        loadedProfile.ProfileName = savedData.ProfileName;
-                        for (int i = 0; i < savedData.Data.Count; i++)
+
+                        if (string.IsNullOrEmpty(savedData.GUID))
                         {
-                            try
-                            {
-                                UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
-                                var jObject = savedData.Data[i];
-                                uploadConfig.Deserialize(jObject);
-                                loadedProfile.UploadConfigs.Add(uploadConfig);
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.LogError("Failed to load build config: #" + (i + 1));
-                                Debug.LogException(e);
-                                UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
-                                loadedProfile.UploadConfigs.Add(uploadConfig);
-                            }
+                            savedData.GUID = Guid.NewGuid().ToString().Substring(0, 6);
                         }
 
-                        for (int i = 0; i < savedData.PostUploads.Count; i++)
-                        {
-                            try
-                            {
-                                UploadConfig.PostUploadActionData actionData =
-                                    new UploadConfig.PostUploadActionData();
-                                actionData.Deserialize(savedData.PostUploads[i]);
-                                loadedProfile.PostUploadActions.Add(actionData);
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.LogError("Failed to load post upload action: #" + (i + 1));
-                                Debug.LogException(e);
-                            }
-                        }
-                        
-                        m_uploadProfiles.Add(loadedProfile);
+                        UploadProfileMeta metaData = new UploadProfileMeta();
+                        metaData.GUID = savedData.GUID;
+                        metaData.ProfileName = savedData.ProfileName;
+                        metaData.FilePath = file;
+                        m_unloadedUploadProfiles.Add(metaData);
                     }
-                    
-                    m_currentUploadProfile = m_uploadProfiles[0];
-                    return;
+
+                    if (m_unloadedUploadProfiles.Count > 0)
+                    {
+                        m_unloadedUploadProfiles.Sort((a,b)=>String.Compare(a.ProfileName, b.ProfileName, StringComparison.Ordinal));
+                        LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
+                        return;
+                    }
+                }
+            }
+            
+            Debug.Log("No Upload profiles exist. Creating new file");
+            CreateDefaultUploadConfig();
+            Save();
+        }
+
+        private void CreateDefaultUploadConfig(string profileName = "Default")
+        {
+            UploadProfile defaultProfile = new UploadProfile();
+            defaultProfile.GUID = Guid.NewGuid().ToString().Substring(0, 6);
+            defaultProfile.ProfileName = profileName;
+            m_currentUploadProfile = defaultProfile;
+            
+            UploadProfileMeta defaultMetaData = new UploadProfileMeta();
+            defaultMetaData.GUID = defaultProfile.GUID;
+            defaultMetaData.ProfileName = defaultProfile.ProfileName;
+            defaultMetaData.FilePath = Path.Combine(UploadProfilePath, $"{defaultMetaData.GUID}.json"); // Not saved yet
+            m_unloadedUploadProfiles.Add(defaultMetaData);
+            m_currentUploadProfileData = defaultMetaData;
+        }
+
+        private void LoadMetaDataFromPath(UploadProfileMeta metaData)
+        {
+            string json = File.ReadAllText(metaData.FilePath);
+            UploadProfileSavedData savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+            if (string.IsNullOrEmpty(savedData.GUID))
+            {
+                savedData.GUID = metaData.GUID;
+            }
+            
+            
+            UploadProfile loadedProfile = new UploadProfile();
+            loadedProfile.ProfileName = savedData.ProfileName;
+            loadedProfile.GUID = savedData.GUID;
+            for (int i = 0; i < savedData.Data.Count; i++)
+            {
+                try
+                {
+                    UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
+                    var jObject = savedData.Data[i];
+                    uploadConfig.Deserialize(jObject);
+                    loadedProfile.UploadConfigs.Add(uploadConfig);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Failed to load build config: #" + (i + 1));
+                    Debug.LogException(e);
+                    UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
+                    loadedProfile.UploadConfigs.Add(uploadConfig);
                 }
             }
 
-                
-            
-            Debug.Log("No Upload profiles exist. Creating new file");
-            UploadProfile defaultProfile = new UploadProfile();
-            defaultProfile.ProfileName  = "Default";
-            m_uploadProfiles.Add(defaultProfile);
-            m_currentUploadProfile = defaultProfile;
-            Save();
+            for (int i = 0; i < savedData.PostUploads.Count; i++)
+            {
+                try
+                {
+                    UploadConfig.PostUploadActionData actionData =
+                        new UploadConfig.PostUploadActionData();
+                    actionData.Deserialize(savedData.PostUploads[i]);
+                    loadedProfile.PostUploadActions.Add(actionData);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Failed to load post upload action: #" + (i + 1));
+                    Debug.LogException(e);
+                }
+            }
+
+            m_currentUploadProfile = loadedProfile;
+            m_currentUploadProfileData = metaData;
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -881,16 +963,13 @@ namespace Wireframe
             if (config == null)
             {
                 Debug.Log("Could not deserialize old JSON. Creating new default Profile");
-                UploadProfile defaultProfile = new UploadProfile();
-                defaultProfile.ProfileName = "Default";
-                m_uploadProfiles.Add(defaultProfile);
-                m_currentUploadProfile = defaultProfile;
+                CreateDefaultUploadConfig();
                 Save();
             }
             else
             {
-                UploadProfile defaultProfile = new UploadProfile();
-                defaultProfile.ProfileName = "Default";
+                CreateDefaultUploadConfig();
+                UploadProfile defaultProfile = m_currentUploadProfile;
                 for (int i = 0; i < config.Data.Count; i++)
                 {
                     try
@@ -923,10 +1002,20 @@ namespace Wireframe
                         Debug.LogException(e);
                     }
                 }
-                m_uploadProfiles.Add(defaultProfile);
-                m_currentUploadProfile = defaultProfile;
             }
         }
 #pragma warning restore CS0618 // Type or member is obsolete
+    }
+    
+    public class UploadProfileMeta
+    {
+        public string GUID;
+        public string ProfileName;
+        public string FilePath;
+
+        public UploadProfileMeta()
+        {
+            
+        }
     }
 }

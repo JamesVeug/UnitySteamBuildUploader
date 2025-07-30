@@ -35,7 +35,7 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_AutoSaveReportToCacheFolder", value);
         }
         
-        public static bool AutoSaveBuildConfigsAfterChanges
+        public static bool AutoSaveUploadConfigsAfterChanges
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", true);
             set => EditorPrefs.SetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", value);

@@ -71,10 +71,10 @@ namespace Wireframe
 
             using (new GUILayout.VerticalScope())
             {
-                GUILayout.Label("Builds to Upload", m_titleStyle);
+                GUILayout.Label("Upload Configs", m_titleStyle);
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("New"))
+                    if (GUILayout.Button("New Upload Config"))
                     {
                         UploadConfig newConfig = new UploadConfig(UploaderWindow);
                         newConfig.SetupDefaults();
@@ -212,7 +212,7 @@ namespace Wireframe
                     }
                 }
                 
-                GUILayout.Space(10);
+                GUILayout.FlexibleSpace();
                 
                 // Post upload actions
                 GUILayout.Label("Post Upload Actions", m_subTitleStyle);

@@ -178,20 +178,47 @@ namespace Wireframe
                 m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
                 for (int i = 0; i < m_currentUploadProfile.UploadConfigs.Count; i++)
                 {
+                    UploadConfig uploadConfig = m_currentUploadProfile.UploadConfigs[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (GUILayout.Button("X", GUILayout.MaxWidth(20)))
+                        if (EditorGUILayout.DropdownButton(new GUIContent(""), FocusType.Passive, GUILayout.Width(20)))
                         {
-                            if (EditorUtility.DisplayDialog("Remove Build",
-                                    "Are you sure you want to remove this build config?", "Yes"))
+                            GenericMenu menu = new GenericMenu();
+                            menu.AddItem(new GUIContent("Move Up"), false, () =>
                             {
-                                m_currentUploadProfile.UploadConfigs.RemoveAt(i--);
-                                m_isDirty = true;
-                                continue;
-                            }
+                                int indexOf = m_currentUploadProfile.UploadConfigs.IndexOf(uploadConfig);
+                                if (indexOf > 0)
+                                {
+                                    m_currentUploadProfile.UploadConfigs.RemoveAt(indexOf);
+                                    m_currentUploadProfile.UploadConfigs.Insert(indexOf - 1, uploadConfig);
+                                    m_isDirty = true;
+                                }
+                            });
+                            
+                            menu.AddItem(new GUIContent("Move Down"), false, () =>
+                            {
+                                int indexOf = m_currentUploadProfile.UploadConfigs.IndexOf(uploadConfig);
+                                if (indexOf < m_currentUploadProfile.UploadConfigs.Count - 1)
+                                {
+                                    m_currentUploadProfile.UploadConfigs.RemoveAt(indexOf);
+                                    m_currentUploadProfile.UploadConfigs.Insert(indexOf + 1, uploadConfig);
+                                    m_isDirty = true;
+                                }
+                            });
+                            
+                            menu.AddSeparator("");
+                            menu.AddItem(new GUIContent("Delete"), false, () =>
+                            {
+                                if (EditorUtility.DisplayDialog("Remove Upload Config",
+                                        "Are you sure you want to remove this Upload Config?", "Delete", "Cancel"))
+                                {
+                                    m_currentUploadProfile.UploadConfigs.Remove(uploadConfig);
+                                    m_isDirty = true;
+                                }
+                            });
+                            menu.ShowAsContext();
                         }
 
-                        UploadConfig uploadConfig = m_currentUploadProfile.UploadConfigs[i];
                         bool e = EditorGUILayout.Toggle(uploadConfig.Enabled, GUILayout.Width(20));
                         if (e != uploadConfig.Enabled)
                         {
@@ -221,15 +248,41 @@ namespace Wireframe
                     UploadConfig.PostUploadActionData actionData = m_currentUploadProfile.PostUploadActions[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (GUILayout.Button("X", GUILayout.MaxWidth(20)))
+                        if (EditorGUILayout.DropdownButton(new GUIContent(""), FocusType.Passive, GUILayout.Width(20)))
                         {
-                            if (EditorUtility.DisplayDialog("Remove Post Upload Action",
-                                    "Are you sure you want to remove this post upload action?", "Yes"))
+                            GenericMenu menu = new GenericMenu();
+                            menu.AddItem(new GUIContent("MoveUp"), false, () =>
                             {
-                                m_currentUploadProfile.PostUploadActions.RemoveAt(i--);
-                                m_isDirty = true;
-                                continue;
-                            }
+                                int indexOf = m_currentUploadProfile.PostUploadActions.IndexOf(actionData);
+                                if (indexOf > 0)
+                                {
+                                    m_currentUploadProfile.PostUploadActions.RemoveAt(indexOf);
+                                    m_currentUploadProfile.PostUploadActions.Insert(indexOf - 1, actionData);
+                                    m_isDirty = true;
+                                }
+                            });
+                            menu.AddItem(new GUIContent("MoveDown"), false, () =>
+                            {
+                                int indexOf = m_currentUploadProfile.PostUploadActions.IndexOf(actionData);
+                                if (indexOf < m_currentUploadProfile.PostUploadActions.Count - 1)
+                                {
+                                    m_currentUploadProfile.PostUploadActions.RemoveAt(indexOf);
+                                    m_currentUploadProfile.PostUploadActions.Insert(indexOf + 1, actionData);
+                                    m_isDirty = true;
+                                }
+                            });
+                            
+                            menu.AddSeparator("");
+                            menu.AddItem(new GUIContent("Delete"), false, () =>
+                            {
+                                if (EditorUtility.DisplayDialog("Remove Post Upload Action",
+                                        "Are you sure you want to remove this post upload action?", "Delete", "Cancel"))
+                                {
+                                    m_currentUploadProfile.PostUploadActions.Remove(actionData);
+                                    m_isDirty = true;
+                                }
+                            });
+                            menu.ShowAsContext();
                         }
 
                         var status = (UploadConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumFlagsField(actionData.WhenToExecute, GUILayout.Width(20));

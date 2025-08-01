@@ -61,6 +61,13 @@ namespace Wireframe
                         DrawUserGames();
                     }
                 }
+                
+                GUILayout.Space(10);
+
+                if (GUILayout.Button("?", GUILayout.Width(20)))
+                {
+                    Application.OpenURL("https://itch.io/docs/butler/pushing.html#channel-names");
+                }
 
                 // Draw Channels
                 DrawChannels();

@@ -23,6 +23,7 @@ namespace Wireframe
 
         public class Context
         {
+            public Func<string> UploadTaskFailText { get; set; } = () => "<UploadTaskFailText not specified>";
             public Func<string> TaskDescription { get; set; } = ()=> "<TaskDescription not specified>";
 
             public Context()
@@ -49,6 +50,7 @@ namespace Wireframe
             new Command("{machineName}", (ctx) => Environment.MachineName, "The name of the machine running the build."),
             
             new Command("{taskDescription}", (ctx) => ctx.TaskDescription(), "The description of the current task being executed."),
+            new Command("{taskFailedReasons}", (ctx) => ctx.UploadTaskFailText(), "Gets the reasons why the task failed to upload all destinations."),
         };
         
         public static string FormatString(string format, Context context)

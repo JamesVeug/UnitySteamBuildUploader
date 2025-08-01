@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -62,6 +63,35 @@ namespace Wireframe
                 new UploadTaskStep_Upload(context) // Upload cached content
             };
             
+            context.UploadTaskFailText = () =>
+            {
+                if (report.Successful)
+                {
+                    return "Upload task did not fail.";
+                }
+                
+                var failReasons = report.GetFailReasons();
+                if (!failReasons.Any())
+                {
+                    return "No specific failure reasons provided.";
+                }
+
+                string reasonText = "";
+                foreach ((AUploadTask_Step.StepType Key, string FailReason) reason in failReasons)
+                {
+                    if (string.IsNullOrEmpty(reasonText))
+                    {
+                        reasonText += $"{reason.Key}: {reason.FailReason}";
+                    }
+                    else
+                    {
+                        reasonText += $"\n{reason.Key}: {reason.FailReason}";
+                    }
+                }
+                return reasonText;
+            };
+            
+            // Do upload steps
             for (int i = 0; i < steps.Length; i++)
             {
                 ProgressUtils.Report(progressId, (float)i/(steps.Length+1), "Upload Builds");
@@ -76,8 +106,10 @@ namespace Wireframe
                 }
             }
             
+            // Do any post upload actions
             await PostUpload_Step(report, steps);
             
+            // Cleanup
             await Cleanup_Step(report, steps);
 
             ProgressUtils.Remove(progressId);

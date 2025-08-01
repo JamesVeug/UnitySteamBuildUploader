@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,7 +23,7 @@ namespace Wireframe
             m_channels = new List<ItchioChannel>();
         }
         
-        public ItchioDestination(string user, string game, string version=null, string[] channels=null) : this()
+        public ItchioDestination(string user, string game, string[] channels=null) : this()
         {
             m_user = new ItchioUser(){Name = user};
             m_game = new ItchioGameData(){Name = game};

@@ -187,6 +187,9 @@ namespace Wireframe
             return stepResult.Successful;
         }
 
+        /// <summary>
+        /// https://itch.io/docs/butler/pushing.html
+        /// </summary>
         private string CreateUploadBuildItchioArguments(string pathToUpload, string user, string game, string version, List<string> channels)
         {
             // push "<pathToUpload>" <user>/<game>:<channel1>-<channel2>-<channel3> --userversion <version>
@@ -211,6 +214,13 @@ namespace Wireframe
         private async Task<OutputResultArgs> LogOutItchioResult(string textDump)
         {
             OutputResultArgs result = new OutputResultArgs();
+            if (string.IsNullOrEmpty(textDump))
+            {
+                result.errorText = "Itchio upload failed: No output from ItchioCMD. Does your username/game_id/channel_id have spaces?";
+                result.successful = false;
+                return result;
+            }
+            
             foreach (string failString in failStrings)
             {
                 int index = textDump.IndexOf(failString, StringComparison.OrdinalIgnoreCase);

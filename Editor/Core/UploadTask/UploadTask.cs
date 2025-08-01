@@ -125,7 +125,7 @@ namespace Wireframe
             // Cleanup to make sure nothing is left behind - dirtying up the user's computer
             ProgressUtils.Report(progressId, (float)steps.Length/(steps.Length+2), "Post Upload Actions");
             
-            int cleanupProgressId = ProgressUtils.Start("Post Upload", "Executing Post Upload Actions");
+            int postActionID = ProgressUtils.Start("Post Upload", "Executing Post Upload Actions...");
             for (var i = 0; i < postUploadActions.Count; i++)
             {
                 UploadConfig.PostUploadActionData actionData = postUploadActions[i];
@@ -145,7 +145,7 @@ namespace Wireframe
                 }
 
                 await Task.Yield();
-                ProgressUtils.Report(cleanupProgressId, 0, $"Executing action " + (i+1) + "/" + postUploadActions.Count);
+                ProgressUtils.Report(postActionID, 0, $"Executing action " + (i+1) + "/" + postUploadActions.Count);
                     
                 actionResult.AddLog($"Executing post upload action: {i+1}");
 
@@ -163,9 +163,9 @@ namespace Wireframe
                 catch (Exception e)
                 {
                     actionResult.AddException(e);
-                    continue;
                 }
             }
+            ProgressUtils.Remove(postActionID);
         }
 
         private async Task Cleanup_Step(UploadTaskReport report, AUploadTask_Step[] steps)

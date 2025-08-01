@@ -37,12 +37,11 @@ namespace Wireframe
         
         [Wiki("Channel", "What channel in the server to send the message to", 2)]
         private DiscordConfig.DiscordChannel m_channel;
-        
-        [Wiki("Text", "What text to send", 3)]
-        private string m_text;
-        
+
+        [Wiki("Text", "What text to send", 3)] private string m_text = "";
+
         [Wiki("Embeds", "A list of embeds to send with the message. This is optional and can be used to format the message nicely.", 5)]
-        private List<Embed> m_embeds;
+        private List<Embed> m_embeds = new List<Embed>();
         
         public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {

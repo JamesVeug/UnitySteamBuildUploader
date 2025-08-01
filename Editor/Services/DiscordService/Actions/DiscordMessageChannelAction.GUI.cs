@@ -15,7 +15,7 @@ namespace Wireframe
             isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, GUILayout.Width(120));
 
             float width = maxWidth - 375;
-            int newLine = m_text.IndexOf('\n');
+            int newLine = m_text != null ? m_text.IndexOf('\n') : -1;
             if (newLine >= 0)
             {
                 m_text = m_text.Substring(0, newLine);

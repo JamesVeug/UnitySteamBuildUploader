@@ -65,8 +65,13 @@ namespace Wireframe
             {
                 BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
                 BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
+#if UNITY_2021_0_OR_NEWER
                 NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
                 ScriptingImplementation implementation = PlayerSettings.GetScriptingBackend(namedBuildTarget);
+#else
+                ScriptingImplementation implementation = PlayerSettings.GetScriptingBackend(buildTargetGroup);
+#endif
+
                 switch (implementation)
                 {
                     case ScriptingImplementation.IL2CPP:
@@ -75,8 +80,10 @@ namespace Wireframe
                         return "Mono";
                     case ScriptingImplementation.WinRTDotNET:
                         return "DotNet";
+#if UNITY_6000_0_OR_NEWER
                     case ScriptingImplementation.CoreCLR:
                         return "CoreCLR";
+#endif
                     default:
                         return implementation.ToString(); // Unhandled like CoreCLR
                 }

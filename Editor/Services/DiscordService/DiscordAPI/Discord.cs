@@ -83,7 +83,7 @@ namespace Wireframe
             
             request.SendWebRequest().completed += operation =>
             {
-                if (request.result == UnityWebRequest.Result.Success)
+                if (request.isHttpError || request.isNetworkError)
                 {
                     Debug.Log("Response: " + request.downloadHandler.text);
                 }
@@ -109,7 +109,7 @@ namespace Wireframe
             
             request.SendWebRequest().completed += operation =>
             {
-                if (request.result == UnityWebRequest.Result.Success)
+                if (request.isHttpError || request.isNetworkError)
                 {
                     Debug.Log("Response: " + request.downloadHandler.text);
                 }

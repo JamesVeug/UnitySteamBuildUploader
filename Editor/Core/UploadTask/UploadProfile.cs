@@ -39,19 +39,21 @@ namespace Wireframe
                 return null;
             }
 
-            string[] files = Directory.GetFiles(WindowUploadTab.UploadProfilePath, ".json", SearchOption.TopDirectoryOnly);
+            string[] files = Directory.GetFiles(WindowUploadTab.UploadProfilePath, "*.json", SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
-                GUIDOnly minimal = JSON.DeserializeObject<GUIDOnly>(file);
+                string json = File.ReadAllText(file);
+                GUIDOnly minimal = JsonUtility.FromJson<GUIDOnly>(json);
                 if (minimal.GUID == guid)
                 {
-                    return JSON.DeserializeObject<UploadProfile>(file);
+                    return FromPath(file);
                 }
             }
             
             return null;
         }
 
+        [Serializable]
         private class GUIDOnly
         {
             public string GUID;
@@ -67,19 +69,21 @@ namespace Wireframe
                 return null;
             }
 
-            string[] files = Directory.GetFiles(WindowUploadTab.UploadProfilePath, ".json", SearchOption.TopDirectoryOnly);
+            string[] files = Directory.GetFiles(WindowUploadTab.UploadProfilePath, "*.json", SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
-                NameOnly minimal = JSON.DeserializeObject<NameOnly>(file);
+                string json = File.ReadAllText(file);
+                NameOnly minimal = JsonUtility.FromJson<NameOnly>(json);
                 if (minimal.ProfileName == profileName)
                 {
-                    return JSON.DeserializeObject<UploadProfile>(file);
+                    return FromPath(file);
                 }
             }
             
             return null;
         }
 
+        [Serializable]
         private class NameOnly
         {
             public string ProfileName;

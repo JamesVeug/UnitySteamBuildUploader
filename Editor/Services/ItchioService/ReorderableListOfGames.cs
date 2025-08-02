@@ -11,12 +11,12 @@ namespace Wireframe
             {
                 ItchioGameData element = list[index];
 
-                float width = Mathf.Min(100, rect.width / 2);
+                float width = Mathf.Min(200, rect.width);
                 Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
                 string n = GUI.TextField(rect1, element.Name);
                 if (n != element.Name)
                 {
-                    element.Name = n;
+                    element.Name = n.Trim();
                     dirty = true;
                 }
             }

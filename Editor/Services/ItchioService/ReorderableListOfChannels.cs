@@ -16,7 +16,7 @@ namespace Wireframe
                 string n = GUI.TextField(rect1, element.Name);
                 if (n != element.Name)
                 {
-                    element.Name = n;
+                    element.Name = n.Trim();
                     dirty = true;
                 }
             }

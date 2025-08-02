@@ -5,18 +5,12 @@ namespace Wireframe
 {
     public abstract partial class AUploadAction : DropdownElement
     {
-        public bool IsRunning => m_actionInProgress;
+        public int Id { get; set; }
         
         protected bool m_actionInProgress;
-        protected bool m_successful;
-        protected string m_buildDescription;
-        
-        public int Id { get; set; }
         
         public virtual Task<bool> Prepare(bool successful, string buildDescription, UploadTaskReport.StepResult result)
         {
-            m_successful = successful;
-            m_buildDescription = buildDescription;
             return Task.FromResult(true);
         }
         

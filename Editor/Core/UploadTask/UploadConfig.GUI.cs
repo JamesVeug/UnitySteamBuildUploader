@@ -132,28 +132,6 @@ namespace Wireframe
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         string progressText = "->";
-                        if (IsBuilding())
-                        {
-                            // TODO: Get the actual progress value from the task
-                            float progress = 0;
-                            List<SourceData> activeSources = m_buildSources.Where(a => a.Enabled).ToList();
-                            foreach (SourceData sourceData in activeSources)
-                            {
-                                progress += sourceData.Source.DownloadProgress();
-                            }
-
-                            List<DestinationData> activeDestinations =
-                                m_buildDestinations.Where(a => a.Enabled).ToList();
-                            foreach (DestinationData destinationData in activeDestinations)
-                            {
-                                progress += destinationData.Destination.UploadProgress();
-                            }
-
-                            float ratio = progress / (activeSources.Count + activeDestinations.Count);
-                            int percentage = (int)(ratio * 100);
-                            progressText = string.Format("{0}%", percentage);
-                        }
-
                         GUILayout.Label(progressText, m_titleStyle, GUILayout.Width(splitWidth));
                     }
                     

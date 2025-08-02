@@ -110,7 +110,6 @@ namespace Wireframe
             if (m_createAppFile)
             {
                 result.AddLog("Creating new app file");
-                m_uploadProgress = 0.25f;
                 if (!await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepot.Depot,
                         m_uploadBranch.name, buildDescription, m_filePath, result))
                 {
@@ -126,7 +125,6 @@ namespace Wireframe
             if (m_createDepotFile)
             {
                 result.AddLog("Creating new depot file");
-                m_uploadProgress = 0.5f;
                 if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot, m_uploadBranch.name, result))
                 {
                     result.SetFailed("Failed to create depot file");
@@ -143,8 +141,6 @@ namespace Wireframe
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            m_uploadProgress = 0.75f;
-
             return await SteamSDK.Instance.Upload(m_uploadApp.App, m_uploadToSteam, result);
         }
 

@@ -41,9 +41,6 @@ namespace Wireframe
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             StringFormatter.Context ctx)
         {
-            m_getSourceInProgress = true;
-            m_downloadProgress = 0.0f;
-
             // Preparing
             string buildName = sourceBuild.platform + "-" + sourceBuild.buildtargetid + "-" + sourceBuild.build;
             string directoryPath = Path.Combine(Preferences.CacheFolderPath, "UnityCloudBuilds");
@@ -77,7 +74,6 @@ namespace Wireframe
                 while (!webRequest.isDone)
                 {
                     await Task.Delay(10);
-                    m_downloadProgress = request.downloadProgress;
                 }
 
                 // Save
@@ -102,7 +98,6 @@ namespace Wireframe
 
             // Record where the game is saved to
             sourceFilePath = downloadedFilePath;
-            m_downloadProgress = 1.0f;
             return true;
         }
 
@@ -126,11 +121,6 @@ namespace Wireframe
         public override string SourceFilePath()
         {
             return sourceFilePath;
-        }
-
-        public override float DownloadProgress()
-        {
-            return m_downloadProgress;
         }
 
         public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)

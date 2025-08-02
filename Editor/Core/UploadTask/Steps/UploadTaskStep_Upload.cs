@@ -88,11 +88,9 @@ namespace Wireframe
                 for (int j = 0; j < uploadTasks.Count; j++)
                 {
                     Task<bool> tuple = uploadTasks[j];
-                    AUploadDestination destination = destinations[j].Destination;
                     if (!tuple.IsCompleted)
                     {
                         done = false;
-                        completionAmount += destination.UploadProgress();
                     }
                     else
                     {

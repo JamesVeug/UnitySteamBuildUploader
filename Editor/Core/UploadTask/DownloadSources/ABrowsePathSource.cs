@@ -64,7 +64,6 @@ namespace Wireframe
             StringFormatter.Context ctx)
         {
             // Decide where we want to download to
-            m_downloadProgress = 0;
             string directoryPath = Preferences.CacheFolderPath;
             if (!Directory.Exists(directoryPath))
             {
@@ -115,11 +114,6 @@ namespace Wireframe
         public override string SourceFilePath()
         {
             return m_finalSourcePath;
-        }
-
-        public override float DownloadProgress()
-        {
-            return m_downloadProgress;
         }
 
         public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)

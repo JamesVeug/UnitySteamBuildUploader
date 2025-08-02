@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -119,7 +118,6 @@ namespace Wireframe
                 }
             }
             
-            m_uploadProgress = 1;
             return true;
         }
 

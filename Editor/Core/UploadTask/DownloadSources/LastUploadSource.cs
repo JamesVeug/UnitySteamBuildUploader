@@ -73,11 +73,6 @@ namespace Wireframe
             }
         }
 
-        public override float DownloadProgress()
-        {
-            return 0.0f; // No download progress for last build source
-        }
-
         public override Dictionary<string, object> Serialize()
         {
             return new Dictionary<string, object> { };

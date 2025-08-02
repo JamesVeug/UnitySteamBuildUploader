@@ -287,43 +287,6 @@ namespace Wireframe
             return true;
         }
 
-        public bool IsBuilding()
-        {
-            foreach (SourceData source in m_buildSources)
-            {
-                if (source.Source == null)
-                {
-                    return false;
-                }
-            }
-
-            foreach (DestinationData destination in m_buildDestinations)
-            {
-                if (destination.Destination == null)
-                {
-                    return false;
-                }
-            }
-            
-            foreach (SourceData source in m_buildSources)
-            {
-                if (source.Source.IsRunning)
-                {
-                    return true;
-                }
-            }
-
-            foreach (DestinationData destination in m_buildDestinations)
-            {
-                if (destination.Destination.IsRunning)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public void CleanUp(UploadTaskReport.StepResult result)
         {
             foreach (SourceData source in m_buildSources)

@@ -30,7 +30,6 @@ namespace Wireframe
 
         public override Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            m_uploadProgress = 1;
             return Task.FromResult(true);
         }
 

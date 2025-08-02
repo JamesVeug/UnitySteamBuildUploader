@@ -61,9 +61,6 @@ namespace Wireframe
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             StringFormatter.Context ctx)
         {
-            m_getSourceInProgress = true;
-            m_downloadProgress = 0.0f;
-
             // Preparing
             string directoryPath = Path.Combine(Preferences.CacheFolderPath, "URLBuilds");
             if (!Directory.Exists(directoryPath))
@@ -95,7 +92,6 @@ namespace Wireframe
                 while (!webRequest.isDone)
                 {
                     await Task.Delay(10);
-                    m_downloadProgress = request.downloadProgress;
                 }
                 
                 if (request.isHttpError || request.isNetworkError)
@@ -120,7 +116,6 @@ namespace Wireframe
 
             // Record where the game is saved to
             m_sourcePath = fullFilePath;
-            m_downloadProgress = 1.0f;
             stepResult.AddLog("Retrieved URL Build: " + m_sourcePath);
             return true;
         }
@@ -138,11 +133,6 @@ namespace Wireframe
         public override string SourceFilePath()
         {
             return m_sourcePath;
-        }
-
-        public override float DownloadProgress()
-        {
-            return m_downloadProgress;
         }
 
         public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)

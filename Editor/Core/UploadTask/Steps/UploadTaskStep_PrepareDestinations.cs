@@ -45,10 +45,6 @@ namespace Wireframe
                     if (!tuple.Item2.IsCompleted)
                     {
                         done = false;
-                        foreach (UploadConfig.DestinationData data in tuple.Item1)
-                        {
-                            completionAmount += 0.5f; // TODO: Add progress to PrepareDestination
-                        }
                         totalDestinations += tuple.Item1.Count;
                     }
                     else

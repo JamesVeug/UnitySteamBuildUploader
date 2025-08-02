@@ -45,10 +45,6 @@ namespace Wireframe
                     if (!tuple.Item2.IsCompleted)
                     {
                         done = false;
-                        foreach (UploadConfig.SourceData data in tuple.Item1)
-                        {
-                            completionAmount += data.Source.DownloadProgress();
-                        }
                         totalSources += tuple.Item1.Count;
                     }
                     else

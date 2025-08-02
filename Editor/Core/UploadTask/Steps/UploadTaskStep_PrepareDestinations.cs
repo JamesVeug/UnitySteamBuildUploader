@@ -27,8 +27,7 @@ namespace Wireframe
                     continue;
                 }
 
-                string cachePath = uploadTask.CachedLocations[j];
-                Task<bool> task = PrepareDestination(buildConfigs[j], cachePath, uploadTask.BuildDescription, report);
+                Task<bool> task = PrepareDestination(j, uploadTask, report);
                 List<UploadConfig.DestinationData> destinations = buildConfigs[j].Destinations.Where(a => a.Enabled).ToList();
                 tasks.Add(new Tuple<List<UploadConfig.DestinationData>, Task<bool>>(destinations, task));
             }
@@ -68,8 +67,11 @@ namespace Wireframe
             return allSuccessful;
         }
         
-        private async Task<bool> PrepareDestination(UploadConfig uploadConfig, string cachePath, string desc, UploadTaskReport report)
+        private async Task<bool> PrepareDestination(int configIndex, UploadTask uploadTask, UploadTaskReport report)
         {
+            UploadConfig uploadConfig = uploadTask.BuildConfigs[configIndex];
+            string desc = uploadTask.BuildDescription;
+            string cachePath = uploadTask.CachedLocations[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);
             for (var i = 0; i < uploadConfig.Destinations.Count; i++)
             {
@@ -85,7 +87,7 @@ namespace Wireframe
                 AUploadDestination uploadDestination = destination.Destination;
                 try
                 {
-                    bool success = await uploadDestination.Prepare(cachePath, desc, result);
+                    bool success = await uploadDestination.Prepare(uploadTask.GUID, configIndex, i, cachePath, desc, result);
                     if (!success)
                     {
                         return false;

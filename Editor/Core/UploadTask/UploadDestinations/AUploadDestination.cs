@@ -16,7 +16,8 @@ namespace Wireframe
         }
 
 
-        public virtual Task<bool> Prepare(string filePath, string buildDescription, UploadTaskReport.StepResult result)
+        public virtual Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex, string filePath,
+            string buildDescription, UploadTaskReport.StepResult result)
         {
             m_filePath = filePath;
             m_buildDescription = buildDescription;

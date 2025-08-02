@@ -34,6 +34,7 @@ namespace Wireframe
         private SteamApp m_uploadApp;
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
+        private string m_appPath;
 
         public SteamUploadDestination() : base()
         {
@@ -81,9 +82,11 @@ namespace Wireframe
             m_uploadToSteam = uploadToSteam;
         }
 
-        public override async Task<bool> Prepare(string filePath, string buildDescription, UploadTaskReport.StepResult result)
+        public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
+            string filePath,
+            string buildDescription, UploadTaskReport.StepResult result)
         {
-            await base.Prepare(filePath, buildDescription, result);
+            await base.Prepare(taskGUID, configIndex, destinationIndex, filePath, buildDescription, result);
 
             if (m_current == null)
             {
@@ -107,13 +110,14 @@ namespace Wireframe
             m_uploadDepot = new SteamDepot(m_depot);
             m_uploadBranch = new SteamBranch(m_destinationBranch);
 
+            string suffix = $"buildUploader_{taskGUID}_{configIndex}_{destinationIndex}";
             if (m_createAppFile)
             {
                 result.AddLog("Creating new app file");
-                if (!await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepot.Depot,
-                        m_uploadBranch.name, buildDescription, m_filePath, result))
+                m_appPath = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepot.Depot,
+                    m_uploadBranch.name, buildDescription, m_filePath, result, suffix); 
+                if (string.IsNullOrEmpty(m_appPath))
                 {
-                    result.SetFailed("Failed to create app file");
                     return false;
                 }
             }
@@ -125,7 +129,7 @@ namespace Wireframe
             if (m_createDepotFile)
             {
                 result.AddLog("Creating new depot file");
-                if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot, m_uploadBranch.name, result))
+                if (!await SteamSDK.Instance.CreateDepotFiles(m_uploadDepot.Depot, m_uploadBranch.name, result, suffix))
                 {
                     result.SetFailed("Failed to create depot file");
                     return false;
@@ -141,7 +145,7 @@ namespace Wireframe
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            return await SteamSDK.Instance.Upload(m_uploadApp.App, m_uploadToSteam, result);
+            return await SteamSDK.Instance.Upload(m_uploadApp.App, m_appPath, m_uploadToSteam, result);
         }
 
         public override Dictionary<string, object> Serialize()

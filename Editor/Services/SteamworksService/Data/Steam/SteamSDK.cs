@@ -179,23 +179,30 @@ namespace Wireframe
             m_initialized = true;
         }
 
-        public async Task<bool> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch,
-            string description, string sourceFilePath, UploadTaskReport.StepResult result)
+        public async Task<string> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch,
+            string description, string sourceFilePath, UploadTaskReport.StepResult result, string fileSuffix = "")
         {
             appFile.desc = description;
             appFile.buildoutput = "..\\output\\";
             appFile.contentroot = sourceFilePath;
             appFile.setlive = branch == "none" ? "" : branch;
 
-            string depotFileName = GetDepotFileName(depot, appFile.setlive);
+            string depotFileName = GetDepotFileName(depot, appFile.setlive, fileSuffix);
             appFile.depots.Clear();
             appFile.depots.Add(depot.DepotID, depotFileName);
 
-            string fullPath = GetAppScriptOutputPath(appFile);
-            return await VDFFile.Save(appFile, fullPath, result);
+            string fullPath = GetAppScriptOutputPath(appFile, fileSuffix);
+            bool saved = await VDFFile.Save(appFile, fullPath, result);
+            if (!saved)
+            {
+                result.SetFailed("Failed to save app file: " + fullPath);
+                return null;
+            }
+            
+            return fullPath;
         }
 
-        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, string branchName, UploadTaskReport.StepResult result)
+        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, string branchName, UploadTaskReport.StepResult result, string fileSuffix = "")
         {
             depot.FileExclusion = "*.pdb";
             depot.FileMapping = new DepotFileMapping
@@ -205,43 +212,53 @@ namespace Wireframe
                 recursive = true
             };
 
-            string fileName = GetDepotFileName(depot, branchName);
+            string fileName = GetDepotFileName(depot, branchName, fileSuffix);
             string fullPath = Path.Combine(m_scriptPath, fileName);
             return await VDFFile.Save(depot, fullPath, result);
         }
 
-        public string GetAppScriptOutputPath(AppVDFFile appFile)
+        public string GetAppScriptOutputPath(AppVDFFile appFile, string fileNameSuffix = "")
         {
             string fileName;
             if (string.IsNullOrEmpty(appFile.setlive))
             {
-                fileName = string.Format("app_build_{0}.vdf", appFile.appid);
+                fileName = string.Format("app_build_{0}", appFile.appid);
             }
             else
             {
-                fileName = string.Format("app_build_{0}_{1}.vdf", appFile.appid, appFile.setlive);
+                fileName = string.Format("app_build_{0}_{1}", appFile.appid, appFile.setlive);
+            }
+            
+            if (!string.IsNullOrEmpty(fileNameSuffix))
+            {
+                fileName = fileName + "_" + fileNameSuffix;
             }
 
-            string fullPath = Path.Combine(m_scriptPath, fileName);
+            string fullPath = Path.Combine(m_scriptPath, fileName + ".vdf");
             return fullPath;
         }
 
-        private static string GetDepotFileName(DepotVDFFile depot, string branchName)
+        private static string GetDepotFileName(DepotVDFFile depot, string branchName = "", string fileSuffix = "")
         {
             string fileName;
             if (string.IsNullOrEmpty(branchName))
             {
-                fileName = string.Format("depot_build_{0}.vdf", depot.DepotID);
+                fileName = string.Format("depot_build_{0}", depot.DepotID);
             }
             else
             {
-                fileName = string.Format("depot_build_{0}_{1}.vdf", depot.DepotID, branchName);
+                fileName = string.Format("depot_build_{0}_{1}", depot.DepotID, branchName);
+            }
+            
+            if (!string.IsNullOrEmpty(fileSuffix))
+            {
+                fileName = fileName + "_" + fileSuffix;
             }
 
-            return fileName;
+            return fileName + ".vdf";
         }
 
-        public async Task<bool> Upload(AppVDFFile appFile, bool uploadeToSteam, UploadTaskReport.StepResult stepResult)
+        public async Task<bool> Upload(AppVDFFile appFile, string appFilePath, bool uploadToSteam, UploadTaskReport.StepResult stepResult)
         {
             await m_lock.WaitAsync();
 
@@ -258,7 +275,7 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
                     m_uploadProcess.StartInfo.FileName = m_steamCMDPath;
-                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFile, true, uploadeToSteam, steamGuardCode, stepResult);
+                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFilePath, true, uploadToSteam, steamGuardCode, stepResult);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                     m_uploadProcess.EnableRaisingEvents = true;
@@ -292,7 +309,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
 
-                    var outputResults = await LogOutSteamResult(textDump, uploadeToSteam, false, appFile.appid);
+                    var outputResults = await LogOutSteamResult(textDump, uploadToSteam, false, appFile.appid);
 
                     try
                     {
@@ -340,7 +357,7 @@ namespace Wireframe
             return stepResult.Successful;
         }
 
-        private string CreateUploadBuildSteamArguments(AppVDFFile appFile, bool quitOnComplete, bool upload,
+        private string CreateUploadBuildSteamArguments(string appFilePath, bool quitOnComplete, bool upload,
             string steamGuardCode, UploadTaskReport.StepResult stepResult)
         {
             string username = UserName;
@@ -349,9 +366,8 @@ namespace Wireframe
 
             string uploadArg = "";
             if (upload)
-            {
-                string fullDirectory = GetAppScriptOutputPath(appFile);   
-                uploadArg = $" +run_app_build \"{fullDirectory}\"";
+            { 
+                uploadArg = $" +run_app_build \"{appFilePath}\"";
             }
             else
             {

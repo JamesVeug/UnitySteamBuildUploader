@@ -8,6 +8,7 @@ namespace Wireframe
 {
     public class UploadTask
     {
+        public string GUID => guid;
         public List<UploadConfig> BuildConfigs => buildConfigs;
         public string BuildDescription => buildDescription;
         public string[] CachedLocations => cachedLocations;
@@ -18,6 +19,7 @@ namespace Wireframe
         private string[] cachedLocations;
         private int progressId;
         private string buildDescription;
+        private string guid;
 
         public UploadTask(UploadProfile uploadProfile, string buildDescription) : this()
         {
@@ -35,6 +37,7 @@ namespace Wireframe
         
         public UploadTask()
         {
+            guid = Guid.NewGuid().ToString().Substring(0, 6);
             buildDescription = "";
             buildConfigs = new List<UploadConfig>();
             postUploadActions = new List<UploadConfig.PostUploadActionData>();

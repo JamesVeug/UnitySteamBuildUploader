@@ -14,7 +14,7 @@ namespace Wireframe
 {
     internal class WindowUploadTab : WindowTab
     {
-        private static readonly string UploadProfilePath =  Application.dataPath + "/../BuildUploader/UploadProfiles";
+        internal static readonly string UploadProfilePath =  Application.dataPath + "/../BuildUploader/UploadProfiles";
 
         public override string TabName => "Upload";
         
@@ -76,7 +76,7 @@ namespace Wireframe
                 {
                     if (GUILayout.Button("New Upload Config"))
                     {
-                        UploadConfig newConfig = new UploadConfig(UploaderWindow);
+                        UploadConfig newConfig = new UploadConfig();
                         newConfig.SetupDefaults();
                         m_currentUploadProfile.UploadConfigs.Add(newConfig);
                         m_isDirty = true;
@@ -228,7 +228,7 @@ namespace Wireframe
 
                         using (new GUILayout.VerticalScope())
                         {
-                            uploadConfig.OnGUI(ref m_isDirty, m_context);
+                            uploadConfig.OnGUI(UploaderWindow.position.width, ref m_isDirty, m_context);
                         }
 
                         bool collapse = uploadConfig.Collapsed;
@@ -711,14 +711,31 @@ namespace Wireframe
 
         private async Task DownloadAndUpload()
         {
-            // Start task
-            Debug.Log("[BuildUploader] Build Task started.... Grab a coffee... this could take a while.");
+            if (m_isDirty)
+            {
+                if (EditorUtility.DisplayDialog("Un-saved changes",
+                        "Are you sure you want to start uploading?\nThe unsaved changes will not be applied to this upload.", "Save Now", "Cancel"))
+                {
+                    Save();
+                }
+                else
+                {
+                    Debug.Log("[BuildUploader] Upload Task cancelled at user request. Unsaved changes.");
+                    return;
+                }
+            }
+            
+            // Setup Task
+            UploadProfile uploadProfile = UploadProfile.FromPath(m_currentUploadProfileData.FilePath);
             string description = StringFormatter.FormatString(m_buildDescription, m_context);
-            UploadTask uploadTask = new UploadTask(m_currentUploadProfile.UploadConfigs, description, m_currentUploadProfile.PostUploadActions);
+            UploadTask uploadTask = new UploadTask(uploadProfile, description);
             
             string guids = string.Join("_", m_currentUploadProfile.UploadConfigs.Select(x => x.GUID));
             UploadTaskReport report = new UploadTaskReport(guids);
+            
+            // Start task
             Task asyncBuildTask = uploadTask.Start(report);
+            Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
             
             // Wait for task to complete
             while (!asyncBuildTask.IsCompleted)
@@ -842,20 +859,9 @@ namespace Wireframe
         {
             m_isDirty = false;
 
-            UploadProfileSavedData data = new UploadProfileSavedData();
-            data.Version = UploadProfileSavedData.CurrentVersion;
-            data.GUID = m_currentUploadProfile.GUID;
-            data.ProfileName = m_currentUploadProfile.ProfileName;
-            for (int i = 0; i < m_currentUploadProfile.UploadConfigs.Count; i++)
-            {
-                data.Data.Add(m_currentUploadProfile.UploadConfigs[i].Serialize());
-            }
-            for (int i = 0; i < m_currentUploadProfile.PostUploadActions.Count; i++)
-            {
-                data.PostUploads.Add(m_currentUploadProfile.PostUploadActions[i].Serialize());
-            }
+            UploadProfileSavedData data = UploadProfileSavedData.FromUploadProfile(m_currentUploadProfile);
             
-            string filePath = Path.Combine(UploadProfilePath, $"{m_currentUploadProfile.GUID}.json");
+            string filePath = m_currentUploadProfileData.FilePath;
             string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
             {
@@ -908,11 +914,12 @@ namespace Wireframe
                 {
                     for (int j = 0; j < files.Length; j++)
                     {
-                        var file = files[j];
+                        string file = files[j];
                         string json = File.ReadAllText(file);
                         UploadProfileSavedData savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
                         if (savedData == null)
                         {
+                            Debug.LogWarning($"Failed to deserialize UploadProfileSavedData from file: {file}. Skipping this file.");
                             continue;
                         }
 
@@ -952,7 +959,7 @@ namespace Wireframe
             UploadProfileMeta defaultMetaData = new UploadProfileMeta();
             defaultMetaData.GUID = defaultProfile.GUID;
             defaultMetaData.ProfileName = defaultProfile.ProfileName;
-            defaultMetaData.FilePath = Path.Combine(UploadProfilePath, $"{defaultMetaData.GUID}.json"); // Not saved yet
+            defaultMetaData.FilePath = Path.Combine(UploadProfilePath, $"{defaultMetaData.GUID}.json");
             m_unloadedUploadProfiles.Add(defaultMetaData);
             m_currentUploadProfileData = defaultMetaData;
         }
@@ -974,7 +981,7 @@ namespace Wireframe
             {
                 try
                 {
-                    UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
+                    UploadConfig uploadConfig = new UploadConfig();
                     var jObject = savedData.Data[i];
                     uploadConfig.Deserialize(jObject);
                     loadedProfile.UploadConfigs.Add(uploadConfig);
@@ -983,7 +990,7 @@ namespace Wireframe
                 {
                     Debug.LogError("Failed to load build config: #" + (i + 1));
                     Debug.LogException(e);
-                    UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
+                    UploadConfig uploadConfig = new UploadConfig();
                     loadedProfile.UploadConfigs.Add(uploadConfig);
                 }
             }
@@ -1027,7 +1034,7 @@ namespace Wireframe
                 {
                     try
                     {
-                        UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
+                        UploadConfig uploadConfig = new UploadConfig();
                         var jObject = config.Data[i];
                         uploadConfig.Deserialize(jObject);
                         defaultProfile.UploadConfigs.Add(uploadConfig);
@@ -1036,7 +1043,7 @@ namespace Wireframe
                     {
                         Debug.LogError("Failed to load build config: #" + (i+1));
                         Debug.LogException(e);
-                        UploadConfig uploadConfig = new UploadConfig(UploaderWindow);
+                        UploadConfig uploadConfig = new UploadConfig();
                         defaultProfile.UploadConfigs.Add(uploadConfig);
                     }
                 }

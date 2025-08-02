@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Wireframe
 {
@@ -15,6 +16,11 @@ namespace Wireframe
         private List<ModifierData> m_modifiers;
         private List<DestinationData> m_buildDestinations;
         private StringFormatter.Context m_context;
+
+        public UploadConfig() : this(Guid.NewGuid().ToString().Substring(0, 5))
+        {
+            
+        }
 
         public UploadConfig(string guid)
         {

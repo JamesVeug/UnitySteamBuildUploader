@@ -19,19 +19,18 @@ namespace Wireframe
         private int progressId;
         private string buildDescription;
 
-        public UploadTask(List<UploadConfig> buildConfigs, string buildDescription) : this(buildConfigs, buildDescription, null)
+        public UploadTask(UploadProfile uploadProfile, string buildDescription) : this()
         {
-
+            this.buildDescription = buildDescription;
+            this.buildConfigs = uploadProfile.UploadConfigs ?? new List<UploadConfig>();
+            this.postUploadActions = uploadProfile.PostUploadActions ?? new List<UploadConfig.PostUploadActionData>();
         }
 
-        public UploadTask(List<UploadConfig> buildConfigs, string buildDescription, List<UploadConfig.PostUploadActionData> postUploadActions)
+        public UploadTask(List<UploadConfig> buildConfigs, string buildDescription, List<UploadConfig.PostUploadActionData> postUploadActions = null) : this()
         {
             this.buildDescription = buildDescription;
             this.buildConfigs = buildConfigs;
             this.postUploadActions = postUploadActions ?? new List<UploadConfig.PostUploadActionData>();
-            
-            context = new StringFormatter.Context();
-            context.TaskDescription = ()=>buildDescription;
         }
         
         public UploadTask()
@@ -39,6 +38,9 @@ namespace Wireframe
             buildDescription = "";
             buildConfigs = new List<UploadConfig>();
             postUploadActions = new List<UploadConfig.PostUploadActionData>();
+            
+            context = new StringFormatter.Context();
+            context.TaskDescription = ()=>buildDescription;
         }
 
         ~UploadTask()

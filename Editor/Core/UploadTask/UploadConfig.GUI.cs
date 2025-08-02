@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -15,12 +14,6 @@ namespace Wireframe
         internal bool Collapsed { get; set; } = true;
         
         private GUIStyle m_titleStyle;
-        private BuildUploaderWindow m_window;
-
-        internal UploadConfig(BuildUploaderWindow window) : this(Guid.NewGuid().ToString().Substring(0,5))
-        {
-            m_window = window;
-        }
 
         public void SetupDefaults()
         {
@@ -58,7 +51,7 @@ namespace Wireframe
             }
         }
 
-        internal void OnGUI(ref bool isDirty, StringFormatter.Context ctx)
+        internal void OnGUI(float windowWidth, ref bool isDirty, StringFormatter.Context ctx)
         {
             SetupGUI();
 
@@ -66,19 +59,19 @@ namespace Wireframe
             {
                 if (Collapsed)
                 {
-                    OnGUICollapsed(ref isDirty, ctx);
+                    OnGUICollapsed(windowWidth, ref isDirty, ctx);
                 }
                 else
                 {
-                    OnGUIExpanded(ref isDirty, ctx);
+                    OnGUIExpanded(windowWidth, ref isDirty, ctx);
                 }
             }
         }
 
-        private void OnGUICollapsed(ref bool isDirty, StringFormatter.Context ctx)
+        private void OnGUICollapsed(float windowWidth, ref bool isDirty, StringFormatter.Context ctx)
         {
             float splitWidth = 100;
-            float maxWidth = m_window.position.width - splitWidth - 120;
+            float maxWidth = windowWidth - splitWidth - 120;
             float parts = maxWidth / 2 - splitWidth;
 
             using (new EditorGUILayout.HorizontalScope())
@@ -258,9 +251,8 @@ namespace Wireframe
             }
         }
 
-        private void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        private void OnGUIExpanded(float windowWidth, ref bool isDirty, StringFormatter.Context ctx)
         {
-            float windowWidth = m_window.position.width;
             using (new GUILayout.HorizontalScope())
             {
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth/2)))

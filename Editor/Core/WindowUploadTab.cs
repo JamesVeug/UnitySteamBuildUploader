@@ -938,7 +938,23 @@ namespace Wireframe
                     if (m_unloadedUploadProfiles.Count > 0)
                     {
                         m_unloadedUploadProfiles.Sort((a,b)=>String.Compare(a.ProfileName, b.ProfileName, StringComparison.Ordinal));
-                        LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
+                        
+                        string previouslySelectedGUID = ProjectEditorPrefs.GetString("BuildUploader.LastSelectedUploadProfileGUID", string.Empty);
+                        if (string.IsNullOrEmpty(previouslySelectedGUID))
+                        {
+                            LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
+                        }
+                        else if (m_unloadedUploadProfiles.Any(x => x.GUID == previouslySelectedGUID))
+                        {
+                            // Load the previously selected profile
+                            UploadProfileMeta metaData = m_unloadedUploadProfiles.First(x => x.GUID == previouslySelectedGUID);
+                            LoadMetaDataFromPath(metaData);
+                        }
+                        else
+                        {
+                            // Load the first profile
+                            LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
+                        }
                         return;
                     }
                 }
@@ -973,46 +989,11 @@ namespace Wireframe
                 savedData.GUID = metaData.GUID;
             }
             
-            
-            UploadProfile loadedProfile = new UploadProfile();
-            loadedProfile.ProfileName = savedData.ProfileName;
-            loadedProfile.GUID = savedData.GUID;
-            for (int i = 0; i < savedData.Data.Count; i++)
-            {
-                try
-                {
-                    UploadConfig uploadConfig = new UploadConfig();
-                    var jObject = savedData.Data[i];
-                    uploadConfig.Deserialize(jObject);
-                    loadedProfile.UploadConfigs.Add(uploadConfig);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Failed to load build config: #" + (i + 1));
-                    Debug.LogException(e);
-                    UploadConfig uploadConfig = new UploadConfig();
-                    loadedProfile.UploadConfigs.Add(uploadConfig);
-                }
-            }
-
-            for (int i = 0; i < savedData.PostUploads.Count; i++)
-            {
-                try
-                {
-                    UploadConfig.PostUploadActionData actionData =
-                        new UploadConfig.PostUploadActionData();
-                    actionData.Deserialize(savedData.PostUploads[i]);
-                    loadedProfile.PostUploadActions.Add(actionData);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Failed to load post upload action: #" + (i + 1));
-                    Debug.LogException(e);
-                }
-            }
-
+            UploadProfile loadedProfile = savedData.ToUploadProfile();
             m_currentUploadProfile = loadedProfile;
             m_currentUploadProfileData = metaData;
+            
+            ProjectEditorPrefs.SetString("BuildUploader.LastSelectedUploadProfileGUID", metaData.GUID);
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete

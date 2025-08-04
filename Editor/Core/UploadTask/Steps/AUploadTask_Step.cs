@@ -13,7 +13,7 @@ namespace Wireframe
             ModifyCacheSources,
             PrepareDestinations,
             Upload,
-            PostUpload,
+            PostUploadActions,
             Cleanup
         }
 
@@ -25,6 +25,7 @@ namespace Wireframe
         }
         
         public abstract StepType Type { get; }
+        public virtual bool RequiresEverythingBeforeToSucceed => true;
         public abstract Task<bool> Run(UploadTask uploadTask, UploadTaskReport report);
         public abstract Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report);
         
@@ -37,7 +38,7 @@ namespace Wireframe
         
         protected void ReportCachedFiles(UploadTask uploadTask, UploadTaskReport report)
         {
-            List<UploadConfig> buildConfigs = uploadTask.BuildConfigs;
+            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
             UploadTaskReport.StepResult[] results = report.NewReports(Type, buildConfigs.Count);
             for (var i = 0; i < buildConfigs.Count; i++)
             {

@@ -20,7 +20,7 @@ namespace Wireframe
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
         {
             int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
-            List<UploadConfig> buildConfigs = uploadTask.BuildConfigs;
+            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
             
             List<Task<bool>> tasks = new List<Task<bool>>();
             for (int j = 0; j < buildConfigs.Count; j++)
@@ -75,7 +75,7 @@ namespace Wireframe
                 Directory.CreateDirectory(directoryPath);
             }
 
-            UploadConfig uploadConfig = task.BuildConfigs[configIndex];
+            UploadConfig uploadConfig = task.UploadConfigs[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Sources.Count);
 
             AUploadModifer[] modifiers = uploadConfig.Modifiers

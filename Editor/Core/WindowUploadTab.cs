@@ -420,6 +420,7 @@ namespace Wireframe
                                         "Yes", "Cancel"))
                                 {
                                     DownloadAndUpload();
+                                    UploaderWindow.SetTab<WindowUploadTasksTab>();
                                 }
                             }
                         }
@@ -475,6 +476,7 @@ namespace Wireframe
                             "Yes", "Cancel"))
                     {
                         BuildAndUpload(StringFormatter.FormatString(m_buildPath, m_context));
+                        UploaderWindow.SetTab<WindowUploadTasksTab>();
                     }
                 }
             }

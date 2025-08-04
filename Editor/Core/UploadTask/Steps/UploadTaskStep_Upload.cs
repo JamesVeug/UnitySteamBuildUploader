@@ -16,7 +16,7 @@ namespace Wireframe
         
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
         {
-            List<UploadConfig> buildConfigs = uploadTask.BuildConfigs;
+            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
 
             var uploads = new List<Tuple<List<UploadConfig.DestinationData>, Task<bool>>>();
             for (int i = 0; i < buildConfigs.Count; i++)
@@ -131,7 +131,7 @@ namespace Wireframe
         public override async Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
         {
             bool success = true;
-            foreach (UploadConfig config in uploadTask.BuildConfigs)
+            foreach (UploadConfig config in uploadTask.UploadConfigs)
             {
                 if (!config.Enabled)
                 {

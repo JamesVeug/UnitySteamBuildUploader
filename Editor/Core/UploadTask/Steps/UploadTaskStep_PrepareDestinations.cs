@@ -17,7 +17,7 @@ namespace Wireframe
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
         {
             int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
-            List<UploadConfig> buildConfigs = uploadTask.BuildConfigs;
+            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
             
             var tasks = new List<Tuple<List<UploadConfig.DestinationData>, Task<bool>>>();
             for (int j = 0; j < buildConfigs.Count; j++)
@@ -69,7 +69,7 @@ namespace Wireframe
         
         private async Task<bool> PrepareDestination(int configIndex, UploadTask uploadTask, UploadTaskReport report)
         {
-            UploadConfig uploadConfig = uploadTask.BuildConfigs[configIndex];
+            UploadConfig uploadConfig = uploadTask.UploadConfigs[configIndex];
             string desc = uploadTask.BuildDescription;
             string cachePath = uploadTask.CachedLocations[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);

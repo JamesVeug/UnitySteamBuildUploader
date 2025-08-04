@@ -18,7 +18,7 @@ namespace Wireframe
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
         {
             int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
-            List<UploadConfig> buildConfigs = uploadTask.BuildConfigs;
+            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
 
             var tasks = new List<Tuple<List<UploadConfig.SourceData>, Task<bool>>>();
             for (int j = 0; j < buildConfigs.Count; j++)
@@ -102,7 +102,7 @@ namespace Wireframe
 
         public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
         {
-            List<UploadConfig> buildConfigs = uploadTask.BuildConfigs;
+            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
             for (var i = 0; i < buildConfigs.Count; i++)
             {
                 var config = buildConfigs[i];

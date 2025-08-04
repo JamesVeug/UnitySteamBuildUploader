@@ -77,6 +77,7 @@ namespace Wireframe
                 }
                 
                 m_tabs.Add(new WindowUploadTab());
+                m_tabs.Add(new WindowUploadTasksTab());
 
                 foreach (WindowTab tab in m_tabs)
                 {
@@ -159,6 +160,19 @@ namespace Wireframe
         {
             m_nextSaveDelta = 0;
             m_saveQueued = true;
+        }
+
+        public void SetTab<T>() where T : WindowTab
+        {
+            foreach (WindowTab tab in m_tabs)
+            {
+                if (tab is T)
+                {
+                    currentTab = tab;
+                    return;
+                }
+            }
+            Debug.LogWarning($"Tab of type {typeof(T).Name} not found.");
         }
     }
 }

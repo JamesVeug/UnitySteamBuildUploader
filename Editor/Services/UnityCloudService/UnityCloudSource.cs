@@ -73,7 +73,9 @@ namespace Wireframe
                 // Wait for it to be downloaded?
                 while (!webRequest.isDone)
                 {
-                    await Task.Delay(10);
+                    stepResult.SetPercentComplete(webRequest.progress);
+                    stepResult.AddLog("Downloading UnityCloud Build: " + webRequest.progress * 100 + "%");
+                    await Task.Yield();
                 }
 
                 // Save

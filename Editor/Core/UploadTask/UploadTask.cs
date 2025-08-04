@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -125,10 +126,19 @@ namespace Wireframe
                     continue;
                 }
                 
-                SetProgress(i, 0f, "Upload Builds");
+                // Perform the Step (GetSources, CacheSources, etc.)
                 report.SetProcess(AUploadTask_Step.StepProcess.Intra);
-                bool stepSuccessful = await step.Run(this, report);
+                Task<bool> intraTask = step.Run(this, report);
+                while (!intraTask.IsCompleted)
+                {
+                    float progress = report.GetProgress(step.Type, AUploadTask_Step.StepProcess.Intra);
+                    SetProgress(i, progress, CurrentStep.ToString());
+                    await Task.Yield();
+                }
+                bool stepSuccessful = intraTask.Result;
+                SetProgress(i, 1f, CurrentStep.ToString());
                 
+                // Post-step logic mainly for logging
                 report.SetProcess(AUploadTask_Step.StepProcess.Post);
                 bool postStepSuccessful = await step.PostRunResult(this, report);
                 if (!stepSuccessful || !postStepSuccessful)
@@ -149,7 +159,10 @@ namespace Wireframe
         private void SetProgress(int step, float percent, string message)
         {
             float mainPercent = (float)step / totalSteps;
-            PercentComplete = mainPercent;
+            float subPercent = (1f / totalSteps) * Mathf.Clamp01(percent);
+            
+            PercentComplete = mainPercent + subPercent;
+            // Debug.LogFormat("UploadTask Progress: {0:F2} {1:F2} = {2:F2}", step, percent, PercentComplete);
             ProgressUtils.Report(progressId, percent, message);
         }
 

@@ -29,7 +29,7 @@ namespace Wireframe
         public abstract Task<bool> Run(UploadTask uploadTask, UploadTaskReport report);
         public abstract Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report);
         
-        protected StringFormatter.Context m_context;
+        protected readonly StringFormatter.Context m_context;
 
         public AUploadTask_Step(StringFormatter.Context ctx)
         {

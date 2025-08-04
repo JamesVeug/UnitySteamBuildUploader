@@ -17,7 +17,6 @@ namespace Wireframe
 
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
         {
-            int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
             List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
 
             var tasks = new List<Tuple<List<UploadConfig.SourceData>, Task<bool>>>();
@@ -37,20 +36,16 @@ namespace Wireframe
             while (true)
             {
                 bool done = true;
-                int totalSources = 0;
-                float completionAmount = 0.0f;
                 for (int j = 0; j < tasks.Count; j++)
                 {
                     Tuple<List<UploadConfig.SourceData>, Task<bool>> tuple = tasks[j];
                     if (!tuple.Item2.IsCompleted)
                     {
                         done = false;
-                        totalSources += tuple.Item1.Count;
                     }
                     else
                     {
                         allSuccessful &= tuple.Item2.Result;
-                        completionAmount += tuple.Item1.Count;
                     }
                 }
 
@@ -59,12 +54,9 @@ namespace Wireframe
                     break;
                 }
 
-                float progress = completionAmount / totalSources;
-                ProgressUtils.Report(progressId, progress, "Waiting for sources...");
                 await Task.Yield();
             }
 
-            ProgressUtils.Remove(progressId);
             return allSuccessful;
         }
 
@@ -73,8 +65,8 @@ namespace Wireframe
             UploadTaskReport.StepResult[] results = report.NewReports(Type, uploadConfig.Sources.Count);
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {
-                var sourceData = uploadConfig.Sources[i];
-                var result = results[i];
+                UploadConfig.SourceData sourceData = uploadConfig.Sources[i];
+                UploadTaskReport.StepResult result = results[i];
                 if (!sourceData.Enabled)
                 {
                     result.AddLog("Source skipped - not enabled");
@@ -94,6 +86,10 @@ namespace Wireframe
                     result.AddException(e);
                     result.SetFailed("Source failed - " + e.Message);
                     return false;
+                }
+                finally
+                {
+                    result.SetPercentComplete(1f);
                 }
             }
 

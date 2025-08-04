@@ -30,6 +30,7 @@ namespace Wireframe
             }
             
             public bool Successful { get; private set; } = true;
+            public float PercentComplete { get; private set; } = 0f;
             public string FailReason { get; private set; } = "";
             public List<Log> Logs { get; private set; } = new List<Log>();
 
@@ -104,6 +105,14 @@ namespace Wireframe
                     FailReason = reason;
                     Logs.Add(new Log(Log.LogType.Error, "[FAILED] " + reason));
                     m_report.Successful = false;
+                }
+            }
+            
+            public void SetPercentComplete(float percent)
+            {
+                lock (m_lock)
+                {
+                    PercentComplete = Mathf.Clamp01(percent);
                 }
             }
         }
@@ -241,6 +250,28 @@ namespace Wireframe
                     }
                 }
             }
+        }
+
+        public float GetProgress(AUploadTask_Step.StepType stepType, AUploadTask_Step.StepProcess process)
+        {
+            if (!StepResults.TryGetValue(stepType, out var stepResults))
+            {
+                return 0f; // No progress if no results
+            }
+
+            float totalProgress = 0f;
+            int count = 0;
+
+            if (stepResults.TryGetValue(process, out var results))
+            {
+                foreach (var result in results)
+                {
+                    totalProgress += result.PercentComplete;
+                    count++;
+                }
+            }
+
+            return count > 0 ? totalProgress / count : 0f; // Return average progress
         }
     }
 }

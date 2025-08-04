@@ -91,7 +91,9 @@ namespace Wireframe
                 // Wait for it to be downloaded?
                 while (!webRequest.isDone)
                 {
-                    await Task.Delay(10);
+                    stepResult.SetPercentComplete(webRequest.progress);
+                    stepResult.AddLog("Downloading: " + webRequest.progress * 100 + "%");
+                    await Task.Yield();
                 }
                 
                 if (request.isHttpError || request.isNetworkError)

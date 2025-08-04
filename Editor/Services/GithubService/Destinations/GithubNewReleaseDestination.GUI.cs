@@ -56,7 +56,7 @@ namespace Wireframe
 
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("Branch or Commit:", GUILayout.Width(120));
+                GUILayout.Label("Target Commitish:", GUILayout.Width(120));
                 isDirty |= EditorUtils.FormatStringTextField(ref m_target, ref m_showFormattedTarget, ctx);
             }
 

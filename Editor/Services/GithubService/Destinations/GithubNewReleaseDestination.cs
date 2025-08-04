@@ -21,7 +21,7 @@ namespace Wireframe
         private string m_tagName;
         
         [Wiki("Target", "Branch name or commit hash to attach to the release. eg: main")]
-        private string m_target;
+        private string m_target = "main";
         
         [Wiki("Draft", "If true, the release will not be published but be editable on github.")]
         private bool m_draft = true;

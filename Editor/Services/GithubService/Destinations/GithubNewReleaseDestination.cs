@@ -144,6 +144,8 @@ namespace Wireframe
             dict["tagName"] = m_tagName;
             dict["target"] = m_target;
             dict["zipContents"] = m_zipContents;
+            dict["draft"] = m_draft;
+            dict["prerelease"] = m_prerelease;
             return dict;
         }
 
@@ -155,6 +157,8 @@ namespace Wireframe
             m_tagName = s["tagName"] as string;
             m_target = s["target"] as string;
             m_zipContents = (bool) s["zipContents"];
+            m_draft = s.TryGetValue("draft", out object draftValue) && (bool) draftValue;
+            m_prerelease = s.TryGetValue("prerelease", out object prereleaseValue) && (bool) prereleaseValue;
         }
     }
 }

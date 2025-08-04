@@ -9,6 +9,8 @@ namespace Wireframe
     {
         internal static List<UploadTask> AllTasks = new List<UploadTask>();
         
+        public event Action<UploadTaskReport> OnComplete = delegate { };
+        
         public string GUID => guid;
         public List<UploadConfig> UploadConfigs => uploadConfigs;
         public List<UploadConfig.PostUploadActionData> PostUploadActions => postUploadActions;
@@ -68,10 +70,26 @@ namespace Wireframe
             }
         }
 
-        public async Task Start(UploadTaskReport report, Action<bool> onComplete = null)
+        /// <summary>
+        /// Start the upload task synchronously.
+        /// Listen to OnComplete to get the report when the upload is done.
+        /// </summary>
+        /// <param name="invokeDebugLogs">When a log,warning,error occurs during the upload should this log to Unity Console? logs can be found in the report at the end.</param>
+        public void Start(bool invokeDebugLogs = true)
+        {
+            _ = StartAsync(invokeDebugLogs);
+        }
+        
+        /// <summary>
+        /// Start the upload task synchronously.
+        /// Listen to OnComplete to get the report when the upload is done. 
+        /// </summary>
+        /// <param name="invokeDebugLogs">When a log,warning,error occurs during the upload should this log to Unity Console? logs can be found in the report at the end.</param>
+        /// <returns>Report regarding if the upload was successful or not aswell as all the logs</returns>
+        public async Task StartAsync(bool invokeDebugLogs=true)
         {
             progressId = ProgressUtils.Start("Build Uploader Window", "Setting up...");
-            this.report = report;
+            report = new UploadTaskReport(guid, invokeDebugLogs);
             cachedLocations = new string[uploadConfigs.Count];
             IsComplete = false;
             PercentComplete = 0f;
@@ -100,7 +118,6 @@ namespace Wireframe
             bool allStepsSuccessful = true;
             for (int i = 0; i < steps.Length; i++)
             {
-                await Task.Delay(100);
                 AUploadTask_Step step = steps[i];
                 CurrentStep = step.Type;
                 if (!allStepsSuccessful && step.RequiresEverythingBeforeToSucceed)
@@ -126,7 +143,7 @@ namespace Wireframe
             
             ProgressUtils.Remove(progressId);
             report.Complete();
-            onComplete?.Invoke(report.Successful);
+            OnComplete?.Invoke(report);
         }
         
         private void SetProgress(int step, float percent, string message)

@@ -736,7 +736,7 @@ namespace Wireframe
             UploadTaskReport report = new UploadTaskReport(guids);
             
             // Start task
-            Task asyncBuildTask = uploadTask.Start(report);
+            Task asyncBuildTask = uploadTask.StartAsync(false);
             Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
             
             // Wait for task to complete
@@ -746,6 +746,8 @@ namespace Wireframe
                 await Task.Yield();
                 UploaderWindow.Repaint();
             }
+            
+            // TODO: Move this logic out of this window so CIs can show them too
 
             // Write report to a txt file
             string taskReport = report.GetReport();

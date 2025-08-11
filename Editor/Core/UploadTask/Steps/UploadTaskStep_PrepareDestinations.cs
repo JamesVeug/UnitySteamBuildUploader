@@ -99,6 +99,10 @@ namespace Wireframe
                     result.SetFailed("Failed to prepare destination: " + e.Message);
                     return false;
                 }
+                finally
+                {
+                    result.SetPercentComplete(1f);
+                }
             }
 
             return true;

@@ -92,7 +92,6 @@ namespace Wireframe
                 while (!webRequest.isDone)
                 {
                     stepResult.SetPercentComplete(webRequest.progress);
-                    stepResult.AddLog("Downloading: " + webRequest.progress * 100 + "%");
                     await Task.Yield();
                 }
                 

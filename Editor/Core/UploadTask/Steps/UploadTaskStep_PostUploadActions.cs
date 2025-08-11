@@ -60,9 +60,14 @@ namespace Wireframe
                 {
                     actionResult.AddException(e);
                 }
+                finally
+                {
+                    actionResult.SetPercentComplete(1f);
+                }
             }
             
             ProgressUtils.Remove(postActionID);
+            actionResult.SetPercentComplete(1f);
             return true;
         }
 

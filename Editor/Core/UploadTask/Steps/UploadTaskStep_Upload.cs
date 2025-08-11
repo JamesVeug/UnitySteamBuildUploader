@@ -126,6 +126,10 @@ namespace Wireframe
                 result.SetFailed("Upload failed: " + e.Message);
                 return false;
             }
+            finally
+            {
+                result.SetPercentComplete(1f);
+            }
         }
 
         public override async Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)

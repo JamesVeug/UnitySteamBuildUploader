@@ -90,6 +90,10 @@ namespace Wireframe
                     stepResult.SetFailed("Modifier failed: " + modifer.Modifier.GetType().Name);
                     return false;
                 }
+                finally
+                {
+                    stepResult.SetPercentComplete(1f);
+                }
             }
 
             return true;

@@ -57,6 +57,7 @@ namespace Wireframe
                     if (!buildConfig.Enabled)
                     {
                         cleanupResult.AddLog("Skipping config cleanup because it's disabled");
+                        cleanupResult.SetPercentComplete(1f);
                         continue;
                     }
                     
@@ -64,6 +65,7 @@ namespace Wireframe
                     ProgressUtils.Report(cleanupProgressId, 0.5f, $"Cleaning up configs " + (i+1) + "/" + uploadTask.UploadConfigs.Count);
                     
                     buildConfig.CleanUp(cleanupResult);
+                    cleanupResult.SetPercentComplete(1f);
                 }
                 
                 ProgressUtils.Remove(cleanupProgressId);
@@ -73,6 +75,7 @@ namespace Wireframe
                 beginCleanupResult.AddLog("Skipping deleting cache. Re-enable in preferences.");
             }
             
+            beginCleanupResult.SetPercentComplete(1f);
             return true;
         }
 

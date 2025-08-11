@@ -133,6 +133,10 @@ namespace Wireframe
                     result.SetFailed("Failed to cache source: " + sourceData.Source.SourceFilePath() + ".\n\n" + e.Message);
                     return false;
                 }
+                finally
+                {
+                    result.SetPercentComplete(1);
+                }
             }
 
             return true;

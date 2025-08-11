@@ -23,6 +23,8 @@ namespace Wireframe
         public bool IsSuccessful { get; private set; }
         public float PercentComplete { get; private set; }
         public AUploadTask_Step.StepType CurrentStep { get; private set; }
+        public AUploadTask_Step[] CurrentSteps => m_CurrentSteps;
+        
         public StringFormatter.Context Context => context;
 
         private UploadTaskReport report;
@@ -35,6 +37,7 @@ namespace Wireframe
         
         private string buildDescription;
         private string guid;
+        private AUploadTask_Step[] m_CurrentSteps;
 
         public UploadTask(UploadProfile uploadProfile, string buildDescription) : this()
         {
@@ -110,6 +113,7 @@ namespace Wireframe
                 new UploadTaskStep_PostUploadActions(context), // Do any post upload actions that are not related to the build
                 new UploadTaskStep_Cleanup(context), // Cleanup the task, delete cached files, etc.
             };
+            m_CurrentSteps = steps;
             totalSteps = steps.Length;
             
             // Setup Context to display task specific strings
@@ -162,7 +166,6 @@ namespace Wireframe
             float subPercent = (1f / totalSteps) * Mathf.Clamp01(percent);
             
             PercentComplete = mainPercent + subPercent;
-            // Debug.LogFormat("UploadTask Progress: {0:F2} {1:F2} = {2:F2}", step, percent, PercentComplete);
             ProgressUtils.Report(progressId, percent, message);
         }
 

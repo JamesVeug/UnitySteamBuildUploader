@@ -84,7 +84,7 @@ namespace Wireframe
             style.alignment = TextAnchor.MiddleLeft;
             
             string displayedPath = Utils.TruncateText(GetFullPath(ctx), maxWidth, ButtonText);
-            if (GUILayout.Button(displayedPath, style))
+            if (GUILayout.Button(displayedPath, style, GUILayout.Width(maxWidth)))
             {
                 string newPath = SelectFile();
                 if (m_pathType != PathType.Absolute)

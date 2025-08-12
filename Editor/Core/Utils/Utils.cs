@@ -222,6 +222,15 @@ namespace Wireframe
 #endif
         }
         
+        public static bool Contains(string text, string otherString, StringComparison compare)
+        {
+#if UNITY_2021_1_OR_NEWER
+            return text.Contains(otherString, compare);
+#else
+            return text.IndexOf(otherString, compare) >= 0;
+#endif
+        }
+        
         public static List<string> GetSortedFilesAndDirectories(string directory)
         {
             if (File.Exists(directory)) 

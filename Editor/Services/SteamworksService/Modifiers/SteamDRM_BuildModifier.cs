@@ -67,7 +67,7 @@ namespace Wireframe
             string exePath = "";
             if (files.Length > 1)
             {
-                exePath = files.First(a => !a.Contains("UnityCrashHandler", StringComparison.OrdinalIgnoreCase));
+                exePath = files.First(a => !Utils.Contains(a, "UnityCrashHandler", StringComparison.OrdinalIgnoreCase));
                 stepResult.AddWarning("[Steam] Multiple exes found in " + cachedDirectory + ". Using " + exePath);
             }
             else

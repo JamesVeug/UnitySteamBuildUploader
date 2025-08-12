@@ -190,7 +190,7 @@ namespace Wireframe
         public string GetReport()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Build Task Report");
+            sb.AppendLine("Upload Task Report");
             sb.AppendLine("Start Time: " + StartTime.ToLocalTime());
             sb.AppendLine("End Time: " + EndTime.ToLocalTime());
             sb.AppendLine("Duration: " + Duration);

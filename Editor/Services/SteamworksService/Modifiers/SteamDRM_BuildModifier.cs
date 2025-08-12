@@ -56,7 +56,25 @@ namespace Wireframe
             int buildIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             // Find .exe
-            string exePath = System.IO.Directory.GetFiles(cachedDirectory, "*.exe", System.IO.SearchOption.TopDirectoryOnly)[0];
+            string[] files = System.IO.Directory.GetFiles(cachedDirectory, "*.exe", System.IO.SearchOption.TopDirectoryOnly);
+            if (files.Length == 0)
+            {
+                stepResult.AddError("[Steam] No exe found to DRMWrap in " + cachedDirectory);
+                stepResult.SetFailed("No exe found to DRMWrap");
+                return false;
+            }
+            
+            string exePath = "";
+            if (files.Length > 1)
+            {
+                exePath = files.First(a => !a.Contains("UnityCrashHandler", StringComparison.OrdinalIgnoreCase));
+                stepResult.AddWarning("[Steam] Multiple exes found in " + cachedDirectory + ". Using " + exePath);
+            }
+            else
+            {
+                exePath = files[0];
+            }
+            
             if (string.IsNullOrEmpty(exePath) || !System.IO.File.Exists(exePath))
             {
                 stepResult.AddError("[Steam] No exe found to DRMWrap in " + cachedDirectory);

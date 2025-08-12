@@ -162,17 +162,19 @@ namespace Wireframe
             m_saveQueued = true;
         }
 
-        public void SetTab<T>() where T : WindowTab
+        public T SetTab<T>() where T : WindowTab
         {
             foreach (WindowTab tab in m_tabs)
             {
-                if (tab is T)
+                if (tab is T t)
                 {
                     currentTab = tab;
-                    return;
+                    return t;
                 }
             }
+            
             Debug.LogWarning($"Tab of type {typeof(T).Name} not found.");
+            return null;
         }
     }
 }

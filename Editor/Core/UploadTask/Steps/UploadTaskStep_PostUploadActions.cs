@@ -45,7 +45,7 @@ namespace Wireframe
                     
                 actionResult.AddLog($"Executing post upload action: {i+1}");
 
-                bool prepared = await actionData.UploadAction.Prepare(report.Successful, uploadTask.BuildDescription, actionResult);
+                bool prepared = await actionData.UploadAction.Prepare(report.Successful, uploadTask.UploadDescription, actionResult);
                 if (!prepared)
                 {
                     actionResult.AddError($"Failed to prepare post upload action: {actionData.UploadAction.GetType().Name}");

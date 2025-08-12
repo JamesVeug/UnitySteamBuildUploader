@@ -15,7 +15,8 @@ namespace Wireframe
         public string GUID => guid;
         public List<UploadConfig> UploadConfigs => uploadConfigs;
         public List<UploadConfig.PostUploadActionData> PostUploadActions => postUploadActions;
-        public string BuildDescription => buildDescription;
+        public string UploadDescription => uploadDescription;
+        public string UploadName => uploadName;
         public string[] CachedLocations => cachedLocations;
         public UploadTaskReport Report => report;
         
@@ -35,33 +36,42 @@ namespace Wireframe
         private int progressId;
         private int totalSteps;
         
-        private string buildDescription;
+        private string uploadName;
+        private string uploadDescription;
         private string guid;
         private AUploadTask_Step[] m_CurrentSteps;
 
-        public UploadTask(UploadProfile uploadProfile, string buildDescription) : this()
+        public UploadTask(UploadProfile uploadProfile, string uploadDescription) : this()
         {
-            this.buildDescription = buildDescription;
+            this.uploadName = uploadProfile.ProfileName;
+            this.uploadDescription = uploadDescription;
             this.uploadConfigs = uploadProfile.UploadConfigs ?? new List<UploadConfig>();
             this.postUploadActions = uploadProfile.PostUploadActions ?? new List<UploadConfig.PostUploadActionData>();
         }
-
-        public UploadTask(List<UploadConfig> uploadConfigs, string buildDescription, List<UploadConfig.PostUploadActionData> postUploadActions = null) : this()
+        
+        public UploadTask(string name, List<UploadConfig> uploadConfigs, string uploadDescription, List<UploadConfig.PostUploadActionData> postUploadActions = null) : this()
         {
-            this.buildDescription = buildDescription;
+            this.uploadName = name;
+            this.uploadDescription = uploadDescription;
             this.uploadConfigs = uploadConfigs;
             this.postUploadActions = postUploadActions ?? new List<UploadConfig.PostUploadActionData>();
+        }
+
+        public UploadTask(List<UploadConfig> uploadConfigs, string uploadDescription, List<UploadConfig.PostUploadActionData> postUploadActions = null)
+            : this("No Name Specified", uploadConfigs, uploadDescription, postUploadActions)
+        {
+            
         }
         
         public UploadTask()
         {
             guid = Guid.NewGuid().ToString().Substring(0, 6);
-            buildDescription = "";
+            uploadDescription = "";
             uploadConfigs = new List<UploadConfig>();
             postUploadActions = new List<UploadConfig.PostUploadActionData>();
             
             context = new StringFormatter.Context();
-            context.TaskDescription = ()=>buildDescription;
+            context.TaskDescription = ()=>uploadDescription;
             
             AllTasks.Add(this);
         }
@@ -123,6 +133,7 @@ namespace Wireframe
             bool allStepsSuccessful = true;
             for (int i = 0; i < steps.Length; i++)
             {
+                await Task.Delay(1000);
                 AUploadTask_Step step = steps[i];
                 CurrentStep = step.Type;
                 if (!allStepsSuccessful && step.RequiresEverythingBeforeToSucceed)
@@ -222,7 +233,7 @@ namespace Wireframe
         
         public void SetBuildDescription(string description)
         {
-            buildDescription = description;
+            uploadDescription = description;
         }
     }
 }

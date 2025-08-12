@@ -70,7 +70,7 @@ namespace Wireframe
         private async Task<bool> PrepareDestination(int configIndex, UploadTask uploadTask, UploadTaskReport report)
         {
             UploadConfig uploadConfig = uploadTask.UploadConfigs[configIndex];
-            string desc = uploadTask.BuildDescription;
+            string desc = uploadTask.UploadDescription;
             string cachePath = uploadTask.CachedLocations[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);
             for (var i = 0; i < uploadConfig.Destinations.Count; i++)

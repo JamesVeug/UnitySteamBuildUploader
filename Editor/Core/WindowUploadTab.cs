@@ -420,7 +420,6 @@ namespace Wireframe
                                         "Yes", "Cancel"))
                                 {
                                     DownloadAndUpload();
-                                    UploaderWindow.SetTab<WindowUploadTasksTab>();
                                 }
                             }
                         }
@@ -738,6 +737,11 @@ namespace Wireframe
             // Start task
             Task asyncBuildTask = uploadTask.StartAsync(false);
             Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
+            WindowUploadTasksTab taskTab = UploaderWindow.SetTab<WindowUploadTasksTab>();
+            if (taskTab != null)
+            {
+                taskTab.ShowTask(uploadTask);
+            }
             
             // Wait for task to complete
             while (!asyncBuildTask.IsCompleted)

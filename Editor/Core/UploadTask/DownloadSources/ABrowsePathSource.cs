@@ -83,6 +83,7 @@ namespace Wireframe
             }
             
             m_finalSourcePath = sourcePath;
+            stepResult.AddLog($"Using source path: {m_finalSourcePath}");
             return Task.FromResult(true);
         }
 

@@ -184,6 +184,7 @@ namespace Wireframe
             // If it's a file, copy it to the directory
             if (sourceIsADirectory)
             {
+                result.AddLog($"Copying source directory {sourcePath} to {cacheFolderPath}");
                 bool copiedSuccessfully = await Utils.CopyDirectoryAsync(sourcePath, cacheFolderPath, sourceData.DuplicateFileHandling, result, IgnorePath);
                 return copiedSuccessfully;
             }
@@ -207,6 +208,7 @@ namespace Wireframe
                 // Getting a file - put it in its own folder
                 // BuildUploader/CachedBuilds/GUID/FileName.extension
                 string copiedFilePath = Path.Combine(cacheFolderPath, Path.GetFileName(sourcePath));
+                result.AddLog($"Copying source file {sourcePath} to {copiedFilePath}");
                 bool copiedFileSuccessfully = await Utils.CopyFileAsync(sourcePath, copiedFilePath, sourceData.DuplicateFileHandling, result);
                 return copiedFileSuccessfully;
             }

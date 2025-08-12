@@ -30,6 +30,13 @@ namespace Wireframe
                 tasks.Add(task);
             }
 
+            if (tasks.Count == 0)
+            {
+                UploadTaskReport.StepResult result = report.NewReport(Type);
+                result.AddLog("No modifiers");
+                result.SetPercentComplete(1f);
+            }
+
             bool allSuccessful = true;
             while (true)
             {

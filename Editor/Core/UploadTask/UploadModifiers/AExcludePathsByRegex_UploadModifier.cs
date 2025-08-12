@@ -178,6 +178,7 @@ namespace Wireframe
             int active = m_fileRegexes.Count(a => a.Enabled);
 
             bool successful = true;
+            int totalExcluded = 0;
             for (var i = 0; i < m_fileRegexes.Count; i++)
             {
                 var regex = m_fileRegexes[i];
@@ -192,13 +193,12 @@ namespace Wireframe
                 float percentDone = (float)i / active;
                 ProgressUtils.Report(progressId, percentDone, $"Removing {regex.Regex} files");
             
-                int deleteCount = 0;
                 try
                 {
                     string[] files = GetFiles(cachedDirectory, regex);
                     foreach (string filePath in files)
                     {
-                        deleteCount++;
+                        totalExcluded++;
                         if (Utils.IsPathADirectory(filePath))
                         {
                             stepResult.AddLog($"Removing directory {filePath} from regex: {regex.Regex} (recursive: {regex.Recursive})");
@@ -217,6 +217,11 @@ namespace Wireframe
                     stepResult.SetFailed(e.ToString());
                     successful = false;
                 }
+            }
+            
+            if (totalExcluded == 0)
+            {
+                stepResult.AddLog("No files/folders were excluded");
             }
 
             ProgressUtils.Remove(progressId);

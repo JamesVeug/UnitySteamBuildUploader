@@ -171,6 +171,7 @@ namespace Wireframe
         {
             if (m_WhenToExclude != WhenToExclude.DeleteFromCache)
             {
+                stepResult.AddLog("Skipping " + ListHeader + " modifier because it was done in CacheSources instead");
                 return true;
             }
             

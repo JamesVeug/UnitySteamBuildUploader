@@ -27,7 +27,7 @@ namespace Wireframe
                 UploadConfig.PostUploadActionData actionData = postUploadActions[i];
                 if (actionData == null || actionData.UploadAction == null)
                 {
-                    actionResult.AddLog("Skipping post upload action because it's null");
+                    actionResult.AddLog($"Skipping post upload action {i+1} because it's null");
                     continue;
                 }
 
@@ -36,7 +36,7 @@ namespace Wireframe
                     (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfSuccessful && !report.Successful) ||
                     (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfFailed && report.Successful))
                 {
-                    actionResult.AddLog($"Skipping post upload action {i+1} because it doesn't match the current status");
+                    actionResult.AddLog($"Skipping post upload action {i+1} because it doesn't match the current status. Status: {status}. Successful: {report.Successful}");
                     continue;
                 }
 

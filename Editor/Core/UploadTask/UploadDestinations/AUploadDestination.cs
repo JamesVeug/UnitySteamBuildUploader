@@ -21,6 +21,7 @@ namespace Wireframe
         {
             m_filePath = filePath;
             m_buildDescription = buildDescription;
+            result.AddLog("No preparation needed for destination: " + DisplayName);
             return Task.FromResult(true);
         }
 

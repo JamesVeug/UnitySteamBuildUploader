@@ -187,7 +187,7 @@ namespace Wireframe
             EndTime = DateTime.UtcNow;
         }
 
-        public string GetReport()
+        public string GetReport(bool ignoreEmptySteps = false)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Upload Task Report");
@@ -201,9 +201,15 @@ namespace Wireframe
                 {
                     sb.AppendLine();
                 }
+
+                bool hasSteps = StepResults.TryGetValue(stepType, out var stepResults) && stepResults.Count > 0;
+                if (ignoreEmptySteps && !hasSteps)
+                {
+                    continue;
+                }
                 
                 sb.AppendLine($"== -- {stepType} -- ==");
-                if (!StepResults.TryGetValue(stepType, out var stepResults)) // Get Sources
+                if (!hasSteps) // Get Sources
                 {
                     sb.AppendLine("No logs");
                     continue;

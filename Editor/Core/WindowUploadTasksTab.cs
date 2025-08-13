@@ -96,167 +96,164 @@ namespace Wireframe
                 foreach (UploadTask t in tasks)
                 {
                     // Derive state and color
-                    string stateText;
-                    Color stateColor;
+                    DrawTask(t);
+                }
+            }
+        }
 
-                    if (t.IsComplete)
+        private void DrawTask(UploadTask t)
+        {
+            string stateText;
+            Color stateColor;
+
+            if (t.IsComplete)
+            {
+                if (t.IsSuccessful)
+                {
+                    stateText = "Success";
+                    stateColor = new Color(0.22f, 0.7f, 0.3f); // green-ish
+                }
+                else
+                {
+                    stateText = "Failed";
+                    stateColor = new Color(0.8f, 0.25f, 0.25f); // red-ish
+                }
+            }
+            else
+            {
+                if (t.PercentComplete > 0f || t.CurrentSteps != null)
+                {
+                    stateText = "In Progress";
+                    stateColor = new Color(0.95f, 0.65f, 0.1f); // amber
+                }
+                else
+                {
+                    stateText = "Idle";
+                    stateColor = new Color(0.6f, 0.6f, 0.6f); // grey
+                }
+            }
+
+            // Current step label
+            string stepLabel = t.IsComplete ? "Done" : t.CurrentStep.ToString();
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    bool isOpen = m_OpenTaskGUID == t.GUID;
+                    Rect foldRect = GUILayoutUtility.GetRect(14, EditorGUIUtility.singleLineHeight,
+                        GUILayout.ExpandWidth(false));
+                    bool newIsOpen = EditorGUI.Foldout(foldRect, isOpen, GUIContent.none, true);
+                    if (newIsOpen != isOpen)
                     {
-                        if (t.IsSuccessful)
-                        {
-                            stateText = "Success";
-                            stateColor = new Color(0.22f, 0.7f, 0.3f); // green-ish
-                        }
-                        else
-                        {
-                            stateText = "Failed";
-                            stateColor = new Color(0.8f, 0.25f, 0.25f); // red-ish
-                        }
+                        m_OpenTaskGUID = newIsOpen ? t.GUID : "";
                     }
-                    else
-                    {
-                        if (t.PercentComplete > 0f || t.CurrentSteps != null)
-                        {
-                            stateText = "In Progress";
-                            stateColor = new Color(0.95f, 0.65f, 0.1f); // amber
-                        }
-                        else
-                        {
-                            stateText = "Idle";
-                            stateColor = new Color(0.6f, 0.6f, 0.6f); // grey
-                        }
-                    }
 
-                    // Current step label
-                    string stepLabel = t.IsComplete ? "Done" : t.CurrentStep.ToString();
+                    // GUID
+                    GUILayout.Label(t.UploadName, GUILayout.Width(100));
 
-                    using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                    // Description (flex)
+                    GUILayout.Label(
+                        string.IsNullOrEmpty(t.UploadDescription) ? "<no description>" : t.UploadDescription,
+                        GUILayout.ExpandWidth(true));
+
+                    // Step
+                    GUILayout.Label(stepLabel, GUILayout.Width(140));
+
+                    // Progress bar (170px area: bar + % text overlaid)
+                    Rect r = GUILayoutUtility.GetRect(160, 16, GUILayout.Width(170), GUILayout.Height(16));
+                    float pct = Mathf.Clamp01(t.PercentComplete);
+                    EditorGUI.ProgressBar(r, pct, $"{Mathf.RoundToInt(pct * 100f)}%");
+
+                    // State (colored)
+                    var prev = GUI.color;
+                    GUI.color = stateColor;
+                    GUILayout.Label(stateText, EditorStyles.boldLabel, GUILayout.Width(90));
+                    GUI.color = prev;
+                }
+
+                // Foldout details
+                if (m_OpenTaskGUID == t.GUID)
+                {
+                    // EditorGUILayout.Space(2);
+                    using (new EditorGUILayout.VerticalScope())
                     {
+                        // Basics grid
                         using (new EditorGUILayout.HorizontalScope())
                         {
-                            bool isOpen = m_OpenTaskGUID == t.GUID;
-                            Rect foldRect = GUILayoutUtility.GetRect(14, EditorGUIUtility.singleLineHeight,
-                                GUILayout.ExpandWidth(false));
-                            bool newIsOpen = EditorGUI.Foldout(foldRect, isOpen, GUIContent.none, true);
-                            if (newIsOpen != isOpen)
-                            {
-                                m_OpenTaskGUID = newIsOpen ? t.GUID : "";
-                            }
-
-                            // GUID
-                            GUILayout.Label(t.UploadName, GUILayout.Width(100));
-
-                            // Description (flex)
-                            GUILayout.Label(
-                                string.IsNullOrEmpty(t.UploadDescription) ? "<no description>" : t.UploadDescription,
-                                GUILayout.ExpandWidth(true));
-
-                            // Step
-                            GUILayout.Label(stepLabel, GUILayout.Width(140));
-
-                            // Progress bar (170px area: bar + % text overlaid)
-                            Rect r = GUILayoutUtility.GetRect(160, 16, GUILayout.Width(170), GUILayout.Height(16));
-                            float pct = Mathf.Clamp01(t.PercentComplete);
-                            EditorGUI.ProgressBar(r, pct, $"{Mathf.RoundToInt(pct * 100f)}%");
-
-                            // State (colored)
-                            var prev = GUI.color;
-                            GUI.color = stateColor;
-                            GUILayout.Label(stateText, EditorStyles.boldLabel, GUILayout.Width(90));
-                            GUI.color = prev;
+                            EditorGUILayout.LabelField("GUID", t.GUID);
                         }
 
-                        // Foldout details
-                        if (m_OpenTaskGUID == t.GUID)
+                        using (new EditorGUILayout.HorizontalScope())
                         {
-                            // EditorGUILayout.Space(2);
-                            using (new EditorGUILayout.VerticalScope())
+                            if (t.IsComplete)
                             {
-                                // Basics grid
-                                using (new EditorGUILayout.HorizontalScope())
+                                EditorGUILayout.LabelField("Duration", t.Report.Duration.CalculateTime());
+                            }
+                            else
+                            {
+                                TimeSpan duration = DateTime.UtcNow - t.Report.StartTime;
+                                EditorGUILayout.LabelField("Duration", duration.CalculateTime());
+                            }
+                        }
+
+                        // Failure reasons (via context/report) when failed
+                        if (t.IsComplete && !t.IsSuccessful)
+                        {
+                            string failText = "";
+                            foreach ((AUploadTask_Step.StepType Key, string FailReason) reason in t.Report.GetFailReasons())
+                            {
+                                if (string.IsNullOrEmpty(failText))
                                 {
-                                    EditorGUILayout.LabelField("GUID", t.GUID);
+                                    failText += $"{reason.Key}: {reason.FailReason}";
                                 }
-
-                                using (new EditorGUILayout.HorizontalScope())
+                                else
                                 {
-                                    if (t.IsComplete)
-                                    {
-                                        EditorGUILayout.LabelField("Duration", t.Report.Duration.CalculateTime());
-                                    }
-                                    else
-                                    {
-                                        TimeSpan duration = DateTime.UtcNow - t.Report.StartTime;
-                                        EditorGUILayout.LabelField("Duration", duration.CalculateTime());
-                                    }
-                                }
-
-                                // Failure reasons (via context/report) when failed
-                                if (t.IsComplete && !t.IsSuccessful)
-                                {
-                                    string failText = "";
-                                    foreach ((AUploadTask_Step.StepType Key, string FailReason) reason in t.Report
-                                                 .GetFailReasons())
-                                    {
-                                        if (string.IsNullOrEmpty(failText))
-                                        {
-                                            failText += $"{reason.Key}: {reason.FailReason}";
-                                        }
-                                        else
-                                        {
-                                            failText += $"\n{reason.Key}: {reason.FailReason}";
-                                        }
-                                    }
-
-                                    EditorGUILayout.Space(2);
-                                    EditorGUILayout.LabelField("Failure Details", EditorStyles.boldLabel);
-                                    if (!string.IsNullOrEmpty(failText))
-                                    {
-                                        m_reportErrorScrollPosition =
-                                            EditorGUILayout.BeginScrollView(m_reportErrorScrollPosition,
-                                                GUILayout.Height(100));
-                                        EditorGUILayout.HelpBox(failText, MessageType.Error);
-                                        EditorGUILayout.EndScrollView();
-                                    }
-                                    else
-                                    {
-                                        EditorGUILayout.HelpBox("No specific failure reasons provided.",
-                                            MessageType.Error);
-                                    }
-                                }
-
-                                EditorGUILayout.Space(5);
-                                using (new EditorGUILayout.HorizontalScope())
-                                {
-                                    Rect foldRect = GUILayoutUtility.GetRect(14, EditorGUIUtility.singleLineHeight,
-                                        GUILayout.ExpandWidth(false));
-                                    m_OpenTaskShowsLogs = EditorGUI.Foldout(foldRect, m_OpenTaskShowsLogs,
-                                        "Show Report Logs", true);
-
-                                    EditorGUILayout.Space();
-
-                                    // Follow logs toggle
-                                    m_FollowLogs = GUILayout.Toggle(m_FollowLogs, "Follow Logs",
-                                        EditorStyles.miniButton, GUILayout.Width(100));
-                                }
-
-                                if (m_OpenTaskShowsLogs)
-                                {
-                                    // Logs
-                                    EditorGUILayout.Space(2);
-
-                                    // Show logs in a scrollable area
-                                    if (m_FollowLogs)
-                                    {
-                                        m_reportLogsScrollPosition = new Vector2(0, float.MaxValue);
-                                    }
-
-                                    m_reportLogsScrollPosition =
-                                        EditorGUILayout.BeginScrollView(m_reportLogsScrollPosition,
-                                            GUILayout.ExpandHeight(true));
-                                    EditorGUILayout.TextArea(t.Report.GetReport());
-                                    EditorGUILayout.EndScrollView();
+                                    failText += $"\n{reason.Key}: {reason.FailReason}";
                                 }
                             }
+
+                            EditorGUILayout.Space(2);
+                            EditorGUILayout.LabelField("Failure Details", EditorStyles.boldLabel);
+                            if (!string.IsNullOrEmpty(failText))
+                            {
+                                m_reportErrorScrollPosition = EditorGUILayout.BeginScrollView(m_reportErrorScrollPosition, GUILayout.Height(100));
+                                EditorGUILayout.HelpBox(failText, MessageType.Error);
+                                EditorGUILayout.EndScrollView();
+                            }
+                            else
+                            {
+                                EditorGUILayout.HelpBox("No specific failure reasons provided.",
+                                    MessageType.Error);
+                            }
+                        }
+
+                        EditorGUILayout.Space(5);
+                        using (new EditorGUILayout.HorizontalScope())
+                        {
+                            Rect foldRect = GUILayoutUtility.GetRect(14, EditorGUIUtility.singleLineHeight, GUILayout.ExpandWidth(false));
+                            m_OpenTaskShowsLogs = EditorGUI.Foldout(foldRect, m_OpenTaskShowsLogs, "Show Report Logs", true);
+
+                            EditorGUILayout.Space();
+
+                            // Follow logs toggle
+                            m_FollowLogs = GUILayout.Toggle(m_FollowLogs, "Follow Logs", EditorStyles.miniButton, GUILayout.Width(100));
+                        }
+
+                        if (m_OpenTaskShowsLogs)
+                        {
+                            // Logs
+                            EditorGUILayout.Space(2);
+
+                            // Show logs in a scrollable area
+                            if (m_FollowLogs)
+                            {
+                                m_reportLogsScrollPosition = new Vector2(0, float.MaxValue);
+                            }
+
+                            m_reportLogsScrollPosition = EditorGUILayout.BeginScrollView(m_reportLogsScrollPosition, GUILayout.ExpandHeight(true));
+                            EditorGUILayout.TextArea(t.Report.GetReport(true));
+                            EditorGUILayout.EndScrollView();
                         }
                     }
                 }
@@ -272,6 +269,7 @@ namespace Wireframe
             }
 
             m_OpenTaskGUID = uploadTask.GUID;
+            m_FollowLogs = true;
         }
     }
 }

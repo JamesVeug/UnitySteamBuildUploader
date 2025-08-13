@@ -732,7 +732,6 @@ namespace Wireframe
             UploadTask uploadTask = new UploadTask(uploadProfile, description);
             
             string guids = string.Join("_", m_currentUploadProfile.UploadConfigs.Select(x => x.GUID));
-            UploadTaskReport report = new UploadTaskReport(guids);
             
             // Start task
             Task asyncBuildTask = uploadTask.StartAsync(false);
@@ -754,6 +753,7 @@ namespace Wireframe
             // TODO: Move this logic out of this window so CIs can show them too
 
             // Write report to a txt file
+            UploadTaskReport report = uploadTask.Report;
             string taskReport = report.GetReport();
             if (Preferences.AutoSaveReportToCacheFolder)
             {

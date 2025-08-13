@@ -15,6 +15,7 @@ namespace Wireframe
     internal class WindowUploadTab : WindowTab
     {
         internal static readonly string UploadProfilePath =  Application.dataPath + "/../BuildUploader/UploadProfiles";
+        internal static readonly string UploadReportSaveDirectory = Path.Combine(Preferences.CacheFolderPath, "Upload Task Reports");
 
         public override string TabName => "Upload";
         
@@ -767,7 +768,7 @@ namespace Wireframe
             if (Preferences.AutoSaveReportToCacheFolder)
             {
                 string fileName = $"UploadReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
-                string reportPath = Path.Combine(Preferences.CacheFolderPath, fileName);
+                string reportPath = Path.Combine(UploadReportSaveDirectory, fileName);
                 try
                 {
                     Debug.Log($"[BuildUploader] Writing upload task report to {reportPath}");
@@ -899,6 +900,11 @@ namespace Wireframe
         {
             m_unloadedUploadProfiles = new List<UploadProfileMeta>();
             m_currentUploadProfile = null;
+
+            if (!Directory.Exists(UploadReportSaveDirectory))
+            {
+                MoveOldUploadReportsToNewFolder();
+            }
             
             if (!Directory.Exists(UploadProfilePath))
             {
@@ -907,7 +913,7 @@ namespace Wireframe
                 // In v3.0.0 we moved the using multiple upload profiles and put them in the Projects/BuildUploader folder
                 if (File.Exists(Application.persistentDataPath + "/BuildUploader/WindowUploadTab.json"))
                 {
-                    LoadOldDataFromPath(Application.persistentDataPath + "/BuildUploader/WindowUploadTab.json");
+                    LoadOldUploadTabDataFromPath(Application.persistentDataPath + "/BuildUploader/WindowUploadTab.json");
                     
                     // TODO: Delete the old file
                     Save();
@@ -917,7 +923,7 @@ namespace Wireframe
                 {
                     // In v2.0.0 we renamed from UnitySteamBuildBuilder to BuildUploader
                     Debug.Log("SteamBuildData exists from a previous version. Migrating it over");
-                    LoadOldDataFromPath(Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json");
+                    LoadOldUploadTabDataFromPath(Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json");
                     
                     // TODO: Delete the old file
                     Save();
@@ -982,6 +988,39 @@ namespace Wireframe
             Save();
         }
 
+        private void MoveOldUploadReportsToNewFolder()
+        {
+            if (!Directory.Exists(UploadReportSaveDirectory))
+            {
+                Directory.CreateDirectory(UploadReportSaveDirectory);
+            }
+            
+            string oldReportPath = Path.Combine(Preferences.CacheFolderPath);
+            string[] reportFiles = Directory.GetFiles(oldReportPath, "UploadReport_*.txt", SearchOption.TopDirectoryOnly);
+            foreach (string file in reportFiles)
+            {
+                // Move to new directory
+                string fileName = Path.GetFileName(file);
+                string newFilePath = Path.Combine(UploadReportSaveDirectory, fileName);
+                if (!File.Exists(newFilePath))
+                {
+                    try{
+                        File.Move(file, newFilePath);
+                        Debug.Log($"Moved old upload report from {file} to {newFilePath}");
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"Failed to move old upload report from {file} to {newFilePath}");
+                        Debug.LogException(e);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"Upload report file already exists in new directory: {newFilePath}. Skipping move.");
+                }
+            }
+        }
+
         private void CreateDefaultUploadConfig(string profileName = "Default")
         {
             UploadProfile defaultProfile = new UploadProfile();
@@ -1014,7 +1053,7 @@ namespace Wireframe
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        private void LoadOldDataFromPath(string filePath)
+        private void LoadOldUploadTabDataFromPath(string filePath)
         {
             string json = File.ReadAllText(filePath);
             UploadTabData config = JSON.DeserializeObject<UploadTabData>(json);

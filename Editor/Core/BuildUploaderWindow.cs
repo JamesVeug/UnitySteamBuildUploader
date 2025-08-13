@@ -111,22 +111,26 @@ namespace Wireframe
 
         private void DrawTabs()
         {
-            Color defaultColor = GUI.backgroundColor;
             using (new GUILayout.HorizontalScope())
             {
                 foreach (WindowTab tab in m_tabs)
                 {
                     if (tab.Enabled)
                     {
-                        GUI.backgroundColor = CurrentTab == tab ? Color.gray : Color.white;
-                        if (GUILayout.Button(tab.TabName))
+                        bool isActive = CurrentTab == tab;
+                        GUIStyle style = new GUIStyle(EditorStyles.toolbarButton)
+                        {
+                            fontStyle = isActive ? FontStyle.Bold : FontStyle.Normal,
+                            alignment = TextAnchor.MiddleCenter,
+                            padding = new RectOffset(10, 10, 4, 4)
+                        };
+                        if (GUILayout.Toggle(isActive, tab.TabName, style))
                         {
                             currentTab = tab;
                         }
                     }
                 }
             }
-            GUI.backgroundColor = defaultColor;
         }
 
         void OnDestroy()

@@ -39,6 +39,7 @@ namespace Wireframe
             base.Initialize(uploaderWindow);
             
             m_context = new StringFormatter.Context();
+            m_context.TaskProfileName = () => m_currentUploadProfile?.ProfileName ?? "No Profile Selected";
             m_context.TaskDescription = ()=> m_buildDescription;
             
             m_buildPath = EditorPrefs.GetString("BuildUploader.BuildPath", "");

@@ -71,7 +71,8 @@ namespace Wireframe
             postUploadActions = new List<UploadConfig.PostUploadActionData>();
             
             context = new StringFormatter.Context();
-            context.TaskDescription = ()=>uploadDescription;
+            context.TaskProfileName = () => uploadName;
+            context.TaskDescription = () => uploadDescription;
             
             AllTasks.Add(this);
         }

@@ -24,18 +24,9 @@ namespace Wireframe
 
         public class Context
         {
-            public Func<string> UploadTaskFailText { get; set; } = () => "<UploadTaskFailText not specified>";
+            public Func<string> TaskProfileName { get; set; } = ()=> "<TaskProfileName not specified>";
             public Func<string> TaskDescription { get; set; } = ()=> "<TaskDescription not specified>";
-
-            public Context()
-            {
-                
-            }
-
-            public Context(Context parentContext)
-            {
-                TaskDescription = parentContext.TaskDescription;
-            }
+            public Func<string> UploadTaskFailText { get; set; } = () => "<UploadTaskFailText not specified>";
         }
         
         internal static List<Command> Commands { get; } = new List<Command>
@@ -55,6 +46,7 @@ namespace Wireframe
             new Command("{dateTime}", (ctx) => DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"), "The current local date and time in the format YYYY-MM-DD HH-MM-SS."),
             new Command("{machineName}", (ctx) => Environment.MachineName, "The name of the machine running the build."),
             
+            new Command("{taskProfileName}", (ctx) => ctx.TaskProfileName(), "The name of the upload profile or task specified when creating the task."),
             new Command("{taskDescription}", (ctx) => ctx.TaskDescription(), "The description of the current task being executed."),
             new Command("{taskFailedReasons}", (ctx) => ctx.UploadTaskFailText(), "Gets the reasons why the task failed to upload all destinations."),
         };

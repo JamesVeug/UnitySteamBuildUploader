@@ -26,29 +26,22 @@ namespace Wireframe
             {
                 // Delete cache
                 int cleanupProgressId = ProgressUtils.Start("Cleanup", "Deleting cached files");
-                for (var i = 0; i < uploadTask.CachedLocations.Length; i++)
+                if (uploadTask.CachedLocations.Length > 0)
                 {
-                    var cachedLocation = uploadTask.CachedLocations[i];
-                    if (string.IsNullOrEmpty(cachedLocation))
+                    string parentFolder = Path.GetDirectoryName(uploadTask.CachedLocations[0]);
+                    if (!string.IsNullOrEmpty(parentFolder) && Directory.Exists(parentFolder))
                     {
-                        continue;
+                        beginCleanupResult.AddLog("Deleting cached files in parent folder: " + parentFolder);
+                        Directory.Delete(parentFolder, true);
                     }
-                    
-                    if (!Directory.Exists(cachedLocation))
+                    else
                     {
-                        beginCleanupResult.AddLog("Cached location does not exist to cleanup: " + cachedLocation);
-                        continue;
+                        beginCleanupResult.AddLog("Parent folder does not exist to cleanup: " + parentFolder);
                     }
-                    
-                    await Task.Yield();
-                    ProgressUtils.Report(cleanupProgressId, 0, $"Deleting cached files " + (i+1) + "/" + uploadTask.CachedLocations.Length);
-                    
-                    beginCleanupResult.AddLog("Deleting cached files " + cachedLocation);
-                    Directory.Delete(cachedLocation, true);
                 }
 
                 // Cleanup configs
-                ProgressUtils.Report(cleanupProgressId, 0.5f, "Cleaning up configs");
+                ProgressUtils.Report(cleanupProgressId, 0.5f, "Cleaning up Upload configs");
                 UploadTaskReport.StepResult[] cleanupReports = report.NewReports(StepType.Cleanup, uploadTask.UploadConfigs.Count);
                 for (int i = 0; i < uploadTask.UploadConfigs.Count; i++)
                 {

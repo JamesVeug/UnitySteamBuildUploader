@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditorInternal;
 
 namespace Wireframe
 {
@@ -69,12 +70,6 @@ namespace Wireframe
 
         private async Task<bool> CacheBuildConfigAtIndex(UploadTask task, int configIndex, UploadTaskReport report)
         {
-            string directoryPath = Preferences.CacheFolderPath;
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
             UploadConfig uploadConfig = task.UploadConfigs[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Sources.Count);
 
@@ -83,9 +78,12 @@ namespace Wireframe
                 .Select(a => a.Modifier)
                 .ToArray();
 
-            // Files export to /BuildUploader/CachedBuilds/GUID/*.*
+            // Files export to /BuildUploader/CachedBuilds/ConfigGUID/*.*
+            string sanitisedName = InternalEditorUtility.RemoveInvalidCharsFromFileName(task.UploadName, false);
+            string cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({task.GUID})", uploadConfig.GUID);
+            bool pathAlreadyExists = Directory.Exists(cacheFolderPath);
+            
             int sourceIndex = 0;
-            string cacheFolderPath = Path.Combine(directoryPath, uploadConfig.GUID);
             task.CachedLocations[configIndex] = cacheFolderPath;
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {
@@ -100,7 +98,7 @@ namespace Wireframe
                 // BuildUploader/CachedBuilds/GUID/
                 if (sourceIndex++ == 0)
                 {
-                    if (Directory.Exists(cacheFolderPath))
+                    if (pathAlreadyExists)
                     {
                         result.AddWarning(
                             $"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
@@ -108,20 +106,20 @@ namespace Wireframe
                     }
                 }
 
-                string sourcePath = cacheFolderPath;
+                string subCacheFolder = cacheFolderPath;
                 if (!string.IsNullOrEmpty(sourceData.ExportFolder))
                 {
-                    sourcePath = Path.Combine(sourcePath, StringFormatter.FormatString(sourceData.ExportFolder, m_context));
+                    subCacheFolder = Path.Combine(subCacheFolder, StringFormatter.FormatString(sourceData.ExportFolder, m_context));
                 }
                 
-                if (!Directory.Exists(sourcePath))
+                if (!Directory.Exists(subCacheFolder))
                 {
-                    Directory.CreateDirectory(sourcePath);
+                    Directory.CreateDirectory(subCacheFolder);
                 }
 
                 try
                 {
-                    bool cached = await CacheSource(sourceData, modifiers, configIndex, i, sourcePath, result);
+                    bool cached = await CacheSource(sourceData, modifiers, configIndex, i, subCacheFolder, result);
                     if (!cached)
                     {
                         return false;

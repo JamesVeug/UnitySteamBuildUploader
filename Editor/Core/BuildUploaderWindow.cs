@@ -23,7 +23,7 @@ namespace Wireframe
         public static void OpenWindow()
         {
             // Get existing open window or if none, make a new one:
-            BuildUploaderWindow uploaderWindow = (BuildUploaderWindow)GetWindow(typeof(BuildUploaderWindow));
+            BuildUploaderWindow uploaderWindow = CreateWindow<BuildUploaderWindow>();
             uploaderWindow.titleContent = new GUIContent("Build Uploader", Utils.WindowIcon);
             uploaderWindow.InitializeTabs();
             uploaderWindow.Show();

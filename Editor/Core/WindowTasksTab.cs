@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
 {
-    internal class WindowUploadTasksTab : WindowTab
+    internal class WindowTasksTab : WindowTab
     {
         public override string TabName
         {
@@ -33,7 +32,6 @@ namespace Wireframe
         public override void Initialize(BuildUploaderWindow uploaderWindow)
         {
             base.Initialize(uploaderWindow);
-            
         }
 
         public override void Update()
@@ -89,7 +87,7 @@ namespace Wireframe
                 var tasks = UploadTask.AllTasks;
                 if (tasks == null || tasks.Count == 0)
                 {
-                    EditorGUILayout.HelpBox("No UploadTask instances found.", MessageType.Info);
+                    EditorGUILayout.HelpBox("No Task started this session. Use the Upload tab to begin uploading!", MessageType.Info);
                     return;
                 }
 

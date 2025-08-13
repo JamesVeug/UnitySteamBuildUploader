@@ -475,7 +475,7 @@ namespace Wireframe
                             "Yes", "Cancel"))
                     {
                         BuildAndUpload(StringFormatter.FormatString(m_buildPath, m_context));
-                        UploaderWindow.SetTab<WindowUploadTasksTab>();
+                        UploaderWindow.SetTab<WindowTasksTab>();
                     }
                 }
             }
@@ -736,7 +736,7 @@ namespace Wireframe
             // Start task
             Task asyncBuildTask = uploadTask.StartAsync(false);
             Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
-            WindowUploadTasksTab taskTab = UploaderWindow.SetTab<WindowUploadTasksTab>();
+            WindowTasksTab taskTab = UploaderWindow.SetTab<WindowTasksTab>();
             if (taskTab != null)
             {
                 taskTab.ShowTask(uploadTask);

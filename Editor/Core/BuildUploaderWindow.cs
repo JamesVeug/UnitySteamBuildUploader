@@ -77,7 +77,7 @@ namespace Wireframe
                 }
                 
                 m_tabs.Add(new WindowUploadTab());
-                m_tabs.Add(new WindowUploadTasksTab());
+                m_tabs.Add(new WindowTasksTab());
 
                 foreach (WindowTab tab in m_tabs)
                 {

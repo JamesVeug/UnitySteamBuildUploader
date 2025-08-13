@@ -83,15 +83,23 @@ namespace Wireframe
                     }
                     
                     // Dropdown to select upload profile
-                    string[] profileNames = m_unloadedUploadProfiles.Select(p => p.ProfileName).ToArray();
+                    List<string> profileNames = new List<string>();
+                    profileNames.Add("-- Select Upload Profile --");
+                    
+                    profileNames.AddRange(m_unloadedUploadProfiles.Select(p => p.ProfileName));
                     int selectedIndex = m_unloadedUploadProfiles.FindIndex(a=>a.GUID == m_currentUploadProfile.GUID);
-                    var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames, GUILayout.Width(150));
+                    if (selectedIndex != -1)
+                    {
+                        selectedIndex++;
+                    }
+                    
+                    var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames.ToArray(), GUILayout.Width(150));
                     if (newSelectedIndex < 0)
                     {
                         newSelectedIndex = selectedIndex;
                     }
                     
-                    if (newSelectedIndex != selectedIndex)
+                    if (newSelectedIndex != selectedIndex && newSelectedIndex > 0)
                     {
                         if (m_isDirty)
                         {
@@ -102,7 +110,7 @@ namespace Wireframe
                                 Save();
                             }
                         }
-                        LoadMetaDataFromPath(m_unloadedUploadProfiles[newSelectedIndex]);
+                        LoadMetaDataFromPath(m_unloadedUploadProfiles[newSelectedIndex - 1]);
                     }
 
                     if (!Preferences.AutoSaveUploadConfigsAfterChanges)

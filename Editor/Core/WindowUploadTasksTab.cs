@@ -8,8 +8,19 @@ namespace Wireframe
 {
     internal class WindowUploadTasksTab : WindowTab
     {
-        public override string TabName => "Upload Tasks";
-        
+        public override string TabName
+        {
+            get
+            {
+                int inProgress = UploadTask.AllTasks.Count(t => !t.IsComplete);
+                if (inProgress != 0)
+                {
+                    return "Tasks (" + inProgress + " in progress)";
+                }
+                return "Tasks";
+            }
+        }
+
         private GUIStyle m_titleStyle;
         private GUIStyle m_subTitleStyle;
         
@@ -28,7 +39,7 @@ namespace Wireframe
         public override void Update()
         {
             base.Update();
-            bool anyRunning = UploadTask.AllTasks.Any(t => !t.IsComplete && (t.PercentComplete > 0f || t.CurrentSteps != null));
+            bool anyRunning = UploadTask.AllTasks.Any(t => !t.IsComplete);
             if (anyRunning)
             {
                 // Force repaint to update progress bars

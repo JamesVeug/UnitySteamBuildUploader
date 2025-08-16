@@ -54,6 +54,8 @@ namespace Wireframe
             
             // Get all enabled scenes in build settings
             BuildOptions buildOptions = BuildOptions.None;
+            buildOptions |= BuildOptions.DetailedBuildReport;
+            
             if (m_BuildConfig.IsDevelopmentBuild)
                 buildOptions |= BuildOptions.Development;
 
@@ -78,7 +80,7 @@ namespace Wireframe
                 targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
                 target = EditorUserBuildSettings.activeBuildTarget,
                 options = buildOptions,
-                extraScriptingDefines = defines
+                extraScriptingDefines = defines,
             };
             
             stepResult.AddLog("Starting build with the following options:");
@@ -87,7 +89,7 @@ namespace Wireframe
             stepResult.AddLog($"Target Group: {options.targetGroup}");
             stepResult.AddLog($"Target: {options.target}");
             stepResult.AddLog($"Build Options: {options.options}");
-
+ 
             // Build the player
             BuildReport report = BuildPipeline.BuildPlayer(options);
             foreach (var step in report.steps)

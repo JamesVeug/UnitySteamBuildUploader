@@ -241,7 +241,7 @@ namespace Wireframe
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                     {
                         int startIndex = json.IndexOf("{") + 1;
-                        int endIndex = json.LastIndexOf("}");
+                        int endIndex = FindClosingBracket(json, startIndex);
 
                         // "key": value,
                         // "key": value
@@ -304,7 +304,29 @@ namespace Wireframe
                 Debug.LogError("Type not supported: " + type.Name);
                 return null;
             }
-            
+
+            private static int FindClosingBracket(string text, int startIndexInclusive)
+            {
+                int endIndex = -1;
+                
+                int d = 1;
+                for(int i = startIndexInclusive + 1; i < text.Length && d > 0; i++)
+                {
+                    if (text[i] == '{' || text[i] == '[')
+                    {
+                        d++;
+                    }
+
+                    if (text[i] == '}' || text[i] == ']')
+                    {
+                        d--;
+                        endIndex = i - 1;
+                    }
+                }
+
+                return endIndex;
+            }
+
             public static T ConvertType<T>(object data)
             {
                 return (T)ConvertType(data, typeof(T));

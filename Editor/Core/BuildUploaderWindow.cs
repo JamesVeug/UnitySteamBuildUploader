@@ -76,6 +76,7 @@ namespace Wireframe
                     }
                 }
                 
+                m_tabs.Add(new WindowBuildConfigsTab());
                 m_tabs.Add(new WindowUploadTab());
                 m_tabs.Add(new WindowTasksTab());
 

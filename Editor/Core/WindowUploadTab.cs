@@ -876,6 +876,10 @@ namespace Wireframe
         public override void Save()
         {
             m_isDirty = false;
+            if (m_currentUploadProfile == null)
+            {
+                return;
+            }
 
             UploadProfileSavedData data = UploadProfileSavedData.FromUploadProfile(m_currentUploadProfile);
             

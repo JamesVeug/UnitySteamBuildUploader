@@ -134,7 +134,6 @@ namespace Wireframe
             bool allStepsSuccessful = true;
             for (int i = 0; i < steps.Length; i++)
             {
-                await Task.Delay(1000);
                 AUploadTask_Step step = steps[i];
                 CurrentStep = step.Type;
                 if (!allStepsSuccessful && step.RequiresEverythingBeforeToSucceed)

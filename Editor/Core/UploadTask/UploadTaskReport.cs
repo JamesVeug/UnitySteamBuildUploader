@@ -195,6 +195,9 @@ namespace Wireframe
             sb.AppendLine("End Time: " + EndTime.ToLocalTime());
             sb.AppendLine("Duration: " + Duration);
             sb.AppendLine("Successful: " + Successful);
+            
+            
+            StringBuilder stepTypeSb = new StringBuilder();
             foreach (AUploadTask_Step.StepType stepType in Enum.GetValues(typeof(AUploadTask_Step.StepType)))
             {
                 if (sb.Length != 0)
@@ -202,42 +205,56 @@ namespace Wireframe
                     sb.AppendLine();
                 }
 
-                bool hasSteps = StepResults.TryGetValue(stepType, out var stepResults) && stepResults.Count > 0;
-                if (ignoreEmptySteps && !hasSteps)
+                stepTypeSb.Clear();
+                GetStepLogs(ignoreEmptySteps, stepType, stepTypeSb);
+                if (stepTypeSb.Length > 0)
                 {
-                    continue;
+                    sb.AppendLine($"== -- {stepType} -- ==");
+                    sb.AppendLine(stepTypeSb.ToString());
                 }
-                
-                sb.AppendLine($"== -- {stepType} -- ==");
-                if (!hasSteps) // Get Sources
+                else if (!ignoreEmptySteps)
                 {
+                    sb.AppendLine($"== -- {stepType} -- ==");
                     sb.AppendLine("No logs");
-                    continue;
-                }
-
-                foreach (AUploadTask_Step.StepProcess stepProcess in Enum.GetValues(typeof(AUploadTask_Step.StepProcess)))
-                {
-                    if (stepResults.TryGetValue(stepProcess, out var stepResult)) // Post
-                    {
-                        for (var i = 0; i < stepResult.Count; i++)
-                        {
-                            var result = stepResult[i];
-                            if (result.Logs.Count == 0)
-                            {
-                                continue;
-                            }
-                            
-                            sb.AppendLine($"-- {stepProcess} {i + 1} --");
-                            foreach (StepResult.Log log in result.Logs)
-                            {
-                                sb.AppendLine($"[{log.Type}] {log.Message}");
-                            }
-                        }
-                    }
                 }
             }
 
             return sb.ToString();
+        }
+
+        public void GetStepLogs(bool ignoreEmptySteps, AUploadTask_Step.StepType stepType, StringBuilder sb)
+        {
+            bool hasSteps = StepResults.TryGetValue(stepType, out var stepResults) && stepResults.Count > 0;
+            if (ignoreEmptySteps && !hasSteps)
+            {
+                return;
+            }
+                
+            if (!hasSteps) // Get Sources
+            {
+                return;
+            }
+
+            foreach (AUploadTask_Step.StepProcess stepProcess in Enum.GetValues(typeof(AUploadTask_Step.StepProcess)))
+            {
+                if (stepResults.TryGetValue(stepProcess, out var stepResult)) // Post
+                {
+                    for (var i = 0; i < stepResult.Count; i++)
+                    {
+                        var result = stepResult[i];
+                        if (result.Logs.Count == 0)
+                        {
+                            continue;
+                        }
+                            
+                        sb.AppendLine($"-- {stepProcess} {i + 1} --");
+                        foreach (StepResult.Log log in result.Logs)
+                        {
+                            sb.AppendLine($"[{log.Type}] {log.Message}");
+                        }
+                    }
+                }
+            }
         }
 
         public IEnumerable<(AUploadTask_Step.StepType Key, string FailReason)> GetFailReasons()
@@ -278,6 +295,24 @@ namespace Wireframe
             }
 
             return count > 0 ? totalProgress / count : 0f; // Return average progress
+        }
+
+        public int CountStepLogs(AUploadTask_Step.StepType stepType)
+        {
+            if (!StepResults.TryGetValue(stepType, out var stepResults))
+            {
+                return 0; // No logs if no results
+            }
+            
+            int count = 0;
+            foreach (var stepProcess in stepResults.Values)
+            {
+                foreach (var result in stepProcess)
+                {
+                    count += result.Logs.Count;
+                }
+            }
+            return count; // Return total log count for the step type
         }
     }
 }

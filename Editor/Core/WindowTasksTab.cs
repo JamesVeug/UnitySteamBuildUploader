@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,9 +26,8 @@ namespace Wireframe
         private GUIStyle m_subTitleStyle;
         
         private Vector2 m_reportErrorScrollPosition;
-        private Vector2 m_reportLogsScrollPosition;
         private string m_OpenTaskGUID = "";
-        private bool m_OpenTaskShowsLogs = true;
+        private Dictionary<AUploadTask_Step.StepType, (bool, Vector2)> m_OpenTaskSteps;
         private bool m_FollowLogs = true;
 
         public override void Initialize(BuildUploaderWindow uploaderWindow)
@@ -48,6 +49,12 @@ namespace Wireframe
 
         private void Setup()
         {
+            if (m_OpenTaskSteps != null)
+            {
+                return;
+            }
+
+            m_OpenTaskSteps = new Dictionary<AUploadTask_Step.StepType, (bool, Vector2)>();
             m_titleStyle = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 17,
@@ -182,6 +189,12 @@ namespace Wireframe
                             EditorGUILayout.LabelField("GUID", t.GUID);
                         }
 
+                        if (t.Report == null)
+                        {
+                            EditorGUILayout.LabelField("Not started yet");
+                            return;
+                        }
+
                         using (new EditorGUILayout.HorizontalScope())
                         {
                             if (t.IsComplete)
@@ -226,32 +239,73 @@ namespace Wireframe
                             }
                         }
 
+                        // Logs
+                        if (t.CurrentSteps == null)
+                        {
+                            return;
+                        }
+                        
                         EditorGUILayout.Space(5);
                         using (new EditorGUILayout.HorizontalScope())
                         {
-                            Rect foldRect = GUILayoutUtility.GetRect(14, EditorGUIUtility.singleLineHeight, GUILayout.ExpandWidth(false));
-                            m_OpenTaskShowsLogs = EditorGUI.Foldout(foldRect, m_OpenTaskShowsLogs, "Show Report Logs", true);
-
-                            EditorGUILayout.Space();
-
                             // Follow logs toggle
                             m_FollowLogs = GUILayout.Toggle(m_FollowLogs, "Follow Logs", EditorStyles.miniButton, GUILayout.Width(100));
                         }
 
-                        if (m_OpenTaskShowsLogs)
+                        // Show logs in a scrollable area
+                        if (m_FollowLogs)
                         {
-                            // Logs
-                            EditorGUILayout.Space(2);
-
-                            // Show logs in a scrollable area
-                            if (m_FollowLogs)
+                            AUploadTask_Step.StepType stepToShow = AUploadTask_Step.StepType.GetSources;
+                            for (var i = t.CurrentSteps.Length - 1; i >= 0; i--)
                             {
-                                m_reportLogsScrollPosition = new Vector2(0, float.MaxValue);
+                                var step = t.CurrentSteps[i];
+                                int logs = t.Report.CountStepLogs(step.Type);
+                                if (logs > 0)
+                                {
+                                    stepToShow = step.Type;
+                                    break;
+                                }
                             }
 
-                            m_reportLogsScrollPosition = EditorGUILayout.BeginScrollView(m_reportLogsScrollPosition, GUILayout.ExpandHeight(true));
-                            EditorGUILayout.TextArea(t.Report.GetReport(true));
-                            EditorGUILayout.EndScrollView();
+                            foreach (AUploadTask_Step.StepType stepType in Enum.GetValues(typeof(AUploadTask_Step.StepType)))
+                            {
+                                if (!m_OpenTaskSteps.TryGetValue(stepType, out (bool, Vector2) pair))
+                                {
+                                    continue;
+                                }
+                                
+                                Vector2 position = pair.Item2;
+                                if (stepType == stepToShow)
+                                {
+                                    position.y = int.MaxValue;
+                                    m_OpenTaskSteps[stepType] = (true, position);
+                                }
+                                else
+                                {
+                                    m_OpenTaskSteps[stepType] = (false, position);
+                                }
+                            }
+                        }
+
+                        foreach (AUploadTask_Step step in t.CurrentSteps)
+                        {
+                            (bool foldout, Vector2 position) stepUI = m_OpenTaskSteps.GetValueOrDefault(step.Type, (false, Vector2.zero));
+                            
+                            int logs = t.Report.CountStepLogs(step.Type);
+
+                            // Default to showing all steps
+                            string label = logs > 0 ? $"{step.Type} ({logs} logs)" : step.Type.ToString();
+                            stepUI.foldout = EditorGUILayout.Foldout(stepUI.foldout, label, true);
+                            if (stepUI.foldout)
+                            {
+                                // Show logs for this step
+                                StringBuilder sb = new StringBuilder();
+                                stepUI.position = EditorGUILayout.BeginScrollView(stepUI.position, GUILayout.ExpandHeight(true));
+                                t.Report.GetStepLogs(true, step.Type, sb);
+                                EditorGUILayout.TextArea(sb.ToString(), GUILayout.ExpandHeight(true));
+                                EditorGUILayout.EndScrollView();
+                            }
+                            m_OpenTaskSteps[step.Type] = stepUI;
                         }
                     }
                 }

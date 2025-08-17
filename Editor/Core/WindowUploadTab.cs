@@ -744,13 +744,17 @@ namespace Wireframe
             string guids = string.Join("_", m_currentUploadProfile.UploadConfigs.Select(x => x.GUID));
             
             // Start task
-            Task asyncBuildTask = uploadTask.StartAsync(true);
             Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
             WindowTasksTab taskTab = UploaderWindow.SetTab<WindowTasksTab>();
             if (taskTab != null)
             {
                 taskTab.ShowTask(uploadTask);
             }
+            
+            await Task.Yield(); // Yield to allow the UI to update before starting the task
+            await Task.Yield(); // Yield to allow the UI to update before starting the task
+            await Task.Yield(); // Yield to allow the UI to update before starting the task
+            Task asyncBuildTask = uploadTask.StartAsync(true);
             
             // Wait for task to complete
             while (!asyncBuildTask.IsCompleted)

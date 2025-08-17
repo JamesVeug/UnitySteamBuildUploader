@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditorInternal;
@@ -18,7 +19,8 @@ namespace Wireframe
         public override StepType Type => StepType.CacheSources;
         
         
-        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
+        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
+            CancellationTokenSource token)
         {
             int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
             List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;

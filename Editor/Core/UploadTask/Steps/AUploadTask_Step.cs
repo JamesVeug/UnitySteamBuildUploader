@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -26,7 +27,7 @@ namespace Wireframe
         
         public abstract StepType Type { get; }
         public virtual bool RequiresEverythingBeforeToSucceed => true;
-        public abstract Task<bool> Run(UploadTask uploadTask, UploadTaskReport report);
+        public abstract Task<bool> Run(UploadTask uploadTask, UploadTaskReport report, CancellationTokenSource token);
         public abstract Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report);
         
         protected readonly StringFormatter.Context m_context;
@@ -62,6 +63,11 @@ namespace Wireframe
 
         protected void ReportFilesAtPath(string cachePath, string prefix, UploadTaskReport.StepResult result)
         {
+            if (string.IsNullOrEmpty(cachePath))
+            {
+                return;
+            }
+            
             List<string> allFiles = Utils.GetSortedFilesAndDirectories(cachePath);
 
             StringBuilder sb = new StringBuilder();

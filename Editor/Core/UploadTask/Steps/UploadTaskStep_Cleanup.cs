@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -16,7 +17,8 @@ namespace Wireframe
         public override StepType Type => StepType.Cleanup;
         public override bool RequiresEverythingBeforeToSucceed => false;
         
-        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
+        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
+            CancellationTokenSource token)
         {
             report.SetProcess(StepProcess.Intra);
             UploadTaskReport.StepResult beginCleanupResult = report.NewReport(StepType.Cleanup);

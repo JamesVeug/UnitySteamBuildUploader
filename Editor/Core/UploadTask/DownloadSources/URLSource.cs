@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
@@ -59,7 +60,7 @@ namespace Wireframe
         }
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx)
+            StringFormatter.Context ctx, CancellationTokenSource token)
         {
             // Preparing
             string directoryPath = Path.Combine(Preferences.CacheFolderPath, "URLBuilds");

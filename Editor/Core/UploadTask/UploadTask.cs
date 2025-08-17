@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -132,6 +133,7 @@ namespace Wireframe
             
             // Do upload steps
             bool allStepsSuccessful = true;
+            CancellationTokenSource token = new CancellationTokenSource();
             for (int i = 0; i < steps.Length; i++)
             {
                 AUploadTask_Step step = steps[i];
@@ -143,7 +145,7 @@ namespace Wireframe
                 
                 // Perform the Step (GetSources, CacheSources, etc.)
                 report.SetProcess(AUploadTask_Step.StepProcess.Intra);
-                Task<bool> intraTask = step.Run(this, report);
+                Task<bool> intraTask = step.Run(this, report, token);
                 while (!intraTask.IsCompleted)
                 {
                     float progress = report.GetProgress(step.Type, AUploadTask_Step.StepProcess.Intra);
@@ -156,7 +158,7 @@ namespace Wireframe
                 // Post-step logic mainly for logging
                 report.SetProcess(AUploadTask_Step.StepProcess.Post);
                 bool postStepSuccessful = await step.PostRunResult(this, report);
-                if (!stepSuccessful || !postStepSuccessful)
+                if (!stepSuccessful || !postStepSuccessful || token.IsCancellationRequested)
                 {
                     allStepsSuccessful = false;
                 }

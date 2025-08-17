@@ -32,7 +32,7 @@ namespace Wireframe
         private static SemaphoreSlim m_lock = new SemaphoreSlim(1);
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx)
+            StringFormatter.Context ctx, CancellationTokenSource token)
         {
             // Start build
             if (m_BuildConfig == null)
@@ -64,6 +64,12 @@ namespace Wireframe
             BuildReport report = null;
             try
             {
+                if (token.IsCancellationRequested)
+                {
+                    stepResult.AddLog("Build cancelled by user.");
+                    return false;
+                }
+                
                 m_oldBuildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
                 m_oldBuildTarget = EditorUserBuildSettings.activeBuildTarget;
                 
@@ -112,6 +118,7 @@ namespace Wireframe
             {
                 stepResult.AddException(e);
                 stepResult.SetFailed("Build failed - " + e.Message);
+                token.Cancel();
                 return false;
             }
             finally
@@ -159,6 +166,7 @@ namespace Wireframe
             
             stepResult.AddError($"Build failed with result: {report.SummarizeErrors()}");
             stepResult.SetFailed(report.SummarizeErrors());
+            token.Cancel();
             return false;
         }
 

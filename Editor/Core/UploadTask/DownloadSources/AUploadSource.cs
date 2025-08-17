@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -11,7 +12,8 @@ namespace Wireframe
         }
 
         public int Id { get; set; }
-        public abstract Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx);
+        public abstract Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
+            StringFormatter.Context ctx, CancellationTokenSource token);
         public abstract string SourceFilePath();
 
         public virtual void CleanUp(int i, UploadTaskReport.StepResult result)

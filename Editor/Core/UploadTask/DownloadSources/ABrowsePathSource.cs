@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -61,7 +62,7 @@ namespace Wireframe
         }
 
         public override Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx)
+            StringFormatter.Context ctx, CancellationTokenSource token)
         {
             // Decide where we want to download to
             string directoryPath = Preferences.CacheFolderPath;

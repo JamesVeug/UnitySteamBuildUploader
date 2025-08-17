@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -16,7 +17,8 @@ namespace Wireframe
         public override StepType Type => StepType.PostUploadActions;
         public override bool RequiresEverythingBeforeToSucceed => false;
         
-        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
+        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
+            CancellationTokenSource token)
         {
             UploadTaskReport.StepResult actionResult = report.NewReport(StepType.PostUploadActions);
             int postActionID = ProgressUtils.Start("Post Upload Actions", "Executing Post Upload Actions...");

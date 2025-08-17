@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -15,7 +16,7 @@ namespace Wireframe
 
         public override StepType Type => StepType.GetSources;
 
-        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
+        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report, CancellationTokenSource token)
         {
             List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
 
@@ -27,7 +28,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = GetSources(buildConfigs[j], report, m_context);
+                Task<bool> task = GetSources(buildConfigs[j], report, m_context, token);
                 List<UploadConfig.SourceData> activeSources = buildConfigs[j].Sources.Where(a=>a.Enabled).ToList();
                 tasks.Add(new Tuple<List<UploadConfig.SourceData>, Task<bool>>(activeSources, task));
             }
@@ -60,7 +61,8 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> GetSources(UploadConfig uploadConfig, UploadTaskReport report, StringFormatter.Context ctx)
+        private async Task<bool> GetSources(UploadConfig uploadConfig, UploadTaskReport report,
+            StringFormatter.Context ctx, CancellationTokenSource token)
         {
             UploadTaskReport.StepResult[] results = report.NewReports(Type, uploadConfig.Sources.Count);
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
@@ -73,9 +75,14 @@ namespace Wireframe
                     continue;
                 }
 
+                if (token.IsCancellationRequested)
+                {
+                    return false;
+                }
+
                 try
                 {
-                    bool success = await sourceData.Source.GetSource(uploadConfig, result, ctx);
+                    bool success = await sourceData.Source.GetSource(uploadConfig, result, ctx, token);
                     if (!success)
                     {
                         return false;

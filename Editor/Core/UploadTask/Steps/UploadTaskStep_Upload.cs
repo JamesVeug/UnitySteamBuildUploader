@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -14,7 +15,8 @@ namespace Wireframe
 
         public override StepType Type => StepType.Upload;
         
-        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report)
+        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
+            CancellationTokenSource token)
         {
             List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
 

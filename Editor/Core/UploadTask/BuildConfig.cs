@@ -12,10 +12,8 @@ namespace Wireframe
         public enum Architecture
         {
             Unknown,
-            x86,
             x86_64,
-            ARM,
-            ARM64
+            x86_32,
         }
         
         public string GUID;
@@ -78,13 +76,13 @@ namespace Wireframe
         {
             // 0 - None
             // 1 - ARM64
-            // 2 - Universal
+            // 2 - Universal (I'm assuming this is 32 bit)
             int architecture = PlayerSettings.GetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
             return architecture switch
             {
                 0 => Architecture.Unknown,
-                1 => Architecture.ARM64,
-                2 => Architecture.ARM,
+                1 => Architecture.x86_64,
+                2 => Architecture.x86_32,
                 _ => Architecture.Unknown
             };
         }
@@ -99,7 +97,7 @@ namespace Wireframe
             return BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
         }
         
-        private List<string> GetDefaultScriptingDefines()
+        public List<string> GetDefaultScriptingDefines()
         {
             List<string> defines = new List<string>();
             
@@ -329,8 +327,30 @@ namespace Wireframe
             return buildOptions;
         }
 
-        public void ApplySettings(StringFormatter.Context context)
+        public bool ApplySettings(StringFormatter.Context context, UploadTaskReport.StepResult stepResult = null)
         {
+            // Switch to the build target if necessary
+            BuildTarget buildTarget = CalculateTarget();
+            if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
+            {
+                stepResult?.AddLog($"Switching build target to {buildTarget}");
+                bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(TargetPlatform, buildTarget);
+                if (!switched)
+                {
+                    stepResult?.AddError($"Failed to switch build target to {buildTarget}");
+                    stepResult?.SetFailed("Failed to switch build target. Please check the console for more details.");
+                    return false;
+                }
+                else if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
+                {
+                    stepResult?.AddError($"Failed to switch build target to {buildTarget}. Current target is {EditorUserBuildSettings.activeBuildTarget}");
+                    stepResult?.SetFailed("Failed to switch build target. Please check the console for more details.");
+                    return false;
+                }
+
+                stepResult?.AddLog($"Switched build target to {TargetPlatform}");
+            }
+            
             PlayerSettings.productName = StringFormatter.FormatString(ProductName, context);
             string[] defines = ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, context)).ToArray();
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);
@@ -347,16 +367,7 @@ namespace Wireframe
             EditorUserBuildSettings.allowDebugging = AllowDebugging;
             EditorUserBuildSettings.buildWithDeepProfilingSupport = EnableDeepProfilingSupport;
             
-            if (TargetPlatform == BuildTargetGroup.Android || TargetPlatform == BuildTargetGroup.iOS)
-            {
-                // For mobile platforms, we might need to set the architecture
-                PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);
-            }
-            else
-            {
-                // For other platforms, we can ignore architecture
-                TargetArchitecture = Architecture.Unknown;
-            }
+            PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);
             
             // Scene list
             if (Scenes == null || Scenes.Count == 0)
@@ -367,23 +378,8 @@ namespace Wireframe
             {
                 EditorBuildSettings.scenes = Scenes.Select(scene => new EditorBuildSettingsScene(scene, true)).ToArray();
             }
-            
-            // Set the build target group
-            bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(TargetPlatform, CalculateTarget());
-            if (!switched)
-            {
-                Debug.LogWarning($"Failed to switch build target to {TargetPlatform}. The current build target may not match the configured target platform.");
-            }
-            else if(EditorUserBuildSettings.selectedBuildTargetGroup != TargetPlatform)
-            {
-                Debug.LogWarning($"Did NOT switch to build target {TargetPlatform}.");
-            }
-            else if(EditorUserBuildSettings.selectedBuildTargetGroup != TargetPlatform)
-            {
-                Debug.Log($"Switched build target to {TargetPlatform}.");
-            }
-            
-            Debug.Log("BuildConfig settings applied:");
+
+            return true;
         }
 
         public BuildTarget CalculateTarget()
@@ -392,7 +388,34 @@ namespace Wireframe
             switch (TargetPlatform)
             {
                 case BuildTargetGroup.Standalone:
-                    currentTarget = BuildTarget.StandaloneWindows; // Default to Windows for Standalone
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+                    if (TargetArchitecture == Architecture.x86_64)
+                    {
+                        // 64 bit
+                        currentTarget = BuildTarget.StandaloneWindows64;
+                    }
+                    else
+                    {
+                        // 32 bit
+                        currentTarget = BuildTarget.StandaloneWindows; // Default to Windows for Standalone
+                    }
+#elif UNITY_EDITOR_OSX
+                    // Use SetArchitecture to define 32bit / 64bit
+                    currentTarget = BuildTarget.StandaloneOSX;
+#elif UNITY_STANDALONE_LINUX || UNITY_EDITOR_LINUX
+                    if (TargetArchitecture == Architecture.x86_64)
+                    {
+                        // 64 bit
+                        currentTarget = BuildTarget.StandaloneLinux64;
+                    }
+                    else
+                    {
+                        // 32 bit
+                        throw new NotSupportedException("32-bit Linux builds are not supported. Please use StandaloneLinux64.");
+                    }
+#else
+                    throw new NotSupportedException("Unsupported standalone platform. Please specify a valid architecture for Standalone builds.");
+#endif
                     break;
                 case BuildTargetGroup.WebGL:
                     currentTarget = BuildTarget.WebGL;

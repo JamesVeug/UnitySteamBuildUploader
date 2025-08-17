@@ -59,60 +59,43 @@ namespace Wireframe
             
             Directory.CreateDirectory(m_filePath);
             
-            // Get all enabled scenes in build settings
-            BuildOptions buildOptions = m_BuildConfig.GetBuildOptions();
-            buildOptions |= BuildOptions.DetailedBuildReport;
-
-            string productName = m_BuildConfig.GetFormattedProductName(ctx);
-            string[] defines = m_BuildConfig.ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, ctx)).ToArray();
-            BuildPlayerOptions options = new BuildPlayerOptions
-            {
-                scenes = m_BuildConfig.Scenes.Distinct().ToArray(),
-                locationPathName = Path.Combine(m_filePath, productName),
-                targetGroup = m_BuildConfig.TargetPlatform,
-                target = m_BuildConfig.CalculateTarget(),
-                options = buildOptions,
-                extraScriptingDefines = defines,
-            };
-            
-            stepResult.AddLog("Starting build with the following options:");
-            stepResult.AddLog($"Scenes: {string.Join(", ", options.scenes)}");
-            stepResult.AddLog($"Location: {options.locationPathName}");
-            stepResult.AddLog($"Target Group: {options.targetGroup}");
-            stepResult.AddLog($"Target: {options.target}");
-            stepResult.AddLog($"Build Options: {options.options}");
-            
             await m_lock.WaitAsync();
 
             BuildReport report = null;
             try
             {
-                // Switch to the build target if necessary
-                if (EditorUserBuildSettings.activeBuildTarget != options.target)
-                {
-                    stepResult.AddLog($"Switching build target to {options.target}");
-                    m_oldBuildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-                    m_oldBuildTarget = EditorUserBuildSettings.activeBuildTarget;
-                    bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(options.targetGroup, options.target);
-                    if (!switched)
-                    {
-                        stepResult.AddError($"Failed to switch build target to {options.target}");
-                        stepResult.SetFailed("Failed to switch build target. Please check the console for more details.");
-                        return false;
-                    }
-                    else if (EditorUserBuildSettings.activeBuildTarget != options.target)
-                    {
-                        stepResult.AddError($"Failed to switch build target to {options.target}. Current target is {EditorUserBuildSettings.activeBuildTarget}");
-                        stepResult.SetFailed("Failed to switch build target. Please check the console for more details.");
-                        return false;
-                    }
+                m_oldBuildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+                m_oldBuildTarget = EditorUserBuildSettings.activeBuildTarget;
+                
+                stepResult.AddLog($"Applying settings");
+                m_BuildConfig.ApplySettings(ctx, stepResult);
+                stepResult.AddLog($"Build settings applied");
+            
+                // Get all enabled scenes in build settings
+                BuildOptions buildOptions = m_BuildConfig.GetBuildOptions();
+                buildOptions |= BuildOptions.DetailedBuildReport;
 
-                    stepResult.AddLog($"Switched build target to {options.targetGroup}");
-                }
-                else
+                string productName = m_BuildConfig.GetFormattedProductName(ctx);
+                BuildPlayerOptions options = new BuildPlayerOptions
                 {
-                    m_oldBuildTarget = BuildTarget.NoTarget;
-                }
+                    scenes = EditorBuildSettings.scenes
+                        .Where(scene => scene.enabled)
+                        .Select(scene => scene.path)
+                        .ToArray(),
+                    locationPathName = Path.Combine(m_filePath, productName),
+                    targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
+                    target = EditorUserBuildSettings.activeBuildTarget,
+                    options = buildOptions,
+                    extraScriptingDefines = m_BuildConfig.GetDefaultScriptingDefines().ToArray(),
+                };
+            
+                stepResult.AddLog("Starting build with the following options:");
+                stepResult.AddLog($"Scenes: {string.Join(", ", options.scenes)}");
+                stepResult.AddLog($"Location: {options.locationPathName}");
+                stepResult.AddLog($"Target Group: {options.targetGroup}");
+                stepResult.AddLog($"Target: {options.target}");
+                stepResult.AddLog($"Build Options: {options.options}");
+                
 
                 // Build the player
                 Stopwatch stopwatch = Stopwatch.StartNew();

@@ -68,7 +68,11 @@ namespace Wireframe
                 m_oldBuildTarget = EditorUserBuildSettings.activeBuildTarget;
                 
                 stepResult.AddLog($"Applying settings");
-                m_BuildConfig.ApplySettings(ctx, stepResult);
+                if (!m_BuildConfig.ApplySettings(ctx, stepResult))
+                {
+                    stepResult.SetFailed("Failed to apply build settings. Please check the console for more details.");
+                    return false;
+                }
                 stepResult.AddLog($"Build settings applied");
             
                 // Get all enabled scenes in build settings

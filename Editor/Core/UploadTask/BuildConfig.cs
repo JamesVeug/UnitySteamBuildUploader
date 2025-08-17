@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build;
+using UnityEngine;
 
 namespace Wireframe
 {
     public partial class BuildConfig
     {
+        public enum Architecture
+        {
+            Unknown,
+            x86,
+            x86_64,
+            ARM,
+            ARM64
+        }
+        
         public string GUID;
         public string BuildName;
         public string ProductName;
@@ -20,6 +30,13 @@ namespace Wireframe
         public bool AllowDebugging;
         public bool ConnectProfiler;
         public bool EnableDeepProfilingSupport;
+        
+        // Platform specific settings
+        public BuildTargetGroup TargetPlatform;
+        public Architecture TargetArchitecture;
+        public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes;
+        public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
+        // public ScriptingImplementation ScriptingBackend; // TODO: IL2CPP settings also
 
         public void SetupDefaults()
         {
@@ -28,6 +45,58 @@ namespace Wireframe
             Scenes = GetDefaultScenes();
             ProductName = GetDefaultProductName();
             ExtraScriptingDefines = GetDefaultScriptingDefines();
+            TargetPlatform = BuildTargetToPlatform();
+            TargetArchitecture = CurrentTargetArchitecture();
+            StackTraceLogTypes = CurrentStackTraceLogTypes();
+            // ScriptingBackend = CurrentScriptingBackend(); // TODO:
+            StrippingLevel = CurrentStrippingLevel();
+        }
+
+        private ManagedStrippingLevel CurrentStrippingLevel()
+        {
+            return PlayerSettings.GetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
+        }
+
+        private ScriptingImplementation CurrentScriptingBackend()
+        {
+            // 0 - Mono
+            // 1 - IL2CPP
+            return PlayerSettings.GetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
+        }
+
+        private Dictionary<LogType, StackTraceLogType> CurrentStackTraceLogTypes()
+        {
+            Dictionary<LogType, StackTraceLogType> stackTraceLogTypes = new Dictionary<LogType, StackTraceLogType>();
+            foreach (LogType logType in Enum.GetValues(typeof(LogType)))
+            {
+                stackTraceLogTypes[logType] = PlayerSettings.GetStackTraceLogType(logType);
+            }
+            return stackTraceLogTypes;
+        }
+
+        private Architecture CurrentTargetArchitecture()
+        {
+            // 0 - None
+            // 1 - ARM64
+            // 2 - Universal
+            int architecture = PlayerSettings.GetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
+            return architecture switch
+            {
+                0 => Architecture.Unknown,
+                1 => Architecture.ARM64,
+                2 => Architecture.ARM,
+                _ => Architecture.Unknown
+            };
+        }
+
+        public static BuildTarget CurrentTargetPlatform()
+        {
+            return EditorUserBuildSettings.activeBuildTarget;
+        }
+        
+        public static BuildTargetGroup BuildTargetToPlatform()
+        {
+            return BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
         }
         
         private List<string> GetDefaultScriptingDefines()
@@ -58,13 +127,7 @@ namespace Wireframe
 
         private string GetDefaultProductName()
         {
-#if UNITY_STANDALONE_WIN
-            return "{projectName}.exe"; // For Windows, the executable is a .exe file
-#elif UNITY_MAC
-            return "{projectName}.app"; // For macOS, the executable is a .app bundle
-#else
-            return "{projectName}"; // Default for other platforms
-#endif
+            return Application.productName;
         }
 
         public Dictionary<string, object> Serialize()
@@ -80,7 +143,11 @@ namespace Wireframe
                 { "BuildScriptsOnly", BuildScriptsOnly },
                 { "AllowDebugging", AllowDebugging },
                 { "ConnectProfiler", ConnectProfiler },
-                { "EnableDeepProfilingSupport", EnableDeepProfilingSupport }
+                { "EnableDeepProfilingSupport", EnableDeepProfilingSupport },
+                { "TargetPlatform", TargetPlatform.ToString() },
+                { "TargetArchitecture", TargetArchitecture.ToString() },
+                { "StackTraceLogTypes", StackTraceLogTypes.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()) },
+                { "StrippingLevel", StrippingLevel.ToString() }
             };
             return dict;
         }
@@ -176,6 +243,182 @@ namespace Wireframe
             {
                 EnableDeepProfilingSupport = false;
             }
+            
+            if (dict.TryGetValue("TargetPlatform", out var targetPlatformData) && targetPlatformData is string targetPlatformStr)
+            {
+                if (Enum.TryParse(targetPlatformStr, out BuildTargetGroup targetPlatform))
+                {
+                    TargetPlatform = targetPlatform;
+                }
+                else
+                {
+                    Debug.LogWarning($"Invalid TargetPlatform value: {targetPlatformStr}. Defaulting to current platform.");
+                    TargetPlatform = BuildTargetToPlatform();
+                }
+            }
+            else
+            {
+                TargetPlatform = BuildTargetToPlatform();
+            }
+            
+            if (dict.TryGetValue("TargetArchitecture", out var targetArchitectureData) && targetArchitectureData is string targetArchitectureStr)
+            {
+                if (Enum.TryParse(targetArchitectureStr, out Architecture targetArchitecture))
+                {
+                    TargetArchitecture = targetArchitecture;
+                }
+                else
+                {
+                    Debug.LogWarning($"Invalid TargetArchitecture value: {targetArchitectureStr}. Defaulting to Unknown.");
+                    TargetArchitecture = Architecture.Unknown;
+                }
+            }
+            else
+            {
+                TargetArchitecture = CurrentTargetArchitecture();
+            }
+            
+            if (dict.TryGetValue("StackTraceLogTypes", out var stackTraceLogTypesData) && stackTraceLogTypesData is Dictionary<string, string> stackTraceLogTypesDict)
+            {
+                StackTraceLogTypes = stackTraceLogTypesDict.ToDictionary(
+                    kvp => (LogType)Enum.Parse(typeof(LogType), kvp.Key),
+                    kvp => (StackTraceLogType)Enum.Parse(typeof(StackTraceLogType), kvp.Value));
+            }
+            else
+            {
+                StackTraceLogTypes = CurrentStackTraceLogTypes();
+            }
+            
+            if (dict.TryGetValue("StrippingLevel", out var strippingLevelData) && strippingLevelData is string strippingLevelStr)
+            {
+                if (Enum.TryParse(strippingLevelStr, out ManagedStrippingLevel strippingLevel))
+                {
+                    StrippingLevel = strippingLevel;
+                }
+                else
+                {
+                    Debug.LogWarning($"Invalid StrippingLevel value: {strippingLevelStr}. Defaulting to Disabled.");
+                    StrippingLevel = ManagedStrippingLevel.Disabled;
+                }
+            }
+            else
+            {
+                StrippingLevel = CurrentStrippingLevel();
+            }
+        }
+
+        public BuildOptions GetBuildOptions()
+        {
+            BuildOptions buildOptions = BuildOptions.None;
+            
+            if (IsDevelopmentBuild)
+                buildOptions |= BuildOptions.Development;
+
+            if (AllowDebugging)
+                buildOptions |= BuildOptions.AllowDebugging;
+
+            if (BuildScriptsOnly)
+                buildOptions |= BuildOptions.BuildScriptsOnly;
+
+            if (ConnectProfiler)
+                buildOptions |= BuildOptions.ConnectWithProfiler;
+            
+            if (EnableDeepProfilingSupport)
+                buildOptions |= BuildOptions.EnableDeepProfilingSupport;
+
+            return buildOptions;
+        }
+
+        public void ApplySettings(StringFormatter.Context context)
+        {
+            PlayerSettings.productName = StringFormatter.FormatString(ProductName, context);
+            string[] defines = ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, context)).ToArray();
+            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);
+            PlayerSettings.SetStackTraceLogType(LogType.Error, StackTraceLogTypes[LogType.Error]);
+            PlayerSettings.SetStackTraceLogType(LogType.Assert, StackTraceLogTypes[LogType.Assert]);
+            PlayerSettings.SetStackTraceLogType(LogType.Warning, StackTraceLogTypes[LogType.Warning]);
+            PlayerSettings.SetStackTraceLogType(LogType.Log, StackTraceLogTypes[LogType.Log]);
+            PlayerSettings.SetStackTraceLogType(LogType.Exception, StackTraceLogTypes[LogType.Exception]);
+            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), StrippingLevel);
+            // PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), CurrentScriptingBackend());
+            
+            EditorUserBuildSettings.development = IsDevelopmentBuild;
+            EditorUserBuildSettings.connectProfiler = ConnectProfiler;
+            EditorUserBuildSettings.allowDebugging = AllowDebugging;
+            EditorUserBuildSettings.buildWithDeepProfilingSupport = EnableDeepProfilingSupport;
+            
+            if (TargetPlatform == BuildTargetGroup.Android || TargetPlatform == BuildTargetGroup.iOS)
+            {
+                // For mobile platforms, we might need to set the architecture
+                PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);
+            }
+            else
+            {
+                // For other platforms, we can ignore architecture
+                TargetArchitecture = Architecture.Unknown;
+            }
+            
+            // Scene list
+            if (Scenes == null || Scenes.Count == 0)
+            {
+                EditorBuildSettings.scenes = Array.Empty<EditorBuildSettingsScene>();
+            }
+            else
+            {
+                EditorBuildSettings.scenes = Scenes.Select(scene => new EditorBuildSettingsScene(scene, true)).ToArray();
+            }
+            
+            // Set the build target group
+            bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(TargetPlatform, CalculateTarget());
+            if (!switched)
+            {
+                Debug.LogWarning($"Failed to switch build target to {TargetPlatform}. The current build target may not match the configured target platform.");
+            }
+            else if(EditorUserBuildSettings.selectedBuildTargetGroup != TargetPlatform)
+            {
+                Debug.LogWarning($"Did NOT switch to build target {TargetPlatform}.");
+            }
+            else if(EditorUserBuildSettings.selectedBuildTargetGroup != TargetPlatform)
+            {
+                Debug.Log($"Switched build target to {TargetPlatform}.");
+            }
+            
+            Debug.Log("BuildConfig settings applied:");
+        }
+
+        public BuildTarget CalculateTarget()
+        {
+            BuildTarget currentTarget = BuildTarget.NoTarget;
+            switch (TargetPlatform)
+            {
+                case BuildTargetGroup.Standalone:
+                    currentTarget = BuildTarget.StandaloneWindows; // Default to Windows for Standalone
+                    break;
+                case BuildTargetGroup.WebGL:
+                    currentTarget = BuildTarget.WebGL;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return currentTarget;
+        }
+
+        public string GetFormattedProductName(StringFormatter.Context ctx)
+        {
+            string formatted = StringFormatter.FormatString(ProductName, ctx);
+            if (TargetPlatform == BuildTargetGroup.Standalone)
+            {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+                return $"{formatted}.exe"; // For Windows, the executable is a .exe file
+#elif UNITY_MAC
+                return $"{formatted}.app"; // For macOS, the executable is a .app bundle
+#else
+                return $"{formatted}"; // Default for other platforms
+#endif
+            }
+
+            return formatted;
         }
     }
 }

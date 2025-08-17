@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Wireframe
 {
@@ -23,6 +26,10 @@ namespace Wireframe
         protected BuildConfig m_BuildConfig = null;
 
         private string m_filePath = "";
+        private BuildTargetGroup m_oldBuildTargetGroup;
+        private BuildTarget m_oldBuildTarget = BuildTarget.NoTarget;
+        
+        private static SemaphoreSlim m_lock = new SemaphoreSlim(1);
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             StringFormatter.Context ctx)
@@ -53,32 +60,17 @@ namespace Wireframe
             Directory.CreateDirectory(m_filePath);
             
             // Get all enabled scenes in build settings
-            BuildOptions buildOptions = BuildOptions.None;
+            BuildOptions buildOptions = m_BuildConfig.GetBuildOptions();
             buildOptions |= BuildOptions.DetailedBuildReport;
-            
-            if (m_BuildConfig.IsDevelopmentBuild)
-                buildOptions |= BuildOptions.Development;
 
-            if (m_BuildConfig.AllowDebugging)
-                buildOptions |= BuildOptions.AllowDebugging;
-
-            if (m_BuildConfig.BuildScriptsOnly)
-                buildOptions |= BuildOptions.BuildScriptsOnly;
-
-            if (m_BuildConfig.ConnectProfiler)
-                buildOptions |= BuildOptions.ConnectWithProfiler;
-            
-            if (m_BuildConfig.EnableDeepProfilingSupport)
-                buildOptions |= BuildOptions.EnableDeepProfilingSupport;
-
-            string productName = StringFormatter.FormatString(m_BuildConfig.ProductName, ctx);
+            string productName = m_BuildConfig.GetFormattedProductName(ctx);
             string[] defines = m_BuildConfig.ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, ctx)).ToArray();
             BuildPlayerOptions options = new BuildPlayerOptions
             {
                 scenes = m_BuildConfig.Scenes.Distinct().ToArray(),
                 locationPathName = Path.Combine(m_filePath, productName),
-                targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
-                target = EditorUserBuildSettings.activeBuildTarget,
+                targetGroup = m_BuildConfig.TargetPlatform,
+                target = m_BuildConfig.CalculateTarget(),
                 options = buildOptions,
                 extraScriptingDefines = defines,
             };
@@ -89,9 +81,59 @@ namespace Wireframe
             stepResult.AddLog($"Target Group: {options.targetGroup}");
             stepResult.AddLog($"Target: {options.target}");
             stepResult.AddLog($"Build Options: {options.options}");
- 
-            // Build the player
-            BuildReport report = BuildPipeline.BuildPlayer(options);
+            
+            await m_lock.WaitAsync();
+
+            BuildReport report = null;
+            try
+            {
+                // Switch to the build target if necessary
+                if (EditorUserBuildSettings.activeBuildTarget != options.target)
+                {
+                    stepResult.AddLog($"Switching build target to {options.target}");
+                    m_oldBuildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+                    m_oldBuildTarget = EditorUserBuildSettings.activeBuildTarget;
+                    bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(options.targetGroup, options.target);
+                    if (!switched)
+                    {
+                        stepResult.AddError($"Failed to switch build target to {options.target}");
+                        stepResult.SetFailed("Failed to switch build target. Please check the console for more details.");
+                        return false;
+                    }
+                    else if (EditorUserBuildSettings.activeBuildTarget != options.target)
+                    {
+                        stepResult.AddError($"Failed to switch build target to {options.target}. Current target is {EditorUserBuildSettings.activeBuildTarget}");
+                        stepResult.SetFailed("Failed to switch build target. Please check the console for more details.");
+                        return false;
+                    }
+
+                    stepResult.AddLog($"Switched build target to {options.targetGroup}");
+                }
+                else
+                {
+                    m_oldBuildTarget = BuildTarget.NoTarget;
+                }
+
+                // Build the player
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                stepResult.AddLog("Starting build...");
+                report = BuildPipeline.BuildPlayer(options);
+                stopwatch.Stop();
+                stepResult.AddLog($"Build completed in {stopwatch.ElapsedMilliseconds} ms");
+            }
+            catch (Exception e)
+            {
+                stepResult.AddException(e);
+                stepResult.SetFailed("Build failed - " + e.Message);
+                return false;
+            }
+            finally
+            {
+                m_lock.Release();
+                stepResult.SetPercentComplete(1f);
+            }
+
+            
             foreach (var step in report.steps)
             {
                 stepResult.AddLog($"Step: {step.name}");
@@ -169,6 +211,35 @@ namespace Wireframe
             else
             {
                 Debug.LogWarning("BuildConfig GUID not found in serialized data.");
+            }
+        }
+
+        public override void CleanUp(int i, UploadTaskReport.StepResult result)
+        {
+            base.CleanUp(i, result);
+            if (i > 0)
+            {
+                // Only switch once - not once per source
+                return;
+            }
+
+            if (m_oldBuildTarget == BuildTarget.NoTarget 
+                || (EditorUserBuildSettings.activeBuildTarget == m_oldBuildTarget 
+                    && EditorUserBuildSettings.selectedBuildTargetGroup == m_oldBuildTargetGroup))
+            {
+                // No need to switch back if we are already targeting the right build target
+                return;
+            }
+            
+            // Switch back to the old build target
+            bool switchedBack = EditorUserBuildSettings.SwitchActiveBuildTarget(m_oldBuildTargetGroup, m_oldBuildTarget);
+            if (!switchedBack)
+            {
+                result.AddError($"Failed to switch back to build target {m_oldBuildTarget}");
+            }
+            else
+            {
+                result.AddLog($"Switched back to build target {m_oldBuildTarget}");
             }
         }
     }

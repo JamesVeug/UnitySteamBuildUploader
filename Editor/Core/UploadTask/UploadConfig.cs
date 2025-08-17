@@ -287,11 +287,11 @@ namespace Wireframe
             return true;
         }
 
-        public void CleanUp(UploadTaskReport.StepResult result)
+        public void CleanUp(int i, UploadTaskReport.StepResult result)
         {
             foreach (SourceData source in m_buildSources)
             {
-                source.Source?.CleanUp(result);
+                source.Source?.CleanUp(i, result);
             }
 
             foreach (DestinationData destination in m_buildDestinations)

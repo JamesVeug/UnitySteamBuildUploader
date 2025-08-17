@@ -121,9 +121,9 @@ namespace Wireframe
             return true;
         }
 
-        public override void CleanUp(UploadTaskReport.StepResult result)
+        public override void CleanUp(int i, UploadTaskReport.StepResult result)
         {
-            base.CleanUp(result);
+            base.CleanUp(i, result);
             if (File.Exists(m_sourcePath))
             {
                 result.AddLog("Deleting cached file: " + m_sourcePath);

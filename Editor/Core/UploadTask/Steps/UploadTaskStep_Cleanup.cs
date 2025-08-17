@@ -43,6 +43,7 @@ namespace Wireframe
                 // Cleanup configs
                 ProgressUtils.Report(cleanupProgressId, 0.5f, "Cleaning up Upload configs");
                 UploadTaskReport.StepResult[] cleanupReports = report.NewReports(StepType.Cleanup, uploadTask.UploadConfigs.Count);
+                int activeConfigIndex = 0;
                 for (int i = 0; i < uploadTask.UploadConfigs.Count; i++)
                 {
                     var buildConfig = uploadTask.UploadConfigs[i];
@@ -57,7 +58,7 @@ namespace Wireframe
                     await Task.Yield();
                     ProgressUtils.Report(cleanupProgressId, 0.5f, $"Cleaning up configs " + (i+1) + "/" + uploadTask.UploadConfigs.Count);
                     
-                    buildConfig.CleanUp(cleanupResult);
+                    buildConfig.CleanUp(activeConfigIndex++, cleanupResult);
                     cleanupResult.SetPercentComplete(1f);
                 }
                 

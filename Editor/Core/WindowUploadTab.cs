@@ -744,7 +744,7 @@ namespace Wireframe
             string guids = string.Join("_", m_currentUploadProfile.UploadConfigs.Select(x => x.GUID));
             
             // Start task
-            Task asyncBuildTask = uploadTask.StartAsync(false);
+            Task asyncBuildTask = uploadTask.StartAsync(true);
             Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
             WindowTasksTab taskTab = UploaderWindow.SetTab<WindowTasksTab>();
             if (taskTab != null)

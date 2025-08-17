@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -74,6 +75,11 @@ namespace Wireframe
                             GUILayout.Label("GUID:");
                             GUILayout.Label(GUID);
                         }
+
+                        if (GUILayout.Button("Apply Settings", GUILayout.Width(120)))
+                        {
+                            ApplySettings(context);
+                        }
                     }
                     
                     using (new EditorGUILayout.HorizontalScope())
@@ -110,7 +116,7 @@ namespace Wireframe
                     
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Allow Debugging:", GUILayout.Width(150));
+                        GUILayout.Label("Script Debugging:", GUILayout.Width(150));
                         bool newDevelopmentBuild = EditorGUILayout.Toggle(AllowDebugging);
                         if (newDevelopmentBuild != AllowDebugging)
                         {
@@ -121,7 +127,7 @@ namespace Wireframe
                     
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Connect Profiler:", GUILayout.Width(150));
+                        GUILayout.Label("Autoconnect Profiler:", GUILayout.Width(150));
                         bool newDevelopmentBuild = EditorGUILayout.Toggle(ConnectProfiler);
                         if (newDevelopmentBuild != ConnectProfiler)
                         {
@@ -132,7 +138,7 @@ namespace Wireframe
                     
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Enable Deep Profiling:", GUILayout.Width(150));
+                        GUILayout.Label("Deep Profiling Support:", GUILayout.Width(150));
                         bool newDevelopmentBuild = EditorGUILayout.Toggle(EnableDeepProfilingSupport);
                         if (newDevelopmentBuild != EnableDeepProfilingSupport)
                         {
@@ -150,6 +156,43 @@ namespace Wireframe
                     {
                         Save();
                     }
+                    
+                    
+                    
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Target Platform:", GUILayout.Width(150));
+                        BuildTargetGroup newTargetGroup = (BuildTargetGroup)EditorGUILayout.EnumPopup(TargetPlatform);
+                        if (newTargetGroup != TargetPlatform)
+                        {
+                            TargetPlatform = newTargetGroup;
+                            dirty = true;
+                        }
+                    }
+                    
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Target Architecture:", GUILayout.Width(150));
+                        Architecture newArchitecture = (Architecture)EditorGUILayout.EnumPopup(TargetArchitecture);
+                        if (newArchitecture != TargetArchitecture)
+                        {
+                            TargetArchitecture = newArchitecture;
+                            dirty = true;
+                        }
+                    }
+                    
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Stripping Level:", GUILayout.Width(150));
+                        ManagedStrippingLevel newStrippingLevel = (ManagedStrippingLevel)EditorGUILayout.EnumPopup(StrippingLevel);
+                        if (newStrippingLevel != StrippingLevel)
+                        {
+                            StrippingLevel = newStrippingLevel;
+                            dirty = true;
+                        }
+                    }
+                    
+                    
                 }
             }
         }

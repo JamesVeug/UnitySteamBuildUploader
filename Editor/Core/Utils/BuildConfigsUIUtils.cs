@@ -79,6 +79,12 @@ namespace Wireframe
             BuildConfig releaseBuild = new BuildConfig();
             releaseBuild.SetupDefaults();
             releaseBuild.BuildName = "Release Build";
+            releaseBuild.StrippingLevel = ManagedStrippingLevel.Minimal;
+            releaseBuild.StackTraceLogTypes[LogType.Log] = StackTraceLogType.None;
+            releaseBuild.StackTraceLogTypes[LogType.Warning] = StackTraceLogType.None;
+            releaseBuild.StackTraceLogTypes[LogType.Error] = StackTraceLogType.ScriptOnly;
+            releaseBuild.StackTraceLogTypes[LogType.Exception] = StackTraceLogType.ScriptOnly;
+            releaseBuild.StackTraceLogTypes[LogType.Assert] = StackTraceLogType.None;
 
             
             data.Add(debugBuild);

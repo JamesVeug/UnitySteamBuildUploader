@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace Wireframe
 {
     public partial class SteamUploadDestination
     {
+        private bool m_showFormattedLocalPath = false;
+        
         protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
             // Config
@@ -31,14 +34,32 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Create AppFile:", GUILayout.Width(120));
-                isDirty |= CustomToggle.DrawToggle(ref m_createAppFile);
+                isDirty |= CustomToggle.DrawToggle(ref m_createAppFile, GUILayout.Width(50));
+
+                using(new EditorGUI.DisabledScope(m_createAppFile))
+                {
+                    GUILayout.Label("File Name:", GUILayout.Width(70));
+                    if (EditorUtils.FormatStringTextField(ref m_appFileName, ref m_showFormattedLocalPath, ctx))
+                    {
+                        isDirty = true;
+                    }
+                }
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Create DepotFile:", GUILayout.Width(120));
-                bool drawToggle = CustomToggle.DrawToggle(ref m_createDepotFile);
+                bool drawToggle = CustomToggle.DrawToggle(ref m_createDepotFile, GUILayout.Width(50));
                 isDirty |= drawToggle;
+            
+                using(new EditorGUI.DisabledScope(m_createDepotFile))
+                {
+                    GUILayout.Label("File Name:", GUILayout.Width(70));
+                    if (EditorUtils.FormatStringTextField(ref m_depotFileName, ref m_showFormattedLocalPath, ctx))
+                    {
+                        isDirty = true;
+                    }
+                }
             }
 
             using (new GUILayout.HorizontalScope())

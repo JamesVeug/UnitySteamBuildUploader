@@ -63,6 +63,11 @@ namespace Wireframe
         {
             get => Instance.m_steamCMDPath;
         }
+        
+        public static string SteamScriptPath
+        {
+            get => Instance.m_scriptPath;
+        }
 
         public bool IsInitialized => m_initialized;
 
@@ -202,7 +207,7 @@ namespace Wireframe
             return fullPath;
         }
 
-        public async Task<bool> CreateDepotFiles(DepotVDFFile depot, string branchName, UploadTaskReport.StepResult result, string fileSuffix = "")
+        public async Task<string> CreateDepotFiles(DepotVDFFile depot, string branchName, UploadTaskReport.StepResult result, string fileSuffix = "")
         {
             depot.FileExclusion = "*.pdb";
             depot.FileMapping = new DepotFileMapping
@@ -214,7 +219,14 @@ namespace Wireframe
 
             string fileName = GetDepotFileName(depot, branchName, fileSuffix);
             string fullPath = Path.Combine(m_scriptPath, fileName);
-            return await VDFFile.Save(depot, fullPath, result);
+            bool saved = await VDFFile.Save(depot, fullPath, result);
+            if (!saved)
+            {
+                result.SetFailed("Failed to save depot file: " + fullPath);
+                return null;
+            }
+            
+            return fullPath;
         }
 
         public string GetAppScriptOutputPath(AppVDFFile appFile, string fileNameSuffix = "")

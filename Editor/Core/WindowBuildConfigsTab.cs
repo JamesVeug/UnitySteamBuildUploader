@@ -88,7 +88,17 @@ namespace Wireframe
                     BuildConfig buildConfig = buildConfigs[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (EditorGUILayout.DropdownButton(new GUIContent(""), FocusType.Passive, GUILayout.Width(20)))
+                        if (CustomFoldoutButton.OnGUI(buildConfig.Collapsed))
+                        {
+                            buildConfig.Collapsed = !buildConfig.Collapsed;
+                        }
+
+                        using (new GUILayout.VerticalScope())
+                        {
+                            buildConfig.OnGUI(UploaderWindow.position.width - 20, ref m_isDirty, m_context);
+                        }
+                        
+                        if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
                         {
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent("Move Up"), false, () =>
@@ -129,17 +139,6 @@ namespace Wireframe
                                 }
                             });
                             menu.ShowAsContext();
-                        }
-
-                        using (new GUILayout.VerticalScope())
-                        {
-                            buildConfig.OnGUI(UploaderWindow.position.width - 20, ref m_isDirty, m_context);
-                        }
-
-                        bool collapse = buildConfig.Collapsed;
-                        if (GUILayout.Button(collapse ? ">" : "\\/", GUILayout.Width(20)))
-                        {
-                            buildConfig.Collapsed = !buildConfig.Collapsed;
                         }
                     }
                 }

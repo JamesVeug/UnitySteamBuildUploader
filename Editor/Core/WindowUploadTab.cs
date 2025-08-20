@@ -125,7 +125,7 @@ namespace Wireframe
                     }
 
                     string dropdownText = m_isDirty ? "*" : "";
-                    if (EditorGUILayout.DropdownButton(new GUIContent(dropdownText), FocusType.Passive, GUILayout.Width(20)))
+                    if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
                     {
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent(dropdownText + "Save"), false, Save);
@@ -191,7 +191,24 @@ namespace Wireframe
                     UploadConfig uploadConfig = m_currentUploadProfile.UploadConfigs[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (EditorGUILayout.DropdownButton(new GUIContent(""), FocusType.Passive, GUILayout.Width(20)))
+                        if (CustomFoldoutButton.OnGUI(uploadConfig.Collapsed))
+                        {
+                            uploadConfig.Collapsed = !uploadConfig.Collapsed;
+                        }
+
+                        bool e = EditorGUILayout.Toggle(uploadConfig.Enabled, GUILayout.Width(20));
+                        if (e != uploadConfig.Enabled)
+                        {
+                            uploadConfig.Enabled = e;
+                            m_isDirty = true;
+                        }
+
+                        using (new GUILayout.VerticalScope())
+                        {
+                            uploadConfig.OnGUI(UploaderWindow.position.width, ref m_isDirty, m_context);
+                        }
+                        
+                        if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
                         {
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent("Move Up"), false, () =>
@@ -227,24 +244,6 @@ namespace Wireframe
                                 }
                             });
                             menu.ShowAsContext();
-                        }
-
-                        bool e = EditorGUILayout.Toggle(uploadConfig.Enabled, GUILayout.Width(20));
-                        if (e != uploadConfig.Enabled)
-                        {
-                            uploadConfig.Enabled = e;
-                            m_isDirty = true;
-                        }
-
-                        using (new GUILayout.VerticalScope())
-                        {
-                            uploadConfig.OnGUI(UploaderWindow.position.width, ref m_isDirty, m_context);
-                        }
-
-                        bool collapse = uploadConfig.Collapsed;
-                        if (GUILayout.Button(collapse ? ">" : "\\/", GUILayout.Width(20)))
-                        {
-                            uploadConfig.Collapsed = !uploadConfig.Collapsed;
                         }
                     }
                 }

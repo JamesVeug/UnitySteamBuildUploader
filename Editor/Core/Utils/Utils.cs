@@ -19,35 +19,31 @@ namespace Wireframe
             Overwrite,
         }
         
-        public static Texture2D WindowIcon
+        private static Dictionary<string, Texture2D> s_Icons = new Dictionary<string, Texture2D>();
+        private static Texture2D TryGetIcon(string iconPath)
         {
-            get
+            if (s_Icons.TryGetValue(iconPath, out Texture2D icon))
             {
-                var iconPath = "Packages/com.veugeljame.builduploader/Icon.png";
-                Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
-                return loadAssetAtPath as Texture2D;
+                return icon;
             }
-        }
-        
-        public static Texture2D ErrorIcon
-        {
-            get
+
+            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
+            if (loadAssetAtPath is Texture2D texture)
             {
-                var iconPath = "Packages/com.veugeljame.builduploader/erroricon.png";
-                Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
-                return loadAssetAtPath as Texture2D;
+                s_Icons[iconPath] = texture;
+                return texture;
             }
+
+            Debug.LogWarning($"Could not find icon at path: {iconPath}");
+            return null;
         }
-        
-        public static Texture2D WarningIcon
-        {
-            get
-            {
-                var iconPath = "Packages/com.veugeljame.builduploader/warningicon.png";
-                Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
-                return loadAssetAtPath as Texture2D;
-            }
-        }
+
+        public static Texture2D WindowIcon => TryGetIcon("Packages/com.veugeljame.builduploader/Icon.png");
+        public static Texture2D ErrorIcon => TryGetIcon("Packages/com.veugeljame.builduploader/erroricon.png");
+        public static Texture2D WarningIcon => TryGetIcon("Packages/com.veugeljame.builduploader/warningicon.png");
+        public static Texture2D FoldoutOpenIcon => TryGetIcon("Packages/com.veugeljame.builduploader/FoldoutOpen.png");
+        public static Texture2D FoldoutClosedIcon => TryGetIcon("Packages/com.veugeljame.builduploader/FoldoutClosed.png");
+        public static Texture2D SettingsIcon => TryGetIcon("Packages/com.veugeljame.builduploader/Settings.png");
         
         public static bool IsPathADirectory(string path)
         {

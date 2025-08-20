@@ -72,8 +72,7 @@ namespace Wireframe
                     }
 
                     string dropdownText = m_isDirty ? "*" : "";
-                    if (EditorGUILayout.DropdownButton(new GUIContent(dropdownText), FocusType.Passive,
-                            GUILayout.Width(20)))
+                    if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
                     {
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent(dropdownText + "Save"), false, Save);

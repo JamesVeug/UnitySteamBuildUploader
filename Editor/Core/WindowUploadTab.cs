@@ -191,23 +191,6 @@ namespace Wireframe
                     UploadConfig uploadConfig = m_currentUploadProfile.UploadConfigs[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (CustomFoldoutButton.OnGUI(uploadConfig.Collapsed))
-                        {
-                            uploadConfig.Collapsed = !uploadConfig.Collapsed;
-                        }
-
-                        bool e = EditorGUILayout.Toggle(uploadConfig.Enabled, GUILayout.Width(20));
-                        if (e != uploadConfig.Enabled)
-                        {
-                            uploadConfig.Enabled = e;
-                            m_isDirty = true;
-                        }
-
-                        using (new GUILayout.VerticalScope())
-                        {
-                            uploadConfig.OnGUI(UploaderWindow.position.width, ref m_isDirty, m_context);
-                        }
-                        
                         if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
                         {
                             GenericMenu menu = new GenericMenu();
@@ -244,6 +227,23 @@ namespace Wireframe
                                 }
                             });
                             menu.ShowAsContext();
+                        }
+                        
+                        if (CustomFoldoutButton.OnGUI(uploadConfig.Collapsed))
+                        {
+                            uploadConfig.Collapsed = !uploadConfig.Collapsed;
+                        }
+
+                        bool e = EditorGUILayout.Toggle(uploadConfig.Enabled, GUILayout.Width(20));
+                        if (e != uploadConfig.Enabled)
+                        {
+                            uploadConfig.Enabled = e;
+                            m_isDirty = true;
+                        }
+
+                        using (new GUILayout.VerticalScope())
+                        {
+                            uploadConfig.OnGUI(UploaderWindow.position.width, ref m_isDirty, m_context);
                         }
                     }
                 }

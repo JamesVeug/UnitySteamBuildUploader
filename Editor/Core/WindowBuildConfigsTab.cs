@@ -87,16 +87,6 @@ namespace Wireframe
                     BuildConfig buildConfig = buildConfigs[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (CustomFoldoutButton.OnGUI(buildConfig.Collapsed))
-                        {
-                            buildConfig.Collapsed = !buildConfig.Collapsed;
-                        }
-
-                        using (new GUILayout.VerticalScope())
-                        {
-                            buildConfig.OnGUI(UploaderWindow.position.width - 20, ref m_isDirty, m_context);
-                        }
-                        
                         if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
                         {
                             GenericMenu menu = new GenericMenu();
@@ -139,6 +129,17 @@ namespace Wireframe
                             });
                             menu.ShowAsContext();
                         }
+                        
+                        if (CustomFoldoutButton.OnGUI(buildConfig.Collapsed))
+                        {
+                            buildConfig.Collapsed = !buildConfig.Collapsed;
+                        }
+
+                        using (new GUILayout.VerticalScope())
+                        {
+                            buildConfig.OnGUI(UploaderWindow.position.width - 20, ref m_isDirty, m_context);
+                        }
+                        
                     }
                 }
 

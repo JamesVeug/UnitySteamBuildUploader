@@ -173,12 +173,14 @@ namespace Wireframe
                     }
                     
                     EditorGUILayout.Space();
-                    
+
                     if (m_sceneList.OnGUI())
                     {
                         Save();
                     }
                     
+                    EditorGUILayout.Space();
+
                     if (m_definesList.OnGUI())
                     {
                         Save();

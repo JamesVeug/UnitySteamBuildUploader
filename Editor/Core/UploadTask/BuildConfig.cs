@@ -30,6 +30,7 @@ namespace Wireframe
         public bool EnableDeepProfilingSupport;
         
         // Platform specific settings
+        public bool SwitchTargetPlatform = false;
         public BuildTargetGroup TargetPlatform;
         public Architecture TargetArchitecture;
         public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes;
@@ -330,27 +331,37 @@ namespace Wireframe
         public bool ApplySettings(StringFormatter.Context context, UploadTaskReport.StepResult stepResult = null)
         {
             // Switch to the build target if necessary
-            BuildTarget buildTarget = CalculateTarget();
-            if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
+            if (SwitchTargetPlatform)
             {
-                stepResult?.AddLog($"Switching build target to {buildTarget}");
-                bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(TargetPlatform, buildTarget);
-                if (!switched)
+                BuildTarget buildTarget = CalculateTarget();
+                if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
                 {
-                    stepResult?.AddError($"Failed to switch build target to {buildTarget}");
-                    stepResult?.SetFailed("Failed to switch build target. Please check the console for more details.");
-                    return false;
-                }
-                else if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
-                {
-                    stepResult?.AddError($"Failed to switch build target to {buildTarget}. Current target is {EditorUserBuildSettings.activeBuildTarget}");
-                    stepResult?.SetFailed("Failed to switch build target. Please check the console for more details.");
-                    return false;
-                }
+                    stepResult?.AddLog($"Switching build target to {buildTarget}");
+                    bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(TargetPlatform, buildTarget);
+                    if (!switched)
+                    {
+                        stepResult?.AddError($"Failed to switch build target to {buildTarget}");
+                        stepResult?.SetFailed(
+                            "Failed to switch build target. Please check the console for more details.");
+                        return false;
+                    }
+                    else if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
+                    {
+                        stepResult?.AddError(
+                            $"Failed to switch build target to {buildTarget}. Current target is {EditorUserBuildSettings.activeBuildTarget}");
+                        stepResult?.SetFailed(
+                            "Failed to switch build target. Please check the console for more details.");
+                        return false;
+                    }
 
-                stepResult?.AddLog($"Switched build target to {TargetPlatform}");
+                    stepResult?.AddLog($"Switched build target to {TargetPlatform}");
+                }
             }
-            
+            else
+            {
+                stepResult?.AddLog($"Override Target Platform is disabled so using current platform {EditorUserBuildSettings.activeBuildTarget}");
+            }
+
             PlayerSettings.productName = StringFormatter.FormatString(ProductName, context);
             string[] defines = ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, context)).ToArray();
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);

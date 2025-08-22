@@ -83,8 +83,8 @@ namespace Wireframe
                         if(_reorderableListOfDiscordChannels == null)
                         {
                             _reorderableListOfDiscordChannels = new ReorderableListOfDiscordChannels();
-                            _reorderableListOfDiscordChannels.Initialize(m_SelectedServer.channels, "Channels",
-                                (_) => { DiscordUIUtils.Save(); });
+                            _reorderableListOfDiscordChannels.Initialize(m_SelectedServer.channels, "Channels", 
+                                true, (_) => { DiscordUIUtils.Save(); });
                         }
                         
                         if (_reorderableListOfDiscordChannels.OnGUI())
@@ -101,7 +101,7 @@ namespace Wireframe
                 {
                     _reorderableListOfDiscordAppsProjectSettings = new ReorderableListOfDiscordAppsProjectSettings();
                     _reorderableListOfDiscordAppsProjectSettings.Initialize(discordConfig.apps, "Apps",
-                        (_) => { DiscordUIUtils.Save(); });
+                        true, (_) => { DiscordUIUtils.Save(); });
                 }
 
                 GUILayout.Label("Apps", EditorStyles.boldLabel);

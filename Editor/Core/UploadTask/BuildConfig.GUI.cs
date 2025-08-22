@@ -21,8 +21,8 @@ namespace Wireframe
         {
             if (m_titleStyle == null)
             {
-                m_sceneList.Initialize(Scenes, "Scenes", _ => { Save(); });
-                m_definesList.Initialize(ExtraScriptingDefines, "Extra Script Defines", _ => { Save(); });
+                m_sceneList.Initialize(Scenes, "Scenes", Scenes.Count <= 6, _ => { Save(); });
+                m_definesList.Initialize(ExtraScriptingDefines, "Extra Script Defines", ExtraScriptingDefines.Count <= 6, _ => { Save(); });
                 
                 m_titleStyle = new GUIStyle(GUI.skin.label)
                 {

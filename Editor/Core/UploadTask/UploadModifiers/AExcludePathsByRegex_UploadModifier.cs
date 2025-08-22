@@ -102,7 +102,7 @@ namespace Wireframe
 
         private void Initialize()
         {
-            m_reorderableList.Initialize(m_fileRegexes, ListHeader);
+            m_reorderableList.Initialize(m_fileRegexes, ListHeader, m_fileRegexes.Count <= 2);
         }
 
         public override void TryGetErrors(UploadConfig config, List<string> errors)

@@ -16,8 +16,9 @@ namespace Wireframe
         private string header = "";
         private Action<T> addCallback;
 
-        public void Initialize(List<T> listReference, string listHeader, Action<T> onAddCallback=null)
+        public void Initialize(List<T> listReference, string listHeader, bool foldoutStartsOpen, Action<T> onAddCallback=null)
         {
+            m_showFolderOut = foldoutStartsOpen;
             header = listHeader;
             addCallback = onAddCallback;
             list = listReference;

@@ -25,7 +25,7 @@ namespace Wireframe
 
                     if (ItchioUIUtils.UserPopup.DrawPopup(ref m_currentUser))
                     {
-                        m_gameList.Initialize(m_currentUser.GameIds, "Games", _ => { Save(); });
+                        m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
                     }
 
                     if (GUILayout.Button("New", GUILayout.Width(100)))
@@ -37,7 +37,7 @@ namespace Wireframe
                         ItchioUIUtils.Save();
                         ItchioUIUtils.UserPopup.Refresh();
                         m_currentUser = config;
-                        m_gameList.Initialize(m_currentUser.GameIds, "Games", _ => { Save(); });
+                        m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
                     }
 
                     if (m_currentUser != null)
@@ -80,7 +80,8 @@ namespace Wireframe
             if(m_channelList == null)
             {
                 m_channelList = new ReorderableListOfChannels();
-                m_channelList.Initialize(ItchioUIUtils.GetItchioBuildData().Channels, "Channels", _ => { Save(); });
+                m_channelList.Initialize(ItchioUIUtils.GetItchioBuildData().Channels, "Channels", 
+                    true, _ => { Save(); });
             }
             
             if (m_channelList.OnGUI())

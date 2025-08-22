@@ -32,8 +32,8 @@ namespace Wireframe
                 if (_reorderableListOfDiscordAppsPreferences == null)
                 {
                     _reorderableListOfDiscordAppsPreferences = new ReorderableListOfDiscordAppsPreferences();
-                    _reorderableListOfDiscordAppsPreferences.Initialize(discordConfig.apps, "Apps",
-                        (_) => { DiscordUIUtils.Save(); });
+                    _reorderableListOfDiscordAppsPreferences.Initialize(discordConfig.apps, "Apps", 
+                        true, (_) => { DiscordUIUtils.Save(); });
                 }
 
                 if (_reorderableListOfDiscordAppsPreferences.OnGUI())

@@ -253,7 +253,7 @@ namespace Wireframe
                     UploadConfig.PostUploadActionData actionData = m_currentUploadProfile.PostUploadActions[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (EditorGUILayout.DropdownButton(new GUIContent(""), FocusType.Passive, GUILayout.Width(20)))
+                        if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
                         {
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent("MoveUp"), false, () =>
@@ -288,6 +288,11 @@ namespace Wireframe
                                 }
                             });
                             menu.ShowAsContext();
+                        }
+                        
+                        if (CustomFoldoutButton.OnGUI(actionData.Collapsed))
+                        {
+                            actionData.Collapsed = !actionData.Collapsed;
                         }
 
                         var status = (UploadConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumPopup(actionData.WhenToExecute, GUILayout.Width(100));
@@ -329,12 +334,6 @@ namespace Wireframe
                                 }
                             }
                         }
-
-                        bool collapse = actionData.Collapsed;
-                        if (GUILayout.Button(collapse ? ">" : "\\/", GUILayout.Width(20)))
-                        {
-                            actionData.Collapsed = !actionData.Collapsed;
-                        }
                     }
                 }
 
@@ -353,9 +352,6 @@ namespace Wireframe
                 }
 
                 EditorGUILayout.EndScrollView();
-
-
-                GUILayout.FlexibleSpace();
 
                 // Description
                 using (new EditorGUILayout.HorizontalScope())

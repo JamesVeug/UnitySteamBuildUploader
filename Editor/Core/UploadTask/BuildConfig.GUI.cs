@@ -259,7 +259,7 @@ namespace Wireframe
                 case ManagedStrippingLevel.High:
                     return
                         "UnityLinker will strip as much as possible. This will further reduce code size beyond what Medium can achieve. However, this additional reduction may come with tradeoffs. Possible side effects may include, managed code debugging of some methods may no longer work. You may need to maintain a custom link.xml file, and some reflection code paths may not behave the same.";
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
                 case ManagedStrippingLevel.Minimal:
                     return
                         "The class libraries, UnityEngine, and Windows Runtime assemblies will be stripped. All other assemblies are copied.";

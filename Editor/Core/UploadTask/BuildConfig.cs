@@ -53,7 +53,7 @@ namespace Wireframe
 
         private ManagedStrippingLevel CurrentStrippingLevel()
         {
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             return PlayerSettings.GetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
 #else
             return PlayerSettings.GetManagedStrippingLevel(BuildTargetToPlatform());
@@ -64,7 +64,7 @@ namespace Wireframe
         {
             // 0 - Mono
             // 1 - IL2CPP
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             return PlayerSettings.GetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
 #else
             return PlayerSettings.GetScriptingBackend(BuildTargetToPlatform());
@@ -86,7 +86,7 @@ namespace Wireframe
             // 0 - None
             // 1 - ARM64
             // 2 - Universal (I'm assuming this is 32 bit)
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             int architecture = PlayerSettings.GetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
 #else
             int architecture = PlayerSettings.GetArchitecture(BuildTargetToPlatform());
@@ -121,7 +121,7 @@ namespace Wireframe
             BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
             BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
             string[] scriptingDefines = null;
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
             PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget, out scriptingDefines);
 #else
@@ -386,7 +386,7 @@ namespace Wireframe
 
             PlayerSettings.productName = StringFormatter.FormatString(ProductName, context);
             string[] defines = ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, context)).ToArray();
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), StrippingLevel);
             PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);

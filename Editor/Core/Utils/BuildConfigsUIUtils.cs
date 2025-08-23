@@ -79,7 +79,7 @@ namespace Wireframe
             BuildConfig releaseBuild = new BuildConfig();
             releaseBuild.SetupDefaults();
             releaseBuild.BuildName = "Release Build";
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             releaseBuild.StrippingLevel = ManagedStrippingLevel.Minimal;
 #else
             releaseBuild.StrippingLevel = ManagedStrippingLevel.Low;

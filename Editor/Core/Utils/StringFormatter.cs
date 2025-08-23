@@ -57,7 +57,7 @@ namespace Wireframe
             {
                 BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
                 BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
-#if UNITY_2021_0_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
                 NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
                 ScriptingImplementation implementation = PlayerSettings.GetScriptingBackend(namedBuildTarget);
 #else

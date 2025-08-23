@@ -72,7 +72,7 @@ namespace Wireframe
                     }
 
                     string dropdownText = m_isDirty ? "*" : "";
-                    if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
+                    if (CustomSettingsIcon.OnGUI())
                     {
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent(dropdownText + "Save"), false, Save);
@@ -87,7 +87,7 @@ namespace Wireframe
                     BuildConfig buildConfig = buildConfigs[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
+                        if (CustomSettingsIcon.OnGUI())
                         {
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent("Move Up"), false, () =>

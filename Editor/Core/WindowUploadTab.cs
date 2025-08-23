@@ -121,7 +121,7 @@ namespace Wireframe
                     }
 
                     string dropdownText = m_isDirty ? "*" : "";
-                    if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
+                    if (CustomSettingsIcon.OnGUI())
                     {
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent(dropdownText + "Save"), false, Save);
@@ -187,7 +187,7 @@ namespace Wireframe
                     UploadConfig uploadConfig = m_currentUploadProfile.UploadConfigs[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
+                        if (CustomSettingsIcon.OnGUI())
                         {
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent("Move Up"), false, () =>
@@ -253,7 +253,7 @@ namespace Wireframe
                     UploadConfig.PostUploadActionData actionData = m_currentUploadProfile.PostUploadActions[i];
                     using (new GUILayout.HorizontalScope("box"))
                     {
-                        if (GUILayout.Button(Utils.SettingsIcon, GUILayout.Width(20), GUILayout.Height(20)))
+                        if (CustomSettingsIcon.OnGUI())
                         {
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent("MoveUp"), false, () =>

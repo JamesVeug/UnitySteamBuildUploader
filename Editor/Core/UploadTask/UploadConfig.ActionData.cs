@@ -53,7 +53,7 @@ namespace Wireframe
                 WhenToExecute = data.TryGetValue("whenToExecute", out var value) ? (UploadCompleteStatus)(long)value : UploadCompleteStatus.Always;
 
                 ActionType = new UIHelpers.BuildActionPopup.ActionData();
-                if (data.TryGetValue("actionType", out var actionTypeData))
+                if (data.TryGetValue("actionType", out var actionTypeData) && actionTypeData != null)
                 {
                     var type = Type.GetType(actionTypeData as string);
                     if (UIHelpers.ActionsPopup.TryGetValueFromType(type, out ActionType))

@@ -83,7 +83,9 @@ namespace Wireframe
             
                 // Get all enabled scenes in build settings
                 BuildOptions buildOptions = m_BuildConfig.GetBuildOptions();
+#if UNITY_2021_2_OR_NEWER
                 buildOptions |= BuildOptions.DetailedBuildReport;
+#endif
 
                 string productName = m_BuildConfig.GetFormattedProductName(ctx);
                 BuildPlayerOptions options = new BuildPlayerOptions
@@ -96,7 +98,6 @@ namespace Wireframe
                     targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
                     target = EditorUserBuildSettings.activeBuildTarget,
                     options = buildOptions,
-                    extraScriptingDefines = m_BuildConfig.GetDefaultScriptingDefines().ToArray(),
                 };
             
                 stepResult.AddLog("Starting build with the following options:");
@@ -163,9 +164,10 @@ namespace Wireframe
                 stepResult.AddLog($"Build path: {report.summary.outputPath}");
                 return true;
             }
-            
-            stepResult.AddError($"Build failed with result: {report.SummarizeErrors()}");
-            stepResult.SetFailed(report.SummarizeErrors());
+
+            string summarizeErrors = Utils.SummarizeErrors(report);
+            stepResult.AddError(summarizeErrors);
+            stepResult.SetFailed(summarizeErrors);
             token.Cancel();
             return false;
         }

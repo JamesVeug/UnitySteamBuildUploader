@@ -79,7 +79,11 @@ namespace Wireframe
             BuildConfig releaseBuild = new BuildConfig();
             releaseBuild.SetupDefaults();
             releaseBuild.BuildName = "Release Build";
+#if UNITY_2021_0_OR_NEWER
             releaseBuild.StrippingLevel = ManagedStrippingLevel.Minimal;
+#else
+            releaseBuild.StrippingLevel = ManagedStrippingLevel.Low;
+#endif
             releaseBuild.StackTraceLogTypes[LogType.Log] = StackTraceLogType.None;
             releaseBuild.StackTraceLogTypes[LogType.Warning] = StackTraceLogType.None;
             releaseBuild.StackTraceLogTypes[LogType.Error] = StackTraceLogType.ScriptOnly;

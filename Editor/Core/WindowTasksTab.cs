@@ -289,7 +289,11 @@ namespace Wireframe
 
                         foreach (AUploadTask_Step step in t.CurrentSteps)
                         {
-                            (bool foldout, Vector2 position) stepUI = m_OpenTaskSteps.GetValueOrDefault(step.Type, (false, Vector2.zero));
+                            (bool foldout, Vector2 position) stepUI = (false, Vector2.zero);
+                            if (m_OpenTaskSteps.TryGetValue(step.Type, out (bool, Vector2) pair))
+                            {
+                                stepUI = pair;
+                            }
                             
                             int logs = t.Report.CountStepLogs(step.Type);
 

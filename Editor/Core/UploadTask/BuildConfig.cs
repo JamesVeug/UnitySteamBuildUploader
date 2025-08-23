@@ -53,14 +53,22 @@ namespace Wireframe
 
         private ManagedStrippingLevel CurrentStrippingLevel()
         {
+#if UNITY_2021_0_OR_NEWER
             return PlayerSettings.GetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
+#else
+            return PlayerSettings.GetManagedStrippingLevel(BuildTargetToPlatform());
+#endif
         }
 
         private ScriptingImplementation CurrentScriptingBackend()
         {
             // 0 - Mono
             // 1 - IL2CPP
+#if UNITY_2021_0_OR_NEWER
             return PlayerSettings.GetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
+#else
+            return PlayerSettings.GetScriptingBackend(BuildTargetToPlatform());
+#endif
         }
 
         private Dictionary<LogType, StackTraceLogType> CurrentStackTraceLogTypes()
@@ -78,14 +86,22 @@ namespace Wireframe
             // 0 - None
             // 1 - ARM64
             // 2 - Universal (I'm assuming this is 32 bit)
+#if UNITY_2021_0_OR_NEWER
             int architecture = PlayerSettings.GetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
-            return architecture switch
+#else
+            int architecture = PlayerSettings.GetArchitecture(BuildTargetToPlatform());
+#endif
+            switch (architecture)
             {
-                0 => Architecture.Unknown,
-                1 => Architecture.x86_64,
-                2 => Architecture.x86_32,
-                _ => Architecture.Unknown
-            };
+                case 0:
+                    return Architecture.Unknown;
+                case 1:
+                    return Architecture.x86_64;
+                case 2:
+                    return Architecture.x86_32;
+                default:
+                    return Architecture.Unknown;
+            }
         }
 
         public static BuildTarget CurrentTargetPlatform()
@@ -104,8 +120,14 @@ namespace Wireframe
             
             BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
             BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
+            string[] scriptingDefines = null;
+#if UNITY_2021_0_OR_NEWER
             NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
-            PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget, out string[] scriptingDefines);
+            PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget, out scriptingDefines);
+#else
+            string value = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+            scriptingDefines = value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+#endif
             defines.AddRange(scriptingDefines);
             
             return defines;
@@ -364,13 +386,20 @@ namespace Wireframe
 
             PlayerSettings.productName = StringFormatter.FormatString(ProductName, context);
             string[] defines = ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, context)).ToArray();
+#if UNITY_2021_0_OR_NEWER
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);
+            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), StrippingLevel);
+            PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);
+#else
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(TargetPlatform, string.Join(";", defines));
+            PlayerSettings.SetManagedStrippingLevel(TargetPlatform, StrippingLevel);
+            PlayerSettings.SetArchitecture(TargetPlatform, (int)TargetArchitecture);
+#endif
             PlayerSettings.SetStackTraceLogType(LogType.Error, StackTraceLogTypes[LogType.Error]);
             PlayerSettings.SetStackTraceLogType(LogType.Assert, StackTraceLogTypes[LogType.Assert]);
             PlayerSettings.SetStackTraceLogType(LogType.Warning, StackTraceLogTypes[LogType.Warning]);
             PlayerSettings.SetStackTraceLogType(LogType.Log, StackTraceLogTypes[LogType.Log]);
             PlayerSettings.SetStackTraceLogType(LogType.Exception, StackTraceLogTypes[LogType.Exception]);
-            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), StrippingLevel);
             // PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), CurrentScriptingBackend());
             
             EditorUserBuildSettings.development = IsDevelopmentBuild;
@@ -378,7 +407,6 @@ namespace Wireframe
             EditorUserBuildSettings.allowDebugging = AllowDebugging;
             EditorUserBuildSettings.buildWithDeepProfilingSupport = EnableDeepProfilingSupport;
             
-            PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);
             
             // Scene list
             if (Scenes == null || Scenes.Count == 0)

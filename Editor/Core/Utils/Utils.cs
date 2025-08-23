@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -18,7 +20,23 @@ namespace Wireframe
             Skip,
             Overwrite,
         }
-        
+
+        private static string s_packagePath = FindPackagePath();
+
+        private static string FindPackagePath()
+        {
+            string[] guids = AssetDatabase.FindAssets("veugeljame.builduploader.editor");
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string parentFolder = Path.GetDirectoryName(Path.GetDirectoryName(path));
+                return parentFolder;
+            }
+
+            Debug.LogError("Could not find package path for com.veugeljame.builduploader");
+            return "";
+        }
+
         private static Dictionary<string, Texture2D> s_Icons = new Dictionary<string, Texture2D>();
         private static Texture2D TryGetIcon(string iconPath)
         {
@@ -27,9 +45,11 @@ namespace Wireframe
                 return icon;
             }
 
-            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(iconPath, typeof(Object));
+            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(s_packagePath + "/" + iconPath, typeof(Object));
             if (loadAssetAtPath is Texture2D texture)
             {
+                bool issNull = texture == null;
+                Debug.Log("Loaded icon: " + iconPath + " is null: " + issNull);
                 s_Icons[iconPath] = texture;
                 return texture;
             }
@@ -38,12 +58,12 @@ namespace Wireframe
             return null;
         }
 
-        public static Texture2D WindowIcon => TryGetIcon("Packages/com.veugeljame.builduploader/Icon.png");
-        public static Texture2D ErrorIcon => TryGetIcon("Packages/com.veugeljame.builduploader/erroricon.png");
-        public static Texture2D WarningIcon => TryGetIcon("Packages/com.veugeljame.builduploader/warningicon.png");
-        public static Texture2D FoldoutOpenIcon => TryGetIcon("Packages/com.veugeljame.builduploader/FoldoutOpen.png");
-        public static Texture2D FoldoutClosedIcon => TryGetIcon("Packages/com.veugeljame.builduploader/FoldoutClosed.png");
-        public static Texture2D SettingsIcon => TryGetIcon("Packages/com.veugeljame.builduploader/Settings.png");
+        public static Texture2D WindowIcon => TryGetIcon("Icon.png");
+        public static Texture2D ErrorIcon => TryGetIcon("erroricon.png");
+        public static Texture2D WarningIcon => TryGetIcon("warningicon.png");
+        public static Texture2D FoldoutOpenIcon => TryGetIcon("FoldoutOpen.png");
+        public static Texture2D FoldoutClosedIcon => TryGetIcon("FoldoutClosed.png");
+        public static Texture2D SettingsIcon => TryGetIcon("Settings.png");
         
         public static bool IsPathADirectory(string path)
         {
@@ -313,6 +333,37 @@ namespace Wireframe
                 return 4096; // unknown but this seems random and
 #endif
             }
+        }
+
+        public static string SummarizeErrors(BuildReport report)
+        {
+            StringBuilder summarizedErrors = new StringBuilder();
+            if (report.summary.result != BuildResult.Succeeded)
+            {
+                summarizedErrors.AppendLine($"Build failed with result: {report.summary.result}");
+            }
+            else
+            {
+                summarizedErrors.AppendLine("Build succeeded.");
+            }
+            
+            foreach (BuildStep step in report.steps)
+            {
+                foreach (BuildStepMessage message in step.messages)
+                {
+                    switch (message.type)
+                    {
+                        case LogType.Error:
+                        case LogType.Exception:
+                            summarizedErrors.AppendLine(message.content);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+
+            return summarizedErrors.ToString();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace Wireframe
     /// <summary>
     /// Services tab for Project settings
     /// </summary>
-    public class ProjectSettings_Settings : SettingsProvider
+    public partial class ProjectSettings_Settings : SettingsProvider
     {
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()

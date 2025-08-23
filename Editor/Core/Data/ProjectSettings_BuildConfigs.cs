@@ -1,31 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+using UnityEngine.UIElements;
 
 namespace Wireframe
 {
-    internal class WindowBuildConfigsTab : WindowTab
+    /// <summary>
+    /// Services tab for Project settings
+    /// </summary>
+    public partial class ProjectSettings_BuildConfigs : SettingsProvider
     {
-        public override string TabName => "Build Configs";
+        private int width
+        {
+            get
+            {
+                // Look away
+                MethodInfo methodInfo = typeof(SettingsProvider).GetProperty("settingsWindow", BindingFlags.Instance | BindingFlags.NonPublic).GetMethod;
+                var b = methodInfo.Invoke(this, null);
+                var fieldInfo = GetFieldInHierarchy(b.GetType(), "m_SettingsPanel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                VisualElement window = fieldInfo.GetValue(b) as VisualElement;
+                return (int)window.contentRect.width;
+            }
+        }
+        
+        static FieldInfo GetFieldInHierarchy(Type type, string fieldName, BindingFlags flags)
+        {
+            while (type != null)
+            {
+                FieldInfo fi = type.GetField(fieldName, flags | BindingFlags.DeclaredOnly);
+                if (fi != null)
+                    return fi;
 
-        private StringFormatter.Context m_context;
-
+                type = type.BaseType;
+            }
+            return null;
+        }
 
         private GUIStyle m_titleStyle;
         private GUIStyle m_subTitleStyle;
-        private Vector2 m_scrollPosition;
         private bool m_isDirty;
-
-        public override void Initialize(BuildUploaderWindow uploaderWindow)
-        {
-            base.Initialize(uploaderWindow);
-
-            m_context = new StringFormatter.Context();
-        }
+        private Vector2 m_scrollPosition;
+        private StringFormatter.Context m_context;
 
         private void Setup()
         {
@@ -42,9 +59,11 @@ namespace Wireframe
                 alignment = TextAnchor.MiddleLeft,
                 fontStyle = FontStyle.Bold
             };
+
+            m_context = new StringFormatter.Context();
         }
 
-        public override void OnGUI()
+        public void BuildConfigsGUI()
         {
             Setup();
             List<BuildConfig> buildConfigs = BuildConfigsUIUtils.GetBuildConfigs();
@@ -137,7 +156,7 @@ namespace Wireframe
 
                         using (new GUILayout.VerticalScope())
                         {
-                            buildConfig.OnGUI(UploaderWindow.position.width - 20, ref m_isDirty, m_context);
+                            buildConfig.OnGUI(this. width - 20, ref m_isDirty, m_context);
                         }
                         
                     }
@@ -152,9 +171,8 @@ namespace Wireframe
             }
         }
 
-        public override void Save()
+        public void Save()
         {
-            base.Save();
             BuildConfigsUIUtils.Save();
         }
     }

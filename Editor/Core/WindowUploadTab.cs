@@ -445,155 +445,6 @@ namespace Wireframe
             menu.ShowAsContext();
         }
 
-        private async Task BuildAndUpload(string buildPath)
-        {
-            // Validate the path so all configs reference the path
-            int configsReferencingBuildPath = 0;
-            int totalConfigs = 0;
-            foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
-            {
-                if (!config.Enabled)
-                    continue;
-
-                totalConfigs++;
-                foreach (UploadConfig.SourceData source in config.Sources)
-                {
-                    if (!source.Enabled)
-                        continue;
-                    
-                    if (source.Source is ABrowsePathSource browsePathSource)
-                    {
-                        string sourcePath = browsePathSource.GetFullPath(m_context);
-                        if (sourcePath.StartsWith(buildPath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            configsReferencingBuildPath++;
-                            break;
-                        }
-                    }
-                    else if (source.Source is LastUploadSource)
-                    {
-                        configsReferencingBuildPath++;
-                    }
-                }
-            }
-            
-            if (totalConfigs != configsReferencingBuildPath)
-            {
-                if (!EditorUtility.DisplayDialog("Warning",
-                        "1 or more Build Configs have no sources pointing to the build path. This may result in no files being uploaded. " +
-                        "Are you sure you want to continue?", "Yes", "No"))
-                {
-                    Debug.Log("[BuildUploader] User cancelled the build and upload due to invalid build path references.");
-                    return;
-                }
-            }
-
-            // Build
-            BuildReport report = await Build(buildPath);
-            if (report.summary.result != BuildResult.Succeeded)
-            {
-                Debug.LogError("[BuildUploader] Build failed! Skipping uploading step.");
-                Debug.LogError(Utils.SummarizeErrors(report));
-                
-                
-                foreach (BuildStep step in report.steps)
-                {
-                    foreach (BuildStepMessage message in step.messages)
-                    {
-                        switch (message.type)
-                        {
-                            case LogType.Error:
-                                Debug.LogError($"[BuildUploader][{step.name}] {message.content}");
-                                break;
-                            case LogType.Assert:
-                                Debug.LogError($"[BuildUploader][{step.name}] Assert: {message.content}");
-                                break;
-                            case LogType.Warning:
-                                Debug.LogWarning($"[BuildUploader][{step.name}] Warning: {message.content}");
-                                break;
-                            case LogType.Log:
-                                Debug.Log($"[BuildUploader][{step.name}] Log: {message.content}");
-                                break;
-                            case LogType.Exception:
-                                Debug.LogException(new Exception($"[BuildUploader][{step.name}] Exception: {message.content}"));
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                    }
-                }
-                return;
-            }
-
-            // Make sure we CAN upload
-            if (!CanStartUpload(out string reason))
-            {
-                Debug.LogError($"[BuildUploader] Build successful but can not start upload: {reason}");
-                if (Preferences.ShowConfirmationWindowAfterUpload == Preferences.ShowIf.Always || 
-                    Preferences.ShowConfirmationWindowAfterUpload == Preferences.ShowIf.Failed)
-                {
-                    // Show error dialog
-                    EditorUtility.DisplayDialog("Build Uploader", reason, "Okay");
-                }
-                return;
-            }
-
-            // Upload
-            DownloadAndUpload();
-        }
-
-        private async Task<BuildReport> Build(string buildPath)
-        {
-            // Get all enabled scenes in build settings
-            string[] scenes = EditorBuildSettings.scenes
-                .Where(s => s.enabled)
-                .Select(s => s.path)
-                .ToArray();
-
-#if UNITY_STANDALONE_WIN
-            string executableName = Application.productName + ".exe"; // For Windows, the executable is a .exe file
-#elif UNITY_MAC
-            string executableName = Application.productName + ".app"; // For macOS, the executable is a .app bundle
-#else
-            string executableName = Application.productName; // Default for other platforms
-#endif
-
-            BuildOptions buildOptions = BuildOptions.None;
-            if (EditorUserBuildSettings.development)
-                buildOptions |= BuildOptions.Development;
-
-            if (EditorUserBuildSettings.allowDebugging)
-                buildOptions |= BuildOptions.AllowDebugging;
-
-            if (EditorUserBuildSettings.buildScriptsOnly)
-                buildOptions |= BuildOptions.BuildScriptsOnly;
-
-            if (EditorUserBuildSettings.connectProfiler)
-                buildOptions |= BuildOptions.ConnectWithProfiler;
-            
-            if (EditorUserBuildSettings.buildWithDeepProfilingSupport)
-                buildOptions |= BuildOptions.EnableDeepProfilingSupport;
-            
-            BuildPlayerOptions options = new BuildPlayerOptions
-            {
-                scenes = scenes,
-                locationPathName = Path.Combine(buildPath, executableName),
-                targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
-                target = EditorUserBuildSettings.activeBuildTarget,
-                options = buildOptions,
-            };
-
-            // Build the player
-            BuildReport report = BuildPipeline.BuildPlayer(options);
-            if (report.summary.result == BuildResult.Succeeded)
-            {
-                LastBuildDirectoryUtil.LastBuildDirectory = Path.GetDirectoryName(report.summary.outputPath);
-            }
-            
-            
-            return report;
-        }
-
         private async Task DownloadAndUpload()
         {
             if (m_isDirty)
@@ -612,6 +463,8 @@ namespace Wireframe
             
             // Setup Task
             UploadProfile uploadProfile = UploadProfile.FromPath(m_currentUploadProfileData.FilePath);
+            uploadProfile.ProfileName = StringFormatter.FormatString(uploadProfile.ProfileName, m_context);
+            
             string description = StringFormatter.FormatString(m_buildDescription, m_context);
             UploadTask uploadTask = new UploadTask(uploadProfile, description);
             
@@ -633,8 +486,6 @@ namespace Wireframe
                 await Task.Yield();
                 UploaderWindow.Repaint();
             }
-            
-            // TODO: Move this logic out of this window so CIs can show them too
 
             // Write report to a txt file
             UploadTaskReport report = uploadTask.Report;
@@ -774,7 +625,7 @@ namespace Wireframe
             File.WriteAllText(filePath, json);
         }
 
-        public void Load()
+        private void Load()
         {
             m_unloadedUploadProfiles = new List<UploadProfileMeta>();
             m_currentUploadProfile = null;

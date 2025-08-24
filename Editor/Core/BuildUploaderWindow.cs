@@ -23,7 +23,7 @@ namespace Wireframe
         public static void OpenWindow()
         {
             // Get existing open window or if none, make a new one:
-            BuildUploaderWindow uploaderWindow = CreateWindow<BuildUploaderWindow>();
+            BuildUploaderWindow uploaderWindow = GetWindow<BuildUploaderWindow>();
             uploaderWindow.titleContent = new GUIContent("Build Uploader", Utils.WindowIcon);
             uploaderWindow.InitializeTabs();
             uploaderWindow.Show();
@@ -77,7 +77,6 @@ namespace Wireframe
                 }
                 
                 m_tabs.Add(new WindowUploadTab());
-                m_tabs.Add(new WindowTasksTab());
 
                 foreach (WindowTab tab in m_tabs)
                 {

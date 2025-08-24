@@ -10,12 +10,23 @@ using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    internal class UnityCloudWindowTab : WindowTab
+    internal class UnityCloudWindow : EditorWindow
     {
         private const int AutoRefreshTime = 60;
 
-        public override string TabName => "UnityCloud";
-        public override bool Enabled => UnityCloud.Enabled;
+        [MenuItem("Window/Build Uploader/Open Unity Cloud Window", false, -98)]
+        public static void ShowWindow()
+        {
+            UnityCloudWindow window = GetWindow<UnityCloudWindow>();
+            window.titleContent = new GUIContent("Unity Cloud", Utils.WindowIcon);
+            window.Show();
+        }
+
+        [MenuItem("Window/Build Uploader/Open Unity Cloud Window", true)]
+        public static bool ShouldShowWindow()
+        {
+            return UnityCloud.Enabled;
+        }
         
         private UnityCloudTarget currentTarget;
 
@@ -60,33 +71,28 @@ namespace Wireframe
             }
         }
 
-        public override void Update()
+        public void Update()
         {
-            base.Update();
-
             if (m_cachedSyncs != UnityCloudAPI.TotalSyncs)
             {
                 m_cloudBuildToUIList = null;
                 m_targetExpanded = null;
 
-                UploaderWindow.Repaint();
+                Repaint();
             }
 
             double timeSinceLastRefresh = (DateTime.UtcNow - UnityCloudAPI.LastSyncDateTime).TotalSeconds;
             if (timeSinceLastRefresh > AutoRefreshTime || UnityCloudAPI.TotalSyncs == 0) // 5 minutes
             {
-                if (UploaderWindow.CurrentTab == this || UnityCloudAPI.CloudBuildTargets == null)
+                if (!UnityCloudAPI.IsSyncing)
                 {
-                    if (!UnityCloudAPI.IsSyncing)
-                    {
-                        UnityCloudAPI.SyncBuilds();
-                    }
+                    UnityCloudAPI.SyncBuilds();
                 }
             }
         }
 
 
-        public override void OnGUI()
+        public void OnGUI()
         {
             Setup();
 
@@ -322,7 +328,6 @@ namespace Wireframe
                 if (newTargetID != currentTarget.name)
                 {
                     currentTarget.buildtargetid = newTargetID;
-                    UploaderWindow.QueueSave();
                 }
             }
 
@@ -333,7 +338,6 @@ namespace Wireframe
                 if (newTargetName != currentTarget.name)
                 {
                     currentTarget.name = newTargetName;
-                    UploaderWindow.QueueSave();
                 }
             }
 
@@ -345,7 +349,6 @@ namespace Wireframe
                 if (oldPlatform != newPlatform)
                 {
                     currentTarget.platform = newPlatform.ToPlatformString();
-                    UploaderWindow.QueueSave();
                 }
             }
 
@@ -356,14 +359,8 @@ namespace Wireframe
                 if (enabled != currentTarget.enabled)
                 {
                     currentTarget.enabled = enabled;
-                    UploaderWindow.QueueSave();
                 }
             }
-        }
-
-        public override void Save()
-        {
-
         }
     }
 }

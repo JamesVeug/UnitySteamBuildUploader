@@ -7,18 +7,23 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class WindowTasksTab : WindowTab
+    internal class BuildUploaderTaskWindow : EditorWindow
     {
-        public override string TabName
+        [MenuItem("Window/Build Uploader/Open Upload Tasks Window", priority = -99)]
+        public static void ShowWindow()
         {
-            get
+            FocusTask(null);
+        }
+
+        public static void FocusTask(UploadTask uploadTask)
+        {
+            BuildUploaderTaskWindow window = GetWindow<BuildUploaderTaskWindow>();
+            window.titleContent = new GUIContent("Upload Tasks", Utils.WindowIcon);
+            window.Show();
+            
+            if (uploadTask != null)
             {
-                int inProgress = UploadTask.AllTasks.Count(t => !t.IsComplete);
-                if (inProgress != 0)
-                {
-                    return "Tasks (" + inProgress + " in progress)";
-                }
-                return "Tasks";
+                window.ShowTask(uploadTask);
             }
         }
 
@@ -30,19 +35,13 @@ namespace Wireframe
         private Dictionary<AUploadTask_Step.StepType, (bool, Vector2)> m_OpenTaskSteps;
         private bool m_FollowLogs = true;
 
-        public override void Initialize(BuildUploaderWindow uploaderWindow)
+        public void Update()
         {
-            base.Initialize(uploaderWindow);
-        }
-
-        public override void Update()
-        {
-            base.Update();
             bool anyRunning = UploadTask.AllTasks.Any(t => !t.IsComplete);
             if (anyRunning)
             {
                 // Force repaint to update progress bars
-                UploaderWindow.Repaint();
+                Repaint();
             }
         }
 
@@ -70,7 +69,7 @@ namespace Wireframe
             };
         }
 
-        public override void OnGUI()
+        public void OnGUI()
         {
             Setup();
             

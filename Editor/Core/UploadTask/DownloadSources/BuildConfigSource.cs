@@ -162,6 +162,7 @@ namespace Wireframe
             {
                 stepResult.AddLog($"Build succeeded: {report.summary.totalSize} bytes");
                 stepResult.AddLog($"Build path: {report.summary.outputPath}");
+                LastBuildDirectoryUtil.LastBuildDirectory = m_filePath;
                 return true;
             }
 

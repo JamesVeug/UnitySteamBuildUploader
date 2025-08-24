@@ -172,6 +172,20 @@ namespace Wireframe
                         }
                     }
                     
+                    
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        GUIContent label = new GUIContent("Scripting Backend:", "The scripting backend to use for the build. This will determine how your code is compiled and executed.");
+                        GUILayout.Label(label, GUILayout.Width(150));
+                        ScriptingImplementation newScriptingBackend = (ScriptingImplementation)EditorGUILayout.EnumPopup(ScriptingBackend);
+                        if (newScriptingBackend != ScriptingBackend)
+                        {
+                            ScriptingBackend = newScriptingBackend;
+                            dirty = true;
+                        }
+                    }
+                    
+                    
                     EditorGUILayout.Space();
 
                     if (m_sceneList.OnGUI())

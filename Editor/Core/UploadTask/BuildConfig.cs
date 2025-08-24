@@ -35,7 +35,7 @@ namespace Wireframe
         public Architecture TargetArchitecture;
         public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes;
         public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
-        // public ScriptingImplementation ScriptingBackend; // TODO: IL2CPP settings also
+        public ScriptingImplementation ScriptingBackend = ScriptingImplementation.Mono2x;
 
         public void SetupDefaults()
         {
@@ -47,7 +47,7 @@ namespace Wireframe
             TargetPlatform = BuildTargetToPlatform();
             TargetArchitecture = CurrentTargetArchitecture();
             StackTraceLogTypes = CurrentStackTraceLogTypes();
-            // ScriptingBackend = CurrentScriptingBackend(); // TODO:
+            ScriptingBackend = CurrentScriptingBackend();
             StrippingLevel = CurrentStrippingLevel();
         }
 
@@ -168,7 +168,8 @@ namespace Wireframe
                 { "TargetPlatform", TargetPlatform.ToString() },
                 { "TargetArchitecture", TargetArchitecture.ToString() },
                 { "StackTraceLogTypes", StackTraceLogTypes.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()) },
-                { "StrippingLevel", StrippingLevel.ToString() }
+                { "StrippingLevel", StrippingLevel.ToString() },
+                { "ScriptingBackend", ScriptingBackend.ToString() },
             };
             return dict;
         }
@@ -326,6 +327,23 @@ namespace Wireframe
             {
                 StrippingLevel = CurrentStrippingLevel();
             }
+            
+            if (dict.TryGetValue("ScriptingBackend", out var scriptingBackendData) && scriptingBackendData is string scriptingBackendStr)
+            {
+                if (Enum.TryParse(scriptingBackendStr, out ScriptingImplementation scriptingBackend))
+                {
+                    ScriptingBackend = scriptingBackend;
+                }
+                else
+                {
+                    Debug.LogWarning($"Invalid ScriptingBackend value: {scriptingBackendStr}. Defaulting to Mono2x.");
+                    ScriptingBackend = ScriptingImplementation.Mono2x;
+                }
+            }
+            else
+            {
+                ScriptingBackend = CurrentScriptingBackend();
+            }
         }
 
         public BuildOptions GetBuildOptions()
@@ -390,17 +408,18 @@ namespace Wireframe
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), StrippingLevel);
             PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), ScriptingBackend);
 #else
             PlayerSettings.SetScriptingDefineSymbolsForGroup(TargetPlatform, string.Join(";", defines));
             PlayerSettings.SetManagedStrippingLevel(TargetPlatform, StrippingLevel);
             PlayerSettings.SetArchitecture(TargetPlatform, (int)TargetArchitecture);
+            PlayerSettings.SetScriptingBackend(TargetPlatform, ScriptingBackend);
 #endif
             PlayerSettings.SetStackTraceLogType(LogType.Error, StackTraceLogTypes[LogType.Error]);
             PlayerSettings.SetStackTraceLogType(LogType.Assert, StackTraceLogTypes[LogType.Assert]);
             PlayerSettings.SetStackTraceLogType(LogType.Warning, StackTraceLogTypes[LogType.Warning]);
             PlayerSettings.SetStackTraceLogType(LogType.Log, StackTraceLogTypes[LogType.Log]);
             PlayerSettings.SetStackTraceLogType(LogType.Exception, StackTraceLogTypes[LogType.Exception]);
-            // PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), CurrentScriptingBackend());
             
             EditorUserBuildSettings.development = IsDevelopmentBuild;
             EditorUserBuildSettings.connectProfiler = ConnectProfiler;

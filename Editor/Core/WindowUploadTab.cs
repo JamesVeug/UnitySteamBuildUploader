@@ -588,6 +588,15 @@ namespace Wireframe
                 return false;
             }
             
+            for (int i = 0; i < m_currentUploadProfile.PostUploadActions.Count; i++)
+            {
+                if (!m_currentUploadProfile.PostUploadActions[i].CanStartBuild(out string buildReason, m_context))
+                {
+                    reason = $"Post Upload Action {i+1}: {buildReason}";
+                    return false;
+                }
+            }
+            
             if (string.IsNullOrEmpty(m_buildDescription))
             {
                 reason = "No Description";

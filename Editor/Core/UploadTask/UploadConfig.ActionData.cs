@@ -69,6 +69,38 @@ namespace Wireframe
                     }
                 }
             }
+
+            public bool CanStartBuild(out string reason, StringFormatter.Context ctx)
+            {
+                if (WhenToExecute == UploadCompleteStatus.Never)
+                {
+                    reason = ""; // Will never execute
+                    return true;
+                }
+                
+                if (ActionType == null)
+                {
+                    reason = "No action type selected";
+                    return false;
+                }
+                
+                if (UploadAction == null)
+                {
+                    reason = "No action selected";
+                    return false;
+                }
+                
+                List<string> errors = new List<string>();
+                UploadAction.TryGetErrors(errors, ctx);
+                if (errors.Count > 0)
+                {
+                    reason = string.Join(", ", errors);
+                    return false;
+                }
+                
+                reason = "";
+                return true;
+            }
         }
     }
 }

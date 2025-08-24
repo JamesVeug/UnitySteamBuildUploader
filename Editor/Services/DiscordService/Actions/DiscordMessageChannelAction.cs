@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -81,9 +80,9 @@ namespace Wireframe
             return await Discord.SendMessageToChannel(m_channel.ChannelID, text, m_app.Token, m_app.IsBot, embeds, stepResult);
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            base.TryGetErrors(errors);
+            base.TryGetErrors(errors, ctx);
 
             if (!Discord.Enabled)
             {

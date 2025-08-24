@@ -21,12 +21,12 @@ namespace Wireframe
             m_actionInProgress = false;
         }
 
-        public virtual void TryGetWarnings(List<string> warnings)
+        public virtual void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
         {
             
         }
 
-        public virtual void TryGetErrors(List<string> errors)
+        public virtual void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
             
         }

@@ -48,8 +48,6 @@ namespace Wireframe
             Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(s_packagePath + "/" + iconPath, typeof(Object));
             if (loadAssetAtPath is Texture2D texture)
             {
-                bool issNull = texture == null;
-                Debug.Log("Loaded icon: " + iconPath + " is null: " + issNull);
                 s_Icons[iconPath] = texture;
                 return texture;
             }

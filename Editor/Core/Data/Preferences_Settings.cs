@@ -11,13 +11,14 @@ namespace Wireframe
         public static SettingsProvider CreateGeneralPreferencesProvider()
         {
             var provider =
-                new PreferencesSettings("Preferences/Build Uploader/Settings", SettingsScope.User)
+                new PreferencesSettings("Preferences/Build Uploader/General", SettingsScope.User)
                 {
-                    label = "Settings",
+                    label = "General",
                     keywords = new HashSet<string>(new[]
                     {
                         "Steam", "Build", "Uploader", "Pipe", "line", "Github", "Cache"
-                    })
+                    }),
+                    
                 };
 
             return provider;

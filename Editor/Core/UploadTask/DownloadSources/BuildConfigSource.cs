@@ -67,13 +67,13 @@ namespace Wireframe
             try
             {
                 // Check it's not already built to avoid building twice
-                Builds completeBuild = s_CompleteBuilds.FirstOrDefault(a => a.Config == m_BuildConfig);
-                if (!m_CleanBuild && completeBuild != null)
-                {
-                    m_filePath = completeBuild.TargetPath;
-                    stepResult.AddLog($"Build already completed for {m_BuildConfig.DisplayName}, reusing existing build at path {m_filePath}");
-                    return true;
-                }
+                // Builds completeBuild = s_CompleteBuilds.FirstOrDefault(a => a.Config == m_BuildConfig);
+                // if (!m_CleanBuild && completeBuild != null)
+                // {
+                //     m_filePath = completeBuild.TargetPath;
+                //     stepResult.AddLog($"Build already completed for {m_BuildConfig.DisplayName}, reusing existing build at path {m_filePath}");
+                //     return true;
+                // }
                 
                 m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", m_BuildConfig.GUID);
                 if (m_CleanBuild && Directory.Exists(m_filePath))
@@ -150,11 +150,11 @@ namespace Wireframe
 
                 if (report.summary.result == BuildResult.Succeeded)
                 {
-                    s_CompleteBuilds.Add(new Builds
-                    {
-                        Config = m_BuildConfig,
-                        TargetPath = m_filePath
-                    });
+                    // s_CompleteBuilds.Add(new Builds
+                    // {
+                    //     Config = m_BuildConfig,
+                    //     TargetPath = m_filePath
+                    // });
                 
                     LastBuildDirectoryUtil.LastBuildDirectory = m_filePath;
                 }
@@ -274,7 +274,7 @@ namespace Wireframe
                 return;
             }
             
-            s_CompleteBuilds.Clear();
+            // s_CompleteBuilds.Clear();
 
             if (m_oldBuildTarget == BuildTarget.NoTarget 
                 || (EditorUserBuildSettings.activeBuildTarget == m_oldBuildTarget 

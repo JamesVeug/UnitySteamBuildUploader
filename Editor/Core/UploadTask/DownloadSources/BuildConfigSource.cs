@@ -18,11 +18,14 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(BuildConfigSource), "sources", "Chooses a BuildConfig to start a new build when uploading")]
-    [UploadSource("BuildConfigSource", "Build Config")]
+    [UploadSource("BuildConfig", "Build Config")]
     public partial class BuildConfigSource : AUploadSource
     {
         [Wiki("BuildConfig", "Which config to use when creating a build")]
-        protected BuildConfig m_BuildConfig = null;
+        private BuildConfig m_BuildConfig = null;
+        
+        [Wiki("Clean Build", "If enabled, the build folder will be deleted before building. This ensures a fresh build but may increase build time.")]
+        private bool m_CleanBuild = false;
 
         private string m_filePath = "";
         private BuildTargetGroup m_oldBuildTargetGroup;
@@ -53,13 +56,19 @@ namespace Wireframe
             
             // Ensure only 1 build happens at a time to avoid applying settings over each other
             await m_lock.WaitAsync();
+            if (token.IsCancellationRequested)
+            {
+                m_lock.Release();
+                stepResult.AddLog("Build cancelled by user.");
+                return false;
+            }
             
             BuildReport report = null;
             try
             {
                 // Check it's not already built to avoid building twice
                 Builds completeBuild = s_CompleteBuilds.FirstOrDefault(a => a.Config == m_BuildConfig);
-                if (completeBuild != null)
+                if (!m_CleanBuild && completeBuild != null)
                 {
                     m_filePath = completeBuild.TargetPath;
                     stepResult.AddLog($"Build already completed for {m_BuildConfig.DisplayName}, reusing existing build at path {m_filePath}");
@@ -67,11 +76,12 @@ namespace Wireframe
                 }
                 
                 m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", m_BuildConfig.GUID);
-                if (Directory.Exists(m_filePath))
+                if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
                     try
                     {
+                        stepResult.AddLog($"Clean build set and build already exists so deleting to make a fresh build: {m_filePath}");
                         Directory.Delete(m_filePath, true);
                     }
                     catch (Exception e)
@@ -81,13 +91,16 @@ namespace Wireframe
                         return false;
                     }
                 }
-                
-                Directory.CreateDirectory(m_filePath);
-            
+
                 if (token.IsCancellationRequested)
                 {
                     stepResult.AddLog("Build cancelled by user.");
                     return false;
+                }
+
+                if (!Directory.Exists(m_filePath))
+                {
+                    Directory.CreateDirectory(m_filePath);
                 }
                 
                 m_oldBuildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
@@ -222,7 +235,8 @@ namespace Wireframe
         {
             return new Dictionary<string, object>
             {
-                { "BuildConfig", m_BuildConfig != null ? m_BuildConfig.GUID : "" }
+                { "BuildConfig", m_BuildConfig != null ? m_BuildConfig.GUID : "" },
+                { "CleanBuild", m_CleanBuild },
             };
         }
 
@@ -239,6 +253,15 @@ namespace Wireframe
             else
             {
                 Debug.LogWarning("BuildConfig GUID not found in serialized data.");
+            }
+            
+            if (data.TryGetValue("CleanBuild", out var cleanBuildObj) && cleanBuildObj is bool cleanBuild)
+            {
+                m_CleanBuild = cleanBuild;
+            }
+            else
+            {
+                m_CleanBuild = false;
             }
         }
 

@@ -40,18 +40,28 @@ namespace Wireframe
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             StringFormatter.Context ctx, CancellationTokenSource token)
         {
-            if (string.IsNullOrEmpty(LastBuildDirectoryUtil.LastBuildDirectory))
+            // Wait for our turn if we need to
+            await BuildConfigSource.m_lock.WaitAsync();
+
+            try
             {
-                stepResult.AddError("No last build directory found. Please build your project first.");
-                return false;
+                if (string.IsNullOrEmpty(LastBuildDirectoryUtil.LastBuildDirectory))
+                {
+                    stepResult.AddError("No last build directory found. Please build your project first.");
+                    return false;
+                }
+
+                if (!Directory.Exists(LastBuildDirectoryUtil.LastBuildDirectory))
+                {
+                    stepResult.AddError($"Last build directory does not exist: {LastBuildDirectoryUtil.LastBuildDirectory}");
+                    return false;
+                }
             }
-            
-            if (!Directory.Exists(LastBuildDirectoryUtil.LastBuildDirectory))
+            finally
             {
-                stepResult.AddError($"Last build directory does not exist: {LastBuildDirectoryUtil.LastBuildDirectory}");
-                return false;
+                BuildConfigSource.m_lock.Release();
             }
-            
+
             return true;
         }
 

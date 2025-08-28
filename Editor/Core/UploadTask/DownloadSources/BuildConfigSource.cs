@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -29,7 +28,15 @@ namespace Wireframe
         private BuildTargetGroup m_oldBuildTargetGroup;
         private BuildTarget m_oldBuildTarget = BuildTarget.NoTarget;
         
-        private static SemaphoreSlim m_lock = new SemaphoreSlim(1);
+        // Lock to 1 build at a time regardless of how many tasks/configs are running
+        internal static SemaphoreSlim m_lock = new SemaphoreSlim(1);
+
+        private class Builds
+        {
+            public BuildConfig Config;
+            public string TargetPath;
+        }
+        private static List<Builds> s_CompleteBuilds = new List<Builds>();
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             StringFormatter.Context ctx, CancellationTokenSource token)
@@ -38,32 +45,45 @@ namespace Wireframe
             if (m_BuildConfig == null)
             {
                 stepResult.AddError("No BuildConfig selected. Please select a BuildConfig to use.");
+                token.Cancel();
                 return false;
             }
             
-            m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", m_BuildConfig.GUID);
-            if (Directory.Exists(m_filePath))
-            {
-                // Clear the directory if it exists
-                try
-                {
-                    Directory.Delete(m_filePath, true);
-                }
-                catch (Exception e)
-                {
-                    stepResult.AddError($"Failed to clear build directory: {e.Message}");
-                    stepResult.SetFailed("Failed to clear build directory. Please check the console for more details.");
-                    return false;
-                }
-            }
+            // TODO: Consider multiple UploadTasks sequentially and if the user modified a build config mid upload
             
-            Directory.CreateDirectory(m_filePath);
-            
+            // Ensure only 1 build happens at a time to avoid applying settings over each other
             await m_lock.WaitAsync();
-
+            
             BuildReport report = null;
             try
             {
+                // Check it's not already built to avoid building twice
+                Builds completeBuild = s_CompleteBuilds.FirstOrDefault(a => a.Config == m_BuildConfig);
+                if (completeBuild != null)
+                {
+                    m_filePath = completeBuild.TargetPath;
+                    stepResult.AddLog($"Build already completed for {m_BuildConfig.DisplayName}, reusing existing build at path {m_filePath}");
+                    return true;
+                }
+                
+                m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", m_BuildConfig.GUID);
+                if (Directory.Exists(m_filePath))
+                {
+                    // Clear the directory if it exists
+                    try
+                    {
+                        Directory.Delete(m_filePath, true);
+                    }
+                    catch (Exception e)
+                    {
+                        stepResult.AddError($"Failed to clear build directory: {e.Message}");
+                        stepResult.SetFailed("Failed to clear build directory. Please check the console for more details.");
+                        return false;
+                    }
+                }
+                
+                Directory.CreateDirectory(m_filePath);
+            
                 if (token.IsCancellationRequested)
                 {
                     stepResult.AddLog("Build cancelled by user.");
@@ -114,6 +134,17 @@ namespace Wireframe
                 report = BuildPipeline.BuildPlayer(options);
                 stopwatch.Stop();
                 stepResult.AddLog($"Build completed in {stopwatch.ElapsedMilliseconds} ms");
+
+                if (report.summary.result == BuildResult.Succeeded)
+                {
+                    s_CompleteBuilds.Add(new Builds
+                    {
+                        Config = m_BuildConfig,
+                        TargetPath = m_filePath
+                    });
+                
+                    LastBuildDirectoryUtil.LastBuildDirectory = m_filePath;
+                }
             }
             catch (Exception e)
             {
@@ -162,7 +193,6 @@ namespace Wireframe
             {
                 stepResult.AddLog($"Build succeeded: {report.summary.totalSize} bytes");
                 stepResult.AddLog($"Build path: {report.summary.outputPath}");
-                LastBuildDirectoryUtil.LastBuildDirectory = m_filePath;
                 return true;
             }
 
@@ -220,6 +250,8 @@ namespace Wireframe
                 // Only switch once - not once per source
                 return;
             }
+            
+            s_CompleteBuilds.Clear();
 
             if (m_oldBuildTarget == BuildTarget.NoTarget 
                 || (EditorUserBuildSettings.activeBuildTarget == m_oldBuildTarget 

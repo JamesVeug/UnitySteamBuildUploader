@@ -13,21 +13,21 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("App:", GUILayout.Width(120));
-                isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current);
+                isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current, ctx);
             }
 
             // Depot
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Depot:", GUILayout.Width(120));
-                isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot);
+                isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot, ctx);
             }
 
             // Branch
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Branch:", GUILayout.Width(120));
-                isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch);
+                isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch, ctx);
             }
 
             // Tools
@@ -71,9 +71,9 @@ namespace Wireframe
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current);
-            isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot);
-            isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch);
+            isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current, ctx);
+            isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot, ctx);
+            isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch, ctx);
         }
     }
 }

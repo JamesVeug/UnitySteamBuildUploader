@@ -6,7 +6,7 @@ namespace Wireframe
     {
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig);
+            isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig, ctx);
             
             bool newCleanBuild = GUILayout.Toggle(m_CleanBuild, "Clean Build");
             if (newCleanBuild != m_CleanBuild)
@@ -21,7 +21,7 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Build Config:", GUILayout.Width(120));
-                isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig);
+                isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig, ctx);
             }
             
             using (new GUILayout.HorizontalScope())

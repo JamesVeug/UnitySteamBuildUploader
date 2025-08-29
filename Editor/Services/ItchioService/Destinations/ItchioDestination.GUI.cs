@@ -16,8 +16,8 @@ namespace Wireframe
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            isDirty |= ItchioUIUtils.UserPopup.DrawPopup(ref m_user);
-            isDirty |= ItchioUIUtils.GamePopup.DrawPopup(m_user, ref m_game);
+            isDirty |= ItchioUIUtils.UserPopup.DrawPopup(ref m_user, ctx);
+            isDirty |= ItchioUIUtils.GamePopup.DrawPopup(m_user, ref m_game, ctx);
 
             string channels = m_channels.Count > 0
                 ? string.Join(", ", m_channels.Select(c => c.DisplayName))
@@ -61,13 +61,13 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("User:", GUILayout.Width(120));
-                isDirty |= ItchioUIUtils.UserPopup.DrawPopup(ref m_user);
+                isDirty |= ItchioUIUtils.UserPopup.DrawPopup(ref m_user, ctx);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Game:", GUILayout.Width(120));
-                isDirty |= ItchioUIUtils.GamePopup.DrawPopup(m_user, ref m_game);
+                isDirty |= ItchioUIUtils.GamePopup.DrawPopup(m_user, ref m_game, ctx);
             }
 
             GUILayout.Label("Channels:", GUILayout.Width(120));

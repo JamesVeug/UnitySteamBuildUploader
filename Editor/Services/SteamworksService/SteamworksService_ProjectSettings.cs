@@ -10,6 +10,7 @@ namespace Wireframe
         public override bool HasProjectSettingsGUI => true;
         
         private SteamApp _current;
+        private StringFormatter.Context m_context = new StringFormatter.Context();
 
         private ReorderableListOfBranches m_branchesList = new ReorderableListOfBranches();
         private ReorderableListOfDepots m_depotsList = new ReorderableListOfDepots();
@@ -23,7 +24,7 @@ namespace Wireframe
                 {
                     EditorGUILayout.LabelField("Config:", GUILayout.Width(100));
 
-                    if (SteamUIUtils.ConfigPopup.DrawPopup(ref _current))
+                    if (SteamUIUtils.ConfigPopup.DrawPopup(ref _current, m_context))
                     {
                         m_branchesList.Initialize(_current.ConfigBranches, "Branches", true, _ => { Save(); });
                         m_depotsList.Initialize(_current.Depots, "Depots", true, _ => { Save(); });
@@ -109,7 +110,7 @@ namespace Wireframe
                 GUILayout.Label("Default Branch:", GUILayout.Width(150));
                 string newBranch = _current.App.setlive;
                 var chosenBranch = _current.ConfigBranches.FirstOrDefault(b => b.name == newBranch);
-                if (SteamUIUtils.BranchPopup.DrawPopup(_current, ref chosenBranch))
+                if (SteamUIUtils.BranchPopup.DrawPopup(_current, ref chosenBranch, m_context))
                 {
                     _current.App.setlive = chosenBranch?.name;
                     Save();

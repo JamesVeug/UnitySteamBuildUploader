@@ -10,9 +10,9 @@ namespace Wireframe
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, GUILayout.Width(120));
-            isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, GUILayout.Width(120));
-            isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, GUILayout.Width(120));
+            isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, ctx, GUILayout.Width(120));
+            isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, ctx, GUILayout.Width(120));
+            isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, ctx, GUILayout.Width(120));
 
             float width = maxWidth - 375;
             int newLine = m_text != null ? m_text.IndexOf('\n') : -1;
@@ -37,13 +37,13 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("App:", GUILayout.Width(120));
-                isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, GUILayout.Width(120));
+                isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, ctx, GUILayout.Width(120));
             }
             
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Server:", GUILayout.Width(120));
-                isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, GUILayout.Width(120));
+                isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, ctx, GUILayout.Width(120));
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -56,7 +56,7 @@ namespace Wireframe
                 }
                 else
                 {
-                    isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, GUILayout.Width(120));
+                    isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, ctx, GUILayout.Width(120));
                 }
             }
 

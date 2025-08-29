@@ -306,7 +306,7 @@ namespace Wireframe
                         using (new EditorGUI.DisabledScope(disabled))
                         {
                             // GUILayout.Label("Action Type: ", GUILayout.Width(100));
-                            if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, GUILayout.Width(200)))
+                            if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, m_context, GUILayout.Width(200)))
                             {
                                 m_isDirty = true;
                                 Utils.CreateInstance(actionData.ActionType?.Type, out actionData.UploadAction);

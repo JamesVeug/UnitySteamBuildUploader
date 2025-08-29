@@ -89,7 +89,7 @@ namespace Wireframe
                         using (new EditorGUILayout.HorizontalScope())
                         {
                             // Source Type
-                            if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, GUILayout.MaxWidth(120)))
+                            if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, ctx, GUILayout.MaxWidth(120)))
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(source.SourceType?.Type, out source.Source);
@@ -166,7 +166,7 @@ namespace Wireframe
                         using (new EditorGUILayout.HorizontalScope())
                         {
                             // Destination Type
-                            if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType))
+                            if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType, ctx))
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
@@ -246,7 +246,7 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!source.Enabled))
                             {
                                 GUILayout.Label("Source Type: ", GUILayout.Width(100));
-                                if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType))
+                                if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, ctx))
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(source.SourceType?.Type, out source.Source);
@@ -377,7 +377,7 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!modifiers.Enabled))
                             {
                                 GUILayout.Label("Modifier Type: ", GUILayout.Width(100));
-                                if (UIHelpers.ModifiersPopup.DrawPopup(ref modifiers.ModifierType))
+                                if (UIHelpers.ModifiersPopup.DrawPopup(ref modifiers.ModifierType, ctx))
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(modifiers.ModifierType?.Type, out modifiers.Modifier);
@@ -462,7 +462,7 @@ namespace Wireframe
                             GUILayout.Label("Destination Type: ", GUILayout.Width(120));
                             using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                             {
-                                if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType))
+                                if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType, ctx))
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);

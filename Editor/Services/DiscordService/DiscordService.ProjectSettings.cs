@@ -9,6 +9,7 @@ namespace Wireframe
         private static ReorderableListOfDiscordAppsProjectSettings _reorderableListOfDiscordAppsProjectSettings;
         private static ReorderableListOfDiscordChannels _reorderableListOfDiscordChannels;
         private static DiscordConfig.DiscordServer m_SelectedServer;
+        private static StringFormatter.Context m_context = new StringFormatter.Context();
 
         public override bool HasProjectSettingsGUI => true;
 
@@ -21,7 +22,7 @@ namespace Wireframe
                 GUILayout.Label("Servers", EditorStyles.boldLabel);
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    DiscordUIUtils.ServerPopup.DrawPopup(ref m_SelectedServer, GUILayout.Width(120));
+                    DiscordUIUtils.ServerPopup.DrawPopup(ref m_SelectedServer, m_context, GUILayout.Width(120));
                     if(GUILayout.Button("Add Server", GUILayout.Width(100)))
                     {
                         DiscordConfig.DiscordServer config = new DiscordConfig.DiscordServer();

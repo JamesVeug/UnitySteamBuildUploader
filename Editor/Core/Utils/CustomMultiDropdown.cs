@@ -12,14 +12,21 @@ namespace Wireframe
 
         private static Dictionary<T, string[]> nameLookup;
         private static Dictionary<T, Y[]> valueLookup;
+        private static StringFormatter.Context ctx = null;
 
         public virtual bool IsItemValid(Y y)
         {
             return true;
         }
 
-        public bool DrawPopup(T target, ref Y initial, params GUILayoutOption[] options)
+        public bool DrawPopup(T target, ref Y initial, StringFormatter.Context context, params GUILayoutOption[] options)
         {
+            if(ctx != context)
+            {
+                ctx = context;
+                nameLookup = null;
+            }
+            
             if (FailedToRefresh())
             {
                 return false;
@@ -92,7 +99,12 @@ namespace Wireframe
                     if (IsItemValid(builds[j]))
                     {
                         values.Add(builds[j]);
-                        names.Add(builds[j].Id + ". " + builds[j].DisplayName);
+                        string displayName = builds[j].Id + ". " + builds[j].DisplayName;
+                        if (ctx != null)
+                        {
+                            displayName = StringFormatter.FormatString(displayName, ctx);
+                        }
+                        names.Add(displayName);
                     }
                 }
                 

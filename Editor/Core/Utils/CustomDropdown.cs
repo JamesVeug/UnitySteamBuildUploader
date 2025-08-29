@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,6 +24,7 @@ namespace Wireframe
         private string[] names = null;
         private T[] values = null;
         private T[] rawValues = null;
+        private StringFormatter.Context ctx = null;
 
         public void Refresh()
         {
@@ -38,7 +38,16 @@ namespace Wireframe
             {
                 namesTemp.Add(FirstEntryText);
             }
-            namesTemp.AddRange(data.ConvertAll(x => x.Id + ". " + x.DisplayName));
+
+            if (ctx == null)
+            {
+                namesTemp.AddRange(data.ConvertAll(x => x.Id + ". " + x.DisplayName));
+            }
+            else
+            {
+                namesTemp.AddRange(data.ConvertAll(x => x.Id + ". " + StringFormatter.FormatString(x.DisplayName, ctx)));
+            }
+
             names = namesTemp.ToArray();
             
             if (AddChooseFromDropdownEntry)
@@ -67,16 +76,22 @@ namespace Wireframe
             return a.DisplayName.CompareTo(b.DisplayName);
         }
 
-        public bool DrawPopup(IList<T> collection, int index, params GUILayoutOption[] options)
+        public bool DrawPopup(IList<T> collection, int index, StringFormatter.Context ctx, params GUILayoutOption[] options)
         {
             T t = collection[index];
-            bool edited = DrawPopup(ref t, options);
+            bool edited = DrawPopup(ref t, ctx, options);
             collection[index] = t;
             return edited;
         }
         
-        public bool DrawPopup(ref T initial, params GUILayoutOption[] options)
+        public bool DrawPopup(ref T initial, StringFormatter.Context ctx, params GUILayoutOption[] options)
         {
+            if (ctx != this.ctx)
+            {
+                this.ctx = ctx;
+                names = null;
+            }
+            
             if (NeedsSettingUp())
             {
                 Refresh();

@@ -9,6 +9,7 @@ namespace Wireframe
         public override bool HasProjectSettingsGUI => true;
         
         private ItchioUser m_currentUser;
+        private StringFormatter.Context m_context = new StringFormatter.Context();
 
         private ReorderableListOfGames m_gameList = new ReorderableListOfGames();
         private ReorderableListOfChannels m_channelList;
@@ -23,7 +24,7 @@ namespace Wireframe
                 {
                     EditorGUILayout.LabelField("Users:", GUILayout.Width(100));
 
-                    if (ItchioUIUtils.UserPopup.DrawPopup(ref m_currentUser))
+                    if (ItchioUIUtils.UserPopup.DrawPopup(ref m_currentUser, m_context))
                     {
                         m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
                     }

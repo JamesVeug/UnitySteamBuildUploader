@@ -11,7 +11,7 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Target:", GUILayout.Width(120));
-                isDirty |= UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget);
+                isDirty |= UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget, ctx);
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -59,12 +59,12 @@ namespace Wireframe
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget))
+            if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget, ctx))
             {
                 isDirty = true;
             }
 
-            if (UnityCloudAPIEditorUtil.BuildPopup.DrawPopup(sourceTarget, ref sourceBuild))
+            if (UnityCloudAPIEditorUtil.BuildPopup.DrawPopup(sourceTarget, ref sourceBuild, ctx))
             {
                 isDirty = true;
             }

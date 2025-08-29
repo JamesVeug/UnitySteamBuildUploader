@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -32,29 +33,40 @@ namespace Wireframe
             data.Sort(SortNames);
             rawValues = data.ToArray();
             
-            int count = data.Count + (AddChooseFromDropdownEntry ? 1 : 0);
-            List<string> namesTemp = new List<string>(count);
-            if (AddChooseFromDropdownEntry)
-            {
-                namesTemp.Add(FirstEntryText);
-            }
-
-            if (ctx == null)
-            {
-                namesTemp.AddRange(data.ConvertAll(x => x.Id + ". " + x.DisplayName));
-            }
-            else
-            {
-                namesTemp.AddRange(data.ConvertAll(x => x.Id + ". " + StringFormatter.FormatString(x.DisplayName, ctx)));
-            }
-
-            names = namesTemp.ToArray();
+            names = FormatNames();
             
             if (AddChooseFromDropdownEntry)
             {
                 data.Insert(0, default);
             }
             values = data.ToArray();
+        }
+
+        private string[] FormatNames()
+        {
+            if (rawValues == null)
+            {
+                return null; // not setup yet
+            }
+            
+            int count = rawValues.Length + (AddChooseFromDropdownEntry ? 1 : 0);
+            List<string> namesTemp = new List<string>(count);
+            if (AddChooseFromDropdownEntry)
+            {
+                namesTemp.Add(FirstEntryText);
+            }
+            
+            if (ctx == null)
+            {
+                namesTemp.AddRange(rawValues.Select(x => x.Id + ". " + x.DisplayName));
+            }
+            else
+            {
+                namesTemp.AddRange(rawValues.Select(x => x.Id + ". " + StringFormatter.FormatString(x.DisplayName, ctx)));
+            }
+            
+
+            return namesTemp.ToArray();
         }
 
         private int SortNames(T a, T b)
@@ -89,7 +101,7 @@ namespace Wireframe
             if (ctx != this.ctx)
             {
                 this.ctx = ctx;
-                names = null;
+                names = FormatNames();
             }
             
             if (NeedsSettingUp())

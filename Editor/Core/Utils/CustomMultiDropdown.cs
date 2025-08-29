@@ -24,7 +24,7 @@ namespace Wireframe
             if(ctx != context)
             {
                 ctx = context;
-                nameLookup = null;
+                RefreshNames();
             }
             
             if (FailedToRefresh())
@@ -88,10 +88,7 @@ namespace Wireframe
                 List<Y> builds = new List<Y>(currentBuilds[i].Item2);
                 builds.Sort(SortByName);
 
-                List<string> names = new List<string>();
                 List<Y> values = new List<Y>();
-
-                names.Add(FirstEntryText);
                 values.Add(default);
 
                 for (var j = 0; j < builds.Count; j++)
@@ -99,7 +96,32 @@ namespace Wireframe
                     if (IsItemValid(builds[j]))
                     {
                         values.Add(builds[j]);
-                        string displayName = builds[j].Id + ". " + builds[j].DisplayName;
+                    }
+                }
+                
+                valueLookup[currentBuilds[i].Item1] = values.ToArray();
+            }
+
+            RefreshNames();
+        }
+
+        private void RefreshNames()
+        {
+            if (nameLookup == null)
+            {
+                return;
+            }
+            
+            nameLookup.Clear();
+            foreach (KeyValuePair<T, Y[]> pair in valueLookup)
+            {
+                List<string> names = new List<string>();
+                names.Add(FirstEntryText);
+                for (var j = 0; j < pair.Value.Length; j++)
+                {
+                    if (pair.Value[j] != null)
+                    {
+                        string displayName = pair.Value[j].Id + ". " + pair.Value[j].DisplayName;
                         if (ctx != null)
                         {
                             displayName = StringFormatter.FormatString(displayName, ctx);
@@ -107,9 +129,7 @@ namespace Wireframe
                         names.Add(displayName);
                     }
                 }
-                
-                nameLookup[currentBuilds[i].Item1] = names.ToArray();
-                valueLookup[currentBuilds[i].Item1] = values.ToArray();
+                nameLookup[pair.Key] = names.ToArray();
             }
         }
 
@@ -145,7 +165,7 @@ namespace Wireframe
             
             return false;
         }
-
+        
         private static bool NeedsRefreshing()
         {
             return nameLookup == null || nameLookup.Count == 0 || valueLookup == null || valueLookup.Count == 0;

@@ -276,7 +276,7 @@ namespace Wireframe
                             }
                         }
 
-                        entries.Add(json.Substring(entryStart, endIndex - entryStart).Trim());
+                        entries.Add(json.Substring(entryStart, endIndex - entryStart + 1).Trim());
                         entries.RemoveAll(string.IsNullOrEmpty);
 
 

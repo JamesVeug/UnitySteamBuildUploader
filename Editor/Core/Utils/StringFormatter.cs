@@ -39,11 +39,15 @@ namespace Wireframe
             new Command("{activeBuildTargetGroup}", (ctx) => BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget).ToString(), "The target group of the upcoming build as defined in Player Settings."),
             new Command("{activeScriptingBackend}", (ctx) => ScriptingBackend, "The scripting backend for the next build as defined in Player Settings."),
             
+            new Command("{projectPath}", (ctx) => Path.GetDirectoryName(Application.dataPath), "The version of your project as specified in Player Settings."),
+            new Command("{persistentDataPath}", (ctx) => Application.persistentDataPath, "The version of your project as specified in Player Settings."),
             new Command("{version}", (ctx) => Application.version, "The version of your project as specified in Player Settings."),
             new Command("{unityVersion}", (ctx) => Application.unityVersion, "The version of Unity you are using."),
+            
             new Command("{date}", (ctx) => DateTime.Now.ToString("yyyy-MM-dd"), "The current local date in the format YYYY-MM-DD."),
             new Command("{time}", (ctx) => DateTime.Now.ToString("HH-mm-ss"), "The current local time in the format HH-MM-SS."),
             new Command("{dateTime}", (ctx) => DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"), "The current local date and time in the format YYYY-MM-DD HH-MM-SS."),
+            
             new Command("{machineName}", (ctx) => Environment.MachineName, "The name of the machine running the build."),
             
             new Command("{taskProfileName}", (ctx) => ctx.TaskProfileName(), "The name of the upload profile or task specified when creating the task."),

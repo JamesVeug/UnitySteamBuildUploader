@@ -1,0 +1,112 @@
+﻿using System.IO;
+using UnityEngine;
+
+namespace Wireframe
+{
+    public class BuildUploaderProjectSettings
+    {
+        private static readonly string FilePath = Application.dataPath + "/../BuildUploader/ProjectSettings.json";
+        private static readonly int CurrentVersion = 1;
+        
+        private static BuildUploaderProjectSettings _instance;
+        public static BuildUploaderProjectSettings Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    LoadFile();
+                }
+
+                return _instance;
+            }
+        }
+        
+        
+        public int Version;
+        public bool IncludeBuildMetaDataInStreamingDataFolder = true;
+        public int LastBuildNumber = 0;
+
+        public BuildUploaderProjectSettings()
+        {
+            Version = CurrentVersion;
+        }
+        
+        private static void LoadFile()
+        {
+            if (File.Exists(FilePath))
+            {
+                string json = File.ReadAllText(FilePath);
+                BuildUploaderProjectSettings savedData = JSON.DeserializeObject<BuildUploaderProjectSettings>(json);
+                if (savedData != null)
+                {
+                    _instance = savedData;
+                    return;
+                }
+            }
+
+            _instance = new BuildUploaderProjectSettings();
+            Save();
+        }
+        
+        public static void Save()
+        {
+            if (_instance != null)
+            {
+                string directory = Path.GetDirectoryName(FilePath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                
+                string json = JSON.SerializeObject(_instance);
+                File.WriteAllText(FilePath, json);
+            }
+        }
+        
+        public static void SaveToStreamingAssets(BuildMetaData meta, string buildPath)
+        {
+            if (!Directory.Exists(buildPath))
+            {
+                buildPath = Path.GetDirectoryName(buildPath);
+            }
+        
+            // TODO: Support non-mono builds
+            string[] resourceFolders = Directory.GetDirectories(buildPath, "Resources", SearchOption.AllDirectories);
+            if (resourceFolders.Length > 0)
+            {
+                buildPath = Path.GetDirectoryName(resourceFolders[0]);
+            }
+            else
+            {
+                Debug.LogError("Failed to find Resources folder in build output path. Cannot include build meta data.");
+                return;
+            }
+        
+            string streamingAssetPath = Path.Combine(buildPath, "StreamingAssets");
+            if (!Directory.Exists(streamingAssetPath))
+            {
+                Directory.CreateDirectory(streamingAssetPath);
+            }
+            
+            string json = JsonUtility.ToJson(meta, true);
+            File.WriteAllText(streamingAssetPath + "/BuildData.json", json);
+        }
+
+        public static BuildMetaData CreateFromProjectSettings(bool bumpBuildNumber)
+        {
+            BuildUploaderProjectSettings settings = BuildUploaderProjectSettings.Instance;
+
+            if (bumpBuildNumber)
+            {
+                settings.LastBuildNumber++;
+                BuildUploaderProjectSettings.Save();
+            }
+
+            BuildMetaData metaData = new BuildMetaData();
+            metaData.BuildNumber = settings.LastBuildNumber;
+            
+            return metaData;
+        }
+    }
+}

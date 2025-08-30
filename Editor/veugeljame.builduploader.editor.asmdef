@@ -1,7 +1,9 @@
 {
     "name": "VeugelJame.BuildUploader.Editor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:4c800362d85ec4145b19593ffacc0990"
+    ],
     "includePlatforms": [
         "Editor"
     ],

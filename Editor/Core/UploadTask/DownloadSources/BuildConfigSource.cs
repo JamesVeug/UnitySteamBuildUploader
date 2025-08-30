@@ -148,7 +148,7 @@ namespace Wireframe
                 // Build the player
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 stepResult.AddLog("Starting build...");
-                report = BuildPipeline.BuildPlayer(options);
+                report = MakeBuild(options, stepResult);
                 stopwatch.Stop();
                 stepResult.AddLog($"Build completed in {stopwatch.ElapsedMilliseconds} ms");
 
@@ -218,6 +218,23 @@ namespace Wireframe
             stepResult.SetFailed(summarizeErrors);
             token.Cancel();
             return false;
+        }
+
+        private static BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult)
+        {
+            BuildReport report = BuildPipeline.BuildPlayer(options);
+
+            if (report.summary.result == BuildResult.Succeeded)
+            {
+                if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
+                {
+                    stepResult.AddLog("Saving build meta data to StreamingAssets folder");
+                    BuildMetaData buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
+                    BuildUploaderProjectSettings.SaveToStreamingAssets(buildMetaData, report.summary.outputPath);
+                }
+            }
+            
+            return report;
         }
 
         public override string SourceFilePath()

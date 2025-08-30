@@ -21,16 +21,15 @@ namespace Wireframe
                     var manifest = Resources.Load<TextAsset>("UnityCloudBuildManifest"); // UnityCloud default
                     if (manifest != null)
                     {
-                        Debug.Log("[CloudUtil] Found Manifest");
                         m_instance = JsonUtility.FromJson<CloudBuildManifest>(manifest.text);
-                        Debug.Log("[CloudUtil] Build: " + m_instance.buildNumber);
                     }
+#if UNITY_EDITOR
                     else
                     {
-                        Debug.LogError("[CloudUtil] Could not find Manifest");
                         m_instance = new CloudBuildManifest();
                         m_instance.Save();
                     }
+#endif
                 }
 
                 return m_instance;

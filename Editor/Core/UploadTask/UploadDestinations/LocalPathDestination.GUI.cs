@@ -56,7 +56,7 @@ namespace Wireframe
 
                 if (GUILayout.Button("Show", GUILayout.Width(50)))
                 {
-                    EditorUtility.RevealInFinder(m_localPath);
+                    EditorUtility.RevealInFinder(StringFormatter.FormatString(m_localPath, ctx));
                 }
             }
 

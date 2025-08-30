@@ -34,6 +34,7 @@ namespace Wireframe
             // This isn't needed so add it as a default modifier
             ExcludeFoldersModifier regexBuildModifier = new ExcludeFoldersModifier();
             regexBuildModifier.Add(".*DoNotShip", true, false);
+            regexBuildModifier.Add(".*ButDontShipItWithYourGame", true, false);
             AddModifier(new ModifierData(regexBuildModifier, true));
         }
         

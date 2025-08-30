@@ -12,29 +12,36 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    [Wiki(nameof(LastUploadSource), "sources", "Chooses the directory of the last build made using the Build Uploader")]
+    [Wiki(nameof(LastBuildSource), "sources", "Chooses the directory of the last build made using the Build Uploader")]
     [UploadSource("LastBuildSource", "Last Build Directory")]
-    public class LastUploadSource : AUploadSource
+    public class LastBuildSource : AUploadSource
     {
         public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
-            EditorGUILayout.LabelField("Last Build Directory", LastBuildDirectoryUtil.LastBuildDirectory);
-            if (GUILayout.Button("Open Last Build Directory"))
+            EditorGUILayout.LabelField("Build Name:", LastBuildUtil.LastBuildName);
+            
+            using (new EditorGUILayout.HorizontalScope())
             {
-                if (!string.IsNullOrEmpty(LastBuildDirectoryUtil.LastBuildDirectory))
+                EditorGUILayout.LabelField("Directory:", LastBuildUtil.LastBuildDirectory);
+                if (GUILayout.Button("Show", GUILayout.Width(100)))
                 {
-                    EditorUtility.RevealInFinder(LastBuildDirectoryUtil.LastBuildDirectory);
-                }
-                else
-                {
-                    EditorUtility.DisplayDialog("Error", "No last build directory found. Please build your project first.", "OK");
+                    if (!string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
+                    {
+                        EditorUtility.RevealInFinder(LastBuildUtil.LastBuildDirectory);
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Error",
+                            "No last build directory found. Please build your project first.", "OK");
+                    }
                 }
             }
         }
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            EditorGUILayout.LabelField(LastBuildDirectoryUtil.LastBuildDirectory, GUILayout.MaxWidth(maxWidth));
+            EditorGUILayout.LabelField(LastBuildUtil.LastBuildName, GUILayout.Width(100));
+            EditorGUILayout.LabelField(LastBuildUtil.LastBuildDirectory, GUILayout.MaxWidth(maxWidth - 100));
         }
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
@@ -45,15 +52,15 @@ namespace Wireframe
 
             try
             {
-                if (string.IsNullOrEmpty(LastBuildDirectoryUtil.LastBuildDirectory))
+                if (string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
                 {
                     stepResult.AddError("No last build directory found. Please build your project first.");
                     return false;
                 }
 
-                if (!Directory.Exists(LastBuildDirectoryUtil.LastBuildDirectory))
+                if (!Directory.Exists(LastBuildUtil.LastBuildDirectory))
                 {
-                    stepResult.AddError($"Last build directory does not exist: {LastBuildDirectoryUtil.LastBuildDirectory}");
+                    stepResult.AddError($"Last build directory does not exist: {LastBuildUtil.LastBuildDirectory}");
                     return false;
                 }
             }
@@ -67,20 +74,20 @@ namespace Wireframe
 
         public override string SourceFilePath()
         {
-            return LastBuildDirectoryUtil.LastBuildDirectory;
+            return LastBuildUtil.LastBuildDirectory;
         }
 
         public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
             base.TryGetErrors(errors, ctx);
             
-            if (string.IsNullOrEmpty(LastBuildDirectoryUtil.LastBuildDirectory))
+            if (string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
             {
                 errors.Add("No last build directory found. Please build your project first.");
             }
-            else if (!Directory.Exists(LastBuildDirectoryUtil.LastBuildDirectory))
+            else if (!Directory.Exists(LastBuildUtil.LastBuildDirectory))
             {
-                errors.Add($"Last build directory does not exist: {LastBuildDirectoryUtil.LastBuildDirectory}");
+                errors.Add($"Last build directory does not exist: {LastBuildUtil.LastBuildDirectory}");
             }
         }
 

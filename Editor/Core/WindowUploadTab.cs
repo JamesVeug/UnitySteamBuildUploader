@@ -48,7 +48,7 @@ namespace Wireframe
             
                 foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
                 {
-                    string buildName = config.Context.BuildName();
+                    string buildName = config.ContextBuildName();
                     if (!string.IsNullOrEmpty(buildName) && buildName[0] != '<')
                     {
                         return buildName;

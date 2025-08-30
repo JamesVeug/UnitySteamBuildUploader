@@ -361,6 +361,13 @@ namespace Wireframe
                         return StringFormatter.FormatString(buildSource.BuildConfig.BuildName, m_context);
                     }
                 }
+                else if (source.Source is LastBuildSource)
+                {
+                    if (!string.IsNullOrEmpty(LastBuildUtil.LastBuildName))
+                    {
+                        return LastBuildUtil.LastBuildName;
+                    }
+                }
             }
             
             return "No Build Source Selected";

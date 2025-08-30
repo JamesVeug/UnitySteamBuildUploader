@@ -159,8 +159,8 @@ namespace Wireframe
                     //     Config = m_BuildConfig,
                     //     TargetPath = m_filePath
                     // });
-                
-                    LastBuildDirectoryUtil.LastBuildDirectory = m_filePath;
+
+                    LastBuildUtil.SetLastBuild(m_filePath, ctx.BuildName());
                 }
             }
             catch (Exception e)

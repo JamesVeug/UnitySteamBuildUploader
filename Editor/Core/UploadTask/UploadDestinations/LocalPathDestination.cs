@@ -98,6 +98,7 @@ namespace Wireframe
             // Copy contents
             if (m_zipContent)
             {
+                result.AddLog($"Zipping context to: {fullPath}");
                 if (!await ZipUtils.Zip(m_filePath, fullPath, result))
                 {
                     return false;
@@ -105,6 +106,7 @@ namespace Wireframe
             }
             else if (Utils.IsPathADirectory(m_filePath))
             {
+                result.AddLog($"Copying directory to: {fullPath}");
                 if (!await Utils.CopyDirectoryAsync(m_filePath, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;
@@ -112,6 +114,7 @@ namespace Wireframe
             }
             else
             {
+                result.AddLog($"Copying file to: {fullPath}");
                 if (!await Utils.CopyFileAsync(m_filePath, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;

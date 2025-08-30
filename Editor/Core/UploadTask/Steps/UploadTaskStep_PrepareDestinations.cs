@@ -89,7 +89,7 @@ namespace Wireframe
                 AUploadDestination uploadDestination = destination.Destination;
                 try
                 {
-                    bool success = await uploadDestination.Prepare(uploadTask.GUID, configIndex, i, cachePath, desc, result, m_context);
+                    bool success = await uploadDestination.Prepare(uploadTask.GUID, configIndex, i, cachePath, desc, result, uploadConfig.Context);
                     if (!success)
                     {
                         return false;

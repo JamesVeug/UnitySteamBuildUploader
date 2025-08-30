@@ -112,6 +112,11 @@ namespace Wireframe
             IsSuccessful = false;
             CurrentStep = AUploadTask_Step.StepType.GetSources;
 
+            for (var i = 0; i < UploadConfigs.Count; i++)
+            {
+                uploadConfigs[i].SetContext(context);
+            }
+
             AUploadTask_Step[] steps = new AUploadTask_Step[]
             {
                 // Executed in order and stops when 1 fails

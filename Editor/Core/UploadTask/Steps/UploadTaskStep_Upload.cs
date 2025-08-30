@@ -78,7 +78,8 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = UploadDestinationWrapper(destinationData.Destination, result, m_context);
+                UploadConfig config = uploadTask.UploadConfigs[configIndex];
+                Task<bool> task = UploadDestinationWrapper(destinationData.Destination, result, config);
                 uploadTasks.Add(task);
             }
 
@@ -116,11 +117,11 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> UploadDestinationWrapper(AUploadDestination destinationDataDestination, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        private async Task<bool> UploadDestinationWrapper(AUploadDestination destinationDataDestination, UploadTaskReport.StepResult result, UploadConfig config)
         {
             try
             {
-                return await destinationDataDestination.Upload(result, ctx);
+                return await destinationDataDestination.Upload(result, config.Context);
             }
             catch (Exception e)
             {

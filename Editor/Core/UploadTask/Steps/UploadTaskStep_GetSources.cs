@@ -28,7 +28,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = GetSources(buildConfigs[j], report, m_context, token);
+                Task<bool> task = GetSources(buildConfigs[j], report, token);
                 List<UploadConfig.SourceData> activeSources = buildConfigs[j].Sources.Where(a=>a.Enabled).ToList();
                 tasks.Add(new Tuple<List<UploadConfig.SourceData>, Task<bool>>(activeSources, task));
             }
@@ -62,7 +62,7 @@ namespace Wireframe
         }
 
         private async Task<bool> GetSources(UploadConfig uploadConfig, UploadTaskReport report,
-            StringFormatter.Context ctx, CancellationTokenSource token)
+            CancellationTokenSource token)
         {
             UploadTaskReport.StepResult[] results = report.NewReports(Type, uploadConfig.Sources.Count);
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
@@ -82,7 +82,7 @@ namespace Wireframe
 
                 try
                 {
-                    bool success = await sourceData.Source.GetSource(uploadConfig, result, ctx, token);
+                    bool success = await sourceData.Source.GetSource(uploadConfig, result, uploadConfig.Context, token);
                     if (!success)
                     {
                         return false;

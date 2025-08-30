@@ -28,7 +28,7 @@ namespace Wireframe
                     continue;
                 }
 
-                Task<bool> task = ModifyBuild(uploadTask, j, report, m_context);
+                Task<bool> task = ModifyBuild(uploadTask, j, report);
                 tasks.Add(task);
             }
 
@@ -72,7 +72,7 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> ModifyBuild(UploadTask task, int sourceIndex, UploadTaskReport report, StringFormatter.Context ctx)
+        private async Task<bool> ModifyBuild(UploadTask task, int sourceIndex, UploadTaskReport report)
         {
             UploadConfig uploadConfig = task.UploadConfigs[sourceIndex];
             UploadTaskReport.StepResult[] results = report.NewReports(Type, uploadConfig.Modifiers.Count);
@@ -87,7 +87,7 @@ namespace Wireframe
                 var stepResult = results[i];
                 try
                 {
-                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], uploadConfig, sourceIndex, stepResult, ctx);
+                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], uploadConfig, sourceIndex, stepResult, uploadConfig.Context);
                     if (!success)
                     {
                         return false;

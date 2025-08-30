@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -51,7 +50,7 @@ namespace Wireframe
             }
         }
 
-        internal void OnGUI(float windowWidth, ref bool isDirty, StringFormatter.Context ctx)
+        internal void OnGUI(float windowWidth, ref bool isDirty)
         {
             SetupGUI();
 
@@ -59,16 +58,16 @@ namespace Wireframe
             {
                 if (Collapsed)
                 {
-                    OnGUICollapsed(windowWidth, ref isDirty, ctx);
+                    OnGUICollapsed(windowWidth, ref isDirty);
                 }
                 else
                 {
-                    OnGUIExpanded(windowWidth, ref isDirty, ctx);
+                    OnGUIExpanded(windowWidth, ref isDirty);
                 }
             }
         }
 
-        private void OnGUICollapsed(float windowWidth, ref bool isDirty, StringFormatter.Context ctx)
+        private void OnGUICollapsed(float windowWidth, ref bool isDirty)
         {
             float splitWidth = 100;
             float maxWidth = windowWidth - splitWidth - 120;
@@ -89,7 +88,7 @@ namespace Wireframe
                         using (new EditorGUILayout.HorizontalScope())
                         {
                             // Source Type
-                            if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, ctx, GUILayout.MaxWidth(120)))
+                            if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, m_context, GUILayout.MaxWidth(120)))
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(source.SourceType?.Type, out source.Source);
@@ -101,13 +100,13 @@ namespace Wireframe
                             {
                                 if (source.Source != null)
                                 {
-                                    source.Source.OnGUICollapsed(ref isDirty, sourceWidth, ctx);
+                                    source.Source.OnGUICollapsed(ref isDirty, sourceWidth, m_context);
                                 }
                             }
                         }
                     }
 
-                    List<string> sourceErrors = GetSourceErrors(ctx);
+                    List<string> sourceErrors = GetSourceErrors();
                     if (sourceErrors.Count > 0)
                     {
                         foreach (string error in sourceErrors)
@@ -116,7 +115,7 @@ namespace Wireframe
                         }
                     }
                     
-                    List<string> sourceWarnings = GetSourceWarnings(ctx);
+                    List<string> sourceWarnings = GetSourceWarnings();
                     if (sourceWarnings.Count > 0)
                     {
                         foreach (string warning in sourceWarnings)
@@ -166,7 +165,7 @@ namespace Wireframe
                         using (new EditorGUILayout.HorizontalScope())
                         {
                             // Destination Type
-                            if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType, ctx))
+                            if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType, m_context))
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
@@ -178,13 +177,13 @@ namespace Wireframe
                             {
                                 if (destinationData.Destination != null)
                                 {
-                                    destinationData.Destination.OnGUICollapsed(ref isDirty, parts, ctx);
+                                    destinationData.Destination.OnGUICollapsed(ref isDirty, parts, m_context);
                                 }
                             }
                         }
                     }
                     
-                    List<string> destinationErrors = GetDestinationErrors(ctx);
+                    List<string> destinationErrors = GetDestinationErrors();
                     if (destinationErrors.Count > 0)
                     {
                         foreach (string error in destinationErrors)
@@ -193,7 +192,7 @@ namespace Wireframe
                         }
                     }
                     
-                    List<string> destinationWarnings = GetDestinationWarnings(ctx);
+                    List<string> destinationWarnings = GetDestinationWarnings();
                     if (destinationWarnings.Count > 0)
                     {
                         foreach (string warning in destinationWarnings)
@@ -229,7 +228,7 @@ namespace Wireframe
             }
         }
 
-        private void OnGUIExpanded(float windowWidth, ref bool isDirty, StringFormatter.Context ctx)
+        private void OnGUIExpanded(float windowWidth, ref bool isDirty)
         {
             using (new GUILayout.HorizontalScope())
             {
@@ -246,7 +245,7 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!source.Enabled))
                             {
                                 GUILayout.Label("Source Type: ", GUILayout.Width(100));
-                                if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, ctx))
+                                if (UIHelpers.SourcesPopup.DrawPopup(ref source.SourceType, m_context))
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(source.SourceType?.Type, out source.Source);
@@ -280,12 +279,12 @@ namespace Wireframe
                         {
                             using (new EditorGUI.DisabledScope(!source.Enabled))
                             {
-                                source.Source.OnGUIExpanded(ref isDirty, ctx);
+                                source.Source.OnGUIExpanded(ref isDirty, m_context);
 
                                 using (new GUILayout.HorizontalScope())
                                 {
                                     GUILayout.Label("Export Folder: ", GUILayout.Width(120));
-                                    if (EditorUtils.FormatStringTextField(ref source.ExportFolder, ref source.ShowFormattedExportFolder, ctx))
+                                    if (EditorUtils.FormatStringTextField(ref source.ExportFolder, ref source.ShowFormattedExportFolder, m_context))
                                     {
                                         isDirty = true;
                                     }
@@ -333,7 +332,7 @@ namespace Wireframe
                         if (source.Source != null && source.Enabled)
                         {
                             List<string> errors = new List<string>();
-                            source.Source.TryGetErrors(errors, ctx);
+                            source.Source.TryGetErrors(errors, m_context);
                             foreach (string error in errors)
                             {
                                 DrawError(error);
@@ -377,7 +376,7 @@ namespace Wireframe
                             using (new EditorGUI.DisabledScope(!modifiers.Enabled))
                             {
                                 GUILayout.Label("Modifier Type: ", GUILayout.Width(100));
-                                if (UIHelpers.ModifiersPopup.DrawPopup(ref modifiers.ModifierType, ctx))
+                                if (UIHelpers.ModifiersPopup.DrawPopup(ref modifiers.ModifierType, m_context))
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(modifiers.ModifierType?.Type, out modifiers.Modifier);
@@ -411,7 +410,7 @@ namespace Wireframe
                         {
                             using (new EditorGUI.DisabledScope(!modifiers.Enabled))
                             {
-                                modifiers.Modifier.OnGUIExpanded(ref isDirty, ctx);
+                                modifiers.Modifier.OnGUIExpanded(ref isDirty, m_context);
                             }
 
 
@@ -462,7 +461,7 @@ namespace Wireframe
                             GUILayout.Label("Destination Type: ", GUILayout.Width(120));
                             using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                             {
-                                if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType, ctx))
+                                if (UIHelpers.DestinationsPopup.DrawPopup(ref destinationData.DestinationType, m_context))
                                 {
                                     isDirty = true;
                                     Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
@@ -496,19 +495,19 @@ namespace Wireframe
                         {
                             using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                             {
-                                destinationData.Destination.OnGUIExpanded(ref isDirty, ctx);
+                                destinationData.Destination.OnGUIExpanded(ref isDirty, m_context);
 
                                 if (destinationData.Enabled)
                                 {
                                     List<string> errors = new List<string>();
-                                    destinationData.Destination.TryGetErrors(errors, ctx);
+                                    destinationData.Destination.TryGetErrors(errors, m_context);
                                     foreach (string error in errors)
                                     {
                                         DrawError(error);
                                     }
 
                                     List<string> warnings = new List<string>();
-                                    destinationData.Destination.TryGetWarnings(warnings, ctx);
+                                    destinationData.Destination.TryGetWarnings(warnings, m_context);
                                     foreach (ModifierData modifier in m_modifiers)
                                     {
                                         if (modifier.ModifierType == null || !modifier.Enabled)

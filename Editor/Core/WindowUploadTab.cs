@@ -37,8 +37,26 @@ namespace Wireframe
             base.Initialize(uploaderWindow);
             
             m_context = new StringFormatter.Context();
-            m_context.TaskProfileName = () => m_currentUploadProfile?.ProfileName ?? "No Profile Selected";
-            m_context.TaskDescription = ()=> m_buildDescription;
+            m_context.TaskProfileName = () => StringFormatter.FormatString(m_currentUploadProfile?.ProfileName, m_context) ?? "No Profile Selected";
+            m_context.TaskDescription = () => StringFormatter.FormatString(m_buildDescription, m_context);
+            m_context.BuildName = () =>
+            {
+                if (m_currentUploadProfile == null)
+                {
+                    return "No Profile Selected";
+                }
+            
+                foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
+                {
+                    string buildName = config.Context.BuildName();
+                    if (!string.IsNullOrEmpty(buildName) && buildName[0] != '<')
+                    {
+                        return buildName;
+                    }
+                }
+                
+                return "No Build Selected";
+            };
             
             m_buildDescription = Preferences.DefaultDescriptionFormat;
         }
@@ -75,6 +93,7 @@ namespace Wireframe
                     if (GUILayout.Button("New Upload Config"))
                     {
                         UploadConfig newConfig = new UploadConfig();
+                        newConfig.SetContext(m_context);
                         newConfig.SetupDefaults();
                         m_currentUploadProfile.UploadConfigs.Add(newConfig);
                         m_isDirty = true;
@@ -239,7 +258,7 @@ namespace Wireframe
 
                         using (new GUILayout.VerticalScope())
                         {
-                            uploadConfig.OnGUI(UploaderWindow.position.width, ref m_isDirty, m_context);
+                            uploadConfig.OnGUI(UploaderWindow.position.width, ref m_isDirty);
                         }
                     }
                 }
@@ -572,7 +591,7 @@ namespace Wireframe
                 if (!m_currentUploadProfile.UploadConfigs[i].Enabled)
                     continue;
 
-                if (!m_currentUploadProfile.UploadConfigs[i].CanStartBuild(out string buildReason, m_context))
+                if (!m_currentUploadProfile.UploadConfigs[i].CanStartBuild(out string buildReason))
                 {
                     reason = $"Build {i+1}: {buildReason}";
                     return false;
@@ -787,6 +806,11 @@ namespace Wireframe
             m_currentUploadProfile = loadedProfile;
             m_currentUploadProfileData = metaData;
             
+            foreach (UploadConfig uploadConfig in loadedProfile.UploadConfigs)
+            {
+                uploadConfig.SetContext(m_context);
+            }
+            
             ProjectEditorPrefs.SetString("BuildUploader.LastSelectedUploadProfileGUID", metaData.GUID);
         }
 
@@ -810,6 +834,7 @@ namespace Wireframe
                     try
                     {
                         UploadConfig uploadConfig = new UploadConfig();
+                        uploadConfig.SetContext(m_context);
                         var jObject = config.Data[i];
                         uploadConfig.Deserialize(jObject);
                         defaultProfile.UploadConfigs.Add(uploadConfig);
@@ -819,6 +844,7 @@ namespace Wireframe
                         Debug.LogError("Failed to load build config: #" + (i+1));
                         Debug.LogException(e);
                         UploadConfig uploadConfig = new UploadConfig();
+                        uploadConfig.SetContext(m_context);
                         defaultProfile.UploadConfigs.Add(uploadConfig);
                     }
                 }

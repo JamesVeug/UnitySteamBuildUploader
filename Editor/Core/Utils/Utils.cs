@@ -236,6 +236,11 @@ namespace Wireframe
 #endif
         }
         
+        public static int IndexOf(string text, string otherString, StringComparison compare)
+        {
+            return text.IndexOf(otherString, compare);
+        }
+        
         public static bool Contains(string text, string otherString, StringComparison compare)
         {
 #if UNITY_2021_1_OR_NEWER

@@ -7,6 +7,7 @@ namespace Wireframe
     {
         public bool Enabled { get; set; } = true;
         public string GUID { get; private set; }
+        public StringFormatter.Context Context => m_context;
         
         public List<SourceData> Sources => m_buildSources;
         public List<ModifierData > Modifiers => m_modifiers;
@@ -15,6 +16,7 @@ namespace Wireframe
         private List<SourceData> m_buildSources;
         private List<ModifierData> m_modifiers;
         private List<DestinationData> m_buildDestinations;
+        
         private StringFormatter.Context m_context;
 
         public UploadConfig() : this(Guid.NewGuid().ToString().Substring(0, 5))
@@ -29,34 +31,37 @@ namespace Wireframe
             m_buildSources = new List<SourceData>();
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
+            
+            m_context = new StringFormatter.Context();
+            m_context.BuildName = ContextBuildName;
         }
         
-        public List<string> GetAllErrors(StringFormatter.Context ctx)
+        public List<string> GetAllErrors()
         {
             List<string> warnings = new List<string>();
-            warnings.AddRange(GetSourceErrors(ctx));
-            warnings.AddRange(GetDestinationErrors(ctx));
+            warnings.AddRange(GetSourceErrors());
+            warnings.AddRange(GetDestinationErrors());
 
             return warnings;
         }
 
-        public List<string> GetAllWarnings(StringFormatter.Context ctx)
+        public List<string> GetAllWarnings()
         {
             List<string> warnings = new List<string>();
-            warnings.AddRange(GetSourceWarnings(ctx));
-            warnings.AddRange(GetDestinationWarnings(ctx));
+            warnings.AddRange(GetSourceWarnings());
+            warnings.AddRange(GetDestinationWarnings());
 
             return warnings;
         }
 
-        public List<string> GetSourceErrors(StringFormatter.Context ctx)
+        public List<string> GetSourceErrors()
         {
             List<string> errors = new List<string>();
             foreach (SourceData sourceData in m_buildSources)
             {
                 if(sourceData.Enabled && sourceData.Source != null)
                 {
-                    sourceData.Source.TryGetErrors(errors, ctx);
+                    sourceData.Source.TryGetErrors(errors, m_context);
                 }
             }
             
@@ -108,14 +113,14 @@ namespace Wireframe
             return warnings;
         }
 
-        public List<string> GetDestinationErrors(StringFormatter.Context ctx)
+        public List<string> GetDestinationErrors()
         {
             List<string> errors = new List<string>();
             foreach (DestinationData destinationData in m_buildDestinations)
             {
                 if(destinationData.Enabled && destinationData.Destination != null)
                 {
-                    destinationData.Destination.TryGetErrors(errors, ctx);
+                    destinationData.Destination.TryGetErrors(errors, m_context);
                 }
             }
             
@@ -135,7 +140,7 @@ namespace Wireframe
             return errors;
         }
 
-        public List<string> GetSourceWarnings(StringFormatter.Context ctx)
+        public List<string> GetSourceWarnings()
         {
             List<string> warnings = new List<string>();
             foreach (SourceData sourceData in m_buildSources)
@@ -162,14 +167,14 @@ namespace Wireframe
             return warnings;
         }
 
-        public List<string> GetDestinationWarnings(StringFormatter.Context ctx)
+        public List<string> GetDestinationWarnings()
         {
             List<string> warnings = new List<string>();
             foreach (DestinationData destinationData in m_buildDestinations)
             {
                 if (destinationData.Enabled && destinationData.Destination != null)
                 {
-                    destinationData.Destination.TryGetWarnings(warnings, ctx);
+                    destinationData.Destination.TryGetWarnings(warnings, m_context);
                 }
             }
             
@@ -189,7 +194,7 @@ namespace Wireframe
             return warnings;
         }
 
-        public bool CanStartBuild(out string reason, StringFormatter.Context ctx)
+        public bool CanStartBuild(out string reason)
         {
             if(m_buildSources.Count == 0)
             {
@@ -213,7 +218,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                source.Source.TryGetErrors(errors, ctx);
+                source.Source.TryGetErrors(errors, m_context);
                 if (errors.Count > 0)
                 {
                     reason = $"Source #{i+1}: " + string.Join(", ", errors);
@@ -244,7 +249,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                destination.Destination.TryGetErrors(errors, ctx);
+                destination.Destination.TryGetErrors(errors, m_context);
                 if (errors.Count > 0)
                 {
                     reason = $"Destination #{i+1}: " + string.Join(", ", errors);
@@ -328,6 +333,42 @@ namespace Wireframe
             }
             
             m_modifiers.Add(modifier);
+        }
+
+        public string ContextBuildName()
+        {
+            if (!Enabled)
+            {
+                return "";
+            }
+                    
+            if (Sources == null)
+            {
+                return "";
+            }
+            
+            foreach (SourceData source in Sources)
+            {
+                if (!source.Enabled)
+                {
+                    continue;
+                }
+                        
+                if (source.Source is BuildConfigSource buildSource)
+                {
+                    if (buildSource.BuildConfig != null)
+                    {
+                        return StringFormatter.FormatString(buildSource.BuildConfig.BuildName, m_context);
+                    }
+                }
+            }
+            
+            return "No Build Source Selected";
+        }
+
+        public void SetContext(StringFormatter.Context parentContext)
+        {
+            m_context.SetParent(parentContext);
         }
     }
 }

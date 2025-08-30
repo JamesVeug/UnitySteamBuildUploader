@@ -21,6 +21,8 @@ namespace Wireframe
     [UploadSource("BuildConfig", "Build Config")]
     public partial class BuildConfigSource : AUploadSource
     {
+        public BuildConfig BuildConfig => m_BuildConfig;
+
         [Wiki("BuildConfig", "Which config to use when creating a build")]
         private BuildConfig m_BuildConfig = null;
         
@@ -51,6 +53,8 @@ namespace Wireframe
                 token.Cancel();
                 return false;
             }
+            
+            ctx.BuildName = ()=>StringFormatter.FormatString(m_BuildConfig.DisplayName, ctx);
             
             // TODO: Consider multiple UploadTasks sequentially and if the user modified a build config mid upload
             

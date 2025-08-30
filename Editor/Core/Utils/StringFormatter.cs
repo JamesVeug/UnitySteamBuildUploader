@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
@@ -24,9 +25,25 @@ namespace Wireframe
 
         public class Context
         {
-            public Func<string> TaskProfileName { get; set; } = ()=> "<TaskProfileName not specified>";
-            public Func<string> TaskDescription { get; set; } = ()=> "<TaskDescription not specified>";
-            public Func<string> UploadTaskFailText { get; set; } = () => "<UploadTaskFailText not specified>";
+            public Func<string> TaskProfileName { get; set; }
+            public Func<string> TaskDescription { get; set; }
+            public Func<string> UploadTaskFailText { get; set; }
+            public Func<string> BuildName { get; set; }
+
+            private Context parent;
+
+            public Context()
+            {
+                TaskProfileName = ()=> parent != null ? parent.TaskProfileName() : "<TaskProfileName>";
+                TaskDescription = ()=> parent != null ? parent.TaskDescription() : "<TaskDescription>";
+                UploadTaskFailText = () => parent != null ? parent.UploadTaskFailText() : "<UploadTaskFailText>";
+                BuildName = () => "<BuildName>";
+            }
+            
+            public void SetParent(Context context)
+            {
+                parent = context;
+            }
         }
         
         internal static List<Command> Commands { get; } = new List<Command>
@@ -53,6 +70,8 @@ namespace Wireframe
             new Command("{taskProfileName}", (ctx) => ctx.TaskProfileName(), "The name of the upload profile or task specified when creating the task."),
             new Command("{taskDescription}", (ctx) => ctx.TaskDescription(), "The description of the current task being executed."),
             new Command("{taskFailedReasons}", (ctx) => ctx.UploadTaskFailText(), "Gets the reasons why the task failed to upload all destinations."),
+            
+            new Command("{buildName}", (ctx) => ctx.BuildName(), "The name of the build as specified in a build config."),
         };
 
         private static string ScriptingBackend
@@ -93,9 +112,21 @@ namespace Wireframe
                 return string.Empty;
             }
 
-            foreach (var command in Commands)
+            try {
+                foreach (var command in Commands)
+                {
+                    int index = Utils.IndexOf(format, command.Key, StringComparison.OrdinalIgnoreCase);
+                    while (index >= 0)
+                    {
+                        format = Utils.Replace(format, command.Key, command.Formatter(context), StringComparison.OrdinalIgnoreCase);
+                        index = Utils.IndexOf(format, command.Key, StringComparison.OrdinalIgnoreCase);
+                    }
+                }
+            }
+            catch (Exception e)
             {
-                format = Utils.Replace(format, command.Key, command.Formatter(context), StringComparison.OrdinalIgnoreCase);
+                Debug.LogError("Failed to format string: " + format);
+                Debug.LogException(e);
             }
 
             return format;

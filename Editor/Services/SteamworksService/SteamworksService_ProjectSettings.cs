@@ -24,6 +24,26 @@ namespace Wireframe
                 {
                     EditorGUILayout.LabelField("Config:", GUILayout.Width(100));
 
+                    using (new EditorGUI.DisabledGroupScope(_current == null))
+                    {
+                        if (GUILayout.Button("X", GUILayout.Width(20)))
+                        {
+                            SteamAppData data = SteamUIUtils.GetSteamBuildData();
+                            if (_current != null && data.Configs.Contains(_current))
+                            {
+                                if (EditorUtility.DisplayDialog("Are you sure?",
+                                        "Are you sure you want to delete the config '" + _current.Name + "'?", "Yes",
+                                        "No"))
+                                {
+                                    data.Configs.Remove(_current);
+                                    SteamUIUtils.Save();
+                                    SteamUIUtils.ConfigPopup.Refresh();
+                                    _current = null;
+                                }
+                            }
+                        }
+                    }
+
                     if (SteamUIUtils.ConfigPopup.DrawPopup(ref _current, m_context))
                     {
                         m_branchesList.Initialize(_current.ConfigBranches, "Branches", true, _ => { Save(); });

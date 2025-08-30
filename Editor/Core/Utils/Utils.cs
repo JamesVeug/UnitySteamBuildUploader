@@ -144,25 +144,33 @@ namespace Wireframe
                     Directory.CreateDirectory(newDirectory);
                 }
 
-                foreach (string newPath in Directory.GetFiles(source, "*.*", SearchOption.AllDirectories))
+                string[] paths = Directory.GetFiles(source, "*.*", SearchOption.AllDirectories);
+                if (ignore != null)
                 {
-                    if (ignore != null && ignore(newPath))
-                    {
-                        continue;
-                    }
-                    
+                    paths = paths.Where(a=>!ignore(a)).ToArray();
+                }
+
+                for (var i = 0; i < paths.Length; i++)
+                {
+                    var newPath = paths[i];
                     string destinationFile = newPath.Replace(source, destination);
                     if (destinationFile.Length > MaxFilePath)
                     {
                         throw new FilePathTooIsLongException();
                     }
-                    
+
                     string directory = Path.GetDirectoryName(destinationFile);
                     if (!Directory.Exists(directory))
                     {
                         Directory.CreateDirectory(directory);
                     }
-                    
+
+                    if (result != null)
+                    {
+                        float percent = (float)i / (float)paths.Length;
+                        result.SetPercentComplete(percent);
+                    }
+
                     if (!await CopyFileAsync(newPath, destinationFile, dupeFileHandling, result))
                     {
                         return false;

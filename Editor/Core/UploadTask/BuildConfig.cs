@@ -39,7 +39,7 @@ namespace Wireframe
 
         public void SetupDefaults()
         {
-            GUID = Guid.NewGuid().ToString().Substring(0, 6);
+            NewGUID();
             BuildName = "New Build";
             ProductName = GetDefaultProductName();
             Scenes = GetDefaultScenes();
@@ -56,6 +56,11 @@ namespace Wireframe
             StackTraceLogTypes = CurrentStackTraceLogTypes();
             StrippingLevel = CurrentStrippingLevel();
             ScriptingBackend = CurrentScriptingBackend();
+        }
+
+        public void NewGUID()
+        {
+            GUID = Guid.NewGuid().ToString().Substring(0, 6);
         }
 
         private ManagedStrippingLevel CurrentStrippingLevel()
@@ -165,8 +170,8 @@ namespace Wireframe
                 { "GUID", GUID },
                 { "BuildName", BuildName },
                 { "ProductName", ProductName },
-                { "ExtraScriptingDefines", ExtraScriptingDefines ?? new List<string>() },
-                { "Scenes", Scenes ?? new List<string>() },
+                { "ExtraScriptingDefines", ExtraScriptingDefines?.ToList() ?? new List<string>() },
+                { "Scenes", Scenes?.ToList() ?? new List<string>() },
                 { "IsDevelopmentBuild", IsDevelopmentBuild },
                 { "BuildScriptsOnly", BuildScriptsOnly },
                 { "AllowDebugging", AllowDebugging },
@@ -212,7 +217,16 @@ namespace Wireframe
             
             if (dict.TryGetValue("ExtraScriptingDefines", out var extraDefinesData) && extraDefinesData != null)
             {
-                ExtraScriptingDefines = ((List<object>)extraDefinesData).Cast<string>().ToList();
+                if (extraDefinesData.GetType().GenericTypeArguments[0] == typeof(string))
+                {
+                    // Deserialize then Serialize
+                    ExtraScriptingDefines = (List<string>)extraDefinesData; 
+                }
+                else
+                {
+                    // Deserialize, TO JSON then from JSON
+                    ExtraScriptingDefines = ((List<object>)extraDefinesData).Cast<string>().ToList();
+                }
             }
             else
             {
@@ -221,7 +235,16 @@ namespace Wireframe
             
             if (dict.TryGetValue("Scenes", out var scenesData) && scenesData != null)
             {
-                Scenes = ((List<object>)scenesData).Cast<string>().ToList();
+                if (scenesData.GetType().GenericTypeArguments[0] == typeof(string))
+                {
+                    // Deserialize then Serialize
+                    Scenes = (List<string>)scenesData; 
+                }
+                else
+                {
+                    // Deserialize, TO JSON then from JSON
+                    Scenes = ((List<object>)scenesData).Cast<string>().ToList();
+                }
             }
             else
             {

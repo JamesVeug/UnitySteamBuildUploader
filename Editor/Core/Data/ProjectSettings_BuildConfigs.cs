@@ -137,10 +137,28 @@ namespace Wireframe
                             });
 
                             menu.AddSeparator("");
+                            
+                            menu.AddItem(new GUIContent("Duplicate"), false, () =>
+                            {
+                                if (EditorUtility.DisplayDialog("Duplicate Build Config",
+                                        "Are you sure you want to duplicate this Build Config?", "Duplicate", "Cancel"))
+                                {
+                                    Dictionary<string, object> serialize = buildConfig.Serialize();
+                                    BuildConfig copy = new BuildConfig();
+                                    copy.Deserialize(serialize);
+                                    copy.NewGUID();
+                                    copy.BuildName += " Copy";
+                                    buildConfigs.Add(copy);
+                                    m_isDirty = true;
+                                }
+                            });
+                            
+                            menu.AddSeparator("");
+                            
                             menu.AddItem(new GUIContent("Delete"), false, () =>
                             {
-                                if (EditorUtility.DisplayDialog("Remove Upload Config",
-                                        "Are you sure you want to remove this Upload Config?", "Delete", "Cancel"))
+                                if (EditorUtility.DisplayDialog("Remove Build Config",
+                                        "Are you sure you want to remove this Build Config?", "Delete", "Cancel"))
                                 {
                                     buildConfigs.Remove(buildConfig);
                                     m_isDirty = true;

@@ -10,52 +10,46 @@ namespace Wireframe
 {
     public static class StringFormatter
     {
-        internal static Command PRODUCT_NAME;
-        internal static Command BUNDLE_VERSION;
-        internal static Command COMPANY_NAME;
-        internal static Command BUILD_TARGET;
-        internal static Command BUILD_TARGET_GROUP;
-        internal static Command SCRIPTING_BACKEND;
-        internal static Command PROJECT_PATH;
-        internal static Command PERSISTENT_DATA_PATH;
-        internal static Command VERSION;
-        internal static Command UNITY_VERSION;
-        internal static Command DATE;
-        internal static Command TIME;
-        internal static Command DATE_TIME;
-        internal static Command MACHINE_NAME;
-        internal static Command TASK_PROFILE_NAME;
-        internal static Command TASK_DESCRIPTION;
-        internal static Command TASK_FAILED_REASONS;
-        internal static Command BUILD_NAME;
+        public const string PRODUCT_NAME_KEY = "{productName}";
+        public const string BUNDLE_VERSION_KEY = "{bundleVersion}";
+        public const string COMPANY_NAME_KEY = "{companyName}";
+        public const string BUILD_TARGET_KEY = "{buildTarget}";
+        public const string BUILD_TARGET_GROUP_KEY = "{buildTargetGroup}";
+        public const string SCRIPTING_BACKEND_KEY = "{scriptingBackend}";
+        public const string PROJECT_PATH_KEY = "{projectPath}";
+        public const string PERSISTENT_DATA_PATH_KEY = "{persistentDataPath}";
+        public const string VERSION_KEY = "{version}";
+        public const string UNITY_VERSION_KEY = "{unityVersion}";
+        public const string DATE_KEY = "{date}";
+        public const string TIME_KEY = "{time}";
+        public const string DATE_TIME_KEY = "{dateTime}";
+        public const string MACHINE_NAME_KEY = "{machineName}";
+        public const string TASK_PROFILE_NAME_KEY = "{taskProfileName}";
+        public const string TASK_DESCRIPTION_KEY = "{taskDescription}";
+        public const string TASK_FAILED_REASONS_KEY = "{taskFailedReasons}";
+        public const string BUILD_NAME_KEY = "{buildName}";
         
         static StringFormatter()
         {
             Commands = new List<Command>();
-            PRODUCT_NAME =          AddToList(new Command("{productName}", nameof(Context.ProjectName),(ctx) => ctx.ProjectName, "The name of your product as specified in Player Settings."));
-            BUNDLE_VERSION =        AddToList(new Command("{bundleVersion}", nameof(Context.BundleVersion),(ctx) => ctx.BundleVersion, "The version of your project as specified in Player Settings."));
-            COMPANY_NAME =          AddToList(new Command("{companyName}", nameof(Context.CompanyName),(ctx) => ctx.CompanyName, "The name of your company as specified in Player Settings."));
-            BUILD_TARGET =          AddToList(new Command("{buildTarget}", nameof(Context.buildTarget),(ctx) => ctx.buildTarget, "Which platform targeting for the next build as defined in Build Settings."));
-            BUILD_TARGET_GROUP =    AddToList(new Command("{buildTargetGroup}", nameof(Context.buildTargetGroup),(ctx) => ctx.buildTargetGroup, "The target group of the upcoming build as defined in Player Settings."));
-            SCRIPTING_BACKEND =     AddToList(new Command("{scriptingBackend}", nameof(Context.scriptingBackend),(ctx) => ctx.scriptingBackend, "The scripting backend for the next build as defined in Player Settings."));
-            PROJECT_PATH =          AddToList(new Command("{projectPath}", nameof(Context.ProjectPath),(ctx) => ctx.ProjectPath, "The version of your project as specified in Player Settings."));
-            PERSISTENT_DATA_PATH =  AddToList(new Command("{persistentDataPath}", nameof(Context.PersistentDataPath),(ctx) => ctx.PersistentDataPath, "The version of your project as specified in Player Settings."));
-            VERSION =               AddToList(new Command("{version}", nameof(Context.Version),(ctx) => ctx.Version, "The version of your project as specified in Player Settings."));
-            UNITY_VERSION =         AddToList(new Command("{unityVersion}", nameof(Context.UnityVersion),(ctx) => ctx.UnityVersion, "The version of Unity you are using."));
-            DATE =                  AddToList(new Command("{date}", nameof(Context.Date),(ctx) => ctx.Date, "The current local date in the format YYYY-MM-DD."));
-            TIME =                  AddToList(new Command("{time}", nameof(Context.Time),(ctx) => ctx.Time, "The current local time in the format HH-MM-SS."));
-            DATE_TIME =             AddToList(new Command("{dateTime}", nameof(Context.DateTime),(ctx) => ctx.DateTime, "The current local date and time in the format YYYY-MM-DD HH-MM-SS."));
-            MACHINE_NAME =          AddToList(new Command("{machineName}", nameof(Context.MachineName),(ctx) => ctx.MachineName, "The name of the machine running the build."));
-            TASK_PROFILE_NAME =     AddToList(new Command("{taskProfileName}", nameof(Context.TaskProfileName),(ctx) => ctx.TaskProfileName, "The name of the upload profile or task specified when creating the task."));
-            TASK_DESCRIPTION =      AddToList(new Command("{taskDescription}", nameof(Context.TaskDescription),(ctx) => ctx.TaskDescription, "The description of the current task being executed."));
-            TASK_FAILED_REASONS =   AddToList(new Command("{taskFailedReasons}", nameof(Context.UploadTaskFailText),(ctx) => ctx.UploadTaskFailText, "Gets the reasons why the task failed to upload all destinations."));
-            BUILD_NAME =            AddToList(new Command("{buildName}", nameof(Context.BuildName),(ctx) => ctx.BuildName, "The name of the build as specified in a build config."));
-
-            Command AddToList(Command command)
-            {
-                Commands.Add(command);
-                return command;
-            }
+            Commands.Add(new Command(PRODUCT_NAME_KEY, nameof(Context.ProjectName), "The name of your product as specified in Player Settings."));
+            Commands.Add(new Command(BUNDLE_VERSION_KEY, nameof(Context.BundleVersion), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(COMPANY_NAME_KEY, nameof(Context.CompanyName), "The name of your company as specified in Player Settings."));
+            Commands.Add(new Command(BUILD_TARGET_KEY, nameof(Context.buildTarget), "Which platform targeting for the next build as defined in Build Settings."));
+            Commands.Add(new Command(BUILD_TARGET_GROUP_KEY, nameof(Context.buildTargetGroup), "The target group of the upcoming build as defined in Player Settings."));
+            Commands.Add(new Command(SCRIPTING_BACKEND_KEY, nameof(Context.scriptingBackend), "The scripting backend for the next build as defined in Player Settings."));
+            Commands.Add(new Command(PROJECT_PATH_KEY, nameof(Context.ProjectPath), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(PERSISTENT_DATA_PATH_KEY, nameof(Context.PersistentDataPath), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(VERSION_KEY, nameof(Context.Version), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(UNITY_VERSION_KEY, nameof(Context.UnityVersion), "The version of Unity you are using."));
+            Commands.Add(new Command(DATE_KEY, nameof(Context.Date), "The current local date in the format YYYY-MM-DD."));
+            Commands.Add(new Command(TIME_KEY, nameof(Context.Time), "The current local time in the format HH-MM-SS."));
+            Commands.Add(new Command(DATE_TIME_KEY, nameof(Context.DateTime), "The current local date and time in the format YYYY-MM-DD HH-MM-SS."));
+            Commands.Add(new Command(MACHINE_NAME_KEY, nameof(Context.MachineName), "The name of the machine running the build."));
+            Commands.Add(new Command(TASK_PROFILE_NAME_KEY, nameof(Context.TaskProfileName), "The name of the upload profile or task specified when creating the task."));
+            Commands.Add(new Command(TASK_DESCRIPTION_KEY, nameof(Context.TaskDescription), "The description of the current task being executed."));
+            Commands.Add(new Command(TASK_FAILED_REASONS_KEY, nameof(Context.UploadTaskFailText), "Gets the reasons why the task failed to upload all destinations."));
+            Commands.Add(new Command(BUILD_NAME_KEY, nameof(Context.BuildName), "The name of the build as specified in a build config."));
         }
 
         internal class Command
@@ -65,11 +59,15 @@ namespace Wireframe
             public string Tooltip { get; }
             public Func<Context, Func<string>> Formatter { get; }
             
-            public Command(string key, string fieldName, Func<Context, Func<string>> formatter, string tooltip)
+            public Command(string key, string fieldName, string tooltip)
             {
                 Key = key;
                 FieldName = fieldName;
                 Tooltip = tooltip;
+
+                // Yes yes i know this is ugly
+                var info = typeof(Context).GetProperty(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                Func<Context, Func<string>> formatter = (Context ctx) => (Func<string>)info.GetValue(ctx);
                 Formatter = formatter;
             }
         }

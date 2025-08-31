@@ -23,7 +23,7 @@ namespace Wireframe
                 
                 tooltipBuilder.Append(command.Key);
                 tooltipBuilder.Append(" - ");
-                tooltipBuilder.AppendLine(command.Formatter(ctx)());
+                tooltipBuilder.AppendLine(ctx.Get(command.Key, command.FieldName, command.Formatter(ctx)));
             }
             
             return tooltipBuilder.ToString();

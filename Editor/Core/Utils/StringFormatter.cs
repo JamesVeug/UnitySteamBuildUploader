@@ -10,18 +10,73 @@ namespace Wireframe
 {
     public static class StringFormatter
     {
+        internal static Command PRODUCT_NAME;
+        internal static Command BUNDLE_VERSION;
+        internal static Command COMPANY_NAME;
+        internal static Command BUILD_TARGET;
+        internal static Command BUILD_TARGET_GROUP;
+        internal static Command SCRIPTING_BACKEND;
+        internal static Command PROJECT_PATH;
+        internal static Command PERSISTENT_DATA_PATH;
+        internal static Command VERSION;
+        internal static Command UNITY_VERSION;
+        internal static Command DATE;
+        internal static Command TIME;
+        internal static Command DATE_TIME;
+        internal static Command MACHINE_NAME;
+        internal static Command TASK_PROFILE_NAME;
+        internal static Command TASK_DESCRIPTION;
+        internal static Command TASK_FAILED_REASONS;
+        internal static Command BUILD_NAME;
+        
+        static StringFormatter()
+        {
+            Commands = new List<Command>();
+            PRODUCT_NAME =          AddToList(new Command("{productName}", nameof(Context.ProjectName),(ctx) => ctx.ProjectName, "The name of your product as specified in Player Settings."));
+            BUNDLE_VERSION =        AddToList(new Command("{bundleVersion}", nameof(Context.BundleVersion),(ctx) => ctx.BundleVersion, "The version of your project as specified in Player Settings."));
+            COMPANY_NAME =          AddToList(new Command("{companyName}", nameof(Context.CompanyName),(ctx) => ctx.CompanyName, "The name of your company as specified in Player Settings."));
+            BUILD_TARGET =          AddToList(new Command("{buildTarget}", nameof(Context.buildTarget),(ctx) => ctx.buildTarget, "Which platform targeting for the next build as defined in Build Settings."));
+            BUILD_TARGET_GROUP =    AddToList(new Command("{buildTargetGroup}", nameof(Context.buildTargetGroup),(ctx) => ctx.buildTargetGroup, "The target group of the upcoming build as defined in Player Settings."));
+            SCRIPTING_BACKEND =     AddToList(new Command("{scriptingBackend}", nameof(Context.scriptingBackend),(ctx) => ctx.scriptingBackend, "The scripting backend for the next build as defined in Player Settings."));
+            PROJECT_PATH =          AddToList(new Command("{projectPath}", nameof(Context.ProjectPath),(ctx) => ctx.ProjectPath, "The version of your project as specified in Player Settings."));
+            PERSISTENT_DATA_PATH =  AddToList(new Command("{persistentDataPath}", nameof(Context.PersistentDataPath),(ctx) => ctx.PersistentDataPath, "The version of your project as specified in Player Settings."));
+            VERSION =               AddToList(new Command("{version}", nameof(Context.Version),(ctx) => ctx.Version, "The version of your project as specified in Player Settings."));
+            UNITY_VERSION =         AddToList(new Command("{unityVersion}", nameof(Context.UnityVersion),(ctx) => ctx.UnityVersion, "The version of Unity you are using."));
+            DATE =                  AddToList(new Command("{date}", nameof(Context.Date),(ctx) => ctx.Date, "The current local date in the format YYYY-MM-DD."));
+            TIME =                  AddToList(new Command("{time}", nameof(Context.Time),(ctx) => ctx.Time, "The current local time in the format HH-MM-SS."));
+            DATE_TIME =             AddToList(new Command("{dateTime}", nameof(Context.DateTime),(ctx) => ctx.DateTime, "The current local date and time in the format YYYY-MM-DD HH-MM-SS."));
+            MACHINE_NAME =          AddToList(new Command("{machineName}", nameof(Context.MachineName),(ctx) => ctx.MachineName, "The name of the machine running the build."));
+            TASK_PROFILE_NAME =     AddToList(new Command("{taskProfileName}", nameof(Context.TaskProfileName),(ctx) => ctx.TaskProfileName, "The name of the upload profile or task specified when creating the task."));
+            TASK_DESCRIPTION =      AddToList(new Command("{taskDescription}", nameof(Context.TaskDescription),(ctx) => ctx.TaskDescription, "The description of the current task being executed."));
+            TASK_FAILED_REASONS =   AddToList(new Command("{taskFailedReasons}", nameof(Context.UploadTaskFailText),(ctx) => ctx.UploadTaskFailText, "Gets the reasons why the task failed to upload all destinations."));
+            BUILD_NAME =            AddToList(new Command("{buildName}", nameof(Context.BuildName),(ctx) => ctx.BuildName, "The name of the build as specified in a build config."));
+
+            Command AddToList(Command command)
+            {
+                Commands.Add(command);
+                return command;
+            }
+        }
+
         internal class Command
         {
             public string Key { get; }
+            public string FieldName { get; }
             public string Tooltip { get; }
-            public Func<Context, string> Formatter { get; }
+            public Func<Context, Func<string>> Formatter { get; }
             
-            public Command(string key, Func<Context, string> formatter, string tooltip)
+            public Command(string key, string fieldName, Func<Context, Func<string>> formatter, string tooltip)
             {
                 Key = key;
+                FieldName = fieldName;
                 Tooltip = tooltip;
                 Formatter = formatter;
             }
+        }
+        
+        public interface IContextModifier
+        {
+            public bool ReplaceString(string key, out string value);
         }
 
         public class Context
@@ -52,6 +107,7 @@ namespace Wireframe
 
             private Context parent;
             private Dictionary<string, string> cachedValues = new Dictionary<string, string>();
+            private List<IContextModifier> modifiers = new List<IContextModifier>();
 
             public Context()
             {
@@ -66,9 +122,17 @@ namespace Wireframe
                 parent = context;
             }
 
-            internal string Get(string key, Func<string> getter)
+            internal string Get(string key, string fieldName, Func<string> getter)
             {
-                if (cachedValues.TryGetValue(key, out string cachedValue))
+                foreach (IContextModifier modifier in modifiers)
+                {
+                    if (modifier.ReplaceString(key, out string value))
+                    {
+                        return value;
+                    }
+                }
+                
+                if (cachedValues.TryGetValue(fieldName, out string cachedValue))
                 {
                     return cachedValue;
                 }
@@ -99,35 +163,15 @@ namespace Wireframe
                     }
                 }
             }
+
+            public void AddModifier(IContextModifier iContextModifier)
+            {
+                modifiers.Add(iContextModifier);
+            }
         }
         
-        internal static List<Command> Commands { get; } = new List<Command>
-        {
-            new Command("{productName}", (ctx) => ctx.Get(nameof(ctx.ProjectName), ctx.ProjectName), "The name of your product as specified in Player Settings."),
-            new Command("{bundleVersion}", (ctx) => ctx.Get(nameof(ctx.BundleVersion), ctx.BundleVersion), "The version of your project as specified in Player Settings."),
-            new Command("{companyName}", (ctx) => ctx.Get(nameof(ctx.CompanyName), ctx.CompanyName), "The name of your company as specified in Player Settings."),
-            
-            new Command("{buildTarget}", (ctx) => ctx.Get(nameof(ctx.buildTarget), ctx.buildTarget), "Which platform targeting for the next build as defined in Build Settings."),
-            new Command("{buildTargetGroup}", (ctx) => ctx.Get(nameof(ctx.buildTargetGroup), ctx.buildTargetGroup), "The target group of the upcoming build as defined in Player Settings."),
-            new Command("{scriptingBackend}", (ctx) => ctx.Get(nameof(ctx.scriptingBackend), ctx.scriptingBackend), "The scripting backend for the next build as defined in Player Settings."),
-            
-            new Command("{projectPath}", (ctx) => ctx.Get(nameof(ctx.ProjectPath), ctx.ProjectPath), "The version of your project as specified in Player Settings."),
-            new Command("{persistentDataPath}", (ctx) => ctx.Get(nameof(ctx.PersistentDataPath), ctx.PersistentDataPath), "The version of your project as specified in Player Settings."),
-            new Command("{version}", (ctx) => ctx.Get(nameof(ctx.Version), ctx.Version), "The version of your project as specified in Player Settings."),
-            new Command("{unityVersion}", (ctx) => ctx.Get(nameof(ctx.UnityVersion), ctx.UnityVersion), "The version of Unity you are using."),
-            
-            new Command("{date}", (ctx) => ctx.Get(nameof(ctx.Date), ctx.Date), "The current local date in the format YYYY-MM-DD."),
-            new Command("{time}", (ctx) => ctx.Get(nameof(ctx.Time), ctx.Time), "The current local time in the format HH-MM-SS."),
-            new Command("{dateTime}", (ctx) => ctx.Get(nameof(ctx.DateTime), ctx.DateTime), "The current local date and time in the format YYYY-MM-DD HH-MM-SS."),
-            
-            new Command("{machineName}", (ctx) => ctx.Get(nameof(ctx.MachineName), ctx.MachineName), "The name of the machine running the build."),
-            
-            new Command("{taskProfileName}", (ctx) => ctx.Get(nameof(ctx.TaskProfileName), ctx.TaskProfileName), "The name of the upload profile or task specified when creating the task."),
-            new Command("{taskDescription}", (ctx) => ctx.Get(nameof(ctx.TaskDescription), ctx.TaskDescription), "The description of the current task being executed."),
-            new Command("{taskFailedReasons}", (ctx) => ctx.Get(nameof(ctx.UploadTaskFailText), ctx.UploadTaskFailText), "Gets the reasons why the task failed to upload all destinations."),
-            
-            new Command("{buildName}", (ctx) => ctx.Get(nameof(ctx.BuildName), ctx.BuildName), "The name of the build as specified in a build config."),
-        };
+        internal static List<Command> Commands { get; }
+        
 
         private static string ScriptingBackend
         {
@@ -175,7 +219,8 @@ namespace Wireframe
                     int index = Utils.IndexOf(format, command.Key, StringComparison.OrdinalIgnoreCase);
                     while (index >= 0)
                     {
-                        format = Utils.Replace(format, command.Key, command.Formatter(context), StringComparison.OrdinalIgnoreCase);
+                        string formattedValue = context.Get(command.Key, command.FieldName, command.Formatter(context));
+                        format = Utils.Replace(format, command.Key, formattedValue, StringComparison.OrdinalIgnoreCase);
                         index = Utils.IndexOf(format, command.Key, StringComparison.OrdinalIgnoreCase);
                     }
                 }

@@ -19,7 +19,7 @@ namespace Wireframe
     /// </summary>
     [Wiki(nameof(BuildConfigSource), "sources", "Chooses a BuildConfig to start a new build when uploading")]
     [UploadSource("BuildConfig", "Build Config")]
-    public partial class BuildConfigSource : AUploadSource
+    public partial class BuildConfigSource : AUploadSource, StringFormatter.IContextModifier
     {
         public BuildConfig BuildConfig => m_BuildConfig;
 
@@ -315,6 +315,27 @@ namespace Wireframe
             {
                 result.AddLog($"Switched back to build target {m_oldBuildTarget}");
             }
+        }
+
+        private static Dictionary<string, Func<BuildConfig, string>> s_StringGetters = new()
+        {
+            { StringFormatter.PRODUCT_NAME.Key, (b) => b.ProductName },
+            { StringFormatter.BUILD_TARGET.Key, (b) => b.CalculateTarget().ToString() },
+            { StringFormatter.BUILD_TARGET_GROUP.Key, (b) => b.TargetPlatform.ToString() },
+            { StringFormatter.SCRIPTING_BACKEND.Key, (b) => b.ScriptingBackend.ToString() },
+            { StringFormatter.BUILD_NAME.Key, (b) => b.BuildName }
+        };
+        
+        public bool ReplaceString(string key, out string value)
+        {
+            if (BuildConfig != null && s_StringGetters.TryGetValue(key, out var func))
+            {
+                value = func(BuildConfig);
+                return true;
+            }
+
+            value = null;
+            return false;
         }
     }
 }

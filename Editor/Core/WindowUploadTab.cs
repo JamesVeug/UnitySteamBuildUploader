@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal class WindowUploadTab : WindowTab
+    internal class WindowUploadTab : WindowTab, StringFormatter.IContextModifier
     {
         internal static readonly string UploadProfilePath =  Application.dataPath + "/../BuildUploader/UploadProfiles";
         internal static readonly string UploadReportSaveDirectory = Path.Combine(Preferences.CacheFolderPath, "Upload Task Reports");
@@ -39,24 +39,7 @@ namespace Wireframe
             m_context = new StringFormatter.Context();
             m_context.TaskProfileName = () => StringFormatter.FormatString(m_currentUploadProfile?.ProfileName, m_context) ?? "No Profile Selected";
             m_context.TaskDescription = () => StringFormatter.FormatString(m_buildDescription, m_context);
-            m_context.BuildName = () =>
-            {
-                if (m_currentUploadProfile == null)
-                {
-                    return "No Profile Selected";
-                }
-            
-                foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
-                {
-                    string buildName = config.ContextBuildName();
-                    if (!string.IsNullOrEmpty(buildName) && buildName[0] != '<')
-                    {
-                        return buildName;
-                    }
-                }
-                
-                return "No Build Selected";
-            };
+            m_context.AddModifier(this);
             
             m_buildDescription = Preferences.DefaultDescriptionFormat;
         }
@@ -864,6 +847,23 @@ namespace Wireframe
                     }
                 }
             }
+        }
+        
+        public bool ReplaceString(string key, out string value)
+        {
+            if (m_currentUploadProfile != null)
+            {
+                foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
+                {
+                    if (config.ReplaceString(key, out value))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            value = string.Empty;
+            return false;
         }
 #pragma warning restore CS0618 // Type or member is obsolete
     }

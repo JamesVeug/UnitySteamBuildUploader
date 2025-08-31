@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Wireframe
 {
-    public partial class UploadConfig
+    public partial class UploadConfig : StringFormatter.IContextModifier
     {
         public bool Enabled { get; set; } = true;
         public string GUID { get; private set; }
@@ -33,7 +33,7 @@ namespace Wireframe
             m_buildDestinations = new List<DestinationData>();
             
             m_context = new StringFormatter.Context();
-            m_context.BuildName = ContextBuildName;
+            m_context.AddModifier(this);
         }
         
         public List<string> GetAllErrors()
@@ -335,18 +335,8 @@ namespace Wireframe
             m_modifiers.Add(modifier);
         }
 
-        public string ContextBuildName()
+        public bool ReplaceString(string key, out string value)
         {
-            if (!Enabled)
-            {
-                return "";
-            }
-                    
-            if (Sources == null)
-            {
-                return "";
-            }
-            
             foreach (SourceData source in Sources)
             {
                 if (!source.Enabled)
@@ -354,23 +344,17 @@ namespace Wireframe
                     continue;
                 }
                         
-                if (source.Source is BuildConfigSource buildSource)
+                if (source.Source is StringFormatter.IContextModifier modifier)
                 {
-                    if (buildSource.BuildConfig != null)
+                    if (modifier.ReplaceString(key, out value))
                     {
-                        return StringFormatter.FormatString(buildSource.BuildConfig.BuildName, m_context);
-                    }
-                }
-                else if (source.Source is LastBuildSource)
-                {
-                    if (!string.IsNullOrEmpty(LastBuildUtil.LastBuildName))
-                    {
-                        return LastBuildUtil.LastBuildName;
+                        return true;
                     }
                 }
             }
-            
-            return "No Build Source Selected";
+
+            value = "";
+            return false;
         }
     }
 }

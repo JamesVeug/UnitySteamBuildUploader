@@ -103,13 +103,13 @@ namespace Wireframe
         
         internal static List<Command> Commands { get; } = new List<Command>
         {
-            new Command("{projectName}", (ctx) => ctx.Get(nameof(ctx.ProjectName), ctx.ProjectName), "The name of your product as specified in Player Settings."),
+            new Command("{productName}", (ctx) => ctx.Get(nameof(ctx.ProjectName), ctx.ProjectName), "The name of your product as specified in Player Settings."),
             new Command("{bundleVersion}", (ctx) => ctx.Get(nameof(ctx.BundleVersion), ctx.BundleVersion), "The version of your project as specified in Player Settings."),
             new Command("{companyName}", (ctx) => ctx.Get(nameof(ctx.CompanyName), ctx.CompanyName), "The name of your company as specified in Player Settings."),
             
-            new Command("{activeBuildTarget}", (ctx) => ctx.Get(nameof(ctx.buildTarget), ctx.buildTarget), "Which platform targeting for the next build as defined in Build Settings."),
-            new Command("{activeBuildTargetGroup}", (ctx) => ctx.Get(nameof(ctx.buildTargetGroup), ctx.buildTargetGroup), "The target group of the upcoming build as defined in Player Settings."),
-            new Command("{activeScriptingBackend}", (ctx) => ctx.Get(nameof(ctx.scriptingBackend), ctx.scriptingBackend), "The scripting backend for the next build as defined in Player Settings."),
+            new Command("{buildTarget}", (ctx) => ctx.Get(nameof(ctx.buildTarget), ctx.buildTarget), "Which platform targeting for the next build as defined in Build Settings."),
+            new Command("{buildTargetGroup}", (ctx) => ctx.Get(nameof(ctx.buildTargetGroup), ctx.buildTargetGroup), "The target group of the upcoming build as defined in Player Settings."),
+            new Command("{scriptingBackend}", (ctx) => ctx.Get(nameof(ctx.scriptingBackend), ctx.scriptingBackend), "The scripting backend for the next build as defined in Player Settings."),
             
             new Command("{projectPath}", (ctx) => ctx.Get(nameof(ctx.ProjectPath), ctx.ProjectPath), "The version of your project as specified in Player Settings."),
             new Command("{persistentDataPath}", (ctx) => ctx.Get(nameof(ctx.PersistentDataPath), ctx.PersistentDataPath), "The version of your project as specified in Player Settings."),

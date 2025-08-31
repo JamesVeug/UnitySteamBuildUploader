@@ -372,10 +372,5 @@ namespace Wireframe
             
             return "No Build Source Selected";
         }
-
-        public void SetContext(StringFormatter.Context parentContext)
-        {
-            m_context.SetParent(parentContext);
-        }
     }
 }

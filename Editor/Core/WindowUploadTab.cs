@@ -93,7 +93,7 @@ namespace Wireframe
                     if (GUILayout.Button("New Upload Config"))
                     {
                         UploadConfig newConfig = new UploadConfig();
-                        newConfig.SetContext(m_context);
+                        newConfig.Context.SetParent(m_context);
                         newConfig.SetupDefaults();
                         m_currentUploadProfile.UploadConfigs.Add(newConfig);
                         m_isDirty = true;
@@ -808,7 +808,7 @@ namespace Wireframe
             
             foreach (UploadConfig uploadConfig in loadedProfile.UploadConfigs)
             {
-                uploadConfig.SetContext(m_context);
+                uploadConfig.Context.SetParent(m_context);
             }
             
             ProjectEditorPrefs.SetString("BuildUploader.LastSelectedUploadProfileGUID", metaData.GUID);
@@ -834,7 +834,7 @@ namespace Wireframe
                     try
                     {
                         UploadConfig uploadConfig = new UploadConfig();
-                        uploadConfig.SetContext(m_context);
+                        uploadConfig.Context.SetParent(m_context);
                         var jObject = config.Data[i];
                         uploadConfig.Deserialize(jObject);
                         defaultProfile.UploadConfigs.Add(uploadConfig);
@@ -844,7 +844,7 @@ namespace Wireframe
                         Debug.LogError("Failed to load build config: #" + (i+1));
                         Debug.LogException(e);
                         UploadConfig uploadConfig = new UploadConfig();
-                        uploadConfig.SetContext(m_context);
+                        uploadConfig.Context.SetParent(m_context);
                         defaultProfile.UploadConfigs.Add(uploadConfig);
                     }
                 }

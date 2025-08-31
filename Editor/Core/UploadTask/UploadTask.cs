@@ -112,9 +112,11 @@ namespace Wireframe
             IsSuccessful = false;
             CurrentStep = AUploadTask_Step.StepType.GetSources;
 
+            context.CacheCallbacks();
             for (var i = 0; i < UploadConfigs.Count; i++)
             {
-                uploadConfigs[i].SetContext(context);
+                uploadConfigs[i].Context.SetParent(context);
+                uploadConfigs[i].Context.CacheCallbacks();
             }
 
             AUploadTask_Step[] steps = new AUploadTask_Step[]

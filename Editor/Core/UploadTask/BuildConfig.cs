@@ -177,6 +177,7 @@ namespace Wireframe
                 { "AllowDebugging", AllowDebugging },
                 { "ConnectProfiler", ConnectProfiler },
                 { "EnableDeepProfilingSupport", EnableDeepProfilingSupport },
+                { "SwitchTargetPlatform", SwitchTargetPlatform },
                 { "TargetPlatform", TargetPlatform.ToString() },
                 { "TargetArchitecture", TargetArchitecture.ToString() },
                 { "StackTraceLogTypes", StackTraceLogTypes.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()) },
@@ -294,6 +295,15 @@ namespace Wireframe
             else
             {
                 EnableDeepProfilingSupport = false;
+            }
+            
+            if (dict.TryGetValue("SwitchTargetPlatform", out var switchTargetPlatformData) && switchTargetPlatformData is bool switchTargetPlatform)
+            {
+                SwitchTargetPlatform = switchTargetPlatform;
+            }
+            else
+            {
+                SwitchTargetPlatform = false;
             }
             
             if (dict.TryGetValue("TargetPlatform", out var targetPlatformData) && targetPlatformData is string targetPlatformStr)

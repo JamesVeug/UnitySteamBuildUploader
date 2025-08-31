@@ -104,9 +104,9 @@ namespace Wireframe
             return true;
         }
 
-        public override void CleanUp(int i, UploadTaskReport.StepResult result)
+        public override Task CleanUp(int i, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            base.CleanUp(i, result);
+            base.CleanUp(i, result, ctx);
             if (File.Exists(downloadedFilePath))
             {
                 try
@@ -119,6 +119,8 @@ namespace Wireframe
                     result.AddError("Failed to delete file: " + downloadedFilePath + "\n" + e.Message);
                 }
             }
+            
+            return Task.CompletedTask;
         }
 
         public override string SourceFilePath()

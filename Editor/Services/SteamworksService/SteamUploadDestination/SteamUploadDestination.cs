@@ -196,7 +196,7 @@ namespace Wireframe
             return await SteamSDK.Instance.Upload(m_uploadApp.App, m_appPath, m_uploadToSteam, result);
         }
 
-        public override void CleanUp(UploadTaskReport.StepResult result)
+        public override Task CleanUp(UploadTaskReport.StepResult result)
         {
             base.CleanUp(result);
             
@@ -224,6 +224,8 @@ namespace Wireframe
                 }
             }
             m_depotPath = null;
+            
+            return Task.CompletedTask;
         }
 
         public override Dictionary<string, object> Serialize()

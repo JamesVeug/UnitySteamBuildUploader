@@ -286,9 +286,8 @@ namespace Wireframe
             }
         }
 
-        public override void CleanUp(int i, UploadTaskReport.StepResult result)
+        public override async Task CleanUp(int i, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            base.CleanUp(i, result);
             if (i > 0)
             {
                 // Only switch once - not once per source
@@ -296,6 +295,7 @@ namespace Wireframe
             }
             
             // s_CompleteBuilds.Clear();
+            await base.CleanUp(i, result, ctx);
 
             if (m_oldBuildTarget == BuildTarget.NoTarget 
                 || (EditorUserBuildSettings.activeBuildTarget == m_oldBuildTarget 

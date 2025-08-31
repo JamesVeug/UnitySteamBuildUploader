@@ -17,9 +17,9 @@ namespace Wireframe
         
         public abstract string SourceFilePath();
 
-        public virtual void CleanUp(int i, UploadTaskReport.StepResult result)
+        public virtual Task CleanUp(int i, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            
+            return Task.CompletedTask;
         }
 
         public virtual void TryGetWarnings(List<string> warnings)

@@ -29,9 +29,9 @@ namespace Wireframe
         public abstract Dictionary<string, object> Serialize();
         public abstract void Deserialize(Dictionary<string, object> s);
 
-        public virtual void CleanUp(UploadTaskReport.StepResult result)
+        public virtual Task CleanUp(UploadTaskReport.StepResult result)
         {
-            
+            return Task.CompletedTask;
         }
 
         public virtual Task<bool> PostUpload(UploadTaskReport.StepResult report)

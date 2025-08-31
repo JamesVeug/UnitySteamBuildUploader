@@ -45,8 +45,8 @@ namespace Wireframe
                 int activeConfigIndex = 0;
                 for (int i = 0; i < uploadTask.UploadConfigs.Count; i++)
                 {
-                    var buildConfig = uploadTask.UploadConfigs[i];
-                    var cleanupResult = cleanupReports[i];
+                    UploadConfig buildConfig = uploadTask.UploadConfigs[i];
+                    UploadTaskReport.StepResult cleanupResult = cleanupReports[i];
                     if (!buildConfig.Enabled)
                     {
                         cleanupResult.AddLog("Skipping config cleanup because it's disabled");
@@ -57,7 +57,7 @@ namespace Wireframe
                     await Task.Yield();
                     ProgressUtils.Report(cleanupProgressId, 0.5f, $"Cleaning up configs " + (i+1) + "/" + uploadTask.UploadConfigs.Count);
                     
-                    buildConfig.CleanUp(activeConfigIndex++, cleanupResult);
+                    await buildConfig.CleanUp(activeConfigIndex++, buildConfig, cleanupResult);
                     cleanupResult.SetPercentComplete(1f);
                 }
                 

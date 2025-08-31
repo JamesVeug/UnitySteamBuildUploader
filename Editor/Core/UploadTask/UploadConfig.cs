@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Wireframe
 {
@@ -292,16 +293,22 @@ namespace Wireframe
             return true;
         }
 
-        public void CleanUp(int i, UploadTaskReport.StepResult result)
+        public async Task CleanUp(int i, UploadConfig buildConfig, UploadTaskReport.StepResult result)
         {
             foreach (SourceData source in m_buildSources)
             {
-                source.Source?.CleanUp(i, result);
+                if (source.Enabled && source.Source != null)
+                {
+                    await source.Source.CleanUp(i, result, buildConfig.Context);
+                }
             }
 
             foreach (DestinationData destination in m_buildDestinations)
             {
-                destination.Destination?.CleanUp(result);
+                if (destination.Enabled && destination.Destination != null)
+                {
+                    await destination.Destination.CleanUp(result);
+                }
             }
         }
 

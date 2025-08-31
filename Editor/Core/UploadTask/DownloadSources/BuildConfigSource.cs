@@ -30,11 +30,12 @@ namespace Wireframe
         private bool m_CleanBuild = false;
 
         private string m_filePath = "";
-        private BuildTargetGroup m_oldBuildTargetGroup;
-        private BuildTarget m_oldBuildTarget = BuildTarget.NoTarget;
+        private bool m_appliedSettings = false;
         
         // Lock to 1 build at a time regardless of how many tasks/configs are running
+        internal static BuildConfig m_editorSettingsBeforeUpload = null;
         internal static SemaphoreSlim m_lock = new SemaphoreSlim(1);
+        internal static int m_totalBuildsInProgress = 0;
 
         private class Builds
         {
@@ -53,8 +54,6 @@ namespace Wireframe
                 token.Cancel();
                 return false;
             }
-            
-            ctx.BuildName = ()=>StringFormatter.FormatString(m_BuildConfig.DisplayName, ctx);
             
             // TODO: Consider multiple UploadTasks sequentially and if the user modified a build config mid upload
             
@@ -107,8 +106,15 @@ namespace Wireframe
                     Directory.CreateDirectory(m_filePath);
                 }
                 
-                m_oldBuildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-                m_oldBuildTarget = EditorUserBuildSettings.activeBuildTarget;
+                // Cache current editor settings to restore later
+                m_totalBuildsInProgress++;
+                m_appliedSettings = true;
+                if (m_editorSettingsBeforeUpload == null)
+                {
+                    m_editorSettingsBeforeUpload = new BuildConfig();
+                    m_editorSettingsBeforeUpload.SetupDefaults();
+                    m_editorSettingsBeforeUpload.SwitchTargetPlatform = true;
+                }
                 
                 stepResult.AddLog($"Applying settings");
                 if (!m_BuildConfig.ApplySettings(ctx, stepResult))
@@ -288,32 +294,51 @@ namespace Wireframe
 
         public override async Task CleanUp(int i, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            if (i > 0)
-            {
-                // Only switch once - not once per source
-                return;
-            }
-            
-            // s_CompleteBuilds.Clear();
             await base.CleanUp(i, result, ctx);
 
-            if (m_oldBuildTarget == BuildTarget.NoTarget 
-                || (EditorUserBuildSettings.activeBuildTarget == m_oldBuildTarget 
-                    && EditorUserBuildSettings.selectedBuildTargetGroup == m_oldBuildTargetGroup))
+            if (!m_appliedSettings)
             {
-                // No need to switch back if we are already targeting the right build target
+                result.AddLog("No settings were applied so no need to restore previous settings.");
                 return;
             }
+
+            // Wait in case anything else is trying to apply settings or make a build
+            await m_lock.WaitAsync();
             
-            // Switch back to the old build target
-            bool switchedBack = EditorUserBuildSettings.SwitchActiveBuildTarget(m_oldBuildTargetGroup, m_oldBuildTarget);
-            if (!switchedBack)
+            try
             {
-                result.AddError($"Failed to switch back to build target {m_oldBuildTarget}");
+                m_appliedSettings = false;
+                m_totalBuildsInProgress--;
+                if (m_totalBuildsInProgress > 0)
+                {
+                    // Another build or task is active and hasn't been cleaned up yet
+                    result.AddLog("Another build is still in progress so not restoring settings yet.");
+                    return;
+                }
+                
+                if (m_editorSettingsBeforeUpload == null)
+                {
+                    result.AddLog("No previous editor settings to restore.");
+                    return;
+                }
+                
+                BuildConfig buildConfig = m_editorSettingsBeforeUpload;
+                m_editorSettingsBeforeUpload = null;
+
+                result.AddLog("Restoring previous editor settings...");
+                bool successful = buildConfig.ApplySettings(ctx);
+                if (!successful)
+                {
+                    result.AddError("Failed to restore previous build settings!");
+                }
+                else
+                {
+                    result.AddLog("Previous editor settings restored.");
+                }
             }
-            else
+            finally
             {
-                result.AddLog($"Switched back to build target {m_oldBuildTarget}");
+                m_lock.Release();
             }
         }
     }

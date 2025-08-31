@@ -39,16 +39,23 @@ namespace Wireframe
 
         public void SetupDefaults()
         {
-            BuildName = "New Build";
             GUID = Guid.NewGuid().ToString().Substring(0, 6);
-            Scenes = GetDefaultScenes();
+            BuildName = "New Build";
             ProductName = GetDefaultProductName();
+            Scenes = GetDefaultScenes();
             ExtraScriptingDefines = GetDefaultScriptingDefines();
+            
+            IsDevelopmentBuild = EditorUserBuildSettings.development;
+            BuildScriptsOnly = EditorUserBuildSettings.buildScriptsOnly; 
+            AllowDebugging = EditorUserBuildSettings.allowDebugging;
+            ConnectProfiler = EditorUserBuildSettings.connectProfiler;
+            EnableDeepProfilingSupport = EditorUserBuildSettings.buildWithDeepProfilingSupport;
+            
             TargetPlatform = BuildTargetToPlatform();
             TargetArchitecture = CurrentTargetArchitecture();
             StackTraceLogTypes = CurrentStackTraceLogTypes();
-            ScriptingBackend = CurrentScriptingBackend();
             StrippingLevel = CurrentStrippingLevel();
+            ScriptingBackend = CurrentScriptingBackend();
         }
 
         private ManagedStrippingLevel CurrentStrippingLevel()
@@ -425,6 +432,7 @@ namespace Wireframe
             EditorUserBuildSettings.connectProfiler = ConnectProfiler;
             EditorUserBuildSettings.allowDebugging = AllowDebugging;
             EditorUserBuildSettings.buildWithDeepProfilingSupport = EnableDeepProfilingSupport;
+            EditorUserBuildSettings.buildScriptsOnly = BuildScriptsOnly;
             
             
             // Scene list

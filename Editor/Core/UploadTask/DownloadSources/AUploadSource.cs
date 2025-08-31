@@ -12,7 +12,7 @@ namespace Wireframe
         }
 
         public int Id { get; set; }
-        
+
         public abstract Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token);
         
         public abstract string SourceFilePath();

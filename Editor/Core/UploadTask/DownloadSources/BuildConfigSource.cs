@@ -256,6 +256,35 @@ namespace Wireframe
             {
                 errors.Add("No BuildConfig selected. Please select a BuildConfig to use.");
             }
+            else
+            {
+                // Stop the user from starting multiple tasks with the same config
+                // This is because paths can be shared between configs and builds and can can break an active task
+                foreach (UploadTask a in UploadTask.AllTasks)
+                {
+                    if (a.IsComplete) continue;
+                    
+                    foreach (UploadConfig b in a.UploadConfigs)
+                    {
+                        if(!b.Enabled) continue;
+                        
+                        foreach (UploadConfig.SourceData s in b.Sources)
+                        {
+                            if (!s.Enabled) continue;
+                            if (s.Source is not BuildConfigSource otherSource) continue;
+                            if (otherSource == this) continue;
+                            
+                            if (otherSource.BuildConfig == m_BuildConfig)
+                            {
+                                errors.Add($"BuildConfig '{m_BuildConfig.DisplayName}' is already used in another active Upload Task.");
+                                goto exitLoop;
+                            }
+                        }
+                    }
+                }
+                
+                exitLoop: ;
+            }
         }
 
         public override Dictionary<string, object> Serialize()

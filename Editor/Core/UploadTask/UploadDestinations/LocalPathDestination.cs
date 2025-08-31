@@ -132,6 +132,10 @@ namespace Wireframe
             {
                 errors.Add("No local path selected");
             }
+            else if (Utils.PathContainsInvalidCharacters(FullPath(ctx)))
+            {
+                errors.Add("Path contains invalid characters");
+            }
 
             if (m_zipContent)
             {

@@ -376,5 +376,10 @@ namespace Wireframe
 
             return summarizedErrors.ToString();
         }
+
+        public static bool PathContainsInvalidCharacters(string path)
+        {
+            return path.IndexOfAny(Path.GetInvalidPathChars()) >= 0;
+        }
     }
 }

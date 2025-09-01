@@ -28,6 +28,7 @@ namespace Wireframe
         public const string TASK_DESCRIPTION_KEY = "{taskDescription}";
         public const string TASK_FAILED_REASONS_KEY = "{taskFailedReasons}";
         public const string BUILD_NAME_KEY = "{buildName}";
+        public const string BUILD_NUMBER_KEY = "{buildNumber}";
         
         static StringFormatter()
         {
@@ -50,6 +51,7 @@ namespace Wireframe
             Commands.Add(new Command(TASK_DESCRIPTION_KEY, nameof(Context.TaskDescription), "The description of the current task being executed."));
             Commands.Add(new Command(TASK_FAILED_REASONS_KEY, nameof(Context.UploadTaskFailText), "Gets the reasons why the task failed to upload all destinations."));
             Commands.Add(new Command(BUILD_NAME_KEY, nameof(Context.BuildName), "The name of the build as specified in a build config."));
+            Commands.Add(new Command(BUILD_NUMBER_KEY, nameof(Context.BuildNumber), "The unique number of the build that is produced."));
         }
 
         internal class Command
@@ -101,6 +103,7 @@ namespace Wireframe
             [DoNotCache] public Func<string> TaskDescription { get; set; }
             [DoNotCache] public Func<string> UploadTaskFailText { get; set; }
             [DoNotCache] public Func<string> BuildName { get; set; }
+            [DoNotCache] public Func<string> BuildNumber { get; set; }
             
 
             private Context parent;
@@ -113,6 +116,7 @@ namespace Wireframe
                 TaskDescription = ()=> parent != null ? parent.TaskDescription() : "<TaskDescription>";
                 UploadTaskFailText = () => parent != null ? parent.UploadTaskFailText() : "<UploadTaskFailText>";
                 BuildName = () => "<BuildName>";
+                BuildNumber = () => "<BuildNumber>";
             }
             
             public void SetParent(Context context)

@@ -16,6 +16,20 @@ namespace Wireframe
         
         public bool ReplaceString(string key, out string value)
         {
+            if (key == StringFormatter.BUILD_NUMBER_KEY)
+            {
+                if (m_buildMetaData == null)
+                {
+                    value = (BuildUploaderProjectSettings.Instance.LastBuildNumber + 1).ToString();
+                }
+                else
+                {
+                    value = m_buildMetaData.BuildNumber.ToString();
+                }
+
+                return true;
+            }
+            
             if (BuildConfig != null && s_StringGetters.TryGetValue(key, out var func))
             {
                 value = func(BuildConfig);

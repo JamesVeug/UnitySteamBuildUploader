@@ -31,6 +31,7 @@ namespace Wireframe
 
         private string m_filePath = "";
         private bool m_appliedSettings = false;
+        private BuildMetaData m_buildMetaData = null;
         
         // Lock to 1 build at a time regardless of how many tasks/configs are running
         internal static BuildConfig m_editorSettingsBeforeUpload = null;
@@ -77,8 +78,11 @@ namespace Wireframe
                 //     stepResult.AddLog($"Build already completed for {m_BuildConfig.DisplayName}, reusing existing build at path {m_filePath}");
                 //     return true;
                 // }
-                
-                m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", m_BuildConfig.GUID);
+                m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
+                stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
+
+                string buildName = StringFormatter.FormatString(m_BuildConfig.BuildName, ctx);
+                m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", string.Format("{0} ({1})", buildName, m_BuildConfig.GUID));
                 if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
@@ -154,20 +158,9 @@ namespace Wireframe
                 // Build the player
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 stepResult.AddLog("Starting build...");
-                report = MakeBuild(options, stepResult);
+                report = MakeBuild(options, stepResult, ctx);
                 stopwatch.Stop();
                 stepResult.AddLog($"Build completed in {stopwatch.ElapsedMilliseconds} ms");
-
-                if (report.summary.result == BuildResult.Succeeded)
-                {
-                    // s_CompleteBuilds.Add(new Builds
-                    // {
-                    //     Config = m_BuildConfig,
-                    //     TargetPath = m_filePath
-                    // });
-
-                    LastBuildUtil.SetLastBuild(m_filePath, ctx.BuildName());
-                }
             }
             catch (Exception e)
             {
@@ -226,17 +219,17 @@ namespace Wireframe
             return false;
         }
 
-        private static BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult)
+        private BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             BuildReport report = BuildPipeline.BuildPlayer(options);
 
             if (report.summary.result == BuildResult.Succeeded)
             {
+                LastBuildUtil.SetLastBuild(m_filePath, ctx.BuildName());
                 if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
                 {
                     stepResult.AddLog("Saving build meta data to StreamingAssets folder");
-                    BuildMetaData buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
-                    BuildUploaderProjectSettings.SaveToStreamingAssets(buildMetaData, report.summary.outputPath);
+                    BuildUploaderProjectSettings.SaveToStreamingAssets(m_buildMetaData, report.summary.outputPath);
                 }
             }
             
@@ -325,6 +318,7 @@ namespace Wireframe
         {
             await base.CleanUp(i, result, ctx);
 
+            m_buildMetaData = null;
             if (!m_appliedSettings)
             {
                 result.AddLog("No settings were applied so no need to restore previous settings.");

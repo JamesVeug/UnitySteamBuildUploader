@@ -5,14 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace Wireframe
 {
-    internal class WindowUploadTab : WindowTab, StringFormatter.IContextModifier
+    internal partial class WindowUploadTab : WindowTab
     {
         internal static readonly string UploadProfilePath =  Application.dataPath + "/../BuildUploader/UploadProfiles";
         internal static readonly string UploadReportSaveDirectory = Path.Combine(Preferences.CacheFolderPath, "Upload Task Reports");
@@ -848,23 +847,7 @@ namespace Wireframe
                 }
             }
         }
-        
-        public bool ReplaceString(string key, out string value)
-        {
-            if (m_currentUploadProfile != null)
-            {
-                foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
-                {
-                    if (config.ReplaceString(key, out value))
-                    {
-                        return true;
-                    }
-                }
-            }
 
-            value = string.Empty;
-            return false;
-        }
 #pragma warning restore CS0618 // Type or member is obsolete
     }
     

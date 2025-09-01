@@ -72,12 +72,6 @@ namespace Wireframe
             }
             
             string encodedNewKey = EncodedValue<string>.Encode64(newKey);
-            if (EditorPrefs.HasKey(encodedNewKey))
-            {
-                // Debug.Log($"[{oldKey}][{newKey}] New key already exists, not migrating.");
-                return;
-            }
-            
             string value = EditorPrefs.GetString(encodedOldKey);
             EditorPrefs.SetString(encodedNewKey, value);
             EditorPrefs.DeleteKey(encodedOldKey);

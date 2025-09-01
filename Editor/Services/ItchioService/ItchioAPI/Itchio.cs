@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using UnityEditor;
 
 namespace Wireframe
 {
@@ -25,22 +24,17 @@ namespace Wireframe
                 return m_instance;
             }
         }
-
-        static Itchio()
-        {
-            
-        }
         
         public static bool Enabled
         {
-            get => EditorPrefs.GetBool("Itchio_Enabled", false);
-            set => EditorPrefs.SetBool("Itchio_Enabled", value);
+            get => ProjectEditorPrefs.GetBool("Itchio_Enabled", false);
+            set => ProjectEditorPrefs.SetBool("Itchio_Enabled", value);
         }
 
         public static string ItchioSDKPath
         {
-            get => PlayerPrefs.GetString("Itchio_SDKPath");
-            set => PlayerPrefs.SetString("Itchio_SDKPath", value);
+            get => ProjectEditorPrefs.GetString("Itchio_SDKPath");
+            set => ProjectEditorPrefs.SetString("Itchio_SDKPath", value);
         }
         
         public static string ItchioEXEPath
@@ -71,7 +65,7 @@ namespace Wireframe
         public void Initialize()
         {
             m_initialized = false;
-            if (!Directory.Exists(ItchioSDKPath))
+            if (string.IsNullOrEmpty(ItchioSDKPath) || !Directory.Exists(ItchioSDKPath))
             {
                 return;
             }
@@ -91,7 +85,7 @@ namespace Wireframe
             }
             else
             {
-                Debug.LogError("Unsupported platform for Itchioworks SDK: " + Application.platform);
+                Debug.LogError("Unsupported platform for Itchio: " + Application.platform);
                 return;
             }
             

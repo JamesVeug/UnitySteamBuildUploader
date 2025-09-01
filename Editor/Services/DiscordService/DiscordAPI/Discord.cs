@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -9,14 +8,14 @@ namespace Wireframe
     /// <summary>
     /// https://discord.com/developers/applications
     /// </summary>
-    internal class Discord
+    internal partial class Discord
     {
         public static bool Enabled
         {
-            get => EditorPrefs.GetBool("discord_enabled", false);
-            set => EditorPrefs.SetBool("discord_enabled", value);
+            get => ProjectEditorPrefs.GetBool("discord_enabled", false);
+            set => ProjectEditorPrefs.SetBool("discord_enabled", value);
         }
-        
+
         /// <summary>
         /// https://discord.com/developers/docs/resources/message#create-message-jsonform-params
         /// </summary>

@@ -9,15 +9,15 @@ using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    internal static class Github
+    internal static partial class Github
     {
         public static bool Enabled
         {
-            get => EditorPrefs.GetBool("github_enabled", false);
-            set => EditorPrefs.SetBool("github_enabled", value);
+            get => ProjectEditorPrefs.GetBool("github_enabled", false);
+            set => ProjectEditorPrefs.SetBool("github_enabled", value);
         }
 
-        private static string TokenKey => Application.productName + "GithubTBuildUploader";
+        private static string TokenKey => ProjectEditorPrefs.ProjectID + "GithubBuildUploader";
         public static string Token
         {
             get => EncodedEditorPrefs.GetString(TokenKey, "");

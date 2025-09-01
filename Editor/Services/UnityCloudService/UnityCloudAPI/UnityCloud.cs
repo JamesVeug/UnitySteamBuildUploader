@@ -1,9 +1,6 @@
-﻿using UnityEditor;
-using UnityEngine;
-
-namespace Wireframe
+﻿namespace Wireframe
 {
-    internal class UnityCloud
+    internal partial class UnityCloud
     {
         public static UnityCloud Instance
         {
@@ -20,35 +17,27 @@ namespace Wireframe
 
         private static UnityCloud m_instance;
 
-        static UnityCloud()
-        {
-            // Migrate everything over to encoded values
-            EncodedEditorPrefs.MigrateKeyToEncoded<string>("unityCloud_organization", OrganizationKey);
-            EncodedEditorPrefs.MigrateKeyToEncoded<string>("unityCloud_project", ProjectKey);
-            EncodedEditorPrefs.MigrateKeyToEncoded<string>("unityCloud_secret", SecretKey);
-        }
-        
         public static bool Enabled
         {
-            get => EditorPrefs.GetBool("unityCloud_enabled", false);
-            set => EditorPrefs.SetBool("unityCloud_enabled", value);
+            get => ProjectEditorPrefs.GetBool("unityCloud_enabled", false);
+            set => ProjectEditorPrefs.SetBool("unityCloud_enabled", value);
         }
 
-        private static string OrganizationKey => Application.productName + "UnityCloudOBuildUploader";
+        private static string OrganizationKey => ProjectEditorPrefs.ProjectID + "UnityCloudOBuildUploader";
         public string Organization
         {
             get => EncodedEditorPrefs.GetString(OrganizationKey, "");
             set => EncodedEditorPrefs.SetString(OrganizationKey, value);
         }
 
-        private static string ProjectKey => Application.productName + "UnityCloudPBuildUploader";
+        private static string ProjectKey => ProjectEditorPrefs.ProjectID + "UnityCloudPBuildUploader";
         public string Project
         {
             get => EncodedEditorPrefs.GetString(ProjectKey, "");
             set => EncodedEditorPrefs.SetString(ProjectKey, value);
         }
 
-        private static string SecretKey => Application.productName + "UnityCloudSBuildUploader";
+        private static string SecretKey => ProjectEditorPrefs.ProjectID + "UnityCloudSBuildUploader";
         public string Secret
         {
             get => EncodedEditorPrefs.GetString(SecretKey, "");

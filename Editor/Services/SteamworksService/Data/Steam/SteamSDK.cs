@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    internal class SteamSDK
+    internal partial class SteamSDK
     {
         public static SteamSDK Instance
         {
@@ -25,34 +25,27 @@ namespace Wireframe
             }
         }
 
-        static SteamSDK()
-        {
-            // V2.1 - Migrate old preferences to new encoded values
-            EncodedEditorPrefs.MigrateKeyToEncoded<string>("steambuild_SDKUser", UserNameKey);
-            EncodedEditorPrefs.MigrateKeyToEncoded<string>("steambuild_SDKPass", UserPasswordKey);
-        }
-        
         public static bool Enabled
         {
-            get => EditorPrefs.GetBool("steambuild_Enabled", true);
-            set => EditorPrefs.SetBool("steambuild_Enabled", value);
+            get => ProjectEditorPrefs.GetBool("steambuild_Enabled", true);
+            set => ProjectEditorPrefs.SetBool("steambuild_Enabled", value);
         }
 
         public static string SteamSDKPath
         {
-            get => PlayerPrefs.GetString("steambuild_SDKPath");
-            set => PlayerPrefs.SetString("steambuild_SDKPath", value);
+            get => ProjectEditorPrefs.GetString("steambuild_SDKPath");
+            set => ProjectEditorPrefs.SetString("steambuild_SDKPath", value);
         }
 
         
-        private static string UserNameKey => Application.productName + "SteamUBuildUploader";
+        private static string UserNameKey => ProjectEditorPrefs.ProjectID + "SteamUBuildUploader";
         public static string UserName
         {
             get => EncodedEditorPrefs.GetString(UserNameKey, "");
             set => EncodedEditorPrefs.SetString(UserNameKey, value);
         }
 
-        private static string UserPasswordKey => Application.productName + "SteamPBuildUploader";
+        private static string UserPasswordKey => ProjectEditorPrefs.ProjectID + "SteamPBuildUploader";
         public static string UserPassword
         {
             get => EncodedEditorPrefs.GetString(UserPasswordKey, "");

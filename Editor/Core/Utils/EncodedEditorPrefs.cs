@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -59,6 +60,28 @@ namespace Wireframe
             string encodedDefaultValue = EncodedValue<string>.Encode64(defaultValue);
             string encodedValue = EditorPrefs.GetString(encodedKey, encodedDefaultValue);
             return EncodedValue<string>.Decode64(encodedValue);
+        }
+        
+        public static void MigrateStringKeyToKey(string oldKey, string newKey)
+        {
+            string encodedOldKey = EncodedValue<string>.Encode64(oldKey);
+            if (!EditorPrefs.HasKey(encodedOldKey))
+            {
+                // Debug.Log($"[{oldKey}][{newKey}] Old key does not exist, not migrating.");
+                return;
+            }
+            
+            string encodedNewKey = EncodedValue<string>.Encode64(newKey);
+            if (EditorPrefs.HasKey(encodedNewKey))
+            {
+                // Debug.Log($"[{oldKey}][{newKey}] New key already exists, not migrating.");
+                return;
+            }
+            
+            string value = EditorPrefs.GetString(encodedOldKey);
+            EditorPrefs.SetString(encodedNewKey, value);
+            EditorPrefs.DeleteKey(encodedOldKey);
+            // Debug.Log($"[{oldKey}][{newKey}] Migrated key.");
         }
     }
 }

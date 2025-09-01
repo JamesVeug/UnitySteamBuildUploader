@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -77,7 +78,9 @@ namespace Wireframe
                     {
                         BuildConfig newConfig = new BuildConfig();
                         newConfig.SetupDefaults();
+                        newConfig.Id = buildConfigs.Max(a=>a.Id) + 1;
                         buildConfigs.Add(newConfig);
+                        BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
                         m_isDirty = true;
                     }
 
@@ -146,9 +149,11 @@ namespace Wireframe
                                     Dictionary<string, object> serialize = buildConfig.Serialize();
                                     BuildConfig copy = new BuildConfig();
                                     copy.Deserialize(serialize);
+                                    copy.Id = buildConfigs.Max(a=>a.Id) + 1;
                                     copy.NewGUID();
                                     copy.BuildName += " Copy";
                                     buildConfigs.Add(copy);
+                                    BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
                                     m_isDirty = true;
                                 }
                             });
@@ -161,6 +166,7 @@ namespace Wireframe
                                         "Are you sure you want to remove this Build Config?", "Delete", "Cancel"))
                                 {
                                     buildConfigs.Remove(buildConfig);
+                                    BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
                                     m_isDirty = true;
                                 }
                             });

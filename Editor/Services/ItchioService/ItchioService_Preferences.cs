@@ -52,7 +52,7 @@ namespace Wireframe
                     Itchio.Instance.ShowConsole();
                 }
 
-                if (newPath != Itchio.ItchioSDKPath && !string.IsNullOrEmpty(newPath))
+                if (newPath != Itchio.ItchioSDKPath)
                 {
                     Itchio.ItchioSDKPath = newPath;
                     Itchio.Instance.Initialize();

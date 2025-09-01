@@ -10,7 +10,12 @@ namespace Wireframe
             GUILayout.Label("Steamworks", EditorStyles.boldLabel);
             using (new EditorGUILayout.VerticalScope("box"))
             {
-                SteamSDK.Enabled = GUILayout.Toggle(SteamSDK.Enabled, "Enabled");
+                bool newEnabled = GUILayout.Toggle(SteamSDK.Enabled, "Enabled");
+                if (newEnabled != SteamSDK.Enabled)
+                {
+                    SteamSDK.Enabled = newEnabled;
+                }
+                
                 using (new EditorGUI.DisabledScope(!SteamSDK.Enabled))
                 {
                     DrawSteamworks();

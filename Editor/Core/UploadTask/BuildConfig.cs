@@ -272,11 +272,25 @@ namespace Wireframe
                 TargetArchitecture = BuildUtils.CurrentTargetArchitecture();
             }
             
-            if (dict.TryGetValue("StackTraceLogTypes", out var stackTraceLogTypesData) && stackTraceLogTypesData is Dictionary<string, string> stackTraceLogTypesDict)
+            if (dict.TryGetValue("StackTraceLogTypes", out var stackTraceLogTypesData))
             {
-                StackTraceLogTypes = stackTraceLogTypesDict.ToDictionary(
-                    kvp => (LogType)Enum.Parse(typeof(LogType), kvp.Key),
-                    kvp => (StackTraceLogType)Enum.Parse(typeof(StackTraceLogType), kvp.Value));
+                if (stackTraceLogTypesData is Dictionary<string, string> stackTraceLogTypesDict)
+                {
+                    StackTraceLogTypes = stackTraceLogTypesDict.ToDictionary(
+                        kvp => (LogType)Enum.Parse(typeof(LogType), kvp.Key),
+                        kvp => (StackTraceLogType)Enum.Parse(typeof(StackTraceLogType), kvp.Value));
+                }
+                else if (stackTraceLogTypesData is Dictionary<string, object> stackTraceLogTypesObjDict)
+                {
+                    // Deserialize, TO JSON then from JSON
+                    StackTraceLogTypes = stackTraceLogTypesObjDict.ToDictionary(
+                        kvp => (LogType)Enum.Parse(typeof(LogType), kvp.Key.ToString()),
+                        kvp => (StackTraceLogType)Enum.Parse(typeof(StackTraceLogType), kvp.Value.ToString()));
+                }
+                else
+                {
+                    StackTraceLogTypes = BuildUtils.CurrentStackTraceLogTypes();
+                }
             }
             else
             {

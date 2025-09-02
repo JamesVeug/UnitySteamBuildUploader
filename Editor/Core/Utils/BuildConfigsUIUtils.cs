@@ -70,25 +70,19 @@ namespace Wireframe
         private static void CreateDefaultConfigs()
         {
             BuildConfig debugBuild = new BuildConfig();
-            debugBuild.SetupDefaults();
-            debugBuild.BuildName = "Debug Build";
-            debugBuild.IsDevelopmentBuild = true;
-            debugBuild.AllowDebugging = true;
-            debugBuild.EnableDeepProfilingSupport = true;
+            debugBuild.SetEditorSettings();
+            debugBuild.BuildName = "Debugging Build";
+            debugBuild.SetDebuggingOn(true);
 
             BuildConfig releaseBuild = new BuildConfig();
-            releaseBuild.SetupDefaults();
+            releaseBuild.SetEditorSettings();
             releaseBuild.BuildName = "Release Build";
 #if UNITY_2021_1_OR_NEWER
             releaseBuild.StrippingLevel = ManagedStrippingLevel.Minimal;
 #else
             releaseBuild.StrippingLevel = ManagedStrippingLevel.Low;
 #endif
-            releaseBuild.StackTraceLogTypes[LogType.Log] = StackTraceLogType.None;
-            releaseBuild.StackTraceLogTypes[LogType.Warning] = StackTraceLogType.None;
-            releaseBuild.StackTraceLogTypes[LogType.Error] = StackTraceLogType.ScriptOnly;
-            releaseBuild.StackTraceLogTypes[LogType.Exception] = StackTraceLogType.ScriptOnly;
-            releaseBuild.StackTraceLogTypes[LogType.Assert] = StackTraceLogType.None;
+            releaseBuild.SetDebuggingOn(false);
 
             
             data.Add(debugBuild);

@@ -116,7 +116,7 @@ namespace Wireframe
                 if (m_editorSettingsBeforeUpload == null)
                 {
                     m_editorSettingsBeforeUpload = new BuildConfig();
-                    m_editorSettingsBeforeUpload.SetupDefaults();
+                    m_editorSettingsBeforeUpload.SetEditorSettings();
                     m_editorSettingsBeforeUpload.SwitchTargetPlatform = true;
                 }
                 

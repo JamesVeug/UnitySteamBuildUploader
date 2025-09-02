@@ -77,9 +77,15 @@ namespace Wireframe
                             GUILayout.Label(GUID);
                         }
 
-                        if (GUILayout.Button("Apply Settings", GUILayout.Width(120)))
+                        if (GUILayout.Button("Apply to Editor", GUILayout.Width(120)))
                         {
-                            ApplySettings(context);
+                            if (EditorUtility.DisplayDialog("Apply to Editor",
+                                    "Are you sure you want to apply settings to the editor?\n" +
+                                    "This will change your Player settings and Editor settings", 
+                                    "Apply", "Cancel"))
+                            {
+                                ApplySettings(context);
+                            }
                         }
                     }
                     

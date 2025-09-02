@@ -37,7 +37,32 @@ namespace Wireframe
         public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
         public ScriptingImplementation ScriptingBackend = ScriptingImplementation.Mono2x;
 
-        public void SetupDefaults()
+        public void Clear()
+        {
+            BuildName = "";
+            ProductName = "";
+            Scenes = new List<string>();
+            ExtraScriptingDefines = new List<string>();
+            
+            IsDevelopmentBuild = false;
+            BuildScriptsOnly = false;
+            AllowDebugging = false;
+            ConnectProfiler = false;
+            EnableDeepProfilingSupport = false;
+            
+            SwitchTargetPlatform = false;
+            TargetPlatform = BuildTargetGroup.Unknown;
+            TargetArchitecture = Architecture.Unknown;
+            StrippingLevel = ManagedStrippingLevel.Disabled;
+            ScriptingBackend = ScriptingImplementation.Mono2x;
+            StackTraceLogTypes = new Dictionary<LogType, StackTraceLogType>();
+            foreach (LogType logType in Enum.GetValues(typeof(LogType)))
+            {
+                StackTraceLogTypes[logType] = StackTraceLogType.ScriptOnly;
+            }
+        }
+
+        public void SetEditorSettings()
         {
             NewGUID();
             BuildName = "New Build";
@@ -56,6 +81,20 @@ namespace Wireframe
             StackTraceLogTypes = CurrentStackTraceLogTypes();
             StrippingLevel = CurrentStrippingLevel();
             ScriptingBackend = CurrentScriptingBackend();
+        }
+
+        public void SetDebuggingOn(bool on)
+        {
+            AllowDebugging = on;
+            IsDevelopmentBuild = on;
+            EnableDeepProfilingSupport = on;
+            ConnectProfiler = on;
+
+            StackTraceLogTypes[LogType.Log] = on ? StackTraceLogType.ScriptOnly : StackTraceLogType.None;
+            StackTraceLogTypes[LogType.Warning] = on ? StackTraceLogType.ScriptOnly : StackTraceLogType.None;
+            StackTraceLogTypes[LogType.Assert] = on ? StackTraceLogType.ScriptOnly : StackTraceLogType.None;
+            StackTraceLogTypes[LogType.Error] = StackTraceLogType.ScriptOnly;
+            StackTraceLogTypes[LogType.Exception] = StackTraceLogType.ScriptOnly;
         }
 
         public void NewGUID()

@@ -64,6 +64,38 @@ namespace Wireframe
             m_context = new StringFormatter.Context();
         }
 
+        private void CreateBuildConfigs(bool clearedBuildConfig, bool? debugging = null)
+        {
+            BuildConfig newConfig = new BuildConfig();
+            if (clearedBuildConfig)
+            {
+                newConfig.Clear();
+                newConfig.NewGUID();
+                newConfig.BuildName = "New Build";
+                newConfig.ProductName = Application.productName;
+            }
+            else
+            {
+                newConfig.SetEditorSettings();
+            }
+
+            if (debugging.HasValue)
+            {
+                newConfig.SetDebuggingOn(debugging.Value);
+                if (debugging.Value)
+                {
+                    newConfig.BuildName += " (Debugging On)";
+                }
+            }
+
+            List<BuildConfig> buildConfigs = BuildConfigsUIUtils.GetBuildConfigs();
+            newConfig.Id = buildConfigs.Max(a=>a.Id) + 1;
+            buildConfigs.Add(newConfig);
+            BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
+            
+            Save();
+        }
+        
         public void BuildConfigsGUI()
         {
             Setup();
@@ -76,12 +108,24 @@ namespace Wireframe
                 {
                     if (GUILayout.Button("New Build Config"))
                     {
-                        BuildConfig newConfig = new BuildConfig();
-                        newConfig.SetupDefaults();
-                        newConfig.Id = buildConfigs.Max(a=>a.Id) + 1;
-                        buildConfigs.Add(newConfig);
-                        BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
-                        m_isDirty = true;
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("Empty Config"), false, () =>
+                        {
+                            CreateBuildConfigs(true);
+                        });
+                        menu.AddItem(new GUIContent("Use Editor Settings"), false, () =>
+                        {
+                            CreateBuildConfigs(false);
+                        });
+                        menu.AddItem(new GUIContent("Use Editor Settings (Debugging On)"), false, () =>
+                        {
+                            CreateBuildConfigs(false, true);
+                        });
+                        menu.AddItem(new GUIContent("Use Editor Settings (Debugging Off)"), false, () =>
+                        {
+                            CreateBuildConfigs(false, false);
+                        });
+                        menu.ShowAsContext();
                     }
 
                     if (!Preferences.AutoSaveUploadConfigsAfterChanges)
@@ -112,6 +156,37 @@ namespace Wireframe
                         if (CustomSettingsIcon.OnGUI())
                         {
                             GenericMenu menu = new GenericMenu();
+                            menu.AddItem(new GUIContent("Set Debugging/On"), false, () =>
+                            {
+                                buildConfig.SetDebuggingOn(true);
+                                m_isDirty = true;
+                            });
+                            
+                            menu.AddItem(new GUIContent("Set Debugging/Off"), false, () =>
+                            {
+                                buildConfig.SetDebuggingOn(false);
+                                m_isDirty = true;
+                            });
+                            
+                            menu.AddSeparator("");
+                            
+                            menu.AddItem(new GUIContent("Move To Top"), false, () =>
+                            {
+                                int indexOf = buildConfigs.IndexOf(buildConfig);
+                                if (indexOf > 0)
+                                {
+                                    buildConfigs.RemoveAt(indexOf);
+                                    buildConfigs.Insert(0, buildConfig);
+                                    for (int j = 0; j < buildConfigs.Count; j++)
+                                    {
+                                        buildConfigs[j].Id = j + 1;
+                                    }
+                                    
+                                    BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
+                                    m_isDirty = true;
+                                }
+                            });
+                            
                             menu.AddItem(new GUIContent("Move Up"), false, () =>
                             {
                                 int indexOf = buildConfigs.IndexOf(buildConfig);
@@ -122,6 +197,7 @@ namespace Wireframe
                                     buildConfig.Id--;
                                     buildConfigs[indexOf + 1].Id++;
                                     
+                                    BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
                                     m_isDirty = true;
                                 }
                             });
@@ -135,6 +211,25 @@ namespace Wireframe
                                     buildConfigs.Insert(indexOf + 1, buildConfig);
                                     buildConfig.Id++;
                                     buildConfigs[indexOf - 1].Id--;
+                                    
+                                    BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
+                                    m_isDirty = true;
+                                }
+                            });
+
+                            menu.AddItem(new GUIContent("Move To Bottom"), false, () =>
+                            {
+                                int indexOf = buildConfigs.IndexOf(buildConfig);
+                                if (indexOf < buildConfigs.Count - 1)
+                                {
+                                    buildConfigs.RemoveAt(indexOf);
+                                    buildConfigs.Add(buildConfig);
+                                    for (int j = 0; j < buildConfigs.Count; j++)
+                                    {
+                                        buildConfigs[j].Id = j + 1;
+                                    }
+                                    
+                                    BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
                                     m_isDirty = true;
                                 }
                             });
@@ -153,12 +248,24 @@ namespace Wireframe
                                     copy.NewGUID();
                                     copy.BuildName += " Copy";
                                     buildConfigs.Add(copy);
+                                    
                                     BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
                                     m_isDirty = true;
                                 }
                             });
                             
                             menu.AddSeparator("");
+                            
+                            menu.AddItem(new GUIContent("Reset All Settings"), false, () =>
+                            {
+                                if (EditorUtility.DisplayDialog("Reset all Build Config",
+                                        "Are you sure you want to reset all settings in this Build Config?", "Reset", "Cancel"))
+                                {
+                                    buildConfig.Clear();
+                                    BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
+                                    m_isDirty = true;
+                                }
+                            });
                             
                             menu.AddItem(new GUIContent("Delete"), false, () =>
                             {
@@ -197,6 +304,7 @@ namespace Wireframe
 
         public void Save()
         {
+            m_isDirty = false;
             BuildConfigsUIUtils.Save();
         }
     }

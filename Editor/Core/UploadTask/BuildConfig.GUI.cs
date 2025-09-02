@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -206,7 +207,17 @@ namespace Wireframe
                         Save();
                     }
                     
+                    // Stacktrace level
+                    GUIContent stlLabel = new GUIContent("Stacktrace Logging:", "Set the logging level for stack traces in the build. This can help with debugging issues in the build.");
+                    GUILayout.Label(stlLabel, GUILayout.Width(150));
+                    dirty |= DrawLogLevel(LogType.Log);
+                    dirty |= DrawLogLevel(LogType.Warning);
+                    dirty |= DrawLogLevel(LogType.Assert);
+                    dirty |= DrawLogLevel(LogType.Error);
+                    dirty |= DrawLogLevel(LogType.Exception);
+                    
                     EditorGUILayout.Space();
+                    
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         GUIContent label = new GUIContent("Override Platform:", "When enabled switch to this platform before starting the build. If disabled, the current platform will be used.");
@@ -248,6 +259,31 @@ namespace Wireframe
                     }
                 }
             }
+        }
+
+        private bool DrawLogLevel(LogType log)
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label(log.ToString(), GUILayout.Width(70));
+                
+                StackTraceLogType enabled = StackTraceLogTypes[log];
+
+                // Show toggles for each log type
+                foreach (StackTraceLogType trace in Enum.GetValues(typeof(StackTraceLogType)))
+                {
+                    bool isEnabled = (enabled == trace);
+                    string label = trace.ToString();
+                    bool newEnabled = GUILayout.Toggle(isEnabled, label, "Button", GUILayout.MaxWidth(80));
+                    if (newEnabled != isEnabled && newEnabled)
+                    {
+                        StackTraceLogTypes[log] = trace;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private string StrippingLevelToolTip()

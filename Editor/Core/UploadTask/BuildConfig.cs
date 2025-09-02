@@ -9,13 +9,6 @@ namespace Wireframe
 {
     public partial class BuildConfig
     {
-        public enum Architecture
-        {
-            Unknown,
-            x86_64,
-            x86_32,
-        }
-        
         public string GUID;
         public string BuildName;
         public string ProductName;
@@ -32,7 +25,7 @@ namespace Wireframe
         // Platform specific settings
         public bool SwitchTargetPlatform = false;
         public BuildTargetGroup TargetPlatform;
-        public Architecture TargetArchitecture;
+        public BuildUtils.Architecture TargetArchitecture;
         public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes;
         public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
         public ScriptingImplementation ScriptingBackend = ScriptingImplementation.Mono2x;
@@ -52,7 +45,7 @@ namespace Wireframe
             
             SwitchTargetPlatform = false;
             TargetPlatform = BuildTargetGroup.Unknown;
-            TargetArchitecture = Architecture.Unknown;
+            TargetArchitecture = BuildUtils.Architecture.Unknown;
             StrippingLevel = ManagedStrippingLevel.Disabled;
             ScriptingBackend = ScriptingImplementation.Mono2x;
             StackTraceLogTypes = new Dictionary<LogType, StackTraceLogType>();
@@ -66,9 +59,9 @@ namespace Wireframe
         {
             NewGUID();
             BuildName = "New Build";
-            ProductName = GetDefaultProductName();
-            Scenes = GetDefaultScenes();
-            ExtraScriptingDefines = GetDefaultScriptingDefines();
+            ProductName = BuildUtils.GetDefaultProductName();
+            Scenes = BuildUtils.GetDefaultScenes();
+            ExtraScriptingDefines = BuildUtils.GetDefaultScriptingDefines();
             
             IsDevelopmentBuild = EditorUserBuildSettings.development;
             BuildScriptsOnly = EditorUserBuildSettings.buildScriptsOnly; 
@@ -76,11 +69,11 @@ namespace Wireframe
             ConnectProfiler = EditorUserBuildSettings.connectProfiler;
             EnableDeepProfilingSupport = EditorUserBuildSettings.buildWithDeepProfilingSupport;
             
-            TargetPlatform = BuildTargetToPlatform();
-            TargetArchitecture = CurrentTargetArchitecture();
-            StackTraceLogTypes = CurrentStackTraceLogTypes();
-            StrippingLevel = CurrentStrippingLevel();
-            ScriptingBackend = CurrentScriptingBackend();
+            TargetPlatform = BuildUtils.BuildTargetToPlatform();
+            TargetArchitecture = BuildUtils.CurrentTargetArchitecture();
+            StackTraceLogTypes = BuildUtils.CurrentStackTraceLogTypes();
+            StrippingLevel = BuildUtils.CurrentStrippingLevel();
+            ScriptingBackend = BuildUtils.CurrentScriptingBackend();
         }
 
         public void SetDebuggingOn(bool on)
@@ -100,106 +93,6 @@ namespace Wireframe
         public void NewGUID()
         {
             GUID = Guid.NewGuid().ToString().Substring(0, 6);
-        }
-
-        private ManagedStrippingLevel CurrentStrippingLevel()
-        {
-#if UNITY_2021_1_OR_NEWER
-            return PlayerSettings.GetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
-#else
-            return PlayerSettings.GetManagedStrippingLevel(BuildTargetToPlatform());
-#endif
-        }
-
-        private ScriptingImplementation CurrentScriptingBackend()
-        {
-            // 0 - Mono
-            // 1 - IL2CPP
-#if UNITY_2021_1_OR_NEWER
-            return PlayerSettings.GetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
-#else
-            return PlayerSettings.GetScriptingBackend(BuildTargetToPlatform());
-#endif
-        }
-
-        private Dictionary<LogType, StackTraceLogType> CurrentStackTraceLogTypes()
-        {
-            Dictionary<LogType, StackTraceLogType> stackTraceLogTypes = new Dictionary<LogType, StackTraceLogType>();
-            foreach (LogType logType in Enum.GetValues(typeof(LogType)))
-            {
-                stackTraceLogTypes[logType] = PlayerSettings.GetStackTraceLogType(logType);
-            }
-            return stackTraceLogTypes;
-        }
-
-        private Architecture CurrentTargetArchitecture()
-        {
-            // 0 - None
-            // 1 - ARM64
-            // 2 - Universal (I'm assuming this is 32 bit)
-#if UNITY_2021_1_OR_NEWER
-            int architecture = PlayerSettings.GetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform));
-#else
-            int architecture = PlayerSettings.GetArchitecture(BuildTargetToPlatform());
-#endif
-            switch (architecture)
-            {
-                case 0:
-                    return Architecture.Unknown;
-                case 1:
-                    return Architecture.x86_64;
-                case 2:
-                    return Architecture.x86_32;
-                default:
-                    return Architecture.Unknown;
-            }
-        }
-
-        public static BuildTarget CurrentTargetPlatform()
-        {
-            return EditorUserBuildSettings.activeBuildTarget;
-        }
-        
-        public static BuildTargetGroup BuildTargetToPlatform()
-        {
-            return BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
-        }
-        
-        public List<string> GetDefaultScriptingDefines()
-        {
-            List<string> defines = new List<string>();
-            
-            BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
-            BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
-            string[] scriptingDefines = null;
-#if UNITY_2021_1_OR_NEWER
-            NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
-            PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget, out scriptingDefines);
-#else
-            string value = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            scriptingDefines = value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-#endif
-            defines.AddRange(scriptingDefines);
-            
-            return defines;
-        }
-
-        private List<string> GetDefaultScenes()
-        {
-            List<string> defaultScenes = new List<string>();
-            foreach (var scene in UnityEditor.EditorBuildSettings.scenes)
-            {
-                if (scene.enabled)
-                {
-                    defaultScenes.Add(scene.path);
-                }
-            }
-            return defaultScenes;
-        }
-
-        private string GetDefaultProductName()
-        {
-            return Application.productName;
         }
 
         public Dictionary<string, object> Serialize()
@@ -252,7 +145,7 @@ namespace Wireframe
             }
             else
             {
-                ProductName = GetDefaultProductName();
+                ProductName = BuildUtils.GetDefaultProductName();
             }
             
             if (dict.TryGetValue("ExtraScriptingDefines", out var extraDefinesData) && extraDefinesData != null)
@@ -270,7 +163,7 @@ namespace Wireframe
             }
             else
             {
-                ExtraScriptingDefines = GetDefaultScriptingDefines();
+                ExtraScriptingDefines = BuildUtils.GetDefaultScriptingDefines();
             }
             
             if (dict.TryGetValue("Scenes", out var scenesData) && scenesData != null)
@@ -288,7 +181,7 @@ namespace Wireframe
             }
             else
             {
-                Scenes = GetDefaultScenes();
+                Scenes = BuildUtils.GetDefaultScenes();
             }
             
             if (dict.TryGetValue("IsDevelopmentBuild", out var isDevBuildData) && isDevBuildData is bool isDevBuild)
@@ -354,29 +247,29 @@ namespace Wireframe
                 else
                 {
                     Debug.LogWarning($"Invalid TargetPlatform value: {targetPlatformStr}. Defaulting to current platform.");
-                    TargetPlatform = BuildTargetToPlatform();
+                    TargetPlatform = BuildUtils.BuildTargetToPlatform();
                 }
             }
             else
             {
-                TargetPlatform = BuildTargetToPlatform();
+                TargetPlatform = BuildUtils.BuildTargetToPlatform();
             }
             
             if (dict.TryGetValue("TargetArchitecture", out var targetArchitectureData) && targetArchitectureData is string targetArchitectureStr)
             {
-                if (Enum.TryParse(targetArchitectureStr, out Architecture targetArchitecture))
+                if (Enum.TryParse(targetArchitectureStr, out BuildUtils.Architecture targetArchitecture))
                 {
                     TargetArchitecture = targetArchitecture;
                 }
                 else
                 {
                     Debug.LogWarning($"Invalid TargetArchitecture value: {targetArchitectureStr}. Defaulting to Unknown.");
-                    TargetArchitecture = Architecture.Unknown;
+                    TargetArchitecture = BuildUtils.Architecture.Unknown;
                 }
             }
             else
             {
-                TargetArchitecture = CurrentTargetArchitecture();
+                TargetArchitecture = BuildUtils.CurrentTargetArchitecture();
             }
             
             if (dict.TryGetValue("StackTraceLogTypes", out var stackTraceLogTypesData) && stackTraceLogTypesData is Dictionary<string, string> stackTraceLogTypesDict)
@@ -387,7 +280,7 @@ namespace Wireframe
             }
             else
             {
-                StackTraceLogTypes = CurrentStackTraceLogTypes();
+                StackTraceLogTypes = BuildUtils.CurrentStackTraceLogTypes();
             }
             
             if (dict.TryGetValue("StrippingLevel", out var strippingLevelData) && strippingLevelData is string strippingLevelStr)
@@ -404,7 +297,7 @@ namespace Wireframe
             }
             else
             {
-                StrippingLevel = CurrentStrippingLevel();
+                StrippingLevel = BuildUtils.CurrentStrippingLevel();
             }
             
             if (dict.TryGetValue("ScriptingBackend", out var scriptingBackendData) && scriptingBackendData is string scriptingBackendStr)
@@ -421,7 +314,7 @@ namespace Wireframe
             }
             else
             {
-                ScriptingBackend = CurrentScriptingBackend();
+                ScriptingBackend = BuildUtils.CurrentScriptingBackend();
             }
         }
 
@@ -527,7 +420,7 @@ namespace Wireframe
             {
                 case BuildTargetGroup.Standalone:
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                    if (TargetArchitecture == Architecture.x86_64)
+                    if (TargetArchitecture == BuildUtils.Architecture.x86_64)
                     {
                         // 64 bit
                         currentTarget = BuildTarget.StandaloneWindows64;

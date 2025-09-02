@@ -238,7 +238,7 @@ namespace Wireframe
                         {
                             GUIContent label = new GUIContent("Target Architecture:", "The Architecture version to build for. This will be used if 'Override Platform' is enabled.");
                             GUILayout.Label(label, GUILayout.Width(150));
-                            Architecture newArchitecture = (Architecture)EditorGUILayout.EnumPopup(TargetArchitecture);
+                            BuildUtils.Architecture newArchitecture = (BuildUtils.Architecture)EditorGUILayout.EnumPopup(TargetArchitecture);
                             if (newArchitecture != TargetArchitecture)
                             {
                                 TargetArchitecture = newArchitecture;

@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -42,6 +43,11 @@ namespace Wireframe
         protected override SteamBranch CreateItem(int index)
         {
             return new SteamBranch(index, "");
+        }
+
+        protected override int CompareTo(SteamBranch a, SteamBranch b)
+        {
+            return String.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
         }
     }
 }

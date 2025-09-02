@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -66,6 +67,11 @@ namespace Wireframe
         protected override DiscordConfig.DiscordApp CreateItem(int index)
         {
             return new DiscordConfig.DiscordApp(index, "MyBot");
+        }
+
+        protected override int CompareTo(DiscordConfig.DiscordApp a, DiscordConfig.DiscordApp b)
+        {
+            return String.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
         }
     }
 }

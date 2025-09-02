@@ -26,5 +26,10 @@ namespace Wireframe
         {
             return new ItchioGameData(index, "");
         }
+        
+        protected override int CompareTo(ItchioGameData a, ItchioGameData b)
+        {
+            return string.Compare(a.DisplayName, b.DisplayName, System.StringComparison.Ordinal);
+        }
     }
 }

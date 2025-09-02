@@ -42,5 +42,10 @@ namespace Wireframe
         {
             return new DiscordConfig.DiscordChannel(index, "BotTestChannel", -1);
         }
+        
+        protected override int CompareTo(DiscordConfig.DiscordChannel a, DiscordConfig.DiscordChannel b)
+        {
+            return string.Compare(a.DisplayName, b.DisplayName, System.StringComparison.Ordinal);
+        }
     }
 }

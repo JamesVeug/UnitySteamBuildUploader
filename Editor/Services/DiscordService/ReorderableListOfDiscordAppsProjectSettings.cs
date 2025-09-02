@@ -37,5 +37,10 @@ namespace Wireframe
         {
             return new DiscordConfig.DiscordApp(index, "MyBot");
         }
+        
+        protected override int CompareTo(DiscordConfig.DiscordApp a, DiscordConfig.DiscordApp b)
+        {
+            return string.Compare(a.DisplayName, b.DisplayName, System.StringComparison.Ordinal);
+        }
     }
 }

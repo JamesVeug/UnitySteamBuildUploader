@@ -59,5 +59,14 @@ namespace Wireframe
         {
             return new AExcludePathsByRegex_UploadModifier.Selection();
         }
+
+        protected override int CompareTo(AExcludePathsByRegex_UploadModifier.Selection a, AExcludePathsByRegex_UploadModifier.Selection b)
+        {
+            if(a.Enabled != b.Enabled)
+            {
+                return a.Enabled ? -1 : 1;
+            }
+            return string.Compare(a.Regex, b.Regex, System.StringComparison.Ordinal);
+        }
     }
 }

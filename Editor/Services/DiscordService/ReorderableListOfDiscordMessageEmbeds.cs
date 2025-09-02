@@ -100,5 +100,10 @@ namespace Wireframe
                 color = "#009000"
             };
         }
+        
+        protected override int CompareTo(DiscordMessageChannelAction.Embed a, DiscordMessageChannelAction.Embed b)
+        {
+            return String.Compare(a.title, b.title, StringComparison.Ordinal);
+        }
     }
 }

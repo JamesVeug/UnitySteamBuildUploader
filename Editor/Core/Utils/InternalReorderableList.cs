@@ -36,8 +36,7 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope("RL Header"))
             {
                 GUILayout.Space(5);
-                string headerText = $"{header ?? ""} ({list.Count})";
-                m_showFolderOut = EditorGUILayout.Foldout(m_showFolderOut, headerText);
+                m_showFolderOut = DrawHeader();
             }
 
             if (m_showFolderOut)
@@ -56,13 +55,50 @@ namespace Wireframe
         protected abstract void DrawItem(Rect rect, int index, bool isActive, bool isFocused);
         protected abstract T CreateItem(int index);
 
-        protected virtual void DrawHeader(Rect rect)
+        protected virtual bool DrawHeader()
         {
-            // your GUI code here for list header
-            if (!string.IsNullOrEmpty(header))
+            string headerText = $"{header ?? ""} ({list.Count})";
+            Rect rect = GUILayoutUtility.GetRect(new GUIContent(headerText), EditorStyles.foldout);
+
+            // Draw the foldout
+            m_showFolderOut = EditorGUI.Foldout(rect, m_showFolderOut, headerText, true);
+
+            // Handle right-click context menu
+            Event evt = Event.current;
+            if (evt.type == EventType.ContextClick && rect.Contains(evt.mousePosition))
             {
-                EditorGUI.LabelField(rect, header);
+                var menu = ContextMenu(evt);
+                menu.ShowAsContext();
+                evt.Use();
             }
+
+            return m_showFolderOut;
+        }
+
+        protected virtual GenericMenu ContextMenu(Event evt)
+        {
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Clear"), false, () =>
+            {
+                list.Clear();
+                dirty = true;
+            });
+            
+            menu.AddSeparator("");
+            
+            menu.AddItem(new GUIContent("Order by Ascending"), false, () =>
+            {
+                list.Sort(CompareTo);
+                dirty = true;
+            });
+            menu.AddItem(new GUIContent("Order by Descending"), false, () =>
+            {
+                list.Sort(CompareTo);
+                list.Reverse();
+                dirty = true;
+            });
+            
+            return menu;
         }
 
         private void AddCallback(ReorderableList l)
@@ -89,6 +125,11 @@ namespace Wireframe
         public void SetHeaderText(string newHeader)
         {
             header = newHeader;
+        }
+        
+        protected virtual int CompareTo(T a, T b)
+        {
+            return String.Compare(a.ToString(), b.ToString(), StringComparison.Ordinal);
         }
     }
 }

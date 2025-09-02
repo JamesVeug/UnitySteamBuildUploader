@@ -34,5 +34,10 @@ namespace Wireframe
         {
             return new SteamDepot(index, "");
         }
+
+        protected override int CompareTo(SteamDepot a, SteamDepot b)
+        {
+            return String.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
+        }
     }
 }

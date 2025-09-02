@@ -36,6 +36,41 @@ namespace Wireframe
             }
         }
 
+        protected override GenericMenu ContextMenu(Event evt)
+        {
+            GenericMenu menu = base.ContextMenu(evt);
+            
+            menu.AddSeparator("");
+            
+            menu.AddItem(new GUIContent("Add scenes in Build settings"), false, () =>
+            {
+                var buildScenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path);
+                foreach (var scene in buildScenes)
+                {
+                    if (!list.Contains(scene))
+                    {
+                        list.Add(scene);
+                        dirty = true;
+                    }
+                }
+            });
+            
+            menu.AddItem(new GUIContent("Add missing scenes"), false, () =>
+            {
+                var allScenes = SceneUIUtils.GetScenes().Select(s => s.Path);
+                foreach (var scene in allScenes)
+                {
+                    if (!list.Contains(scene))
+                    {
+                        list.Add(scene);
+                        dirty = true;
+                    }
+                }
+            });
+            
+            return menu;
+        }
+
         protected override string CreateItem(int index)
         {
             return "";

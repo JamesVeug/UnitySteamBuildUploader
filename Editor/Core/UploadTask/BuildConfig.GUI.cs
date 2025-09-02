@@ -11,7 +11,7 @@ namespace Wireframe
         public string DisplayName => BuildName;
         
         private ReorderableListOfScenes m_sceneList = new ReorderableListOfScenes();
-        private ReorderableListOfStrings m_definesList = new ReorderableListOfStrings();
+        private ReorderableListOfScriptDefines m_definesList = new ReorderableListOfScriptDefines();
         
         private GUIStyle m_titleStyle;
         private bool m_showFormattedBuildName = false;

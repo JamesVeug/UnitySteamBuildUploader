@@ -31,11 +31,12 @@ namespace Wireframe
             // Required for reflection
         }
         
-        public LocalPathDestination(string localPath, string fileName, bool zipContent) : base()
+        public LocalPathDestination(string localPath, string fileName, bool zipContent, Utils.FileExistHandling duplicateFileHandling) : base()
         {
             m_localPath = localPath;
             m_zippedFilesName = fileName;
             m_zipContent = zipContent;
+            m_duplicateFileHandling = duplicateFileHandling;
         }
 
         private string FullPath(StringFormatter.Context ctx)
@@ -162,6 +163,7 @@ namespace Wireframe
             data["m_localPath"] = m_localPath;
             data["m_fileName"] = m_zippedFilesName;
             data["m_zipContent"] = m_zipContent;
+            data["m_duplicateFileHandling"] = (int)m_duplicateFileHandling;
             return data;
         }
 
@@ -170,6 +172,15 @@ namespace Wireframe
             m_localPath = (string)data["m_localPath"];
             m_zippedFilesName = (string)data["m_fileName"];
             m_zipContent = (bool)data["m_zipContent"];
+
+            if (data.TryGetValue("m_duplicateFileHandling", out object handling) && handling is long)
+            {
+                m_duplicateFileHandling = (Utils.FileExistHandling)(long)handling;
+            }
+            else
+            {
+                m_duplicateFileHandling = Utils.FileExistHandling.Error;
+            }
         }
     }
 }

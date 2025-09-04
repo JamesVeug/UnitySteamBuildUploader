@@ -65,6 +65,7 @@ namespace Wireframe
 
             public string name;
             public string tooltip;
+            public bool installed;
             public GUIContent title;
             public BuildTarget defaultTarget;
             public BuildTargetGroup targetGroup;
@@ -253,6 +254,7 @@ namespace Wireframe
                 var nameField = platformType.GetField("name", BindingFlags.Instance | BindingFlags.Public);
                 var titleField = platformType.GetProperty("title", BindingFlags.Instance | BindingFlags.Public);
                 var tooltipField = platformType.GetField("tooltip", BindingFlags.Instance | BindingFlags.Public);
+                var installedField = platformType.GetField("installed", BindingFlags.Instance | BindingFlags.Public);
                 var defaultTargetField = platformType.GetField("defaultTarget", BindingFlags.Instance | BindingFlags.Public);
                 var subtargetField = platformType.GetField("subtarget", BindingFlags.Instance | BindingFlags.Public);
                 var targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
@@ -261,6 +263,7 @@ namespace Wireframe
                 string name = (string)nameField.GetValue(platform);
                 GUIContent title = (GUIContent)titleField.GetValue(platform);
                 string tooltip = (string)tooltipField.GetValue(platform);
+                bool installed = (bool)installedField.GetValue(platform);
                 int subTarget = subtargetField != null ? (int)subtargetField.GetValue(platform) : 0;
                 BuildTarget defaultTargetValue = (BuildTarget)defaultTargetField.GetValue(platform);
                 BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
@@ -289,6 +292,7 @@ namespace Wireframe
                     name = name,
                     tooltip = tooltip,
                     title = title,
+                    installed = installed,
                     defaultTarget = defaultTargetValue,
                     targetGroup = targetGroupValue,
                     subTarget = subTarget
@@ -470,6 +474,19 @@ namespace Wireframe
             }
 
             return targets;
+        }
+
+        public static BuildPlatform GetBuildPlatform(BuildTargetGroup targetGroup, BuildTarget target, int subTarget)
+        {
+            foreach (var platform in ValidPlatforms)
+            {
+                if (platform.targetGroup == targetGroup && platform.defaultTarget == target && platform.subTarget == subTarget)
+                {
+                    return platform;
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -282,9 +282,9 @@ namespace Wireframe
         {
             base.TryGetErrors(errors, ctx);
             
-            if (m_BuildConfig == null)
+            if (!ValidConfig(out string reason))
             {
-                errors.Add("No BuildConfig selected. Please select a BuildConfig to use.");
+                errors.Add(reason);
             }
             else
             {
@@ -315,6 +315,40 @@ namespace Wireframe
                 
                 exitLoop: ;
             }
+        }
+
+        private bool ValidConfig(out string reason)
+        {
+            BuildConfig config = m_BuildConfig;
+            if(config == null)
+            {
+                reason = "No BuildConfig selected.";
+                return false;
+            }
+
+            bool switchPlatform = m_OverrideSwitchTargetPlatform || config.SwitchTargetPlatform;
+            if (switchPlatform)
+            {
+                BuildTarget target = Target;
+                BuildTargetGroup targetGroup = TargetGroup;
+                int subTarget = TargetPlatformSubTarget;
+
+                BuildUtils.BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
+                if (buildPlatform == null)
+                {
+                    reason = $"The selected target platform {target} ({targetGroup}) is not valid.";
+                    return false;
+                }
+                
+                if (!buildPlatform.installed)
+                {
+                    reason = $"The selected target platform {buildPlatform.DisplayName} is not installed.";
+                    return false;
+                }
+            }
+            
+            reason = "";
+            return true;
         }
 
         public override Dictionary<string, object> Serialize()

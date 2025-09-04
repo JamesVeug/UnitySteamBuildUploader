@@ -85,7 +85,7 @@ namespace Wireframe
                                     "This will change your Player settings and Editor settings", 
                                     "Apply", "Cancel"))
                             {
-                                ApplySettings(context);
+                                ApplySettings(true, context);
                             }
                         }
                     }
@@ -236,24 +236,28 @@ namespace Wireframe
                         {
                             GUIContent label = new GUIContent("Target Platform:", "The platform to build for. This will be used if 'Override Platform' is enabled.");
                             GUILayout.Label(label, GUILayout.Width(150));
-                            BuildTargetGroup newTargetGroup =
-                                (BuildTargetGroup)EditorGUILayout.EnumPopup(TargetPlatform);
-                            if (newTargetGroup != TargetPlatform)
+
+                            (BuildTargetGroup buildTargetGroup, int newSubTarget, BuildTarget newTarget) = BuildUtils.DrawPlatformPopup(TargetPlatform, TargetPlatformSubTarget, Target);
+                            if (buildTargetGroup != TargetPlatform || newSubTarget != TargetPlatformSubTarget || newTarget != Target)
                             {
-                                TargetPlatform = newTargetGroup;
+                                TargetPlatform = buildTargetGroup;
+                                TargetPlatformSubTarget = newSubTarget;
+                                Target = newTarget;
                                 dirty = true;
                             }
                         }
 
-                        using (new EditorGUILayout.HorizontalScope())
-                        {
-                            GUIContent label = new GUIContent("Target Architecture:", "The Architecture version to build for. This will be used if 'Override Platform' is enabled.");
-                            GUILayout.Label(label, GUILayout.Width(150));
-                            BuildUtils.Architecture newArchitecture = (BuildUtils.Architecture)EditorGUILayout.EnumPopup(TargetArchitecture);
-                            if (newArchitecture != TargetArchitecture)
+                        if(TargetPlatform == BuildTargetGroup.Standalone){
+                            using (new EditorGUILayout.HorizontalScope())
                             {
-                                TargetArchitecture = newArchitecture;
-                                dirty = true;
+                                GUIContent label = new GUIContent("Target Architecture:", "The Architecture version to build for. This will be used if 'Override Platform' is enabled.");
+                                GUILayout.Label(label, GUILayout.Width(150));
+                                BuildUtils.Architecture newArchitecture = BuildUtils.DrawArchitecturePopup(TargetPlatform, Target, TargetArchitecture);
+                                if (newArchitecture != TargetArchitecture)
+                                {
+                                    TargetArchitecture = newArchitecture;
+                                    dirty = true;
+                                }
                             }
                         }
                     }

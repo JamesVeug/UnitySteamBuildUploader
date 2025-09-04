@@ -25,6 +25,8 @@ namespace Wireframe
         // Platform specific settings
         public bool SwitchTargetPlatform = false;
         public BuildTargetGroup TargetPlatform;
+        public int TargetPlatformSubTarget;
+        public BuildTarget Target;
         public BuildUtils.Architecture TargetArchitecture;
         public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes;
         public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
@@ -45,7 +47,7 @@ namespace Wireframe
             
             SwitchTargetPlatform = false;
             TargetPlatform = BuildTargetGroup.Unknown;
-            TargetArchitecture = BuildUtils.Architecture.Unknown;
+            TargetArchitecture = BuildUtils.Architecture.x64;
             StrippingLevel = ManagedStrippingLevel.Disabled;
             ScriptingBackend = ScriptingImplementation.Mono2x;
             StackTraceLogTypes = new Dictionary<LogType, StackTraceLogType>();
@@ -70,6 +72,8 @@ namespace Wireframe
             EnableDeepProfilingSupport = EditorUserBuildSettings.buildWithDeepProfilingSupport;
             
             TargetPlatform = BuildUtils.BuildTargetToPlatform();
+            Target = BuildUtils.CurrentTargetPlatform();
+            TargetPlatformSubTarget = BuildUtils.CurrentSubTarget();
             TargetArchitecture = BuildUtils.CurrentTargetArchitecture();
             StackTraceLogTypes = BuildUtils.CurrentStackTraceLogTypes();
             StrippingLevel = BuildUtils.CurrentStrippingLevel();
@@ -111,6 +115,8 @@ namespace Wireframe
                 { "EnableDeepProfilingSupport", EnableDeepProfilingSupport },
                 { "SwitchTargetPlatform", SwitchTargetPlatform },
                 { "TargetPlatform", TargetPlatform.ToString() },
+                { "TargetPlatformSubTarget", TargetPlatformSubTarget },
+                { "Target", Target.ToString() },
                 { "TargetArchitecture", TargetArchitecture.ToString() },
                 { "StackTraceLogTypes", StackTraceLogTypes.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()) },
                 { "StrippingLevel", StrippingLevel.ToString() },
@@ -255,6 +261,39 @@ namespace Wireframe
                 TargetPlatform = BuildUtils.BuildTargetToPlatform();
             }
             
+            if (dict.TryGetValue("TargetPlatformSubTarget", out var targetPlatformSubTargetData) && targetPlatformSubTargetData is long targetPlatformSubTargetLong)
+            {
+                TargetPlatformSubTarget = (int)targetPlatformSubTargetLong;
+            }
+            else
+            {
+                if (TargetPlatform == BuildTargetGroup.Standalone)
+                {
+                    TargetPlatformSubTarget = (int)StandaloneBuildSubtarget.Player;
+                }
+                else
+                {
+                    TargetPlatformSubTarget = 0;
+                }
+            }
+            
+            if (dict.TryGetValue("Target", out var targetData) && targetData is string targetStr)
+            {
+                if (Enum.TryParse(targetStr, out BuildTarget target))
+                {
+                    Target = target;
+                }
+                else
+                {
+                    Debug.LogWarning($"Invalid Target value: {targetStr}. Defaulting to current target.");
+                    Target = CalculateTarget();
+                }
+            }
+            else
+            {
+                Target = CalculateTarget();
+            }
+            
             if (dict.TryGetValue("TargetArchitecture", out var targetArchitectureData) && targetArchitectureData is string targetArchitectureStr)
             {
                 if (Enum.TryParse(targetArchitectureStr, out BuildUtils.Architecture targetArchitecture))
@@ -264,7 +303,7 @@ namespace Wireframe
                 else
                 {
                     Debug.LogWarning($"Invalid TargetArchitecture value: {targetArchitectureStr}. Defaulting to Unknown.");
-                    TargetArchitecture = BuildUtils.Architecture.Unknown;
+                    TargetArchitecture = BuildUtils.Architecture.x64;
                 }
             }
             else
@@ -354,38 +393,15 @@ namespace Wireframe
             return buildOptions;
         }
 
-        public bool ApplySettings(StringFormatter.Context context, UploadTaskReport.StepResult stepResult = null)
+        public bool ApplySettings(bool switchPlatform, StringFormatter.Context context, UploadTaskReport.StepResult stepResult = null)
         {
             // Switch to the build target if necessary
-            if (SwitchTargetPlatform)
+            if (switchPlatform && SwitchTargetPlatform)
             {
-                BuildTarget buildTarget = CalculateTarget();
-                if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
+                if (!BuildUtils.TrySwitchPlatform(TargetPlatform, TargetPlatformSubTarget, Target, TargetArchitecture, stepResult))
                 {
-                    stepResult?.AddLog($"Switching build target to {buildTarget}");
-                    bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(TargetPlatform, buildTarget);
-                    if (!switched)
-                    {
-                        stepResult?.AddError($"Failed to switch build target to {buildTarget}");
-                        stepResult?.SetFailed(
-                            "Failed to switch build target. Please check the console for more details.");
-                        return false;
-                    }
-                    else if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
-                    {
-                        stepResult?.AddError(
-                            $"Failed to switch build target to {buildTarget}. Current target is {EditorUserBuildSettings.activeBuildTarget}");
-                        stepResult?.SetFailed(
-                            "Failed to switch build target. Please check the console for more details.");
-                        return false;
-                    }
-
-                    stepResult?.AddLog($"Switched build target to {TargetPlatform}");
+                    return false;
                 }
-            }
-            else
-            {
-                stepResult?.AddLog($"Override Target Platform is disabled so using current platform {EditorUserBuildSettings.activeBuildTarget}");
             }
 
             PlayerSettings.productName = StringFormatter.FormatString(ProductName, context);
@@ -393,12 +409,10 @@ namespace Wireframe
 #if UNITY_2021_1_OR_NEWER
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), StrippingLevel);
-            PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), (int)TargetArchitecture);
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), ScriptingBackend);
 #else
             PlayerSettings.SetScriptingDefineSymbolsForGroup(TargetPlatform, string.Join(";", defines));
             PlayerSettings.SetManagedStrippingLevel(TargetPlatform, StrippingLevel);
-            PlayerSettings.SetArchitecture(TargetPlatform, (int)TargetArchitecture);
             PlayerSettings.SetScriptingBackend(TargetPlatform, ScriptingBackend);
 #endif
             PlayerSettings.SetStackTraceLogType(LogType.Error, StackTraceLogTypes[LogType.Error]);
@@ -429,47 +443,13 @@ namespace Wireframe
 
         public BuildTarget CalculateTarget()
         {
-            BuildTarget currentTarget = BuildTarget.NoTarget;
-            switch (TargetPlatform)
+            List<BuildTarget> targets = BuildUtils.ValidTargetsForPlatform(TargetPlatform);
+            if (targets.Count > 0)
             {
-                case BuildTargetGroup.Standalone:
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                    if (TargetArchitecture == BuildUtils.Architecture.x86_64)
-                    {
-                        // 64 bit
-                        currentTarget = BuildTarget.StandaloneWindows64;
-                    }
-                    else
-                    {
-                        // 32 bit
-                        currentTarget = BuildTarget.StandaloneWindows; // Default to Windows for Standalone
-                    }
-#elif UNITY_EDITOR_OSX
-                    // Use SetArchitecture to define 32bit / 64bit
-                    currentTarget = BuildTarget.StandaloneOSX;
-#elif UNITY_STANDALONE_LINUX || UNITY_EDITOR_LINUX
-                    if (TargetArchitecture == Architecture.x86_64)
-                    {
-                        // 64 bit
-                        currentTarget = BuildTarget.StandaloneLinux64;
-                    }
-                    else
-                    {
-                        // 32 bit
-                        throw new NotSupportedException("32-bit Linux builds are not supported. Please use StandaloneLinux64.");
-                    }
-#else
-                    throw new NotSupportedException("Unsupported standalone platform. Please specify a valid architecture for Standalone builds.");
-#endif
-                    break;
-                case BuildTargetGroup.WebGL:
-                    currentTarget = BuildTarget.WebGL;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                return targets[0];
             }
 
-            return currentTarget;
+            return BuildTarget.NoTarget;
         }
 
         public string GetFormattedProductName(StringFormatter.Context ctx)

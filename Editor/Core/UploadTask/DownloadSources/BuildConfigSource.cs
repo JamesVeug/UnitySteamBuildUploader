@@ -22,13 +22,30 @@ namespace Wireframe
     public partial class BuildConfigSource : AUploadSource
     {
         public BuildConfig BuildConfig => m_BuildConfig;
+        public BuildTarget Target => m_OverrideSwitchTargetPlatform ? m_Target : m_BuildConfig.Target;
+        public BuildUtils.Architecture Architecture => m_OverrideSwitchTargetPlatform ? m_TargetArchitecture : m_BuildConfig.TargetArchitecture;
+        public int TargetPlatformSubTarget => m_OverrideSwitchTargetPlatform ? m_TargetPlatformSubTarget : m_BuildConfig.TargetPlatformSubTarget;
+        public BuildTargetGroup TargetGroup => m_OverrideSwitchTargetPlatform ? m_TargetPlatform : m_BuildConfig.TargetPlatform;
 
         [Wiki("BuildConfig", "Which config to use when creating a build")]
         private BuildConfig m_BuildConfig = null;
+
+        [Wiki("Override Target Platform", "If enabled, the target platform and architecture specified below will be used instead of the one in the BuildConfig")]
+        private bool m_OverrideSwitchTargetPlatform;
+        
+        [Wiki("Target Platform", "The target platform to switch to before building. Only used if 'Override Switch Target Platform' is enabled.")]
+        private BuildTarget m_Target;
+        
+        [Wiki("Target Architecture", "The target architecture to build for. Only used if 'Override Switch Target Platform' is enabled and the target platform supports multiple architectures.")]
+        private BuildUtils.Architecture m_TargetArchitecture;
         
         [Wiki("Clean Build", "If enabled, the build folder will be deleted before building. This ensures a fresh build but may increase build time.")]
         private bool m_CleanBuild = false;
-
+        
+        // Also serialized but not exposed to WIKI
+        private BuildTargetGroup m_TargetPlatform;
+        private int m_TargetPlatformSubTarget;
+        
         private string m_filePath = "";
         private bool m_appliedSettings = false;
         private BuildMetaData m_buildMetaData = null;
@@ -119,15 +136,12 @@ namespace Wireframe
                     m_editorSettingsBeforeUpload.SetEditorSettings();
                     m_editorSettingsBeforeUpload.SwitchTargetPlatform = true;
                 }
-                
-                stepResult.AddLog($"Applying settings");
-                if (!m_BuildConfig.ApplySettings(ctx, stepResult))
+
+                if (!ApplyBuildConfig(stepResult, ctx))
                 {
-                    stepResult.SetFailed("Failed to apply build settings. Please check the console for more details.");
                     return false;
                 }
-                stepResult.AddLog($"Build settings applied");
-            
+
                 // Get all enabled scenes in build settings
                 BuildOptions buildOptions = m_BuildConfig.GetBuildOptions();
 #if UNITY_2021_2_OR_NEWER
@@ -219,6 +233,29 @@ namespace Wireframe
             return false;
         }
 
+        private bool ApplyBuildConfig(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        {
+            if (m_OverrideSwitchTargetPlatform)
+            {
+                stepResult?.AddLog($"Overriding target platform is enabled to switching to {Target} ({TargetGroup})");
+                if (!BuildUtils.TrySwitchPlatform(TargetGroup, TargetPlatformSubTarget, Target, Architecture, stepResult))
+                {
+                    stepResult?.SetFailed("Failed to switch target platform. Please check the console for more details.");
+                    return false;
+                }
+            }
+                
+            stepResult?.AddLog($"Applying settings");
+            if (!m_BuildConfig.ApplySettings(!m_OverrideSwitchTargetPlatform, ctx, stepResult))
+            {
+                stepResult?.SetFailed("Failed to apply build settings. Please check the console for more details.");
+                return false;
+            }
+            
+            stepResult?.AddLog($"Build settings applied");
+            return true;
+        }
+
         private BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             BuildReport report = BuildPipeline.BuildPlayer(options);
@@ -285,6 +322,11 @@ namespace Wireframe
             return new Dictionary<string, object>
             {
                 { "BuildConfig", m_BuildConfig != null ? m_BuildConfig.GUID : "" },
+                { "OverrideSwitchTargetPlatform", m_OverrideSwitchTargetPlatform },
+                { "TargetPlatform", m_TargetPlatform.ToString() },
+                { "TargetPlatformSubTarget", m_TargetPlatformSubTarget },
+                { "Target", m_Target.ToString() },
+                { "TargetArchitecture", (int)m_TargetArchitecture },
                 { "CleanBuild", m_CleanBuild },
             };
         }
@@ -302,6 +344,51 @@ namespace Wireframe
             else
             {
                 Debug.LogWarning("BuildConfig GUID not found in serialized data.");
+            }
+            
+            if (data.TryGetValue("OverrideSwitchTargetPlatform", out var overrideSwitchTargetPlatformObj) && overrideSwitchTargetPlatformObj is bool overrideSwitchTargetPlatform)
+            {
+                m_OverrideSwitchTargetPlatform = overrideSwitchTargetPlatform;
+            }
+            else
+            {
+                m_OverrideSwitchTargetPlatform = false;
+            }
+            
+            if (data.TryGetValue("TargetPlatform", out var targetPlatformObj) && targetPlatformObj is string targetPlatformStr && Enum.TryParse<BuildTargetGroup>(targetPlatformStr, out var targetPlatform))
+            {
+                m_TargetPlatform = targetPlatform;
+            }
+            else
+            {
+                m_TargetPlatform = BuildTargetGroup.Standalone;
+            }
+            
+            if (data.TryGetValue("TargetPlatformSubTarget", out var targetPlatformSubTargetObj) && targetPlatformSubTargetObj is int targetPlatformSubTarget)
+            {
+                m_TargetPlatformSubTarget = targetPlatformSubTarget;
+            }
+            else
+            {
+                m_TargetPlatformSubTarget = (int)StandaloneBuildSubtarget.Player;
+            }
+            
+            if (data.TryGetValue("Target", out var targetObj) && targetObj is string targetStr && Enum.TryParse<BuildTarget>(targetStr, out var target))
+            {
+                m_Target = target;
+            }
+            else
+            {
+                m_Target = BuildTarget.StandaloneWindows64;
+            }
+            
+            if (data.TryGetValue("TargetArchitecture", out var targetArchitectureObj) && targetArchitectureObj is int targetArchitecture)
+            {
+                m_TargetArchitecture = (BuildUtils.Architecture)targetArchitecture;
+            }
+            else
+            {
+                m_TargetArchitecture = BuildUtils.Architecture.x64;
             }
             
             if (data.TryGetValue("CleanBuild", out var cleanBuildObj) && cleanBuildObj is bool cleanBuild)
@@ -348,8 +435,8 @@ namespace Wireframe
                 BuildConfig buildConfig = m_editorSettingsBeforeUpload;
                 m_editorSettingsBeforeUpload = null;
 
-                result.AddLog("Restoring previous editor settings...");
-                bool successful = buildConfig.ApplySettings(ctx);
+                result.AddLog($"Restoring previous editor settings... {buildConfig.TargetPlatform} ({buildConfig.TargetPlatformSubTarget}) {buildConfig.Target} {buildConfig.TargetArchitecture}");
+                bool successful = buildConfig.ApplySettings(true, ctx);
                 if (!successful)
                 {
                     result.AddError("Failed to restore previous build settings!");

@@ -8,7 +8,7 @@ namespace Wireframe
         private static Dictionary<string, Func<BuildConfig, string>> s_StringGetters = new()
         {
             { StringFormatter.PRODUCT_NAME_KEY, (b) => b.ProductName },
-            { StringFormatter.BUILD_TARGET_KEY, (b) => b.CalculateTarget().ToString() },
+            { StringFormatter.BUILD_TARGET_KEY, (b) => b.Target.ToString() },
             { StringFormatter.BUILD_TARGET_GROUP_KEY, (b) => b.TargetPlatform.ToString() },
             { StringFormatter.SCRIPTING_BACKEND_KEY, (b) => b.ScriptingBackend.ToString() },
             { StringFormatter.BUILD_NAME_KEY, (b) => b.BuildName }

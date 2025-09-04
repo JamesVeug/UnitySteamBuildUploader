@@ -33,7 +33,7 @@ namespace Wireframe
         static StringFormatter()
         {
             Commands = new List<Command>();
-            Commands.Add(new Command(PRODUCT_NAME_KEY, nameof(Context.ProjectName), "The name of your product as specified in Player Settings."));
+            Commands.Add(new Command(PRODUCT_NAME_KEY, nameof(Context.ProductName), "The name of your product as specified in Player Settings."));
             Commands.Add(new Command(BUNDLE_VERSION_KEY, nameof(Context.BundleVersion), "The version of your project as specified in Player Settings."));
             Commands.Add(new Command(COMPANY_NAME_KEY, nameof(Context.CompanyName), "The name of your company as specified in Player Settings."));
             Commands.Add(new Command(BUILD_TARGET_KEY, nameof(Context.buildTarget), "Which platform targeting for the next build as defined in Build Settings."));
@@ -51,7 +51,7 @@ namespace Wireframe
             Commands.Add(new Command(TASK_DESCRIPTION_KEY, nameof(Context.TaskDescription), "The description of the current task being executed."));
             Commands.Add(new Command(TASK_FAILED_REASONS_KEY, nameof(Context.UploadTaskFailText), "Gets the reasons why the task failed to upload all destinations."));
             Commands.Add(new Command(BUILD_NAME_KEY, nameof(Context.BuildName), "The name of the build as specified in a build config."));
-            Commands.Add(new Command(BUILD_NUMBER_KEY, nameof(Context.BuildNumber), "The unique number of the build that is produced."));
+            Commands.Add(new Command(BUILD_NUMBER_KEY, nameof(Context.BuildNumber), "The unique number of the build that is produced if enabled in Project Settings."));
         }
 
         internal class Command
@@ -83,7 +83,7 @@ namespace Wireframe
         {
             private class DoNotCacheAttribute : Attribute { }
             
-            public Func<string> ProjectName { get; set; } = ()=> PlayerSettings.productName;
+            public Func<string> ProductName { get; set; } = ()=> PlayerSettings.productName;
             public Func<string> BundleVersion { get; set; } = ()=> PlayerSettings.bundleVersion;
             public Func<string> CompanyName { get; set; } = ()=> PlayerSettings.companyName;
             

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -26,7 +25,15 @@ namespace Wireframe
         }
 
         private static List<SceneData> data = null;
+        private static string[] sceneNames = null;
+        private static string[] scenePaths = null;
+        
 
+        public static void ReloadScenes()
+        {
+            LoadFile();
+        }
+        
         public static List<SceneData> GetScenes()
         {
             if (data == null)
@@ -34,6 +41,24 @@ namespace Wireframe
                 LoadFile();
             }
             return data;
+        }
+        
+        public static string[] GetSceneNames()
+        {
+            if (data == null)
+            {
+                GetScenes();
+            }
+            return sceneNames;
+        }
+        
+        public static string[] GetScenePaths()
+        {
+            if (data == null)
+            {
+                GetScenes();
+            }
+            return scenePaths;
         }
 
         private static void LoadFile()
@@ -51,6 +76,16 @@ namespace Wireframe
                     DisplayName = fileName
                 });
             }
+            
+            sceneNames = new string[data.Count];
+            scenePaths = new string[data.Count];
+            for (int i = 0; i < data.Count; i++)
+            {
+                sceneNames[i] = data[i].DisplayName;
+                scenePaths[i] = data[i].Path;
+            }
+
+            ScenesPopup.Refresh();
         }
 
         public static ScenePopup ScenesPopup => m_ScenePopup ?? (m_ScenePopup = new ScenePopup());

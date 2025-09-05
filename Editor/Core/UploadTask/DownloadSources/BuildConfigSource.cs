@@ -9,6 +9,7 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace Wireframe
 {
@@ -319,6 +320,23 @@ namespace Wireframe
             if(config == null)
             {
                 reason = "No BuildConfig selected.";
+                return false;
+            }
+
+            // Check scene files exist
+            string[] scenes = SceneUIUtils.GetScenePaths();
+            List<string> invalidScenes = new List<string>();
+            foreach (string scene in config.Scenes)
+            {
+                if (Array.IndexOf(scenes, scene) == -1)
+                {
+                    invalidScenes.Add($"'{scene}' not found.");
+                }
+            }
+            
+            if (invalidScenes.Count > 0)
+            {
+                reason = $"Invalid scenes: {string.Join(", ", invalidScenes)}";
                 return false;
             }
 

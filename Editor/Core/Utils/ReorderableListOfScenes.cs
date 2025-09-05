@@ -7,17 +7,11 @@ namespace Wireframe
 {
     public class ReorderableListOfScenes : InternalReorderableList<string>
     {
-        private static string[] _allSceneNames;
-        private static string[] _allScenePaths;
-
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
-            if (_allSceneNames == null || _allScenePaths == null)
-            {
-                _allSceneNames = SceneUIUtils.GetScenes().Select(s => s.DisplayName).ToArray();
-                _allScenePaths = SceneUIUtils.GetScenes().Select(s => s.Path).ToArray();
-            }
-            
+            string[] _allScenePaths = SceneUIUtils.GetScenePaths();
+            string[] _allSceneNames = SceneUIUtils.GetSceneNames();
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 string element = list[index];
@@ -69,6 +63,21 @@ namespace Wireframe
             });
             
             return menu;
+        }
+
+        protected override bool DrawHeader()
+        {
+            bool openFolderOut = base.DrawHeader();
+
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("Refresh Scenes", EditorStyles.miniButton, GUILayout.Width(100)))
+            {
+                SceneUIUtils.ReloadScenes();
+            }
+
+
+            return openFolderOut;
         }
 
         protected override string CreateItem(int index)

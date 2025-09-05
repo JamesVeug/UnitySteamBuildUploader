@@ -1,11 +1,29 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Wireframe {
     public class BuildUploaderWelcomeWindow : EditorWindow
     {
+        private class VersionData
+        {
+            public string title;
+            public bool foldoutOpen;
+            public string[] lines;
+            
+            public VersionData(string title, string[] lines)
+            {
+                this.title = title;
+                this.lines = lines;
+                foldoutOpen = false;
+            }
+        }
+
+        private GUIStyle headerStyle;
         private Vector2 scrollPosition;
+        
+        private List<VersionData> parsedChangeLog;
         
         [MenuItem("Window/Build Uploader/Welcome", false, 0)]
         public static void ShowWindow()
@@ -22,6 +40,8 @@ namespace Wireframe {
 
         private void OnGUI()
         {
+            Parse();
+            
             GUILayout.Label("Need help setting up the Build Uploader?");
 
             GUIStyle style = GUI.skin.label;
@@ -30,6 +50,7 @@ namespace Wireframe {
 
             Links();
 
+            EditorGUILayout.Space();
             GUILayout.Label("Changelog");
             using (new EditorGUILayout.VerticalScope("box"))
             {
@@ -37,19 +58,89 @@ namespace Wireframe {
             }
         }
 
-        private void Changes()
+        private void Parse()
         {
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
+            if (parsedChangeLog != null)
+            {
+                return;
+            }
+            
+            headerStyle = new GUIStyle(EditorStyles.boldLabel);
+            headerStyle.fontSize = 24;
+            
             var path = "Packages/com.veugeljame.builduploader/CHANGELOG.md";
             Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(path, typeof(TextAsset));
             string allText = loadAssetAtPath is TextAsset textAsset ? textAsset.text : "";
             string[] lines = allText.Split('\n');
             
+            // group by any that start with '# '
+            parsedChangeLog = new List<VersionData>();
+            int startingIndex = 0;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("# "))
+                {
+                    if (i > startingIndex)
+                    {
+                        List<string> entryLines = new List<string>();
+                        for (int j = startingIndex + 1; j < i - 1; j++)
+                        {
+                            string line = lines[j];
+                            if (entryLines.Count == 0 && line.Trim().Length == 0)
+                            {
+                                continue;
+                            }
+
+                            entryLines.Add(line);
+                        }
+                        
+                        lines[startingIndex] = "v" + lines[startingIndex].Substring(1).Trim();
+                        parsedChangeLog.Add(new VersionData(lines[startingIndex], entryLines.ToArray()));
+                    }
+                    startingIndex = i;
+                }
+            }
+        }
+
+        private void Changes()
+        {
+            GUIStyle foldoutStyle = new GUIStyle(EditorStyles.foldout);
+            foldoutStyle.fontSize = 18;
+            
+            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+            
+            for (int i = 0; i < parsedChangeLog.Count; i++)
+            {
+                VersionData data = parsedChangeLog[i];
+                data.foldoutOpen = EditorGUILayout.Foldout(data.foldoutOpen, data.title, true, foldoutStyle);
+                if (!data.foldoutOpen)
+                {
+                    continue;
+                }
+                
+                EditorGUI.indentLevel++;
+                using (new EditorGUILayout.VerticalScope("box"))
+                {
+                    Draw(data.lines);
+                }
+                EditorGUI.indentLevel--;
+                
+                if (i != 0)
+                {
+                    GUILayout.Space(10);
+                    GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
+                    GUILayout.Space(10);
+                }
+            }
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void Draw(string[] lines)
+        {
             // Draw allText as markdown
             // # is header
             // - bullet point
-
             for (int i = 0; i < lines.Length; i++)
             {
                 GUIStyle style = new GUIStyle(GUI.skin.label);
@@ -72,8 +163,7 @@ namespace Wireframe {
                 {
                     // Header
                     line = line.Substring(1).Trim();
-                    style = new GUIStyle(EditorStyles.boldLabel);
-                    style.fontSize = 24;
+                    style = headerStyle;
                 }
                 else if (line.Trim().StartsWith("-"))
                 {
@@ -155,10 +245,6 @@ namespace Wireframe {
                 
                 EditorGUILayout.LabelField(line, style);
             }
-            
-            
-
-            EditorGUILayout.EndScrollView();
         }
 
         private static void Links()

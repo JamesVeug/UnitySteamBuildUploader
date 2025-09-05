@@ -486,7 +486,7 @@ namespace Wireframe
         {
             if (m_OverrideSwitchTargetPlatform)
                 return m_Target;
-            if (m_BuildConfig.SwitchTargetPlatform)
+            if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)
                 return m_BuildConfig.Target;
             return BuildUtils.CurrentTargetPlatform();
         }
@@ -495,7 +495,7 @@ namespace Wireframe
         {
             if (m_OverrideSwitchTargetPlatform)
                 return m_TargetArchitecture;
-            if (m_BuildConfig.SwitchTargetPlatform)
+            if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)
                 return m_BuildConfig.TargetArchitecture;
             return BuildUtils.CurrentTargetArchitecture();
         }
@@ -504,7 +504,7 @@ namespace Wireframe
         {
             if (m_OverrideSwitchTargetPlatform)
                 return m_TargetPlatformSubTarget;
-            if (m_BuildConfig.SwitchTargetPlatform)
+            if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)
                 return m_BuildConfig.TargetPlatformSubTarget;
             return BuildUtils.CurrentSubTarget();
         }
@@ -513,7 +513,7 @@ namespace Wireframe
         {
             if (m_OverrideSwitchTargetPlatform)
                 return m_TargetPlatform;
-            if (m_BuildConfig.SwitchTargetPlatform)
+            if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)
                 return m_BuildConfig.TargetPlatform;
             return BuildUtils.BuildTargetToPlatform();
         }

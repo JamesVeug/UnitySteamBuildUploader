@@ -421,7 +421,12 @@ namespace Wireframe
                 EditorUserBuildSettings.standaloneBuildSubtarget = (StandaloneBuildSubtarget)subTarget;
                 MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("SwitchActiveBuildTargetAndSubtarget",
                     BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-                methodInfo.Invoke(null, new object[] { target, subTarget });
+                bool successful = (bool)methodInfo.Invoke(null, new object[] { target, subTarget });
+                if (!successful)
+                {
+                    Debug.LogError($"Failed to switch build target to {targetPlatform} - {target} - {subTarget}");
+                    return false;
+                }
                 
 #if UNITY_2021_1_OR_NEWER
                 PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(targetPlatform), (int)architecture);

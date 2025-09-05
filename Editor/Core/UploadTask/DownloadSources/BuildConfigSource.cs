@@ -517,5 +517,13 @@ namespace Wireframe
                 return m_BuildConfig.TargetPlatform;
             return BuildUtils.BuildTargetToPlatform();
         }
+
+        public BuildUtils.BuildPlatform ResultingPlatform()
+        {
+            BuildTargetGroup group = ResultingTargetGroup();
+            BuildTarget target = ResultingTarget();
+            int subTarget = ResultingTargetPlatformSubTarget();
+            return BuildUtils.GetBuildPlatform(group, target, subTarget);
+        }
     }
 }

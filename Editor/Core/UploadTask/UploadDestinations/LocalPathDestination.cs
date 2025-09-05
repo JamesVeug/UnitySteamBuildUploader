@@ -31,12 +31,16 @@ namespace Wireframe
             // Required for reflection
         }
         
-        public LocalPathDestination(string localPath, string fileName, bool zipContent, Utils.FileExistHandling duplicateFileHandling) : base()
+        public LocalPathDestination(string localPath, Utils.FileExistHandling duplicateFileHandling = Utils.FileExistHandling.Overwrite) : base()
         {
             m_localPath = localPath;
-            m_zippedFilesName = fileName;
-            m_zipContent = zipContent;
             m_duplicateFileHandling = duplicateFileHandling;
+        }
+
+        public void ZipContents(string zippedFileName)
+        {
+            m_zipContent = true;
+            m_zippedFilesName = zippedFileName;
         }
 
         private string FullPath(StringFormatter.Context ctx)

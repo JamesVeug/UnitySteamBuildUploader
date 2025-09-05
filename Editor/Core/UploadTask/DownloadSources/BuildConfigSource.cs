@@ -394,9 +394,9 @@ namespace Wireframe
                 m_TargetPlatform = BuildTargetGroup.Standalone;
             }
             
-            if (data.TryGetValue("TargetPlatformSubTarget", out var targetPlatformSubTargetObj) && targetPlatformSubTargetObj is int targetPlatformSubTarget)
+            if (data.TryGetValue("TargetPlatformSubTarget", out var targetPlatformSubTargetObj) && targetPlatformSubTargetObj is long targetPlatformSubTarget)
             {
-                m_TargetPlatformSubTarget = targetPlatformSubTarget;
+                m_TargetPlatformSubTarget = (int)targetPlatformSubTarget;
             }
             else
             {

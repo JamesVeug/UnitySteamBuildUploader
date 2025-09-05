@@ -12,7 +12,7 @@ namespace Wireframe
             bool useSourceSettings = m_OverrideSwitchTargetPlatform;
             using (new EditorGUI.DisabledScope(!useSourceSettings))
             {
-                (BuildTargetGroup newTargetGroup, int newSubTarget, BuildTarget newTarget) result = BuildUtils.DrawPlatformPopup(TargetGroup, TargetPlatformSubTarget, Target);
+                (BuildTargetGroup newTargetGroup, int newSubTarget, BuildTarget newTarget) result = BuildUtils.DrawPlatformPopup(ResultingTargetGroup(), ResultingTargetPlatformSubTarget(), ResultingTarget());
                 if (useSourceSettings)
                 {
                     if (result.newTargetGroup != m_TargetPlatform || result.newSubTarget != m_TargetPlatformSubTarget || result.newTarget != m_Target)
@@ -24,7 +24,7 @@ namespace Wireframe
                     }
                 }
                 
-                BuildUtils.Architecture newArchitecture = BuildUtils.DrawArchitecturePopup(TargetGroup, Target, Architecture);
+                BuildUtils.Architecture newArchitecture = BuildUtils.DrawArchitecturePopup(ResultingTargetGroup(), ResultingTarget(), ResultingArchitecture());
                 if (useSourceSettings && newArchitecture != m_TargetArchitecture)
                 {
                     m_TargetArchitecture = newArchitecture;

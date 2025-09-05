@@ -22,10 +22,6 @@ namespace Wireframe
     public partial class BuildConfigSource : AUploadSource
     {
         public BuildConfig BuildConfig => m_BuildConfig;
-        public BuildTarget Target => m_OverrideSwitchTargetPlatform ? m_Target : m_BuildConfig.Target;
-        public BuildUtils.Architecture Architecture => m_OverrideSwitchTargetPlatform ? m_TargetArchitecture : m_BuildConfig.TargetArchitecture;
-        public int TargetPlatformSubTarget => m_OverrideSwitchTargetPlatform ? m_TargetPlatformSubTarget : m_BuildConfig.TargetPlatformSubTarget;
-        public BuildTargetGroup TargetGroup => m_OverrideSwitchTargetPlatform ? m_TargetPlatform : m_BuildConfig.TargetPlatform;
 
         [Wiki("BuildConfig", "Which config to use when creating a build")]
         private BuildConfig m_BuildConfig = null;
@@ -237,8 +233,8 @@ namespace Wireframe
         {
             if (m_OverrideSwitchTargetPlatform)
             {
-                stepResult?.AddLog($"Overriding target platform is enabled to switching to {Target} ({TargetGroup})");
-                if (!BuildUtils.TrySwitchPlatform(TargetGroup, TargetPlatformSubTarget, Target, Architecture, stepResult))
+                stepResult?.AddLog($"Overriding target platform is enabled to switching to {ResultingTarget()} ({ResultingTargetGroup()})");
+                if (!BuildUtils.TrySwitchPlatform(ResultingTargetGroup(), ResultingTargetPlatformSubTarget(), ResultingTarget(), ResultingArchitecture(), stepResult))
                 {
                     stepResult?.SetFailed("Failed to switch target platform. Please check the console for more details.");
                     return false;
@@ -329,9 +325,9 @@ namespace Wireframe
             bool switchPlatform = m_OverrideSwitchTargetPlatform || config.SwitchTargetPlatform;
             if (switchPlatform)
             {
-                BuildTarget target = Target;
-                BuildTargetGroup targetGroup = TargetGroup;
-                int subTarget = TargetPlatformSubTarget;
+                BuildTarget target = ResultingTarget();
+                BuildTargetGroup targetGroup = ResultingTargetGroup();
+                int subTarget = ResultingTargetPlatformSubTarget();
 
                 BuildUtils.BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
                 if (buildPlatform == null)
@@ -484,6 +480,42 @@ namespace Wireframe
             {
                 m_lock.Release();
             }
+        }
+
+        public BuildTarget ResultingTarget()
+        {
+            if (m_OverrideSwitchTargetPlatform)
+                return m_Target;
+            if (m_BuildConfig.SwitchTargetPlatform)
+                return m_BuildConfig.Target;
+            return BuildUtils.CurrentTargetPlatform();
+        }
+
+        public BuildUtils.Architecture ResultingArchitecture()
+        {
+            if (m_OverrideSwitchTargetPlatform)
+                return m_TargetArchitecture;
+            if (m_BuildConfig.SwitchTargetPlatform)
+                return m_BuildConfig.TargetArchitecture;
+            return BuildUtils.CurrentTargetArchitecture();
+        }
+
+        public int ResultingTargetPlatformSubTarget()
+        {
+            if (m_OverrideSwitchTargetPlatform)
+                return m_TargetPlatformSubTarget;
+            if (m_BuildConfig.SwitchTargetPlatform)
+                return m_BuildConfig.TargetPlatformSubTarget;
+            return BuildUtils.CurrentSubTarget();
+        }
+
+        public BuildTargetGroup ResultingTargetGroup()
+        {
+            if (m_OverrideSwitchTargetPlatform)
+                return m_TargetPlatform;
+            if (m_BuildConfig.SwitchTargetPlatform)
+                return m_BuildConfig.TargetPlatform;
+            return BuildUtils.BuildTargetToPlatform();
         }
     }
 }

@@ -118,7 +118,10 @@ namespace Wireframe
 
                 EditorGUILayout.Space(2);
 
-                var tasks = m_loadedTasks.Concat(UploadTask.AllTasks).OrderBy(a=>a.Report.StartTime).ToArray();
+                var tasks = m_loadedTasks.Concat(UploadTask.AllTasks)
+                    .Where(a=>a.Report != null)
+                    .OrderBy(a=>a.Report.StartTime)
+                    .ToArray();
                 if (tasks.Length == 0)
                 {
                     EditorGUILayout.HelpBox("No Task started this session. Use the Upload tab to begin uploading!", MessageType.Info);

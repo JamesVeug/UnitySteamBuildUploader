@@ -371,7 +371,7 @@ namespace Wireframe
                     }
                     
                     
-                    GUIContent label = new GUIContent("Build Description", "A description of the build that will be uploaded." +
+                    GUIContent label = new GUIContent("Description", "A description of what's been uploaded." +
                                                                            "\nDescription is included in some destinations such as Steamworks so keep it short." +
                                                                            "\nGood practice is to include the version number and a short summary of the changes since the last build." +
                                                                            "\nexample: v1.2.9 - Hotfix for missing player texture and balance changes.");

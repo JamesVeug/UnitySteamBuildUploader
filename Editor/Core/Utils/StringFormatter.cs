@@ -19,6 +19,7 @@ namespace Wireframe
         public const string PROJECT_PATH_KEY = "{projectPath}";
         public const string PERSISTENT_DATA_PATH_KEY = "{persistentDataPath}";
         public const string VERSION_KEY = "{version}";
+        public const string CACHE_FOLDER_KEY = "{cacheFolderPath}";
         public const string UNITY_VERSION_KEY = "{unityVersion}";
         public const string DATE_KEY = "{date}";
         public const string TIME_KEY = "{time}";
@@ -41,6 +42,7 @@ namespace Wireframe
             Commands.Add(new Command(SCRIPTING_BACKEND_KEY, nameof(Context.scriptingBackend), "The scripting backend for the next build as defined in Player Settings."));
             Commands.Add(new Command(PROJECT_PATH_KEY, nameof(Context.ProjectPath), "The version of your project as specified in Player Settings."));
             Commands.Add(new Command(PERSISTENT_DATA_PATH_KEY, nameof(Context.PersistentDataPath), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(CACHE_FOLDER_KEY, nameof(Context.CacheFolderPath), "The path where all files and builds are stored when build uploader is working."));
             Commands.Add(new Command(VERSION_KEY, nameof(Context.Version), "The version of your project as specified in Player Settings."));
             Commands.Add(new Command(UNITY_VERSION_KEY, nameof(Context.UnityVersion), "The version of Unity you are using."));
             Commands.Add(new Command(DATE_KEY, nameof(Context.Date), "The current local date in the format YYYY-MM-DD."));
@@ -92,6 +94,7 @@ namespace Wireframe
             public Func<string> scriptingBackend { get; set; } = ()=> ScriptingBackend;
             public Func<string> ProjectPath { get; set; } = ()=> Path.GetDirectoryName(Application.dataPath);
             public Func<string> PersistentDataPath { get; set; } = ()=> Application.persistentDataPath;
+            public Func<string> CacheFolderPath { get; set; } = ()=> Preferences.CacheFolderPath;
             public Func<string> Version { get; set; } = ()=> Application.version;
             public Func<string> UnityVersion { get; set; } = ()=> Application.unityVersion;
             public Func<string> Date { get; set; } = ()=> System.DateTime.Now.ToString("yyyy-MM-dd");

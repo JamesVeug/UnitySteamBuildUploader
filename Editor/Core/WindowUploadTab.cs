@@ -468,6 +468,7 @@ namespace Wireframe
             
             string description = StringFormatter.FormatString(m_buildDescription, m_context);
             UploadTask uploadTask = new UploadTask(uploadProfile, description);
+            UploadTask.AllTasks.Add(uploadTask);
             
             string guids = string.Join("_", m_currentUploadProfile.UploadConfigs.Select(x => x.GUID));
             

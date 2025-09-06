@@ -74,8 +74,6 @@ namespace Wireframe
             context = new StringFormatter.Context();
             context.TaskProfileName = () => uploadName;
             context.TaskDescription = () => uploadDescription;
-            
-            AllTasks.Add(this);
         }
 
         ~UploadTask()

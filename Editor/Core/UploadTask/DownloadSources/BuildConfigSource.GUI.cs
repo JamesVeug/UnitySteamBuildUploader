@@ -105,19 +105,27 @@ namespace Wireframe
                     m_CleanBuild = newCleanBuild;
                     isDirty = true;
                 }
+                
+                string path = GetBuiltDirectory(ctx);
+                using (new EditorGUI.DisabledScope(!System.IO.Directory.Exists(path)))
+                {
+                    if (GUILayout.Button("Open Build Folder", GUILayout.Width(120)))
+                    {
+                        EditorUtility.RevealInFinder(path);
+                    }
+                }
             }
-            
+
             if (GUILayout.Button("Apply to Editor", GUILayout.Width(120)))
             {
                 if (EditorUtility.DisplayDialog("Apply to Editor",
                         "Are you sure you want to apply settings to the editor?\n" +
-                        "This will change your Player settings and Editor settings", 
+                        "This will change your Player settings and Editor settings",
                         "Apply", "Cancel"))
                 {
                     ApplyBuildConfig(CreateSourceBuildConfig(), null, ctx);
                 }
             }
-            
         }
     }
 }

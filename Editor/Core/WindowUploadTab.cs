@@ -30,6 +30,7 @@ namespace Wireframe
         private bool m_showFormattedDescription = false;
         private bool m_isDirty;
         private Vector2 m_descriptionScrollPosition;
+        private bool m_descriptionFoldoutCollapsed;
 
         public override void Initialize(BuildUploaderWindow uploaderWindow)
         {
@@ -48,7 +49,7 @@ namespace Wireframe
             m_titleStyle = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 17,
-                alignment = TextAnchor.MiddleCenter,
+                alignment = TextAnchor.MiddleLeft,
                 fontStyle = FontStyle.Bold
             };
             
@@ -69,16 +70,13 @@ namespace Wireframe
 
             using (new GUILayout.VerticalScope())
             {
-                GUILayout.Label("Upload Configs", m_titleStyle);
                 using (new EditorGUILayout.HorizontalScope())
                 {
+                    GUILayout.Label("Upload Configs", m_titleStyle);
+                    GUILayout.FlexibleSpace();
                     if (GUILayout.Button("New Upload Config"))
                     {
-                        UploadConfig newConfig = new UploadConfig();
-                        newConfig.Context.SetParent(m_context);
-                        newConfig.SetupDefaults();
-                        m_currentUploadProfile.UploadConfigs.Add(newConfig);
-                        m_isDirty = true;
+                        AddNewUploadConfig();
                     }
                     
                     // Dropdown to select upload profile
@@ -248,102 +246,110 @@ namespace Wireframe
                 GUILayout.FlexibleSpace();
                 
                 // Post upload actions
-                GUILayout.Label("Post Upload Actions", m_subTitleStyle);
-                for (int i = 0; i < m_currentUploadProfile.PostUploadActions.Count; i++)
+                using (new EditorGUILayout.VerticalScope("box"))
                 {
-                    UploadConfig.PostUploadActionData actionData = m_currentUploadProfile.PostUploadActions[i];
-                    using (new GUILayout.HorizontalScope("box"))
+                    using (new EditorGUILayout.HorizontalScope())
                     {
-                        if (CustomSettingsIcon.OnGUI())
+                        GUILayout.Label("Post Upload Actions", m_subTitleStyle);
+                        GUILayout.FlexibleSpace();
+
+                        if (GUILayout.Button("New Post Upload Action"))
                         {
-                            GenericMenu menu = new GenericMenu();
-                            menu.AddItem(new GUIContent("MoveUp"), false, () =>
+                            // Show a popup to select an action
+                            UploadConfig.PostUploadActionData actionData = new UploadConfig.PostUploadActionData();
+                            actionData.SetupDefaults();
+                            m_currentUploadProfile.PostUploadActions.Add(actionData);
+                        }
+                    }
+
+                    for (int i = 0; i < m_currentUploadProfile.PostUploadActions.Count; i++)
+                    {
+                        UploadConfig.PostUploadActionData actionData = m_currentUploadProfile.PostUploadActions[i];
+                        using (new GUILayout.HorizontalScope("box"))
+                        {
+                            if (CustomSettingsIcon.OnGUI())
                             {
-                                int indexOf = m_currentUploadProfile.PostUploadActions.IndexOf(actionData);
-                                if (indexOf > 0)
+                                GenericMenu menu = new GenericMenu();
+                                menu.AddItem(new GUIContent("MoveUp"), false, () =>
                                 {
-                                    m_currentUploadProfile.PostUploadActions.RemoveAt(indexOf);
-                                    m_currentUploadProfile.PostUploadActions.Insert(indexOf - 1, actionData);
-                                    m_isDirty = true;
-                                }
-                            });
-                            menu.AddItem(new GUIContent("MoveDown"), false, () =>
-                            {
-                                int indexOf = m_currentUploadProfile.PostUploadActions.IndexOf(actionData);
-                                if (indexOf < m_currentUploadProfile.PostUploadActions.Count - 1)
+                                    int indexOf = m_currentUploadProfile.PostUploadActions.IndexOf(actionData);
+                                    if (indexOf > 0)
+                                    {
+                                        m_currentUploadProfile.PostUploadActions.RemoveAt(indexOf);
+                                        m_currentUploadProfile.PostUploadActions.Insert(indexOf - 1, actionData);
+                                        m_isDirty = true;
+                                    }
+                                });
+                                menu.AddItem(new GUIContent("MoveDown"), false, () =>
                                 {
-                                    m_currentUploadProfile.PostUploadActions.RemoveAt(indexOf);
-                                    m_currentUploadProfile.PostUploadActions.Insert(indexOf + 1, actionData);
-                                    m_isDirty = true;
-                                }
-                            });
+                                    int indexOf = m_currentUploadProfile.PostUploadActions.IndexOf(actionData);
+                                    if (indexOf < m_currentUploadProfile.PostUploadActions.Count - 1)
+                                    {
+                                        m_currentUploadProfile.PostUploadActions.RemoveAt(indexOf);
+                                        m_currentUploadProfile.PostUploadActions.Insert(indexOf + 1, actionData);
+                                        m_isDirty = true;
+                                    }
+                                });
+                                
+                                menu.AddSeparator("");
+                                menu.AddItem(new GUIContent("Delete"), false, () =>
+                                {
+                                    if (EditorUtility.DisplayDialog("Remove Post Upload Action",
+                                            "Are you sure you want to remove this post upload action?", "Delete", "Cancel"))
+                                    {
+                                        m_currentUploadProfile.PostUploadActions.Remove(actionData);
+                                        m_isDirty = true;
+                                    }
+                                });
+                                menu.ShowAsContext();
+                            }
                             
-                            menu.AddSeparator("");
-                            menu.AddItem(new GUIContent("Delete"), false, () =>
+                            if (CustomFoldoutButton.OnGUI(actionData.Collapsed))
                             {
-                                if (EditorUtility.DisplayDialog("Remove Post Upload Action",
-                                        "Are you sure you want to remove this post upload action?", "Delete", "Cancel"))
-                                {
-                                    m_currentUploadProfile.PostUploadActions.Remove(actionData);
-                                    m_isDirty = true;
-                                }
-                            });
-                            menu.ShowAsContext();
-                        }
-                        
-                        if (CustomFoldoutButton.OnGUI(actionData.Collapsed))
-                        {
-                            actionData.Collapsed = !actionData.Collapsed;
-                        }
-
-                        var status = (UploadConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumPopup(actionData.WhenToExecute, GUILayout.Width(100));
-                        if (status != actionData.WhenToExecute)
-                        {
-                            actionData.WhenToExecute = status;
-                            m_isDirty = true;
-                        }
-
-                        bool disabled = actionData.WhenToExecute == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never;
-                        using (new EditorGUI.DisabledScope(disabled))
-                        {
-                            // GUILayout.Label("Action Type: ", GUILayout.Width(100));
-                            if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, m_context, GUILayout.Width(200)))
-                            {
-                                m_isDirty = true;
-                                Utils.CreateInstance(actionData.ActionType?.Type, out actionData.UploadAction);
+                                actionData.Collapsed = !actionData.Collapsed;
                             }
 
-                            using (new GUILayout.VerticalScope())
+                            var status = (UploadConfig.PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumPopup(actionData.WhenToExecute, GUILayout.Width(100));
+                            if (status != actionData.WhenToExecute)
                             {
-                                if (actionData.ActionType != null)
+                                actionData.WhenToExecute = status;
+                                m_isDirty = true;
+                            }
+
+                            bool disabled = actionData.WhenToExecute == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never;
+                            using (new EditorGUI.DisabledScope(disabled))
+                            {
+                                // GUILayout.Label("Action Type: ", GUILayout.Width(100));
+                                if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, m_context, GUILayout.Width(200)))
                                 {
-                                    float maxWidth = UploaderWindow.position.width - 400;
-                                    if (actionData.Collapsed)
+                                    m_isDirty = true;
+                                    Utils.CreateInstance(actionData.ActionType?.Type, out actionData.UploadAction);
+                                }
+
+                                using (new GUILayout.VerticalScope())
+                                {
+                                    if (actionData.ActionType != null)
                                     {
-                                        using (new GUILayout.HorizontalScope())
+                                        float maxWidth = UploaderWindow.position.width - 400;
+                                        if (actionData.Collapsed)
                                         {
-                                            actionData.UploadAction.OnGUICollapsed(ref m_isDirty, maxWidth, m_context);
+                                            using (new GUILayout.HorizontalScope())
+                                            {
+                                                actionData.UploadAction.OnGUICollapsed(ref m_isDirty, maxWidth, m_context);
+                                            }
                                         }
-                                    }
-                                    else
-                                    {
-                                        using (new EditorGUILayout.VerticalScope())
+                                        else
                                         {
-                                            actionData.UploadAction.OnGUIExpanded(ref m_isDirty, m_context);
+                                            using (new EditorGUILayout.VerticalScope())
+                                            {
+                                                actionData.UploadAction.OnGUIExpanded(ref m_isDirty, m_context);
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
-
-                if (GUILayout.Button("Add"))
-                {
-                    // Show a popup to select an action
-                    UploadConfig.PostUploadActionData actionData = new UploadConfig.PostUploadActionData();
-                    actionData.SetupDefaults();
-                    m_currentUploadProfile.PostUploadActions.Add(actionData);
                 }
                 
 
@@ -353,40 +359,68 @@ namespace Wireframe
                 }
 
                 EditorGUILayout.EndScrollView();
+                
+                GUILayout.Space(20);
 
                 // Description
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUIContent content = new GUIContent("F", EditorUtils.GetFormatStringTextFieldTooltip(m_context));
-                    m_showFormattedDescription = GUILayout.Toggle(m_showFormattedDescription, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
+                    if (CustomFoldoutButton.OnGUI(m_descriptionFoldoutCollapsed))
+                    {
+                        m_descriptionFoldoutCollapsed = !m_descriptionFoldoutCollapsed;
+                    }
+                    
                     
                     GUIContent label = new GUIContent("Build Description", "A description of the build that will be uploaded." +
                                                                            "\nDescription is included in some destinations such as Steamworks so keep it short." +
                                                                            "\nGood practice is to include the version number and a short summary of the changes since the last build." +
                                                                            "\nexample: v1.2.9 - Hotfix for missing player texture and balance changes.");
-                    GUILayout.Label(label);
-                    GUILayout.FlexibleSpace();
+                    GUILayout.Label(label, GUILayout.MaxWidth(100));
+                    
+                    GUIContent content = new GUIContent("F", EditorUtils.GetFormatStringTextFieldTooltip(m_context));
+                    m_showFormattedDescription = GUILayout.Toggle(m_showFormattedDescription, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
+                    if (m_descriptionFoldoutCollapsed)
+                    {
+                        if (m_showFormattedDescription)
+                        {
+                            using (new EditorGUI.DisabledScope(true))
+                            {
+                                string formattedDescription = StringFormatter.FormatString(m_buildDescription, m_context);
+                                GUILayout.TextArea(formattedDescription, GUILayout.ExpandWidth(true));
+                            }
+                        }
+                        else
+                        {
+                            m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandWidth(true));
+                        }
+                    }
+                    else
+                    {
+                        GUILayout.FlexibleSpace();
+                    }
+                    
                     if (GUILayout.Button("Edit", GUILayout.MaxWidth(50)))
                     {
                         ShowEditDescriptionMenu();
                     }
                 }
 
-                m_descriptionScrollPosition = GUILayout.BeginScrollView(m_descriptionScrollPosition, GUILayout.Height(100));
-                if (m_showFormattedDescription)
-                {
-                    using (new EditorGUI.DisabledScope(true))
+                if(!m_descriptionFoldoutCollapsed){
+                    m_descriptionScrollPosition = GUILayout.BeginScrollView(m_descriptionScrollPosition, GUILayout.Height(100));
+                    if (m_showFormattedDescription)
                     {
-                        string formattedDescription = StringFormatter.FormatString(m_buildDescription, m_context);
-                        GUILayout.TextArea(formattedDescription, GUILayout.ExpandHeight(true));
+                        using (new EditorGUI.DisabledScope(true))
+                        {
+                            string formattedDescription = StringFormatter.FormatString(m_buildDescription, m_context);
+                            GUILayout.TextArea(formattedDescription, GUILayout.ExpandHeight(true));
+                        }
                     }
+                    else
+                    {
+                        m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
+                    }
+                    GUILayout.EndScrollView();
                 }
-                else
-                {
-                    m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
-                }
-
-                GUILayout.EndScrollView();
 
 
                 bool canUpload = CanStartUpload(out string reason);
@@ -416,6 +450,15 @@ namespace Wireframe
                     }
                 }
             }
+        }
+
+        private void AddNewUploadConfig()
+        {
+            UploadConfig newConfig = new UploadConfig();
+            newConfig.Context.SetParent(m_context);
+            newConfig.SetupDefaults();
+            m_currentUploadProfile.UploadConfigs.Add(newConfig);
+            m_isDirty = true;
         }
 
         private void ShowEditDescriptionMenu()
@@ -518,12 +561,6 @@ namespace Wireframe
                 {
                     EditorUtility.DisplayDialog("Build Uploader", "All builds uploaded successfully!", "Yay!");
                 }
-                
-                if (Preferences.ShowReportAfterUpload == Preferences.ShowIf.Always || 
-                    Preferences.ShowReportAfterUpload == Preferences.ShowIf.Successful)
-                {
-                    UploadTaskReportWindow.ShowWindow(report, taskReport);
-                }
             }
             else
             {
@@ -550,12 +587,6 @@ namespace Wireframe
                     sb.Append("\n\nSee logs for more info.");
 
                     EditorUtility.DisplayDialog("Build Uploader", sb.ToString(), "Okay");
-                }
-                
-                if (Preferences.ShowReportAfterUpload == Preferences.ShowIf.Always ||
-                    Preferences.ShowReportAfterUpload == Preferences.ShowIf.Failed)
-                {
-                    UploadTaskReportWindow.ShowWindow(report, taskReport);
                 }
             }
         }

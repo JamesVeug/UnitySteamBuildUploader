@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
 using Wireframe;
 
-public static class CustomSettingsIcon
+namespace Wireframe
 {
-    public static bool OnGUI()
+    public static class CustomSettingsIcon
     {
-        if (GUILayout.Button(new GUIContent(Utils.SettingsIcon, "Settings"),
-                GUILayout.Width(20), GUILayout.Height(20)))
+        public static bool OnGUI()
         {
-            return true;
+            if (GUILayout.Button(new GUIContent(Utils.SettingsIcon, "Settings"),
+                    GUILayout.Width(20), GUILayout.Height(20)))
+            {
+                return true;
+            }
+
+            return false;
         }
-        
-        return false;
     }
 }

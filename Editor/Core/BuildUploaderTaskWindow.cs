@@ -50,7 +50,6 @@ namespace Wireframe
 
         private void Setup()
         {
-            ReadAllTaskReports();
             if (m_OpenTaskSteps != null)
             {
                 return;
@@ -71,6 +70,7 @@ namespace Wireframe
                 fontStyle = FontStyle.Bold
             };
 
+            ReadAllTaskReports(false);
         }
 
         public void OnGUI()
@@ -80,8 +80,32 @@ namespace Wireframe
             // Header
             using (new EditorGUILayout.VerticalScope())
             {
-                GUILayout.Label("Upload Tasks", m_titleStyle);
-                
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    GUILayout.FlexibleSpace();
+                    GUILayout.Label("Upload Tasks", m_titleStyle);
+                    GUILayout.FlexibleSpace();
+                    if (CustomSettingsIcon.OnGUI())
+                    {
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("Refresh"), false, ()=>ReadAllTaskReports(true));
+                        
+                        menu.AddSeparator("");
+                        
+                        menu.AddItem(new GUIContent("Delete All Complete Reports"), false, () =>
+                        {
+                            if (EditorUtility.DisplayDialog("Delete all Task Reports",
+                                    "Are you sure you want to delete all task reports?\n\nThis will delete them from the cache folder and can NOT be undone!", "Delete All", "No"))
+                            {
+                                Directory.Delete(WindowUploadTab.UploadReportSaveDirectory, true);
+                                m_loadedTasks = new List<UploadTask>();
+                            }
+                        });
+
+                        menu.ShowAsContext();
+                    }
+                }
+
                 // Column headers
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -337,9 +361,9 @@ namespace Wireframe
 
         private DateTime m_lastReportRead = DateTime.MinValue;
         private float delayBetweenReportReads = 60f; // seconds
-        private void ReadAllTaskReports()
+        private void ReadAllTaskReports(bool forceRefresh)
         {
-            if ((DateTime.UtcNow - m_lastReportRead).TotalSeconds < delayBetweenReportReads)
+            if (!forceRefresh && (DateTime.UtcNow - m_lastReportRead).TotalSeconds < delayBetweenReportReads)
             {
                 return;
             }

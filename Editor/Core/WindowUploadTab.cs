@@ -541,6 +541,11 @@ namespace Wireframe
                 string reportPath = Path.Combine(UploadReportSaveDirectory, fileName);
                 try
                 {
+                    if (!Directory.Exists(UploadReportSaveDirectory))
+                    {
+                        Directory.CreateDirectory(UploadReportSaveDirectory);
+                    }
+                    
                     Debug.Log($"[BuildUploader] Writing upload task report to {reportPath}");
                     await IOUtils.WriteAllTextAsync(reportPath, taskReport);
                 }

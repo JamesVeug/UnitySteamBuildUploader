@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
@@ -30,6 +31,7 @@ namespace Wireframe
         private GUIStyle m_titleStyle;
         private GUIStyle m_subTitleStyle;
         
+        private List<UploadTask> m_loadedTasks;
         private Vector2 m_reportErrorScrollPosition;
         private string m_OpenTaskGUID = "";
         private Dictionary<AUploadTask_Step.StepType, (bool, Vector2)> m_OpenTaskSteps;
@@ -48,6 +50,7 @@ namespace Wireframe
 
         private void Setup()
         {
+            ReadAllTaskReports();
             if (m_OpenTaskSteps != null)
             {
                 return;
@@ -67,6 +70,7 @@ namespace Wireframe
                 alignment = TextAnchor.MiddleLeft,
                 fontStyle = FontStyle.Bold
             };
+
         }
 
         public void OnGUI()
@@ -82,25 +86,25 @@ namespace Wireframe
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     GUILayout.Label("Name", EditorStyles.boldLabel, GUILayout.Width(120));
-                    GUILayout.Label("Description", EditorStyles.boldLabel);
-                    GUILayout.Label("Step", EditorStyles.boldLabel, GUILayout.Width(140));
+                    GUILayout.Label("Started", EditorStyles.boldLabel);
+                    GUILayout.Label("Step", EditorStyles.boldLabel, GUILayout.Width(100));
                     GUILayout.Label("Progress", EditorStyles.boldLabel, GUILayout.Width(170));
                     GUILayout.Label("State", EditorStyles.boldLabel, GUILayout.Width(90));
                 }
 
                 EditorGUILayout.Space(2);
 
-                var tasks = UploadTask.AllTasks;
-                if (tasks == null || tasks.Count == 0)
+                var tasks = m_loadedTasks.Concat(UploadTask.AllTasks).OrderBy(a=>a.Report.StartTime).ToArray();
+                if (tasks.Length == 0)
                 {
                     EditorGUILayout.HelpBox("No Task started this session. Use the Upload tab to begin uploading!", MessageType.Info);
                     return;
                 }
 
-                foreach (UploadTask t in tasks)
+                for (var i = 0; i < tasks.Length; i++)
                 {
                     // Derive state and color
-                    DrawTask(t);
+                    DrawTask(tasks[i]);
                 }
             }
         }
@@ -145,8 +149,7 @@ namespace Wireframe
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     bool isOpen = m_OpenTaskGUID == t.GUID;
-                    Rect foldRect = GUILayoutUtility.GetRect(14, EditorGUIUtility.singleLineHeight,
-                        GUILayout.ExpandWidth(false));
+                    Rect foldRect = GUILayoutUtility.GetRect(14, EditorGUIUtility.singleLineHeight, GUILayout.ExpandWidth(false));
                     bool newIsOpen = EditorGUI.Foldout(foldRect, isOpen, GUIContent.none, true);
                     if (newIsOpen != isOpen)
                     {
@@ -157,12 +160,21 @@ namespace Wireframe
                     GUILayout.Label(t.UploadName, GUILayout.Width(100));
 
                     // Description (flex)
-                    GUILayout.Label(
-                        string.IsNullOrEmpty(t.UploadDescription) ? "<no description>" : t.UploadDescription,
-                        GUILayout.ExpandWidth(true));
+                    string duration = ""; 
+                    if (t.IsComplete)
+                    {
+                        duration += "Took: " + t.Report.Duration.CalculateShortTime();
+                    }
+                    else
+                    {
+                        TimeSpan timeSoFar = DateTime.UtcNow - t.Report.StartTime;
+                        duration = "Duration: " + timeSoFar.CalculateShortTime();
+                    }
+                        
+                    GUILayout.Label(string.Format("{0} ({1})", t.Report.StartTime, duration));
 
                     // Step
-                    GUILayout.Label(stepLabel, GUILayout.Width(140));
+                    GUILayout.Label(stepLabel, GUILayout.Width(100));
 
                     // Progress bar (170px area: bar + % text overlaid)
                     Rect r = GUILayoutUtility.GetRect(160, 16, GUILayout.Width(170), GUILayout.Height(16));
@@ -179,32 +191,25 @@ namespace Wireframe
                 // Foldout details
                 if (m_OpenTaskGUID == t.GUID)
                 {
-                    // EditorGUILayout.Space(2);
                     using (new EditorGUILayout.VerticalScope())
                     {
                         // Basics grid
                         using (new EditorGUILayout.HorizontalScope())
                         {
-                            EditorGUILayout.LabelField("GUID", t.GUID);
+                            GUILayout.Label("GUID", GUILayout.Width(120));
+                            GUILayout.Label(t.GUID);
+                        }
+                        
+                        using (new EditorGUILayout.HorizontalScope())
+                        {
+                            GUILayout.Label("Description", GUILayout.Width(120));
+                            GUILayout.Label(string.IsNullOrEmpty(t.UploadDescription) ? "<no description>" : t.UploadDescription);
                         }
 
                         if (t.Report == null)
                         {
                             EditorGUILayout.LabelField("Not started yet");
                             return;
-                        }
-
-                        using (new EditorGUILayout.HorizontalScope())
-                        {
-                            if (t.IsComplete)
-                            {
-                                EditorGUILayout.LabelField("Duration", t.Report.Duration.CalculateTime());
-                            }
-                            else
-                            {
-                                TimeSpan duration = DateTime.UtcNow - t.Report.StartTime;
-                                EditorGUILayout.LabelField("Duration", duration.CalculateTime());
-                            }
                         }
 
                         // Failure reasons (via context/report) when failed
@@ -227,7 +232,7 @@ namespace Wireframe
                             EditorGUILayout.LabelField("Failure Details", EditorStyles.boldLabel);
                             if (!string.IsNullOrEmpty(failText))
                             {
-                                m_reportErrorScrollPosition = EditorGUILayout.BeginScrollView(m_reportErrorScrollPosition, GUILayout.Height(100));
+                                m_reportErrorScrollPosition = EditorGUILayout.BeginScrollView(m_reportErrorScrollPosition);
                                 EditorGUILayout.HelpBox(failText, MessageType.Error);
                                 EditorGUILayout.EndScrollView();
                             }
@@ -239,7 +244,7 @@ namespace Wireframe
                         }
 
                         // Logs
-                        if (t.CurrentSteps == null)
+                        if (t.Report.StepResults == null)
                         {
                             return;
                         }
@@ -252,21 +257,24 @@ namespace Wireframe
                         }
 
                         // Show logs in a scrollable area
+                        var steps = Enum.GetValues(typeof(AUploadTask_Step.StepType)).Cast<AUploadTask_Step.StepType>().ToArray();
                         if (m_FollowLogs)
                         {
+                            Array.Reverse(steps); // Descending
+                            
                             AUploadTask_Step.StepType stepToShow = AUploadTask_Step.StepType.GetSources;
-                            for (var i = t.CurrentSteps.Length - 1; i >= 0; i--)
+                            foreach (AUploadTask_Step.StepType stepType in steps)
                             {
-                                var step = t.CurrentSteps[i];
-                                int logs = t.Report.CountStepLogs(step.Type);
+                                int logs = t.Report.CountStepLogs(stepType);
                                 if (logs > 0)
                                 {
-                                    stepToShow = step.Type;
+                                    stepToShow = stepType;
                                     break;
                                 }
                             }
 
-                            foreach (AUploadTask_Step.StepType stepType in Enum.GetValues(typeof(AUploadTask_Step.StepType)))
+                            Array.Reverse(steps); // Ascending
+                            foreach (AUploadTask_Step.StepType stepType in steps)
                             {
                                 if (!m_OpenTaskSteps.TryGetValue(stepType, out (bool, Vector2) pair))
                                 {
@@ -286,29 +294,29 @@ namespace Wireframe
                             }
                         }
 
-                        foreach (AUploadTask_Step step in t.CurrentSteps)
+                        foreach (AUploadTask_Step.StepType stepType in steps)
                         {
                             (bool foldout, Vector2 position) stepUI = (false, Vector2.zero);
-                            if (m_OpenTaskSteps.TryGetValue(step.Type, out (bool, Vector2) pair))
+                            if (m_OpenTaskSteps.TryGetValue(stepType, out (bool, Vector2) pair))
                             {
                                 stepUI = pair;
                             }
                             
-                            int logs = t.Report.CountStepLogs(step.Type);
+                            int logs = t.Report.CountStepLogs(stepType);
 
                             // Default to showing all steps
-                            string label = logs > 0 ? $"{step.Type} ({logs} logs)" : step.Type.ToString();
+                            string label = logs > 0 ? $"{stepType} ({logs} logs)" : stepType.ToString();
                             stepUI.foldout = EditorGUILayout.Foldout(stepUI.foldout, label, true);
                             if (stepUI.foldout)
                             {
                                 // Show logs for this step
                                 StringBuilder sb = new StringBuilder();
                                 stepUI.position = EditorGUILayout.BeginScrollView(stepUI.position, GUILayout.ExpandHeight(true));
-                                t.Report.GetStepLogs(true, step.Type, sb);
+                                t.Report.GetStepLogs(true, stepType, sb);
                                 EditorGUILayout.TextArea(sb.ToString(), GUILayout.ExpandHeight(true));
                                 EditorGUILayout.EndScrollView();
                             }
-                            m_OpenTaskSteps[step.Type] = stepUI;
+                            m_OpenTaskSteps[stepType] = stepUI;
                         }
                     }
                 }
@@ -325,6 +333,40 @@ namespace Wireframe
 
             m_OpenTaskGUID = uploadTask.GUID;
             m_FollowLogs = true;
+        }
+
+        private DateTime m_lastReportRead = DateTime.MinValue;
+        private float delayBetweenReportReads = 60f; // seconds
+        private void ReadAllTaskReports()
+        {
+            if ((DateTime.UtcNow - m_lastReportRead).TotalSeconds < delayBetweenReportReads)
+            {
+                return;
+            }
+            m_lastReportRead = DateTime.UtcNow;
+            
+            
+            m_loadedTasks = new List<UploadTask>();
+            if (!Directory.Exists(WindowUploadTab.UploadReportSaveDirectory))
+            {
+                return;
+            }
+            
+            
+            
+            string[] filePaths = Directory.GetFiles(WindowUploadTab.UploadReportSaveDirectory, "*.txt", SearchOption.AllDirectories);
+            foreach (string filePath in filePaths)
+            {
+                UploadTaskReport report = UploadTaskReport.FromFilePath(filePath);
+                if (report == null)
+                {
+                    continue;
+                }
+
+                UploadTask task = new UploadTask();
+                task.SetReport(report);
+                m_loadedTasks.Add(task);
+            }
         }
     }
 }

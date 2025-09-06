@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -103,8 +104,8 @@ namespace Wireframe
                 {
                     Successful = false;
                     FailReason = reason;
-                    Logs.Add(new Log(Log.LogType.Error, "[FAILED] " + reason));
                     m_report.Successful = false;
+                    // Note: We add a log entry in UploadTaskReport.GetReport()
                 }
                 
                 if (m_report.m_invokeDebugLogs)
@@ -129,13 +130,15 @@ namespace Wireframe
         public DateTime StartTime { get; private set; }
         public DateTime EndTime { get; private set; }
         public string GUID { get; private set; }
+        public string Name { get; private set; }
         
         private readonly bool m_invokeDebugLogs;
         private AUploadTask_Step.StepProcess m_process;
 
-        public UploadTaskReport(string guid, bool invokeDebugLogs = true)
+        public UploadTaskReport(string guid, string name, bool invokeDebugLogs = true)
         {
             GUID = guid;
+            Name = name;
             m_invokeDebugLogs = invokeDebugLogs;
             StartTime = DateTime.UtcNow;
         }
@@ -197,8 +200,10 @@ namespace Wireframe
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Upload Task Report");
-            sb.AppendLine("Start Time: " + StartTime.ToLocalTime());
-            sb.AppendLine("End Time: " + EndTime.ToLocalTime());
+            sb.AppendLine("GUID: " + GUID);
+            sb.AppendLine("Name: " + Name);
+            sb.AppendLine("Start Time: " + StartTime + " Local: " + StartTime.ToLocalTime()); // UTC
+            sb.AppendLine("End Time: " + EndTime + " Local: " + EndTime.ToLocalTime()); // UTC
             sb.AppendLine("Duration: " + Duration);
             sb.AppendLine("Successful: " + Successful);
             
@@ -247,13 +252,18 @@ namespace Wireframe
                 {
                     for (var i = 0; i < stepResult.Count; i++)
                     {
-                        var result = stepResult[i];
+                        StepResult result = stepResult[i];
                         if (result.Logs.Count == 0)
                         {
                             continue;
                         }
-                            
+
                         sb.AppendLine($"-- {stepProcess} {i + 1} --");
+                        if (!string.IsNullOrEmpty(result.FailReason))
+                        {
+                            sb.AppendLine($"[FAILED] {result.FailReason}");
+                        }
+                            
                         foreach (StepResult.Log log in result.Logs)
                         {
                             sb.AppendLine($"[{log.Type}] {log.Message}");
@@ -319,6 +329,189 @@ namespace Wireframe
                 }
             }
             return count; // Return total log count for the step type
+        }
+
+        public static UploadTaskReport FromFilePath(string filePath)
+        {
+            string[] lines = File.ReadAllLines(filePath);
+            if (lines.Length == 0 || !lines[0].StartsWith("Upload Task Report", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            int endOfMetaDataIndex = -1;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (string.IsNullOrEmpty(lines[i].Trim()))
+                {
+                    endOfMetaDataIndex = i;
+                    break;
+                }
+            }
+
+            if (endOfMetaDataIndex == -1 || lines[0] != "Upload Task Report")
+            {
+                // Malformed file
+                return null;
+            }
+            
+            // Read meta data
+            // Upload Task Report
+            // GUID: gowsehgoewhn
+            // Start Time: 4/09/2025 10:27:57 p.m.
+            // End Time: 4/09/2025 10:28:35 p.m.
+            // Duration: 00:00:37.4792449
+            // Successful: True
+            UploadTaskReport report = new UploadTaskReport("", "", false);
+            for (int i = 1; i < endOfMetaDataIndex; i++)
+            {
+                string line = lines[i];
+                if (line.StartsWith("GUID", StringComparison.OrdinalIgnoreCase))
+                {
+                    report.GUID = line.Substring("GUID:".Length).Trim();
+                }
+                else if (line.StartsWith("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    report.Name = line.Substring("Name:".Length).Trim();
+                }
+                else if (line.StartsWith("Start Time", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Start Time: 4/09/2025 10:27:57 p.m. Local: 4/09/2025 8:27:57 a.m.
+                    int localIndex = line.IndexOf("Local:", StringComparison.OrdinalIgnoreCase);
+                    if (localIndex != -1)
+                    {
+                        line = line.Substring(0, localIndex).Trim();
+                    }
+                    if (DateTime.TryParse(line.Substring("Start Time:".Length).Trim(), out DateTime startTime))
+                    {
+                        report.StartTime = startTime;
+                    }
+                }
+                else if (line.StartsWith("End Time", StringComparison.OrdinalIgnoreCase))
+                {
+                    // End Time: 4/09/2025 10:28:35 p.m. Local: 4/09/2025 8:28:35 a.m.
+                    int localIndex = line.IndexOf("Local:", StringComparison.OrdinalIgnoreCase);
+                    if (localIndex != -1)
+                    {
+                        line = line.Substring(0, localIndex).Trim();
+                    }
+                    if (DateTime.TryParse(line.Substring("End Time:".Length).Trim(), out DateTime endTime))
+                    {
+                        report.EndTime = endTime;
+                    }
+                }
+                else if (line.StartsWith("Duration", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (TimeSpan.TryParse(line.Substring("Duration:".Length).Trim(), out TimeSpan duration))
+                    {
+                        report.EndTime = report.StartTime + duration;
+                    }
+                }
+                else if (line.StartsWith("Successful", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (bool.TryParse(line.Substring("Successful:".Length).Trim(), out bool successful))
+                    {
+                        report.Successful = successful;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(report.GUID) || string.IsNullOrEmpty(report.Name))
+            {
+                return null;
+            }
+            
+            
+            // Load Steps - each step is -- Intra X --
+            Dictionary<AUploadTask_Step.StepType, Dictionary<AUploadTask_Step.StepProcess, List<StepResult>>> results = report.StepResults;
+            AUploadTask_Step.StepType currentStepType = AUploadTask_Step.StepType.GetSources;
+            AUploadTask_Step.StepProcess currentProcess = AUploadTask_Step.StepProcess.Intra;
+            StepResult currentStepResult = null;
+
+            for (int i = endOfMetaDataIndex + 1; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                if (line.StartsWith("== -- ") && line.EndsWith(" -- =="))
+                {
+                    string stepTypeStr = line.Substring(6, line.Length - 11).Trim();
+                    if (Enum.TryParse(stepTypeStr, out AUploadTask_Step.StepType stepType))
+                    {
+                        currentStepType = stepType;
+                        currentProcess = AUploadTask_Step.StepProcess.Intra; // Reset process to Intra
+                        
+                        if (!results.ContainsKey(currentStepType))
+                        {
+                            results[currentStepType] = new Dictionary<AUploadTask_Step.StepProcess, List<StepResult>>();
+                        }
+                        
+                        if (!results[currentStepType].ContainsKey(currentProcess))
+                        {
+                            results[currentStepType][currentProcess] = new List<StepResult>();
+                        }
+                        
+                        currentStepResult = new StepResult(report);
+                    }
+                    else
+                    {
+                        Debug.LogError("[UploadTaskReport] Failed to parse step type from report: " + stepTypeStr);
+                    }
+                }
+                else if (line.StartsWith("-- ") && line.EndsWith(" --"))
+                {
+                    string processStr = line.Substring(3, line.Length - 6).Trim();
+                    string[] parts = processStr.Split(' ');
+                    if (parts.Length >= 1 && Enum.TryParse(parts[0], out AUploadTask_Step.StepProcess process))
+                    {
+                        currentProcess = process;
+                        currentStepResult = new StepResult(report);
+                        if (!results.ContainsKey(currentStepType))
+                        {
+                            results[currentStepType] = new Dictionary<AUploadTask_Step.StepProcess, List<StepResult>>();
+                        }
+
+                        if (!results[currentStepType].ContainsKey(currentProcess))
+                        {
+                            results[currentStepType][currentProcess] = new List<StepResult>();
+                        }
+                        
+                        results[currentStepType][currentProcess].Add(currentStepResult);
+                    }
+                }
+                else
+                {
+                    // Every line starts with [Info]/[Warning]/[Error]/[Exception]
+                    if (line.StartsWith("[Info]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        currentStepResult.AddLog(line.Substring("[Info]".Length));
+                    }
+                    else if (line.StartsWith("[Warning]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        currentStepResult.AddWarning(line.Substring("[Warning]".Length));
+                    }
+                    else if (line.StartsWith("[Error]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        currentStepResult.AddError(line.Substring("[Error]".Length));
+                    }
+                    else if (line.StartsWith("[Exception]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        currentStepResult.AddException(new Exception(line.Substring("[Exception]".Length)));
+                    }
+                    else if (line.StartsWith("[Failed]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        currentStepResult.SetFailed(line);
+                    }
+                    else if (line.StartsWith("No Logs", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Do nothing
+                    }
+                    else
+                    {
+                        currentStepResult.AddLog(line);
+                    }
+                }
+            }
+            
+            return report;
         }
     }
 }

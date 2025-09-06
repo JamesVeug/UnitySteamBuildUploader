@@ -103,7 +103,7 @@ namespace Wireframe
         public async Task StartAsync(bool invokeDebugLogs=true)
         {
             progressId = ProgressUtils.Start("Build Uploader Window", "Setting up...");
-            report = new UploadTaskReport(guid, invokeDebugLogs);
+            report = new UploadTaskReport(guid, UploadName, invokeDebugLogs);
             cachedLocations = new string[uploadConfigs.Count];
             IsComplete = false;
             PercentComplete = 0f;
@@ -242,6 +242,16 @@ namespace Wireframe
         public void SetBuildDescription(string description)
         {
             uploadDescription = description;
+        }
+        
+        internal void SetReport(UploadTaskReport report)
+        {
+            this.report = report;
+            guid = report.GUID;
+            uploadName = report.Name;
+            IsSuccessful = report.Successful;
+            IsComplete = true;
+            PercentComplete = 1f;
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Wireframe
             
             public Func<string> buildTarget { get; set; } = ()=> EditorUserBuildSettings.activeBuildTarget.ToString();
             public Func<string> buildTargetGroup { get; set; } = ()=> BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget).ToString();
-            public Func<string> scriptingBackend { get; set; } = ()=> ScriptingBackend;
+            public Func<string> scriptingBackend { get; set; } = ()=> BuildUtils.ScriptingBackendDisplayName(BuildUtils.CurrentScriptingBackend());
             public Func<string> ProjectPath { get; set; } = ()=> Path.GetDirectoryName(Application.dataPath);
             public Func<string> PersistentDataPath { get; set; } = ()=> Application.persistentDataPath;
             public Func<string> CacheFolderPath { get; set; } = ()=> Preferences.CacheFolderPath;
@@ -176,40 +176,6 @@ namespace Wireframe
         }
         
         internal static List<Command> Commands { get; }
-        
-
-        private static string ScriptingBackend
-        {
-            get
-            {
-                BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
-                BuildTargetGroup buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
-#if UNITY_2021_1_OR_NEWER
-                NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
-                ScriptingImplementation implementation = PlayerSettings.GetScriptingBackend(namedBuildTarget);
-#else
-                ScriptingImplementation implementation = PlayerSettings.GetScriptingBackend(buildTargetGroup);
-#endif
-
-                switch (implementation)
-                {
-                    case ScriptingImplementation.IL2CPP:
-                        return "IL2CPP";
-                    case ScriptingImplementation.Mono2x:
-                        return "Mono";
-                    case ScriptingImplementation.WinRTDotNET:
-                        return "DotNet";
-#if UNITY_6000_0_OR_NEWER
-#pragma warning disable CS0618 // Type or member is obsolete
-                    case ScriptingImplementation.CoreCLR:
-#pragma warning restore CS0618 // Type or member is obsolete
-                        return "CoreCLR";
-#endif
-                    default:
-                        return implementation.ToString(); // Unhandled like CoreCLR
-                }
-            }
-        }
 
         public static string FormatString(string format, Context context)
         {

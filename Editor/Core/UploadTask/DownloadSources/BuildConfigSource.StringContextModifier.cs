@@ -11,7 +11,7 @@ namespace Wireframe
             { StringFormatter.PRODUCT_NAME_KEY, (b) => b.BuildConfigContext.ProductName },
             { StringFormatter.BUILD_TARGET_KEY, (b) => b.ResultingPlatform()?.DisplayName ?? "<Unknown Platform>" },
             { StringFormatter.BUILD_TARGET_GROUP_KEY, (b) => b.ResultingTargetGroup().ToString() },
-            { StringFormatter.SCRIPTING_BACKEND_KEY, (b) => b.BuildConfigContext.ScriptingBackend.ToString() },
+            { StringFormatter.SCRIPTING_BACKEND_KEY, (b) => BuildUtils.ScriptingBackendDisplayName(b.BuildConfigContext.ScriptingBackend) },
             { StringFormatter.BUILD_NAME_KEY, (b) => b.BuildConfigContext.BuildName }
         };
         

@@ -89,8 +89,6 @@ namespace Wireframe
 
         public static ScriptingImplementation CurrentScriptingBackend()
         {
-            // 0 - Mono
-            // 1 - IL2CPP
 #if UNITY_2021_1_OR_NEWER
             return PlayerSettings.GetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(BuildTargetToPlatform()));
 #else
@@ -492,6 +490,27 @@ namespace Wireframe
             }
 
             return null;
+        }
+        
+        public static string ScriptingBackendDisplayName(ScriptingImplementation script)
+        {
+            switch (script)
+            {
+                case ScriptingImplementation.IL2CPP:
+                    return "IL2CPP";
+                case ScriptingImplementation.Mono2x:
+                    return "Mono";
+                case ScriptingImplementation.WinRTDotNET:
+                    return "DotNet";
+#if UNITY_6000_0_OR_NEWER
+#pragma warning disable CS0618 // Type or member is obsolete
+                case ScriptingImplementation.CoreCLR:
+#pragma warning restore CS0618 // Type or member is obsolete
+                    return "CoreCLR";
+#endif
+                default:
+                    return script.ToString();
+            }
         }
     }
 }

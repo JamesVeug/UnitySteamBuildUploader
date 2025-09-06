@@ -359,20 +359,28 @@ namespace Wireframe
             }
 
             // Check scene files exist
-            string[] scenes = SceneUIUtils.GetScenePaths();
-            List<string> invalidScenes = new List<string>();
-            foreach (string scene in config.Scenes)
+            if (config.SceneGUIDs.Count == 0)
             {
-                if (Array.IndexOf(scenes, scene) == -1)
-                {
-                    invalidScenes.Add($"'{scene}' not found.");
-                }
-            }
-            
-            if (invalidScenes.Count > 0)
-            {
-                reason = $"Invalid scenes: {string.Join(", ", invalidScenes)}";
+                reason = "No scenes selected in BuildConfig.";
                 return false;
+            }
+            else
+            {
+                string[] sceneGUIDs = SceneUIUtils.GetSceneGUIDS();
+                List<string> invalidScenes = new List<string>();
+                foreach (string scene in config.SceneGUIDs)
+                {
+                    if (Array.IndexOf(sceneGUIDs, scene) == -1)
+                    {
+                        invalidScenes.Add($"'{scene}' not found.");
+                    }
+                }
+
+                if (invalidScenes.Count > 0)
+                {
+                    reason = $"Invalid scene guids: {string.Join(", ", invalidScenes)}";
+                    return false;
+                }
             }
 
             bool switchPlatform = m_OverrideSwitchTargetPlatform || config.SwitchTargetPlatform;

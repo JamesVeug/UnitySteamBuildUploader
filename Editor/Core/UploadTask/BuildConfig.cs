@@ -12,7 +12,7 @@ namespace Wireframe
         public string GUID;
         public string BuildName;
         public string ProductName;
-        public List<string> Scenes;
+        public List<string> SceneGUIDs;
         public List<string> ExtraScriptingDefines;
         
         // Options
@@ -36,7 +36,7 @@ namespace Wireframe
         {
             BuildName = "";
             ProductName = "";
-            Scenes = new List<string>();
+            SceneGUIDs = new List<string>();
             ExtraScriptingDefines = new List<string>();
             
             IsDevelopmentBuild = false;
@@ -62,7 +62,7 @@ namespace Wireframe
             NewGUID();
             BuildName = "New Build";
             ProductName = BuildUtils.GetDefaultProductName();
-            Scenes = BuildUtils.GetDefaultScenes();
+            SceneGUIDs = BuildUtils.GetCurrentScenesGUIDs();
             ExtraScriptingDefines = BuildUtils.GetDefaultScriptingDefines();
             
             IsDevelopmentBuild = EditorUserBuildSettings.development;
@@ -107,7 +107,7 @@ namespace Wireframe
                 { "BuildName", BuildName },
                 { "ProductName", ProductName },
                 { "ExtraScriptingDefines", ExtraScriptingDefines?.ToList() ?? new List<string>() },
-                { "Scenes", Scenes?.ToList() ?? new List<string>() },
+                { "Scenes", SceneGUIDs?.ToList() ?? new List<string>() },
                 { "IsDevelopmentBuild", IsDevelopmentBuild },
                 { "BuildScriptsOnly", BuildScriptsOnly },
                 { "AllowDebugging", AllowDebugging },
@@ -177,17 +177,17 @@ namespace Wireframe
                 if (scenesData.GetType().GenericTypeArguments[0] == typeof(string))
                 {
                     // Deserialize then Serialize
-                    Scenes = (List<string>)scenesData; 
+                    SceneGUIDs = (List<string>)scenesData; 
                 }
                 else
                 {
                     // Deserialize, TO JSON then from JSON
-                    Scenes = ((List<object>)scenesData).Cast<string>().ToList();
+                    SceneGUIDs = ((List<object>)scenesData).Cast<string>().ToList();
                 }
             }
             else
             {
-                Scenes = BuildUtils.GetDefaultScenes();
+                SceneGUIDs = BuildUtils.GetCurrentScenesGUIDs();
             }
             
             if (dict.TryGetValue("IsDevelopmentBuild", out var isDevBuildData) && isDevBuildData is bool isDevBuild)
@@ -429,13 +429,13 @@ namespace Wireframe
             
             
             // Scene list
-            if (Scenes == null || Scenes.Count == 0)
+            if (SceneGUIDs == null || SceneGUIDs.Count == 0)
             {
                 EditorBuildSettings.scenes = Array.Empty<EditorBuildSettingsScene>();
             }
             else
             {
-                EditorBuildSettings.scenes = Scenes.Select(scene => new EditorBuildSettingsScene(scene, true)).ToArray();
+                EditorBuildSettings.scenes = SceneGUIDs.Select(guid => new EditorBuildSettingsScene(new GUID(guid), true)).ToArray();
             }
 
             return true;

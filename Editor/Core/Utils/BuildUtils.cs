@@ -152,14 +152,14 @@ namespace Wireframe
             return defines;
         }
 
-        public static List<string> GetDefaultScenes()
+        public static List<string> GetCurrentScenesGUIDs()
         {
             List<string> defaultScenes = new List<string>();
-            foreach (var scene in UnityEditor.EditorBuildSettings.scenes)
+            foreach (var scene in EditorBuildSettings.scenes)
             {
                 if (scene.enabled)
                 {
-                    defaultScenes.Add(scene.path);
+                    defaultScenes.Add(scene.guid.ToString());
                 }
             }
 

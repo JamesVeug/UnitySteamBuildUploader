@@ -8,6 +8,7 @@ namespace Wireframe
     {
         public class SceneData : DropdownElement
         {
+            public string GUID { get; set; }
             public string Path { get; set; }
             public string DisplayName { get; set; }
             public int Id { get; set; }
@@ -27,6 +28,7 @@ namespace Wireframe
         private static List<SceneData> data = null;
         private static string[] sceneNames = null;
         private static string[] scenePaths = null;
+        private static string[] sceneGUIDS = null;
         
 
         public static void ReloadScenes()
@@ -41,6 +43,15 @@ namespace Wireframe
                 LoadFile();
             }
             return data;
+        }
+        
+        public static string[] GetSceneGUIDS()
+        {
+            if (data == null)
+            {
+                GetScenes();
+            }
+            return sceneGUIDS;
         }
         
         public static string[] GetSceneNames()
@@ -72,6 +83,7 @@ namespace Wireframe
                 data.Add(new SceneData
                 {
                     Id = data.Count + 1,
+                    GUID = guid,
                     Path = path,
                     DisplayName = fileName
                 });
@@ -79,10 +91,12 @@ namespace Wireframe
             
             sceneNames = new string[data.Count];
             scenePaths = new string[data.Count];
+            sceneGUIDS = new string[data.Count];
             for (int i = 0; i < data.Count; i++)
             {
                 sceneNames[i] = data[i].DisplayName;
                 scenePaths[i] = data[i].Path;
+                sceneGUIDS[i] = data[i].GUID;
             }
 
             ScenesPopup.Refresh();

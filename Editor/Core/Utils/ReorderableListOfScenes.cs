@@ -10,7 +10,7 @@ namespace Wireframe
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
             string[] _allScenePaths = SceneUIUtils.GetScenePaths();
-            string[] _allSceneNames = SceneUIUtils.GetSceneNames();
+            string[] _allSceneGUIDs = SceneUIUtils.GetSceneGUIDS();
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -20,11 +20,11 @@ namespace Wireframe
                 Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
                 
                 EditorGUI.BeginChangeCheck();
-                int selectedIndex = Array.IndexOf(_allScenePaths, element);
-                int chosen = EditorGUI.Popup(rect1, selectedIndex, _allSceneNames);
+                int selectedIndex = Array.IndexOf(_allSceneGUIDs, element);
+                int chosen = EditorGUI.Popup(rect1, selectedIndex, _allScenePaths);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    list[index] = _allScenePaths[chosen];
+                    list[index] = _allSceneGUIDs[chosen];
                     dirty = true;
                 }
             }
@@ -38,12 +38,12 @@ namespace Wireframe
             
             menu.AddItem(new GUIContent("Add scenes in Build settings"), false, () =>
             {
-                var buildScenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path);
-                foreach (var scene in buildScenes)
+                var buildScenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.guid.ToString());
+                foreach (string sceneGUID in buildScenes)
                 {
-                    if (!list.Contains(scene))
+                    if (!list.Contains(sceneGUID))
                     {
-                        list.Add(scene);
+                        list.Add(sceneGUID);
                         dirty = true;
                     }
                 }
@@ -51,7 +51,7 @@ namespace Wireframe
             
             menu.AddItem(new GUIContent("Add missing scenes"), false, () =>
             {
-                var allScenes = SceneUIUtils.GetScenes().Select(s => s.Path);
+                var allScenes = SceneUIUtils.GetScenes().Select(s => s.GUID);
                 foreach (var scene in allScenes)
                 {
                     if (!list.Contains(scene))

@@ -114,7 +114,7 @@ namespace Wireframe
                         "This will change your Player settings and Editor settings", 
                         "Apply", "Cancel"))
                 {
-                    ApplyBuildConfig(null, ctx);
+                    ApplyBuildConfig(CreateSourceBuildConfig(), null, ctx);
                 }
             }
             

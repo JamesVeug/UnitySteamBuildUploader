@@ -5,13 +5,14 @@ namespace Wireframe
 {
     public partial class BuildConfigSource : StringFormatter.IContextModifier
     {
+        private BuildConfig BuildConfigContext => m_buildConfigToApply != null ? m_buildConfigToApply : m_BuildConfig;
         private static Dictionary<string, Func<BuildConfigSource, string>> s_StringGetters = new()
         {
-            { StringFormatter.PRODUCT_NAME_KEY, (b) => b.BuildConfig.ProductName },
+            { StringFormatter.PRODUCT_NAME_KEY, (b) => b.BuildConfigContext.ProductName },
             { StringFormatter.BUILD_TARGET_KEY, (b) => b.ResultingPlatform()?.DisplayName ?? "<Unknown Platform>" },
             { StringFormatter.BUILD_TARGET_GROUP_KEY, (b) => b.ResultingTargetGroup().ToString() },
-            { StringFormatter.SCRIPTING_BACKEND_KEY, (b) => b.BuildConfig.ScriptingBackend.ToString() },
-            { StringFormatter.BUILD_NAME_KEY, (b) => b.BuildConfig.BuildName }
+            { StringFormatter.SCRIPTING_BACKEND_KEY, (b) => b.BuildConfigContext.ScriptingBackend.ToString() },
+            { StringFormatter.BUILD_NAME_KEY, (b) => b.BuildConfigContext.BuildName }
         };
         
         public bool ReplaceString(string key, out string value)
@@ -30,7 +31,7 @@ namespace Wireframe
                 return true;
             }
             
-            if (BuildConfig != null && s_StringGetters.TryGetValue(key, out var func))
+            if (BuildConfigContext != null && s_StringGetters.TryGetValue(key, out var func))
             {
                 value = func(this);
                 return true;

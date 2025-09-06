@@ -46,6 +46,7 @@ namespace Wireframe
         private string m_filePath = "";
         private bool m_appliedSettings = false;
         private BuildMetaData m_buildMetaData = null;
+        private BuildConfig m_buildConfigToApply = null;
         
         // Lock to 1 build at a time regardless of how many tasks/configs are running
         internal static BuildConfig m_editorSettingsBeforeUpload = null;
@@ -58,12 +59,46 @@ namespace Wireframe
             public string TargetPath;
         }
         private static List<Builds> s_CompleteBuilds = new List<Builds>();
+        
+
+        public override Task<bool> Prepare(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token)
+        {
+            // Create a new config since we make different changes at different times and this keeps it consistent
+            m_buildConfigToApply = CreateSourceBuildConfig();
+
+            return Task.FromResult(true);
+        }
+
+        private BuildConfig CreateSourceBuildConfig()
+        {
+            var config = new BuildConfig();
+            config.Deserialize(m_BuildConfig.Serialize());
+
+            if (m_OverrideSwitchTargetPlatform)
+            {
+                config.Target = m_Target;
+                config.TargetArchitecture = m_TargetArchitecture;
+                config.TargetPlatform = m_TargetPlatform;
+                config.TargetPlatformSubTarget = m_TargetPlatformSubTarget;
+                config.SwitchTargetPlatform = true;
+            }
+            else if (!config.SwitchTargetPlatform)
+            {
+                config.Target = BuildUtils.CurrentTargetPlatform();
+                config.TargetArchitecture = BuildUtils.CurrentTargetArchitecture();
+                config.TargetPlatform = BuildUtils.BuildTargetToPlatform();
+                config.TargetPlatformSubTarget = BuildUtils.CurrentSubTarget();
+                config.SwitchTargetPlatform = true;
+            }
+            
+            return config;
+        }
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             StringFormatter.Context ctx, CancellationTokenSource token)
         {
             // Start build
-            if (m_BuildConfig == null)
+            if (m_buildConfigToApply == null)
             {
                 stepResult.AddError("No BuildConfig selected. Please select a BuildConfig to use.");
                 token.Cancel();
@@ -95,8 +130,8 @@ namespace Wireframe
                 m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
-                string buildName = StringFormatter.FormatString(m_BuildConfig.BuildName, ctx);
-                m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", string.Format("{0} ({1})", buildName, m_BuildConfig.GUID));
+                string buildName = StringFormatter.FormatString(m_buildConfigToApply.BuildName, ctx);
+                m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", string.Format("{0} ({1})", buildName, m_buildConfigToApply.GUID));
                 if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
@@ -134,18 +169,18 @@ namespace Wireframe
                     m_editorSettingsBeforeUpload.SwitchTargetPlatform = true;
                 }
 
-                if (!ApplyBuildConfig(stepResult, ctx))
+                if (!ApplyBuildConfig(m_buildConfigToApply, stepResult, ctx))
                 {
                     return false;
                 }
 
                 // Get all enabled scenes in build settings
-                BuildOptions buildOptions = m_BuildConfig.GetBuildOptions();
+                BuildOptions buildOptions = m_buildConfigToApply.GetBuildOptions();
 #if UNITY_2021_2_OR_NEWER
                 buildOptions |= BuildOptions.DetailedBuildReport;
 #endif
 
-                string productName = m_BuildConfig.GetFormattedProductName(ctx);
+                string productName = m_buildConfigToApply.GetFormattedProductName(ctx);
                 BuildPlayerOptions options = new BuildPlayerOptions
                 {
                     scenes = EditorBuildSettings.scenes
@@ -230,20 +265,10 @@ namespace Wireframe
             return false;
         }
 
-        private bool ApplyBuildConfig(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        private bool ApplyBuildConfig(BuildConfig config, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
-            if (m_OverrideSwitchTargetPlatform)
-            {
-                stepResult?.AddLog($"Overriding target platform is enabled to switching to {ResultingTarget()} ({ResultingTargetGroup()})");
-                if (!BuildUtils.TrySwitchPlatform(ResultingTargetGroup(), ResultingTargetPlatformSubTarget(), ResultingTarget(), ResultingArchitecture(), stepResult))
-                {
-                    stepResult?.SetFailed("Failed to switch target platform. Please check the console for more details.");
-                    return false;
-                }
-            }
-                
             stepResult?.AddLog($"Applying settings");
-            if (!m_BuildConfig.ApplySettings(!m_OverrideSwitchTargetPlatform, ctx, stepResult))
+            if (!config.ApplySettings(config.SwitchTargetPlatform, ctx, stepResult))
             {
                 stepResult?.SetFailed("Failed to apply build settings. Please check the console for more details.");
                 return false;
@@ -453,6 +478,7 @@ namespace Wireframe
         {
             await base.CleanUp(i, result, ctx);
 
+            m_buildConfigToApply = null;
             m_buildMetaData = null;
             if (!m_appliedSettings)
             {
@@ -502,6 +528,9 @@ namespace Wireframe
 
         public BuildTarget ResultingTarget()
         {
+            if (m_buildConfigToApply != null)
+                return m_buildConfigToApply.Target;
+            
             if (m_OverrideSwitchTargetPlatform)
                 return m_Target;
             if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)
@@ -511,6 +540,9 @@ namespace Wireframe
 
         public BuildUtils.Architecture ResultingArchitecture()
         {
+            if (m_buildConfigToApply != null)
+                return m_buildConfigToApply.TargetArchitecture;
+            
             if (m_OverrideSwitchTargetPlatform)
                 return m_TargetArchitecture;
             if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)
@@ -520,6 +552,9 @@ namespace Wireframe
 
         public int ResultingTargetPlatformSubTarget()
         {
+            if (m_buildConfigToApply != null)
+                return m_buildConfigToApply.TargetPlatformSubTarget;
+            
             if (m_OverrideSwitchTargetPlatform)
                 return m_TargetPlatformSubTarget;
             if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)
@@ -529,6 +564,9 @@ namespace Wireframe
 
         public BuildTargetGroup ResultingTargetGroup()
         {
+            if (m_buildConfigToApply != null)
+                return m_buildConfigToApply.TargetPlatform;
+            
             if (m_OverrideSwitchTargetPlatform)
                 return m_TargetPlatform;
             if (m_BuildConfig != null && m_BuildConfig.SwitchTargetPlatform)

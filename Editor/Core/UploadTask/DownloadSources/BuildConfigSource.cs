@@ -130,8 +130,7 @@ namespace Wireframe
                 m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
-                string buildName = StringFormatter.FormatString(m_buildConfigToApply.BuildName, ctx);
-                m_filePath = Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", string.Format("{0} ({1})", buildName, m_buildConfigToApply.GUID));
+                m_filePath = GetBuiltDirectory(ctx);
                 if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
@@ -263,6 +262,17 @@ namespace Wireframe
             stepResult.SetFailed(summarizeErrors);
             token.Cancel();
             return false;
+        }
+
+        private string GetBuiltDirectory(StringFormatter.Context ctx)
+        {
+            BuildConfig config = BuildConfigContext;
+            string buildName = StringFormatter.FormatString(config.BuildName, ctx);
+            string guid = config.GUID;
+            string buildPath = string.Format("{0} ({1})", buildName, guid); // Development (1234)
+            string targetName = BuildUtils.GetBuildPlatform(config.TargetPlatform, config.Target, config.TargetPlatformSubTarget).DisplayName;
+            string platformPath = string.Format("{0} {1}", targetName, config.TargetArchitecture); // StandaloneWindows64 x64
+            return Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", buildPath, platformPath);
         }
 
         private bool ApplyBuildConfig(BuildConfig config, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)

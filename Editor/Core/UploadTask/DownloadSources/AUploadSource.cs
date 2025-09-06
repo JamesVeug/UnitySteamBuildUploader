@@ -13,6 +13,11 @@ namespace Wireframe
 
         public int Id { get; set; }
 
+        public virtual Task<bool> Prepare(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token)
+        {
+            return Task.FromResult(true);
+        }
+        
         public abstract Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token);
         
         public abstract string SourceFilePath();

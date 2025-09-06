@@ -9,6 +9,7 @@ namespace Wireframe
     {
         public enum StepType
         {
+            PrepareSources,
             GetSources,
             CacheSources,
             ModifyCacheSources,

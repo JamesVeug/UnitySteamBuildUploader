@@ -122,6 +122,7 @@ namespace Wireframe
             AUploadTask_Step[] steps = new AUploadTask_Step[]
             {
                 // Executed in order and stops when 1 fails
+                new UploadTaskStep_PrepareSources(context), // Make sure the sources are ready before we retrieve them
                 new UploadTaskStep_GetSources(context), // Download content from services or get local folder
                 new UploadTaskStep_CacheSources(context), // Cache the content in Utils.CachePath
                 new UploadTaskStep_ModifyCachedSources(context), // Modify the build so it's ready to be uploaded (Remove/add files)

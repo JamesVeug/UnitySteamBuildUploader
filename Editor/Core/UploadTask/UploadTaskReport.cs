@@ -106,6 +106,12 @@ namespace Wireframe
                     Logs.Add(new Log(Log.LogType.Error, "[FAILED] " + reason));
                     m_report.Successful = false;
                 }
+                
+                if (m_report.m_invokeDebugLogs)
+                {
+                    string err = "[FAILED] " + reason;
+                    Debug.LogError(err);
+                }
             }
             
             public void SetPercentComplete(float percent)

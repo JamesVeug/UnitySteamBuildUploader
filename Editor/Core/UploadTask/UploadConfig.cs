@@ -20,9 +20,9 @@ namespace Wireframe
         
         private StringFormatter.Context m_context;
 
-        public UploadConfig() : this(Guid.NewGuid().ToString().Substring(0, 5))
+        public UploadConfig() : this("")
         {
-            
+            NewGUID();
         }
 
         public UploadConfig(string guid)
@@ -35,6 +35,20 @@ namespace Wireframe
             
             m_context = new StringFormatter.Context();
             m_context.AddModifier(this);
+        }
+
+        public void NewGUID()
+        {
+            GUID = Guid.NewGuid().ToString().Substring(0, 5);
+        }
+
+        public void Clear()
+        {
+            m_buildSources.Clear();
+            m_modifiers.Clear();
+            m_buildDestinations.Clear();
+            
+            m_context = null;
         }
         
         public List<string> GetAllErrors()

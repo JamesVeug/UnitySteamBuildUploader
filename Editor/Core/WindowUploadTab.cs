@@ -189,6 +189,19 @@ namespace Wireframe
                         if (CustomSettingsIcon.OnGUI())
                         {
                             GenericMenu menu = new GenericMenu();
+                            
+                            menu.AddItem(new GUIContent("Move To Top"), false, () =>
+                            {
+                                int indexOf = m_currentUploadProfile.UploadConfigs.IndexOf(uploadConfig);
+                                if (indexOf > 0)
+                                {
+                                    m_currentUploadProfile.UploadConfigs.RemoveAt(indexOf);
+                                    m_currentUploadProfile.UploadConfigs.Insert(0, uploadConfig);
+                                    
+                                    m_isDirty = true;
+                                }
+                            });
+                            
                             menu.AddItem(new GUIContent("Move Up"), false, () =>
                             {
                                 int indexOf = m_currentUploadProfile.UploadConfigs.IndexOf(uploadConfig);
@@ -210,11 +223,57 @@ namespace Wireframe
                                     m_isDirty = true;
                                 }
                             });
+
+                            menu.AddItem(new GUIContent("Move To Bottom"), false, () =>
+                            {
+                                int indexOf = m_currentUploadProfile.UploadConfigs.IndexOf(uploadConfig);
+                                if (indexOf < m_currentUploadProfile.UploadConfigs.Count - 1)
+                                {
+                                    m_currentUploadProfile.UploadConfigs.RemoveAt(indexOf);
+                                    m_currentUploadProfile.UploadConfigs.Add(uploadConfig);
+                                    
+                                    m_isDirty = true;
+                                }
+                            });
                             
                             menu.AddSeparator("");
+                            
+                            menu.AddItem(new GUIContent("Duplicate"), false, () =>
+                            {
+                                if (EditorUtility.DisplayDialog("Duplicate Upload Config",
+                                        "Are you sure you want to duplicate this Upload Config?", "Duplicate", "Cancel"))
+                                {
+                                    // Clone it using JSON because just using serialize data uses concrete types for collections
+                                    // TODO: Fix the concrete types to avoid this JSON serialization
+                                    Dictionary<string, object> serialized = uploadConfig.Serialize();
+                                    string json = JSON.SerializeObject(serialized);
+                                    serialized = JSON.DeserializeObject<Dictionary<string, object>>(json);
+                                    
+                                    UploadConfig copy = new UploadConfig();
+                                    copy.Deserialize(serialized);
+                                    copy.NewGUID();
+                                    copy.Context.SetParent(m_context);
+                                    m_currentUploadProfile.UploadConfigs.Add(copy);
+                                    
+                                    m_isDirty = true;
+                                }
+                            });
+                            
+                            menu.AddSeparator("");
+                            
+                            menu.AddItem(new GUIContent("Reset All Settings"), false, () =>
+                            {
+                                if (EditorUtility.DisplayDialog("Reset all Upload Config",
+                                        "Are you sure you want to reset all settings in this Upload Config?", "Reset", "Cancel"))
+                                {
+                                    uploadConfig.Clear();
+                                    m_isDirty = true;
+                                }
+                            });
+                            
                             menu.AddItem(new GUIContent("Delete"), false, () =>
                             {
-                                if (EditorUtility.DisplayDialog("Remove Upload Config",
+                                if (EditorUtility.DisplayDialog("Delete Upload Config",
                                         "Are you sure you want to remove this Upload Config?", "Delete", "Cancel"))
                                 {
                                     m_currentUploadProfile.UploadConfigs.Remove(uploadConfig);
@@ -292,6 +351,7 @@ namespace Wireframe
                                 });
                                 
                                 menu.AddSeparator("");
+                                
                                 menu.AddItem(new GUIContent("Delete"), false, () =>
                                 {
                                     if (EditorUtility.DisplayDialog("Remove Post Upload Action",

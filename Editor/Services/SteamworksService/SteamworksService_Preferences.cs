@@ -44,7 +44,11 @@ namespace Wireframe
 
                 if (GUILayout.Button("...", GUILayout.Width(50)))
                 {
-                    newPath = EditorUtility.OpenFolderPanel("SteamSDK Folder", ".", "");
+                    var newFolderPath = EditorUtility.OpenFolderPanel("SteamSDK Folder", ".", "");
+                    if (!string.IsNullOrEmpty(newFolderPath))
+                    {
+                        newPath = newFolderPath;
+                    }
                 }
 
                 if (GUILayout.Button("Show", GUILayout.Width(50)))
@@ -57,7 +61,7 @@ namespace Wireframe
                     SteamSDK.Instance.ShowConsole();
                 }
 
-                if (newPath != SteamSDK.SteamSDKPath && !string.IsNullOrEmpty(newPath))
+                if (newPath != SteamSDK.SteamSDKPath)
                 {
                     SteamSDK.SteamSDKPath = newPath;
                     SteamSDK.Instance.Initialize();

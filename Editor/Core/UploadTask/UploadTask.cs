@@ -108,7 +108,7 @@ namespace Wireframe
             IsComplete = false;
             PercentComplete = 0f;
             IsSuccessful = false;
-            CurrentStep = AUploadTask_Step.StepType.GetSources;
+            CurrentStep = AUploadTask_Step.StepType.Validation;
 
             context.CacheCallbacks();
             for (var i = 0; i < UploadConfigs.Count; i++)
@@ -136,6 +136,51 @@ namespace Wireframe
             
             // Setup Context to display task specific strings
             SetupContext(report);
+            
+            // Run the Build Uploader
+            await Execute(steps);
+
+            IsComplete = true;
+            PercentComplete = 1f;
+            IsSuccessful = report.Successful;
+            
+            ProgressUtils.Remove(progressId);
+            report.Complete();
+            OnComplete?.Invoke(report);
+        }
+
+        private async Task Execute(AUploadTask_Step[] steps)
+        {
+            // Validate
+            report.SetProcess(AUploadTask_Step.StepProcess.Intra);
+            UploadTaskReport.StepResult[] reports = report.NewReports(AUploadTask_Step.StepType.Validation, uploadConfigs.Count);
+            bool valid = true;
+            for (var i = 0; i < uploadConfigs.Count; i++)
+            {
+                UploadTaskReport.StepResult result = reports[i];
+                var config = uploadConfigs[i];
+                List<string> errors = config.GetAllErrors();
+                if (errors.Count > 0)
+                {
+                    foreach (string error in errors)
+                    {
+                        result.AddError(error);
+                        valid = false;
+                    }
+                }
+                else
+                {
+                    result.AddLog("No errors found in config: " + config.GUID);
+                }
+            }
+
+            if (!valid)
+            {
+                UploadTaskReport.StepResult result = report.NewReport(AUploadTask_Step.StepType.Validation);
+                result.SetFailed("Validation failed. See errors above.");
+                SetProgress(0, 1f, CurrentStep.ToString());
+                return;
+            }
             
             // Do upload steps
             bool allStepsSuccessful = true;
@@ -169,16 +214,8 @@ namespace Wireframe
                     allStepsSuccessful = false;
                 }
             }
-
-            IsComplete = true;
-            PercentComplete = 1f;
-            IsSuccessful = report.Successful;
-            
-            ProgressUtils.Remove(progressId);
-            report.Complete();
-            OnComplete?.Invoke(report);
         }
-        
+
         private void SetProgress(int step, float percent, string message)
         {
             float mainPercent = (float)step / totalSteps;

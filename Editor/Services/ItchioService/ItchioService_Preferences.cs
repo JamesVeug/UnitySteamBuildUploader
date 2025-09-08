@@ -39,7 +39,11 @@ namespace Wireframe
 
                 if (GUILayout.Button("...", GUILayout.Width(50)))
                 {
-                    newPath = EditorUtility.OpenFolderPanel("Itchio Folder", ".", "");
+                    var newButlerPath = EditorUtility.OpenFolderPanel("Itchio Folder", ".", "");
+                    if (!string.IsNullOrEmpty(newButlerPath))
+                    {
+                        newPath = newButlerPath;
+                    }
                 }
 
                 if (GUILayout.Button("Show", GUILayout.Width(50)))

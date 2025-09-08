@@ -31,6 +31,8 @@ namespace Wireframe
                         servers.Add(config);
                         DiscordUIUtils.Save();
                         DiscordUIUtils.ServerPopup.Refresh();
+                        DiscordUIUtils.AppPopup.Refresh();
+                        DiscordUIUtils.ChannelPopup.Refresh();
                         m_SelectedServer = config;
                     }
                     
@@ -47,6 +49,8 @@ namespace Wireframe
                                 servers.Remove(m_SelectedServer);
                                 DiscordUIUtils.Save();
                                 DiscordUIUtils.ServerPopup.Refresh();
+                                DiscordUIUtils.AppPopup.Refresh();
+                                DiscordUIUtils.ChannelPopup.Refresh();
                                 m_SelectedServer = null;
                             }
                         }
@@ -66,6 +70,8 @@ namespace Wireframe
                                 m_SelectedServer.Name = newConfigName;
                                 DiscordUIUtils.Save();
                                 DiscordUIUtils.ServerPopup.Refresh();
+                                DiscordUIUtils.AppPopup.Refresh();
+                                DiscordUIUtils.ChannelPopup.Refresh();
                             }
                         }
                         
@@ -78,6 +84,8 @@ namespace Wireframe
                                 m_SelectedServer.ServerID = newConfigName;
                                 DiscordUIUtils.Save();
                                 DiscordUIUtils.ServerPopup.Refresh();
+                                DiscordUIUtils.AppPopup.Refresh();
+                                DiscordUIUtils.ChannelPopup.Refresh();
                             }
                         }
                         

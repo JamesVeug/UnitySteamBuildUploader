@@ -49,6 +49,28 @@ namespace Wireframe
                             Application.OpenURL($"https://itch.io/profile/{m_currentUser.Name}");
                         }
                     }
+
+                    if (CustomSettingsIcon.OnGUI())
+                    {
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("Delete User"), false, ()=>
+                        {
+                            if (m_currentUser != null)
+                            {
+                                if (EditorUtility.DisplayDialog("Delete User", 
+                                        "Are you sure you want to delete this user?", "Delete", "No"))
+                                {
+                                    List<ItchioUser> configs = ItchioUIUtils.GetItchioBuildData().Users;
+                                    configs.Remove(m_currentUser);
+                                    m_currentUser = null;
+                                    ItchioUIUtils.Save();
+                                    ItchioUIUtils.UserPopup.Refresh();
+                                    ItchioUIUtils.GamePopup.Refresh();
+                                }
+                            }
+                        });
+                        menu.ShowAsContext();
+                    }
                 }
 
                 if (m_currentUser != null)

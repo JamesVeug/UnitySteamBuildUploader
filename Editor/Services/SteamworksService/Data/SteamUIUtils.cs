@@ -56,6 +56,7 @@ namespace Wireframe
                     Debug.Log("Found SteamWorksConfig.json from a previous version. Migrating to new version");
                     LoadFile(Application.dataPath + "/../SteamBuilder/SteamWorksConfig.json");
                     Save();
+                    File.Delete(Application.dataPath + "/../SteamBuilder/SteamWorksConfig.json");
                 }
                 else
                 {

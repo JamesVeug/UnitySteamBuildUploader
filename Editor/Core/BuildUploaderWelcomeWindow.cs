@@ -32,7 +32,7 @@ namespace Wireframe {
             window.titleContent = new GUIContent("Welcome to Build Uploader!", Utils.WindowIcon);
             
             Rect windowPosition = window.position;
-            windowPosition.size = new Vector2(400, Screen.currentResolution.height * 0.5f);
+            windowPosition.size = new Vector2(Screen.currentResolution.width * 0.5f, Screen.currentResolution.height * 0.5f);
             windowPosition.center = new Rect(0f, 0f, Screen.currentResolution.width, Screen.currentResolution.height).center;
             window.position = windowPosition; 
             window.Show();

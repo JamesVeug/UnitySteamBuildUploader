@@ -37,6 +37,7 @@ namespace Wireframe
                         configs.Add(config);
                         ItchioUIUtils.Save();
                         ItchioUIUtils.UserPopup.Refresh();
+                        ItchioUIUtils.GamePopup.Refresh();
                         m_currentUser = config;
                         m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
                     }
@@ -102,6 +103,7 @@ namespace Wireframe
                     m_currentUser.Name = newConfigName;
                     Save();
                     ItchioUIUtils.UserPopup.Refresh();
+                    ItchioUIUtils.GamePopup.Refresh();
                 }
             }
         }
@@ -112,6 +114,7 @@ namespace Wireframe
             {
                 Save();
                 ItchioUIUtils.UserPopup.Refresh();
+                ItchioUIUtils.GamePopup.Refresh();
             }
         }
 
@@ -119,6 +122,7 @@ namespace Wireframe
         {
             ItchioUIUtils.Save();
             ItchioUIUtils.UserPopup.Refresh();
+            ItchioUIUtils.GamePopup.Refresh();
         }
     }
 }

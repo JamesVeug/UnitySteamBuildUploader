@@ -267,6 +267,10 @@ namespace Wireframe
         private string GetBuiltDirectory(StringFormatter.Context ctx)
         {
             BuildConfig config = BuildConfigContext;
+            if (config == null)
+            {
+                return "";
+            }
             string buildName = StringFormatter.FormatString(config.BuildName, ctx);
             string guid = config.GUID;
             string buildPath = string.Format("{0} ({1})", buildName, guid); // Development (1234)

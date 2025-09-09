@@ -13,12 +13,9 @@ namespace Wireframe
         /// </summary>
         public string DisplayName { get; }
         
-        public string ButtonText { get; }
-        
-        public UploadActionAttribute(string displayName, string buttonText)
+        public UploadActionAttribute(string displayName)
         {
             DisplayName = displayName;
-            ButtonText = buttonText;
         }
     }
 }

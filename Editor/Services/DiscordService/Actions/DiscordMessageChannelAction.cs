@@ -11,7 +11,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(DiscordMessageChannelAction), "actions", "Use a bot to send a message to a channel on a discord server.")]
-    [UploadAction("Discord Message Channel", "Discord Send Message to Channel")]
+    [UploadAction("Discord Message Channel")]
     public partial class DiscordMessageChannelAction : AUploadAction
     {
         [Serializable]

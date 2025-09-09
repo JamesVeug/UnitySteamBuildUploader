@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -70,11 +71,14 @@ namespace Wireframe
         private static void CreateDefaultConfigs()
         {
             BuildConfig debugBuild = new BuildConfig();
+            debugBuild.Id = data.Count > 0 ? data.Max(a=>a.Id) + 1 : 1;
             debugBuild.SetEditorSettings();
             debugBuild.BuildName = "Debugging Build";
             debugBuild.SetDebuggingOn(true);
+            data.Add(debugBuild);
 
             BuildConfig releaseBuild = new BuildConfig();
+            debugBuild.Id = data.Count > 0 ? data.Max(a=>a.Id) + 1 : 1;
             releaseBuild.SetEditorSettings();
             releaseBuild.BuildName = "Release Build";
 #if UNITY_2021_1_OR_NEWER
@@ -83,9 +87,6 @@ namespace Wireframe
             releaseBuild.StrippingLevel = ManagedStrippingLevel.Low;
 #endif
             releaseBuild.SetDebuggingOn(false);
-
-            
-            data.Add(debugBuild);
             data.Add(releaseBuild);
         }
 

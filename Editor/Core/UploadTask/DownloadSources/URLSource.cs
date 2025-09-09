@@ -122,12 +122,12 @@ namespace Wireframe
             return true;
         }
 
-        public override Task CleanUp(int i, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
-            base.CleanUp(i, result, ctx);
+            base.CleanUp(configIndex, stepResult, ctx);
             if (File.Exists(m_sourcePath))
             {
-                result.AddLog("Deleting cached file: " + m_sourcePath);
+                stepResult.AddLog("Deleting cached file: " + m_sourcePath);
                 File.Delete(m_sourcePath);
             }
             

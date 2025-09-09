@@ -381,5 +381,64 @@ namespace Wireframe
         {
             return path.IndexOfAny(Path.GetInvalidPathChars()) >= 0;
         }
+
+        public static bool FileNameContainsInvalidCharacters(string fileName)
+        {
+            return fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0;
+        }
+
+        public static bool DrawPathAsButton(ref string fullPath, string emptyPathText, float maxWidth)
+        {
+            string displayedPath = fullPath;
+            if (!string.IsNullOrEmpty(displayedPath))
+            {
+                float characterWidth = 8f;
+                int characters = displayedPath.Length;
+                float expectedWidth = characterWidth * characters;
+                if (expectedWidth >= maxWidth)
+                {
+                    int charactersToRemove = (int)((expectedWidth - maxWidth) / characterWidth);
+                    if (charactersToRemove < displayedPath.Length)
+                    {
+                        displayedPath = displayedPath.Substring(charactersToRemove);
+                    }
+                    else
+                    {
+                        displayedPath = "";
+                    }
+                }
+                
+                if(displayedPath.Length < fullPath.Length)
+                {
+                    displayedPath = "..." + displayedPath;
+                }
+            }
+            else
+            {
+                displayedPath = emptyPathText;
+            }
+            
+            // TODO: Cache this
+            var pathButtonExistsStyle = new GUIStyle(GUI.skin.button);
+            var pathButtonDoesNotExistStyle = new GUIStyle(GUI.skin.button);
+            pathButtonDoesNotExistStyle.normal.textColor = Color.yellow;
+            
+            GUIStyle style = PathExists(displayedPath) ? pathButtonExistsStyle : pathButtonDoesNotExistStyle;
+            style.alignment = TextAnchor.MiddleLeft;
+            
+            if (GUILayout.Button(displayedPath, style))
+            {
+                string newPath = EditorUtility.OpenFolderPanel("Select Folder to upload", ".", "");
+                fullPath = newPath;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool PathExists(string path)
+        {
+            return !string.IsNullOrEmpty(path) && File.Exists(path) || Directory.Exists(path);
+        }
     }
 }

@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Prepares all destinations for upload
+    /// If any destination fails to prepare, the entire upload task fails and we skip to cleanup
+    /// </summary>
     public class UploadTaskStep_PrepareDestinations : AUploadTask_Step
     {
         public UploadTaskStep_PrepareDestinations(StringFormatter.Context context) : base(context)

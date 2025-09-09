@@ -9,6 +9,10 @@ using UnityEditorInternal;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Copies all the sources to a cache folder so they can be modified and uploaded from there.
+    /// This is done so that the original source files are never modified.
+    /// </summary>
     public class UploadTaskStep_CacheSources : AUploadTask_Step
     {
         public UploadTaskStep_CacheSources(StringFormatter.Context context) : base(context)

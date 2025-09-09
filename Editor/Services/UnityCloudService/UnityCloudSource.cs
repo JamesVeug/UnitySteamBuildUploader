@@ -104,19 +104,19 @@ namespace Wireframe
             return true;
         }
 
-        public override Task CleanUp(int i, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
-            base.CleanUp(i, result, ctx);
+            base.CleanUp(configIndex, stepResult, ctx);
             if (File.Exists(downloadedFilePath))
             {
                 try
                 {
-                    result.AddLog("Deleting cached file: " + downloadedFilePath);
+                    stepResult.AddLog("Deleting cached file: " + downloadedFilePath);
                     File.Delete(downloadedFilePath);
                 }
                 catch (IOException e)
                 {
-                    result.AddError("Failed to delete file: " + downloadedFilePath + "\n" + e.Message);
+                    stepResult.AddError("Failed to delete file: " + downloadedFilePath + "\n" + e.Message);
                 }
             }
             

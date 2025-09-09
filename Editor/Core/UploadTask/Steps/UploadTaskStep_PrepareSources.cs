@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Prepares all sources for upload so we can cache anything before the editor or any files change
+    /// If any source fails to prepare then the entire upload task is aborted and we skip to cleanup
+    /// </summary>
     public class UploadTaskStep_PrepareSources : AUploadTask_Step
     {
         public UploadTaskStep_PrepareSources(StringFormatter.Context context) : base(context)

@@ -32,6 +32,11 @@ namespace Wireframe
         public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
         public ScriptingImplementation ScriptingBackend = ScriptingImplementation.Mono2x;
 
+        public BuildConfig()
+        {
+            
+        }
+
         public void Clear()
         {
             BuildName = "";

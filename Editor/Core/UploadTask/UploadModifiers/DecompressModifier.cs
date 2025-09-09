@@ -48,14 +48,14 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, UploadConfig uploadConfig,
-            int buildIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig,
+            int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
-            string pathToFile = Path.Combine(cachedDirectory, StringFormatter.FormatString(m_filePath, ctx));
-            string decompressDirectory = cachedDirectory;
+            string pathToFile = Path.Combine(cachedFolderPath, StringFormatter.FormatString(m_filePath, ctx));
+            string decompressDirectory = cachedFolderPath;
             if (!string.IsNullOrEmpty(m_targetPathToCompress))
             {
-                decompressDirectory = Path.Combine(cachedDirectory, StringFormatter.FormatString(m_targetPathToCompress, ctx));
+                decompressDirectory = Path.Combine(cachedFolderPath, StringFormatter.FormatString(m_targetPathToCompress, ctx));
             }
             
 

@@ -48,13 +48,13 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, UploadConfig uploadConfig,
-            int buildIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig,
+            int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
-            string pathToCompress = cachedDirectory;
+            string pathToCompress = cachedFolderPath;
             if (!string.IsNullOrEmpty(m_targetPathToCompress))
             {
-                pathToCompress = Path.Combine(cachedDirectory, StringFormatter.FormatString(m_targetPathToCompress, ctx));
+                pathToCompress = Path.Combine(cachedFolderPath, StringFormatter.FormatString(m_targetPathToCompress, ctx));
             }
             
             string compressedFileName = StringFormatter.FormatString(m_compressedFileName, ctx);
@@ -85,7 +85,7 @@ namespace Wireframe
                 // It's a directory!
                 string[] files = Directory.GetFiles(pathToCompress).Concat(Directory.GetDirectories(pathToCompress)).ToArray();
                 
-                string zipResultDirectory = pathToCompress == cachedDirectory ? cachedDirectory : Path.GetDirectoryName(pathToCompress);
+                string zipResultDirectory = pathToCompress == cachedFolderPath ? cachedFolderPath : Path.GetDirectoryName(pathToCompress);
                 string zipPath = Path.Combine(zipResultDirectory, compressedFileName);
                 successful = await ZipUtils.Zip(pathToCompress, zipPath, stepResult);
                 if (successful)

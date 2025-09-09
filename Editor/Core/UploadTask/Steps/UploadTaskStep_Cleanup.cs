@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Cleanup step to remove any cached files or data to avoid dirtying up the user's computer
+    /// This step always runs as a last step - even if previous steps failed
+    /// </summary>
     public class UploadTaskStep_Cleanup : AUploadTask_Step
     {
         public UploadTaskStep_Cleanup(StringFormatter.Context context) : base(context)

@@ -92,9 +92,9 @@ namespace Wireframe
         }
 
         public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
-            string filePath, string buildDescription, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+            string cachedFolderPath, string buildDescription, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            await base.Prepare(taskGUID, configIndex, destinationIndex, filePath, buildDescription, result, ctx);
+            await base.Prepare(taskGUID, configIndex, destinationIndex, cachedFolderPath, buildDescription, result, ctx);
 
             if (m_current == null)
             {
@@ -121,7 +121,7 @@ namespace Wireframe
             string suffix = $"buildUploader_{taskGUID}_{configIndex}_{destinationIndex}";
             if (m_createAppFile)
             {
-                m_appPath = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepot.Depot, m_uploadBranch.name, buildDescription, m_filePath, result, suffix); 
+                m_appPath = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepot.Depot, m_uploadBranch.name, buildDescription, m_cachedFolderPath, result, suffix); 
                 result.AddLog("Created new app file: " + m_appPath);
             }
             else
@@ -196,9 +196,9 @@ namespace Wireframe
             return await SteamSDK.Instance.Upload(m_uploadApp.App, m_appPath, m_uploadToSteam, result);
         }
 
-        public override Task CleanUp(UploadTaskReport.StepResult result)
+        public override Task CleanUp(UploadTaskReport.StepResult stepResult)
         {
-            base.CleanUp(result);
+            base.CleanUp(stepResult);
             
             m_uploadApp = null;
             m_uploadDepot = null;
@@ -206,7 +206,7 @@ namespace Wireframe
             
             if (m_createAppFile && !string.IsNullOrEmpty(m_appPath))
             {
-                result.AddLog("Deleting app file: " + m_appPath);
+                stepResult.AddLog("Deleting app file: " + m_appPath);
                 if (File.Exists(m_appPath))
                 {
                     File.Delete(m_appPath);
@@ -217,7 +217,7 @@ namespace Wireframe
             
             if (m_createDepotFile && !string.IsNullOrEmpty(m_depotPath))
             {
-                result.AddLog("Deleting depot file: " + m_depotPath);
+                stepResult.AddLog("Deleting depot file: " + m_depotPath);
                 if (File.Exists(m_depotPath))
                 {
                     File.Delete(m_depotPath);

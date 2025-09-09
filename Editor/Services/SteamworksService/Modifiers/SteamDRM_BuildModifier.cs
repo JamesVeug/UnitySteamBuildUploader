@@ -52,14 +52,14 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, UploadConfig uploadConfig,
-            int buildIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig,
+            int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             // Find .exe
-            string[] files = System.IO.Directory.GetFiles(cachedDirectory, "*.exe", System.IO.SearchOption.TopDirectoryOnly);
+            string[] files = System.IO.Directory.GetFiles(cachedFolderPath, "*.exe", System.IO.SearchOption.TopDirectoryOnly);
             if (files.Length == 0)
             {
-                stepResult.AddError("[Steam] No exe found to DRMWrap in " + cachedDirectory);
+                stepResult.AddError("[Steam] No exe found to DRMWrap in " + cachedFolderPath);
                 stepResult.SetFailed("No exe found to DRMWrap");
                 return false;
             }
@@ -68,7 +68,7 @@ namespace Wireframe
             if (files.Length > 1)
             {
                 exePath = files.First(a => !Utils.Contains(a, "UnityCrashHandler", StringComparison.OrdinalIgnoreCase));
-                stepResult.AddWarning("[Steam] Multiple exes found in " + cachedDirectory + ". Using " + exePath);
+                stepResult.AddWarning("[Steam] Multiple exes found in " + cachedFolderPath + ". Using " + exePath);
             }
             else
             {
@@ -77,7 +77,7 @@ namespace Wireframe
             
             if (string.IsNullOrEmpty(exePath) || !System.IO.File.Exists(exePath))
             {
-                stepResult.AddError("[Steam] No exe found to DRMWrap in " + cachedDirectory);
+                stepResult.AddError("[Steam] No exe found to DRMWrap in " + cachedFolderPath);
                 stepResult.SetFailed("No exe found to DRMWrap");
                 return false;
             }

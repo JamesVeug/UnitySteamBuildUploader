@@ -7,6 +7,12 @@ using UnityEngine;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// A Wrapper for a single upload
+    /// Each task can contain multiple upload configs that will be executed in parallel
+    /// When started a Report is created that contains all live information about the upload
+    /// Listen to OnComplete to get the report when the upload is done.
+    /// </summary>
     public class UploadTask
     {
         internal static List<UploadTask> AllTasks = new List<UploadTask>();

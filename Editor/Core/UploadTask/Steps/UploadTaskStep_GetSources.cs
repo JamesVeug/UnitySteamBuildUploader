@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Retrieves the sources for the upload task that are needed to perform the upload.
+    /// This step makes a new task per config which retrieves all sources in sequence.
+    /// </summary>
     public class UploadTaskStep_GetSources : AUploadTask_Step
     {
         public UploadTaskStep_GetSources(StringFormatter.Context context) : base(context)

@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Modifies the cached files from the sources before upload
+    /// 
+    /// </summary>
     public class UploadTaskStep_ModifyCachedSources : AUploadTask_Step
     {
         public UploadTaskStep_ModifyCachedSources(StringFormatter.Context context) : base(context)
@@ -18,12 +22,12 @@ namespace Wireframe
             CancellationTokenSource token)
         {
             int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
-            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
+            List<UploadConfig> uploadConfigs = uploadTask.UploadConfigs;
             
             List<Task<bool>> tasks = new List<Task<bool>>();
-            for (int j = 0; j < buildConfigs.Count; j++)
+            for (int j = 0; j < uploadConfigs.Count; j++)
             {
-                if (!buildConfigs[j].Enabled)
+                if (!uploadConfigs[j].Enabled)
                 {
                     continue;
                 }
@@ -72,9 +76,9 @@ namespace Wireframe
             return allSuccessful;
         }
 
-        private async Task<bool> ModifyBuild(UploadTask task, int sourceIndex, UploadTaskReport report)
+        private async Task<bool> ModifyBuild(UploadTask task, int configIndex, UploadTaskReport report)
         {
-            UploadConfig uploadConfig = task.UploadConfigs[sourceIndex];
+            UploadConfig uploadConfig = task.UploadConfigs[configIndex];
             UploadTaskReport.StepResult[] results = report.NewReports(Type, uploadConfig.Modifiers.Count);
             for (var i = 0; i < uploadConfig.Modifiers.Count; i++)
             {
@@ -87,7 +91,7 @@ namespace Wireframe
                 var stepResult = results[i];
                 try
                 {
-                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[sourceIndex], uploadConfig, sourceIndex, stepResult, uploadConfig.Context);
+                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[configIndex], uploadConfig, configIndex, stepResult, uploadConfig.Context);
                     if (!success)
                     {
                         return false;

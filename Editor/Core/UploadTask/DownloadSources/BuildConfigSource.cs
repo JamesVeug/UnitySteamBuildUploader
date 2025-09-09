@@ -9,7 +9,6 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 
 namespace Wireframe
 {
@@ -53,13 +52,6 @@ namespace Wireframe
         internal static SemaphoreSlim m_lock = new SemaphoreSlim(1);
         internal static int m_totalBuildsInProgress = 0;
 
-        private class Builds
-        {
-            public BuildConfig Config;
-            public string TargetPath;
-        }
-        private static List<Builds> s_CompleteBuilds = new List<Builds>();
-        
 
         public override Task<bool> Prepare(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token)
         {
@@ -105,8 +97,6 @@ namespace Wireframe
                 return false;
             }
             
-            // TODO: Consider multiple UploadTasks sequentially and if the user modified a build config mid upload
-            
             // Ensure only 1 build happens at a time to avoid applying settings over each other
             await m_lock.WaitAsync();
             if (token.IsCancellationRequested)
@@ -119,14 +109,6 @@ namespace Wireframe
             BuildReport report = null;
             try
             {
-                // Check it's not already built to avoid building twice
-                // Builds completeBuild = s_CompleteBuilds.FirstOrDefault(a => a.Config == m_BuildConfig);
-                // if (!m_CleanBuild && completeBuild != null)
-                // {
-                //     m_filePath = completeBuild.TargetPath;
-                //     stepResult.AddLog($"Build already completed for {m_BuildConfig.DisplayName}, reusing existing build at path {m_filePath}");
-                //     return true;
-                // }
                 m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
@@ -496,15 +478,15 @@ namespace Wireframe
             }
         }
 
-        public override async Task CleanUp(int i, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
-            await base.CleanUp(i, result, ctx);
+            await base.CleanUp(configIndex, stepResult, ctx);
 
             m_buildConfigToApply = null;
             m_buildMetaData = null;
             if (!m_appliedSettings)
             {
-                result.AddLog("No settings were applied so no need to restore previous settings.");
+                stepResult.AddLog("No settings were applied so no need to restore previous settings.");
                 return;
             }
 
@@ -518,28 +500,28 @@ namespace Wireframe
                 if (m_totalBuildsInProgress > 0)
                 {
                     // Another build or task is active and hasn't been cleaned up yet
-                    result.AddLog("Another build is still in progress so not restoring settings yet.");
+                    stepResult.AddLog("Another build is still in progress so not restoring settings yet.");
                     return;
                 }
                 
                 if (m_editorSettingsBeforeUpload == null)
                 {
-                    result.AddLog("No previous editor settings to restore.");
+                    stepResult.AddLog("No previous editor settings to restore.");
                     return;
                 }
                 
                 BuildConfig buildConfig = m_editorSettingsBeforeUpload;
                 m_editorSettingsBeforeUpload = null;
 
-                result.AddLog($"Restoring previous editor settings... {buildConfig.TargetPlatform} ({buildConfig.TargetPlatformSubTarget}) {buildConfig.Target} {buildConfig.TargetArchitecture}");
+                stepResult.AddLog($"Restoring previous editor settings... {buildConfig.TargetPlatform} ({buildConfig.TargetPlatformSubTarget}) {buildConfig.Target} {buildConfig.TargetArchitecture}");
                 bool successful = buildConfig.ApplySettings(true, ctx);
                 if (!successful)
                 {
-                    result.AddError("Failed to restore previous build settings!");
+                    stepResult.AddError("Failed to restore previous build settings!");
                 }
                 else
                 {
-                    result.AddLog("Previous editor settings restored.");
+                    stepResult.AddLog("Previous editor settings restored.");
                 }
             }
             finally

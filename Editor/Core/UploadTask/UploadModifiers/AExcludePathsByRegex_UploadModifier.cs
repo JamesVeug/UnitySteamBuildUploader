@@ -141,7 +141,7 @@ namespace Wireframe
 
         protected abstract string[] GetFiles(string cachedDirectory, Selection regex);
         
-        public override bool IgnoreFileDuringCacheSource(string path, int buildIndex, UploadTaskReport.StepResult stepResult)
+        public override bool IgnoreFileDuringCacheSource(string filePath, int configIndex, UploadTaskReport.StepResult stepResult)
         {
             if (m_WhenToExclude != WhenToExclude.DoNotCopyFromSource)
             {
@@ -157,7 +157,7 @@ namespace Wireframe
                     continue;
                 }
 
-                if (Regex.IsMatch(path, regex.Regex))
+                if (Regex.IsMatch(filePath, regex.Regex))
                 {
                     return true;
                 }
@@ -166,8 +166,8 @@ namespace Wireframe
             return false;
         }
 
-        public override async Task<bool> ModifyBuildAtPath(string cachedDirectory, UploadConfig uploadConfig,
-            int buildIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig,
+            int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             if (m_WhenToExclude != WhenToExclude.DeleteFromCache)
             {
@@ -196,7 +196,7 @@ namespace Wireframe
             
                 try
                 {
-                    string[] files = GetFiles(cachedDirectory, regex);
+                    string[] files = GetFiles(cachedFolderPath, regex);
                     foreach (string filePath in files)
                     {
                         totalExcluded++;

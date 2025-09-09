@@ -425,7 +425,7 @@ namespace Wireframe
                                 }
 
                                 List<string> warnings = new List<string>();
-                                modifiers.Modifier.TryGetWarnings(warnings);
+                                modifiers.Modifier.TryGetWarnings(this, warnings);
                                 foreach (string warning in warnings)
                                 {
                                     DrawWarning(warning);

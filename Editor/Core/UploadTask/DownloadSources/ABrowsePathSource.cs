@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Wireframe
 {
     /// <summary>
-    /// User is able to select a path of some sort to upload
+    /// Base class to allow the user to select a path of some sort to upload
     /// </summary>
     public abstract partial class ABrowsePathSource : AUploadSource
     {

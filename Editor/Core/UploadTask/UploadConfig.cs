@@ -307,13 +307,13 @@ namespace Wireframe
             return true;
         }
 
-        public async Task CleanUp(int i, UploadConfig buildConfig, UploadTaskReport.StepResult result)
+        public async Task CleanUp(int configIndex, UploadConfig buildConfig, UploadTaskReport.StepResult result)
         {
             foreach (SourceData source in m_buildSources)
             {
                 if (source.Enabled && source.Source != null)
                 {
-                    await source.Source.CleanUp(i, result, buildConfig.Context);
+                    await source.Source.CleanUp(configIndex, result, buildConfig.Context);
                 }
             }
 

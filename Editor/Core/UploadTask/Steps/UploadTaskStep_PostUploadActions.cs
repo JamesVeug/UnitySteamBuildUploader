@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Execute actions after the upload has completed, regardless of success or failure
+    /// Each action is executed in order
+    /// </summary>
     public class UploadTaskStep_PostUploadActions : AUploadTask_Step
     {
         public UploadTaskStep_PostUploadActions(StringFormatter.Context context) : base(context)

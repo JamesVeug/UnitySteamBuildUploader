@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Base class for a step in the upload task process
+    /// Each step is executed in order and can specify what happens if the step fails
+    /// Steps can be things like validation, preparing sources, uploading, post upload actions, etc
+    /// </summary>
     public abstract class AUploadTask_Step
     {
         public enum StepType

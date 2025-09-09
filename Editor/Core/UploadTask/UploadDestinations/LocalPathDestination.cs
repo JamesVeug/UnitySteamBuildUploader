@@ -53,17 +53,6 @@ namespace Wireframe
             
             return path;
         }
-        
-        private bool PathExists(StringFormatter.Context ctx)
-        {
-            if (string.IsNullOrEmpty(m_localPath))
-            {
-                return true;
-            }
-            
-            string fullPath = FullPath(ctx);
-            return File.Exists(fullPath) || Directory.Exists(fullPath);
-        }
 
         private bool SetNewPath(string newPath)
         {
@@ -104,15 +93,15 @@ namespace Wireframe
             if (m_zipContent)
             {
                 result.AddLog($"Zipping context to: {fullPath}");
-                if (!await ZipUtils.Zip(m_filePath, fullPath, result))
+                if (!await ZipUtils.Zip(m_cachedFolderPath, fullPath, result))
                 {
                     return false;
                 }
             }
-            else if (Utils.IsPathADirectory(m_filePath))
+            else if (Utils.IsPathADirectory(m_cachedFolderPath))
             {
                 result.AddLog($"Copying directory to: {fullPath}");
-                if (!await Utils.CopyDirectoryAsync(m_filePath, fullPath, m_duplicateFileHandling, result))
+                if (!await Utils.CopyDirectoryAsync(m_cachedFolderPath, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;
                 }
@@ -120,7 +109,7 @@ namespace Wireframe
             else
             {
                 result.AddLog($"Copying file to: {fullPath}");
-                if (!await Utils.CopyFileAsync(m_filePath, fullPath, m_duplicateFileHandling, result))
+                if (!await Utils.CopyFileAsync(m_cachedFolderPath, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;
                 }
@@ -155,7 +144,7 @@ namespace Wireframe
         {
             base.TryGetWarnings(warnings, ctx);
 
-            if (!PathExists(ctx))
+            if (!Utils.PathExists(FullPath(ctx)))
             {
                 warnings.Add("Path does not exist but may be created during upload.");
             }

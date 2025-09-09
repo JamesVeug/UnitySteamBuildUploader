@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// Uploads all cached files to all enabled upload destinations
+    /// All uploads for all configs are done in parallel
+    /// </summary>
     public class UploadTaskStep_Upload : AUploadTask_Step
     {
         public UploadTaskStep_Upload(StringFormatter.Context context) : base(context)

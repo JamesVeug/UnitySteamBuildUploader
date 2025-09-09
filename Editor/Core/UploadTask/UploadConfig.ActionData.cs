@@ -6,7 +6,7 @@ namespace Wireframe
 {
     public partial class UploadConfig
     {
-        [Wiki("PostUploadActionData", "Specify what actions you want to perform when the upload completes.")]
+        [Wiki("Actions", "Specify what actions you want to perform when the upload completes.")]
         public class PostUploadActionData
         {
             internal bool Collapsed { get; set; } = true;

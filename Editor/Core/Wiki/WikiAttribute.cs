@@ -25,6 +25,20 @@ namespace Wireframe
         }
     }
 
+    public class WikiEnumAttribute : WikiAttribute
+    {
+        public bool ListEnumValues;
+        public WikiEnumAttribute(string name, string subpath, string text, bool listEnumValues, int order = 0) : base(name, subpath, text, order)
+        {
+            ListEnumValues = listEnumValues;
+        }
+
+        public WikiEnumAttribute(string name, string text, bool listEnumValues, int order = 0) : base(name, text, order)
+        {
+            ListEnumValues = listEnumValues;
+        }
+    }
+
     internal static class WikiAttributeExtensions
     {
         public static bool TryGetWikiLink(this object source, out string url)

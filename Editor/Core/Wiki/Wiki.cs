@@ -59,6 +59,13 @@ namespace Wireframe
                 StartOfHeader = "## Destinations",
                 WikiSubPath = "destinations",
             });
+            allData.Add(new Data()
+            {
+                DataClass = typeof(UploadConfig.PostUploadActionData),
+                MDFilePath = Path.Combine(Application.dataPath, "../Wiki/Actions.md"),
+                StartOfHeader = "## Actions",
+                WikiSubPath = "actions",
+            });
             
             
             // Get every type matching the WikiSubPath
@@ -76,7 +83,7 @@ namespace Wireframe
                 {
                     if (!string.IsNullOrEmpty(wikiAttribute.SubPath))
                     {
-                        Debug.LogError("Could not find data for: " + wikiAttribute.SubPath);
+                        Debug.LogErrorFormat("Could not find data for type {0} and path: {1}", type, wikiAttribute.SubPath);
                     }
 
                     continue;
@@ -86,10 +93,14 @@ namespace Wireframe
                 Debug.Log($"Type: {type.Name}, Wiki Link: {wikiAttribute.Text}");
             }
 
-            // Write each data type (source,modifier,destination)
+            // Write each data type (source,modifier,destination,actions)
             foreach (Data data in allData)
             {
                 string mdFilePath = data.MDFilePath;
+                if (!File.Exists(mdFilePath))
+                {
+                    File.WriteAllText(mdFilePath, "TODO\n\n" + data.StartOfHeader + "\n\n");
+                }
                 string text = File.ReadAllText(mdFilePath);
                 
                 // Find the start of the header
@@ -189,9 +200,10 @@ namespace Wireframe
 
             foreach (FieldInfo field in fields)
             {
-                WikiAttribute wikiAttribute = (WikiAttribute)Attribute.GetCustomAttribute(field, typeof(WikiAttribute));
-                sb.AppendLine($"{new string(' ', headerIndent*2)}- **{wikiAttribute.Name}**: {wikiAttribute.Text}");
-                if (field.FieldType.IsEnum)
+                WikiAttribute wikiAttribute = field.GetCustomAttribute<WikiAttribute>();
+                string indent = new string(' ', headerIndent*2);
+                sb.AppendLine($"{indent}- **{wikiAttribute.Name}**: {wikiAttribute.Text}");
+                if (field.FieldType.IsEnum && (!field.TryGetCustomAttribute(out WikiEnumAttribute we) || we.ListEnumValues))
                 {
                     foreach (object e in Enum.GetValues(field.FieldType))
                     {

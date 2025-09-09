@@ -30,7 +30,7 @@ namespace Wireframe
         [Wiki("Override Target Platform", "If enabled, the target platform and architecture specified below will be used instead of the one in the BuildConfig")]
         private bool m_OverrideSwitchTargetPlatform;
         
-        [Wiki("Target Platform", "The target platform to switch to before building. Only used if 'Override Switch Target Platform' is enabled.")]
+        [WikiEnum("Target Platform", "The target platform to switch to before building. Only used if 'Override Switch Target Platform' is enabled.", false)]
         private BuildTarget m_Target;
         
         [Wiki("Target Architecture", "The target architecture to build for. Only used if 'Override Switch Target Platform' is enabled and the target platform supports multiple architectures.")]

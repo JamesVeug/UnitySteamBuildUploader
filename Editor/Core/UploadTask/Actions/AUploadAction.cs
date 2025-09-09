@@ -7,9 +7,7 @@ namespace Wireframe
     {
         public int Id { get; set; }
         
-        protected bool m_actionInProgress;
-        
-        public virtual Task<bool> Prepare(bool successful, string buildDescription, UploadTaskReport.StepResult result)
+        public virtual Task<bool> Prepare(UploadTaskReport.StepResult stepResult)
         {
             return Task.FromResult(true);
         }
@@ -17,8 +15,9 @@ namespace Wireframe
         public abstract Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx);
         
         public virtual void CleanUp(UploadTaskReport.StepResult result)
+        public virtual Task CleanUp(UploadTaskReport.StepResult result)
         {
-            m_actionInProgress = false;
+            return Task.CompletedTask;
         }
 
         public virtual void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)

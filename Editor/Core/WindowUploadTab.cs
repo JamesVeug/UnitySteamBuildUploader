@@ -664,7 +664,7 @@ namespace Wireframe
                 return false;
             }
 
-            int validBuilds = 0;
+            int validConfigs = 0;
             for (int i = 0; i < m_currentUploadProfile.UploadConfigs.Count; i++)
             {
                 if (!m_currentUploadProfile.UploadConfigs[i].Enabled)
@@ -676,13 +676,13 @@ namespace Wireframe
                     return false;
                 }
 
-                validBuilds++;
+                validConfigs++;
             }
 
             // Make sure there is at least 1 build to build
-            if (validBuilds == 0)
+            if (validConfigs == 0)
             {
-                reason = "No builds set up!";
+                reason = "Need at least 1 Upload Config";
                 return false;
             }
             

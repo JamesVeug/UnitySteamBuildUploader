@@ -22,7 +22,11 @@ namespace Wireframe
                 GUILayout.Label("Servers", EditorStyles.boldLabel);
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    DiscordUIUtils.ServerPopup.DrawPopup(ref m_SelectedServer, m_context, GUILayout.Width(120));
+                    if (DiscordUIUtils.ServerPopup.DrawPopup(ref m_SelectedServer, m_context, GUILayout.Width(120)))
+                    {
+                        _reorderableListOfDiscordChannels = null;
+                    }
+                    
                     if(GUILayout.Button("Add Server", GUILayout.Width(100)))
                     {
                         DiscordConfig.DiscordServer config = new DiscordConfig.DiscordServer();

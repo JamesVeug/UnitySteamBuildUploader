@@ -48,24 +48,22 @@ namespace Wireframe
         private string guid;
         private AUploadTask_Step[] m_CurrentSteps;
 
-        public UploadTask(UploadProfile uploadProfile, string uploadDescription) : this()
+        public UploadTask(UploadProfile uploadProfile) : this()
         {
             this.uploadName = uploadProfile.ProfileName;
-            this.uploadDescription = uploadDescription;
             this.uploadConfigs = uploadProfile.UploadConfigs ?? new List<UploadConfig>();
             this.postUploadActions = uploadProfile.PostUploadActions ?? new List<UploadConfig.PostUploadActionData>();
         }
         
-        public UploadTask(string name, List<UploadConfig> uploadConfigs, string uploadDescription, List<UploadConfig.PostUploadActionData> postUploadActions = null) : this()
+        public UploadTask(string name, List<UploadConfig> uploadConfigs, List<UploadConfig.PostUploadActionData> postUploadActions = null) : this()
         {
             this.uploadName = name;
-            this.uploadDescription = uploadDescription;
             this.uploadConfigs = uploadConfigs;
             this.postUploadActions = postUploadActions ?? new List<UploadConfig.PostUploadActionData>();
         }
 
-        public UploadTask(List<UploadConfig> uploadConfigs, string uploadDescription, List<UploadConfig.PostUploadActionData> postUploadActions = null)
-            : this("No Name Specified", uploadConfigs, uploadDescription, postUploadActions)
+        public UploadTask(List<UploadConfig> uploadConfigs, List<UploadConfig.PostUploadActionData> postUploadActions = null)
+            : this("No Name Specified", uploadConfigs, postUploadActions)
         {
             
         }

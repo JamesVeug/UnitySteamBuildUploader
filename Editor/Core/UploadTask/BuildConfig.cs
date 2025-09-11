@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build;
@@ -472,6 +473,32 @@ namespace Wireframe
             }
 
             return formatted;
+        }
+        
+        /// <summary>
+        /// Loads all Build Configs and returns one with same GUID that exists in Project/BuildUploader/BuildConfigs.json
+        /// </summary>
+        public static BuildConfig FromGUID(string guid)
+        {
+            if (BuildConfigsUIUtils.TryLoadFromGUID(guid, out BuildConfig buildConfig))
+            {
+                return buildConfig;
+            }
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// Loads all Build Configs and returns one with same BuildName that exists in Project/BuildUploader/BuildConfigs.json
+        /// </summary>
+        public static BuildConfig FromBuildName(string name)
+        {
+            if (BuildConfigsUIUtils.TryLoadFromBuildName(name, out BuildConfig buildConfig))
+            {
+                return buildConfig;
+            }
+            
+            return null;
         }
     }
 }

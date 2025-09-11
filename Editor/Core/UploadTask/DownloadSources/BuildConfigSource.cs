@@ -52,6 +52,26 @@ namespace Wireframe
         internal static SemaphoreSlim m_lock = new SemaphoreSlim(1);
         internal static int m_totalBuildsInProgress = 0;
 
+        public BuildConfigSource()
+        {
+            // Required for reflection
+        }
+        
+        public BuildConfigSource(BuildConfig buildConfig, bool cleanBuild = false)
+        {
+            m_BuildConfig = buildConfig;
+            m_CleanBuild = cleanBuild;
+        }
+        
+        public void SetPlatformOverride(BuildTargetGroup targetPlatform, int targetPlatformSubTarget, BuildTarget target, BuildUtils.Architecture architecture)
+        {
+            m_OverrideSwitchTargetPlatform = true;
+            m_TargetPlatform = targetPlatform;
+            m_TargetPlatformSubTarget = targetPlatformSubTarget;
+            m_Target = target;
+            m_TargetArchitecture = architecture;
+        }
+
 
         public override Task<bool> Prepare(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token)
         {

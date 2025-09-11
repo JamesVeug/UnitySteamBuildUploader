@@ -9,7 +9,7 @@ namespace Wireframe
 {
     internal static class BuildConfigsUIUtils
     {
-        private static readonly string FilePath = Application.dataPath + "/../BuildUploader/BuildConfigs.json";
+        internal static readonly string FilePath = Application.dataPath + "/../BuildUploader/BuildConfigs.json";
 
         public class BuildConfigPopup : CustomDropdown<BuildConfig>
         {
@@ -31,6 +31,86 @@ namespace Wireframe
                 LoadFile();
             }
             return data;
+        }
+
+        public static bool TryLoadFromGUID(string guid, out BuildConfig buildConfig)
+        {
+            if (!File.Exists(FilePath))
+            {
+                buildConfig = null;
+                return false;
+            }
+            
+            string json = File.ReadAllText(FilePath);
+            SaveData savedData = JSON.DeserializeObject<SaveData>(json);
+            if (savedData != null && savedData.Configs != null && savedData.Configs.Count > 0)
+            {
+                for (var i = 0; i < savedData.Configs.Count; i++)
+                {
+                    var saveData = savedData.Configs[i];
+                    if (!saveData.TryGetValue("GUID", out object obj) || obj is not string id || id != guid)
+                    {
+                        continue;
+                    }
+
+                    BuildConfig config = new BuildConfig();
+                    try
+                    {
+                        config.Deserialize(saveData);
+                        buildConfig = config;
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                        buildConfig = null;
+                        return false;
+                    }
+                }
+            }
+            
+            buildConfig = null;
+            return false;
+        }
+
+        public static bool TryLoadFromBuildName(string name, out BuildConfig buildConfig)
+        {
+            if (!File.Exists(FilePath))
+            {
+                buildConfig = null;
+                return false;
+            }
+            
+            string json = File.ReadAllText(FilePath);
+            SaveData savedData = JSON.DeserializeObject<SaveData>(json);
+            if (savedData != null && savedData.Configs != null && savedData.Configs.Count > 0)
+            {
+                for (var i = 0; i < savedData.Configs.Count; i++)
+                {
+                    var saveData = savedData.Configs[i];
+                    if (!saveData.TryGetValue("BuildName", out object obj) || obj is not string id || id != name)
+                    {
+                        continue;
+                    }
+
+                    BuildConfig config = new BuildConfig();
+                    try
+                    {
+                        config.Deserialize(saveData);
+                        buildConfig = config;
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                        buildConfig = null;
+                        return false;
+                    }
+                }
+            }
+            
+            buildConfig = null;
+            return false;
         }
 
 		[MenuItem("Tools/Build Uploader/Reload Build Configs")]

@@ -162,7 +162,7 @@ namespace Wireframe
             for (var i = 0; i < uploadConfigs.Count; i++)
             {
                 UploadTaskReport.StepResult result = reports[i];
-                var config = uploadConfigs[i];
+                UploadConfig config = uploadConfigs[i];
                 List<string> errors = config.GetAllErrors();
                 if (errors.Count > 0)
                 {
@@ -175,6 +175,32 @@ namespace Wireframe
                 else
                 {
                     result.AddLog("No errors found in config: " + config.GUID);
+                }
+            }
+
+            reports = report.NewReports(AUploadTask_Step.StepType.Validation, postUploadActions.Count);
+            for (var i = 0; i < postUploadActions.Count; i++)
+            {
+                var action = postUploadActions[i];
+                if (action.WhenToExecute == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never)
+                {
+                    continue;
+                }
+
+                UploadTaskReport.StepResult result = reports[i];
+                if (action.UploadAction == null)
+                {
+                    result.AddError($"No post upload action specified at index {i}");
+                    valid = false;
+                    continue;
+                }
+
+                List<string> errors = new List<string>();
+                action.UploadAction.TryGetErrors(errors, context);
+                foreach (string error in errors)
+                {
+                    result.AddError(error);
+                    valid = false;
                 }
             }
 

@@ -128,8 +128,11 @@ namespace Wireframe
 
                     AUploadSource source = config.Sources[j].Source;
                     string path = source.SourceFilePath();
-                    try{
-                        ReportFilesAtPath(path, $"[{source.DisplayName}] FinalSource: {path}", results[j]);
+                    
+                    try
+                    {
+                        string displayName = UIHelpers.SourcesPopup.GetDisplayNameFromType(source.GetType());
+                        ReportFilesAtPath(path, $"[{displayName}] FinalSource: {path}", results[j]);
                     }
                     catch (Exception e)
                     {

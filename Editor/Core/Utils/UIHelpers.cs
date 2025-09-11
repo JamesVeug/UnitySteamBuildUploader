@@ -48,6 +48,23 @@ namespace Wireframe
                 data = null;
                 return false;
             }
+
+            public string GetDisplayNameFromType(Type type)
+            {
+                if (type != null)
+                {
+                    foreach (SourceData modifier in Values)
+                    {
+                        if (modifier.Type == type)
+                        {
+                            return modifier.DisplayName;
+                        }
+                    }
+                    return type.Name;
+                }
+                
+                return "null";
+            }
         }
         
         public class BuildModifiersPopup : CustomDropdown<BuildModifiersPopup.ModifierData>
@@ -91,6 +108,23 @@ namespace Wireframe
 
                 data = null;
                 return false;
+            }
+
+            public string GetDisplayNameFromType(Type type)
+            {
+                if (type != null)
+                {
+                    foreach (ModifierData modifier in Values)
+                    {
+                        if (modifier.Type == type)
+                        {
+                            return modifier.DisplayName;
+                        }
+                    }
+                    return type.Name;
+                }
+                
+                return "null";
             }
         }
         
@@ -136,6 +170,23 @@ namespace Wireframe
                 data = null;
                 return false;
             }
+
+            public string GetDisplayNameFromType(Type type)
+            {
+                if (type != null)
+                {
+                    foreach (DestinationData modifier in Values)
+                    {
+                        if (modifier.Type == type)
+                        {
+                            return modifier.DisplayName;
+                        }
+                    }
+                    return type.Name;
+                }
+                
+                return "null";
+            }
         }
         
         public class BuildActionPopup : CustomDropdown<BuildActionPopup.ActionData>
@@ -179,6 +230,23 @@ namespace Wireframe
 
                 data = null;
                 return false;
+            }
+
+            public string GetDisplayNameFromType(Type type)
+            {
+                if (type != null)
+                {
+                    foreach (ActionData modifier in Values)
+                    {
+                        if (modifier.Type == type)
+                        {
+                            return modifier.DisplayName;
+                        }
+                    }
+                    return type.Name;
+                }
+                
+                return "null";
             }
         }
 

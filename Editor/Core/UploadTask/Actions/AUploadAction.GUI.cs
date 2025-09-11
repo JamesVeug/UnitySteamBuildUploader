@@ -1,19 +1,7 @@
-﻿using System.Reflection;
-
-namespace Wireframe
+﻿namespace Wireframe
 {
-    public abstract partial class AUploadAction : DropdownElement
+    public abstract partial class AUploadAction
     {
-        /// <summary>
-        /// Unique ID so we can show multiple of the same type if they have the same name in a dropdown
-        /// </summary>
-        public int Id { get; set; }
-        
-        /// <summary>
-        /// What to display in UI dropdowns for the user
-        /// </summary>
-        public string DisplayName => GetType().GetCustomAttribute<UploadActionAttribute>()?.DisplayName ?? GetType().Name;
-        
         /// <summary>
         /// Draw a 1 line summary of the source 
         /// Executed when the Upload Config is collapsed

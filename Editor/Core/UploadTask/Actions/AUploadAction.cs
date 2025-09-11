@@ -7,7 +7,7 @@ namespace Wireframe
     /// Actions are steps in the upload process that can perform any kind of action - typically that do not modify files.
     /// Example: Send message to discord
     /// </summary>
-    public abstract partial class AUploadAction : DropdownElement
+    public abstract partial class AUploadAction
     {
         /// <summary>
         /// Prepare the action to ensure it's ready to execute

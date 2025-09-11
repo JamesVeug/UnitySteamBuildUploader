@@ -34,7 +34,7 @@ namespace Wireframe
         {
             m_cachedFolderPath = cachedFolderPath;
             m_buildDescription = buildDescription;
-            stepResult.AddLog("No preparation needed for destination: " + DisplayName);
+            stepResult.AddLog("No preparation needed for destination");
             return Task.FromResult(true);
         }
 

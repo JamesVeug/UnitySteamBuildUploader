@@ -1,14 +1,7 @@
-﻿using System.Reflection;
-
-namespace Wireframe
+﻿namespace Wireframe
 {
     public abstract partial class AUploadModifer
     {
-        /// <summary>
-        /// What to display in UI dropdowns for the user
-        /// </summary>
-        public string DisplayName => GetType().GetCustomAttribute<UploadModifierAttribute>()?.DisplayName ?? GetType().Name;
-        
         /// <summary>
         /// Draw the full GUI of the source so everything can be modified
         /// Executed when the Upload Config is expanded

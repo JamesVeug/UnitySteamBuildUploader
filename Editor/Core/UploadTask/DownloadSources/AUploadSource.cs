@@ -8,7 +8,7 @@ namespace Wireframe
     /// Sources are where files come from to be uploaded.
     /// Example: Let the user select a folder somewhere on their PC to be included and copied to the upload staging area.
     /// </summary>
-    public abstract partial class AUploadSource : DropdownElement
+    public abstract partial class AUploadSource
     {
         public AUploadSource() : base()
         {

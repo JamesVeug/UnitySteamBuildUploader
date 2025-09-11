@@ -13,7 +13,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(LastBuildSource), "sources", "Chooses the directory of the last build made using the Build Uploader")]
-    [UploadSource("LastBuildSource", "Last Build Directory")]
+    [UploadSource("LastBuild", "Last Build Directory")]
     public class LastBuildSource : AUploadSource
     {
         public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)

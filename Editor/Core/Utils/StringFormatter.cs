@@ -35,13 +35,13 @@ namespace Wireframe
         {
             Commands = new List<Command>();
             Commands.Add(new Command(PRODUCT_NAME_KEY, nameof(Context.ProductName), "The name of your product as specified in Player Settings."));
-            Commands.Add(new Command(BUNDLE_VERSION_KEY, nameof(Context.BundleVersion), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(BUNDLE_VERSION_KEY, nameof(Context.BundleVersion), "The version of your project for android/ios as specified in Player Settings."));
             Commands.Add(new Command(COMPANY_NAME_KEY, nameof(Context.CompanyName), "The name of your company as specified in Player Settings."));
             Commands.Add(new Command(BUILD_TARGET_KEY, nameof(Context.buildTarget), "Which platform targeting for the next build as defined in Build Settings."));
             Commands.Add(new Command(BUILD_TARGET_GROUP_KEY, nameof(Context.buildTargetGroup), "The target group of the upcoming build as defined in Player Settings."));
             Commands.Add(new Command(SCRIPTING_BACKEND_KEY, nameof(Context.scriptingBackend), "The scripting backend for the next build as defined in Player Settings."));
-            Commands.Add(new Command(PROJECT_PATH_KEY, nameof(Context.ProjectPath), "The version of your project as specified in Player Settings."));
-            Commands.Add(new Command(PERSISTENT_DATA_PATH_KEY, nameof(Context.PersistentDataPath), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(PROJECT_PATH_KEY, nameof(Context.ProjectPath), "The path of your Unity Project contains the Assets folder."));
+            Commands.Add(new Command(PERSISTENT_DATA_PATH_KEY, nameof(Context.PersistentDataPath), "The path of the Persistent Data folder"));
             Commands.Add(new Command(CACHE_FOLDER_KEY, nameof(Context.CacheFolderPath), "The path where all files and builds are stored when build uploader is working."));
             Commands.Add(new Command(VERSION_KEY, nameof(Context.Version), "The version of your project as specified in Player Settings."));
             Commands.Add(new Command(UNITY_VERSION_KEY, nameof(Context.UnityVersion), "The version of Unity you are using."));

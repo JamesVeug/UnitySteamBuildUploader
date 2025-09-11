@@ -41,6 +41,23 @@ namespace Wireframe
                 data.Initialize();
                 Save();
             }
+            else
+            {
+                for (var i = 0; i < data.apps.Count; i++)
+                {
+                    DiscordConfig.DiscordApp app = data.apps[i];
+                    app.Id = i + 1;
+                }
+
+                for (var i = 0; i < data.servers.Count; i++)
+                {
+                    data.servers[i].Id = i + 1;
+                    for (var j = 0; j < data.servers[i].channels.Count; j++)
+                    {
+                        data.servers[i].channels[j].Id = j + 1;
+                    }
+                }
+            }
         }
 
         public static void Save()

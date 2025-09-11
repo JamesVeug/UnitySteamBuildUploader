@@ -33,11 +33,20 @@ namespace Wireframe
                 {
                     _reorderableListOfDiscordAppsPreferences = new ReorderableListOfDiscordAppsPreferences();
                     _reorderableListOfDiscordAppsPreferences.Initialize(discordConfig.apps, "Apps", 
-                        true, (_) => { DiscordUIUtils.Save(); });
+                        true, (_) => 
+                        {
+                            DiscordUIUtils.AppPopup.Refresh();
+                            DiscordUIUtils.ServerPopup.Refresh();
+                            DiscordUIUtils.ChannelPopup.Refresh();
+                            DiscordUIUtils.Save();
+                        });
                 }
 
                 if (_reorderableListOfDiscordAppsPreferences.OnGUI())
                 {
+                    DiscordUIUtils.AppPopup.Refresh();
+                    DiscordUIUtils.ServerPopup.Refresh();
+                    DiscordUIUtils.ChannelPopup.Refresh();
                     DiscordUIUtils.Save();
                 }
             }

@@ -8,7 +8,12 @@ namespace Wireframe
         [Serializable]
         public class DiscordApp : DropdownElement
         {
-            public int Id => ID;
+            public int Id
+            {
+                get => m_id;
+                set => m_id = value;
+            }
+
             public string DisplayName => Name;
 
             public string Token
@@ -17,20 +22,21 @@ namespace Wireframe
                 set => EditorPrefs.SetString("DiscordAppToken_" + Name, value);
             }
 
-            private int ID;
             public string Name;
             public bool IsBot;
             
+            private int m_id;
+            
             public DiscordApp()
             {
-                ID = 0;
+                m_id = 0;
                 Name = "Template";
                 IsBot = true;
             }
             
             public DiscordApp(int id, string displayName, bool isBot = true)
             {
-                ID = id;
+                m_id = id;
                 Name = displayName;
                 IsBot = isBot;
             }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,12 +32,13 @@ namespace Wireframe
                     {
                         DiscordConfig.DiscordServer config = new DiscordConfig.DiscordServer();
                         List<DiscordConfig.DiscordServer> servers = DiscordUIUtils.GetConfig().servers;
-                        config.ID = servers.Count > 0 ? servers[servers.Count - 1].Id + 1 : 1;
+                        config.Id = servers.Count > 0 ? servers.Max(a=>a.Id) + 1 : 1;
                         servers.Add(config);
                         DiscordUIUtils.Save();
                         DiscordUIUtils.ServerPopup.Refresh();
                         DiscordUIUtils.AppPopup.Refresh();
                         DiscordUIUtils.ChannelPopup.Refresh();
+                        _reorderableListOfDiscordChannels = null;
                         m_SelectedServer = config;
                     }
                     

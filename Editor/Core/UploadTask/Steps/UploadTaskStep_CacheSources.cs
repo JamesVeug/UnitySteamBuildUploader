@@ -113,9 +113,9 @@ namespace Wireframe
                 }
 
                 string subCacheFolder = cacheFolderPath;
-                if (!string.IsNullOrEmpty(sourceData.ExportFolder))
+                if (!string.IsNullOrEmpty(sourceData.SubFolder))
                 {
-                    subCacheFolder = Path.Combine(subCacheFolder, StringFormatter.FormatString(sourceData.ExportFolder, uploadConfig.Context));
+                    subCacheFolder = Path.Combine(subCacheFolder, StringFormatter.FormatString(sourceData.SubFolder, uploadConfig.Context));
                 }
                 
                 if (!Directory.Exists(subCacheFolder))

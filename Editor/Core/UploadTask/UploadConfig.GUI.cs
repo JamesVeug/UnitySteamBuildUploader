@@ -284,8 +284,10 @@ namespace Wireframe
 
                                 using (new GUILayout.HorizontalScope())
                                 {
-                                    GUILayout.Label("Export Folder: ", GUILayout.Width(120));
-                                    if (EditorUtils.FormatStringTextField(ref source.ExportFolder, ref source.ShowFormattedExportFolder, m_context))
+                                    GUIContent subFolderContent = new GUIContent("Sub Folder: ", 
+                                        "A sub-path in the cached directory of which this source will be saved to before being modified and uploaded. Leave empty to save to the root folder.");
+                                    GUILayout.Label(subFolderContent, GUILayout.Width(120));
+                                    if (EditorUtils.FormatStringTextField(ref source.SubFolder, ref source.ShowFormattedExportFolder, m_context))
                                     {
                                         isDirty = true;
                                     }

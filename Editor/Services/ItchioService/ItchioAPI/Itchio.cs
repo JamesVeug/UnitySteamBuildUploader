@@ -242,10 +242,8 @@ namespace Wireframe
             var process = new Process();
             process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
             process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"/k cd /d \"{Path.GetDirectoryName(m_SDKCMDPath)}\"";  // /k keeps the terminal open, cd /d changes drive if needed
-            // process.StartInfo.Verb = "runas"; // Run as administrator
-            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(m_SDKCMDPath);
-            process.EnableRaisingEvents = true;
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.Arguments = $"/k \"{m_SDKCMDPath}\"";  // /k keeps the terminal open, cd /d changes drive if needed
             process.Start();
         }
 

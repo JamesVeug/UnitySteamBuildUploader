@@ -243,6 +243,7 @@ namespace Wireframe
             process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
             process.StartInfo.FileName = "cmd.exe";
             process.StartInfo.UseShellExecute = true;
+            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(m_SDKCMDPath);  // /k keeps the terminal open, cd /d changes drive if needed
             process.StartInfo.Arguments = $"/k \"{m_SDKCMDPath}\"";  // /k keeps the terminal open, cd /d changes drive if needed
             process.Start();
         }

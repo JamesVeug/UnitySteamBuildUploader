@@ -68,40 +68,10 @@ namespace Wireframe
                 }
             }
 
-
-            if (steamPasswordConfirmed)
+            // Steam username
+            using (new GUILayout.HorizontalScope())
             {
-                // Steam username
-                using (new GUILayout.HorizontalScope())
-                {
-                    SteamSDK.UserName = PasswordField.Draw("Steam Username:", "Your Steamworks username used to login", 105, SteamSDK.UserName);
-                }
-
-                // Steam password
-                using (new GUILayout.HorizontalScope())
-                {
-                    SteamSDK.UserPassword = PasswordField.Draw("Steam Password:", "Your Steamworks password used to login", 105, SteamSDK.UserPassword);
-                }
-            }
-            else
-            {
-                steamPasswordConfirmation = PasswordField.Draw("Verify Password:", "Verify your Steamworks password", 105, steamPasswordConfirmation);
-                if (steamPasswordConfirmation == SteamSDK.UserPassword)
-                {
-                    steamPasswordConfirmed = true;
-                }
-            }
-
-            if (GUILayout.Button("Reset login details"))
-            {
-                if (EditorUtility.DisplayDialog("Reset Steam Login Preferences",
-                        "Are you sure you want to reset your Steam login details?", "Yes", "No"))
-                {
-                    SteamSDK.UserName = "";
-                    SteamSDK.UserPassword = "";
-                    steamPasswordConfirmation = "";
-                    steamPasswordConfirmed = true; // confirmation password matches
-                }
+                SteamSDK.UserName = PasswordField.Draw("Steam Username:", "Your Steamworks username used to login", 105, SteamSDK.UserName);
             }
         }
     }

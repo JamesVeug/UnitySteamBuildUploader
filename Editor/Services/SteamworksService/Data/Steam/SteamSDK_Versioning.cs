@@ -4,7 +4,7 @@ namespace Wireframe
 {
     internal partial class SteamSDK
     {
-        private const int CurrentServiceVersion = 1;
+        private const int CurrentServiceVersion = 2;
 
         private static int ServiceVersion
         {
@@ -15,21 +15,26 @@ namespace Wireframe
         static SteamSDK()
         {
             int version = ServiceVersion;
-            switch (version)
+            if (version <= 0)
             {
-                case 0:
-                    // V2.1 - Migrate old preferences to new encoded values
-                    EncodedEditorPrefs.MigrateKeyToEncoded<string>("steambuild_SDKUser", UserNameKey);
-                    EncodedEditorPrefs.MigrateKeyToEncoded<string>("steambuild_SDKPass", UserPasswordKey);
-                    
-                    // V3.0 - Migrate to ProjectEditorPrefs
-                    ProjectEditorPrefs.MigrateFromEditorPrefs("steambuild_Enabled", ProjectEditorPrefs.PrefType.Bool);
-                    ProjectEditorPrefs.MigrateFromEditorPrefs("steambuild_SDKPath", ProjectEditorPrefs.PrefType.String);
-                    // Using ProjectID now instead of product name
-                    EncodedEditorPrefs.MigrateStringKeyToKey(Application.productName + "SteamUBuildUploader", UserNameKey);
-                    EncodedEditorPrefs.MigrateStringKeyToKey(Application.productName + "SteamPBuildUploader", UserPasswordKey);
-                    break;
+                // V2.1 - Migrate old preferences to new encoded values
+                EncodedEditorPrefs.MigrateKeyToEncoded<string>("steambuild_SDKUser", UserNameKey);
+                EncodedEditorPrefs.DeleteKey("steambuild_SDKPass");
+
+                // V3.0 - Migrate to ProjectEditorPrefs
+                ProjectEditorPrefs.MigrateFromEditorPrefs("steambuild_Enabled", ProjectEditorPrefs.PrefType.Bool);
+                ProjectEditorPrefs.MigrateFromEditorPrefs("steambuild_SDKPath", ProjectEditorPrefs.PrefType.String);
+                // Using ProjectID now instead of product name
+                EncodedEditorPrefs.MigrateStringKeyToKey(Application.productName + "SteamUBuildUploader", UserNameKey);
+                EncodedEditorPrefs.DeleteKey(Application.productName + "SteamPBuildUploader");
             }
+            if (version <= 1)
+            {
+                // v3.0a - Removal of steam password since we no longer login to authorize the server
+                EncodedEditorPrefs.DeleteKey("steambuild_SDKPass");
+                EncodedEditorPrefs.DeleteKey(Application.productName + "SteamPBuildUploader");
+            }
+            
             ServiceVersion = CurrentServiceVersion;
         }
     }

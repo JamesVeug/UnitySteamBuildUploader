@@ -44,13 +44,6 @@ namespace Wireframe
             get => EncodedEditorPrefs.GetString(UserNameKey, "");
             set => EncodedEditorPrefs.SetString(UserNameKey, value);
         }
-
-        private static string UserPasswordKey => ProjectEditorPrefs.ProjectID + "SteamPBuildUploader";
-        public static string UserPassword
-        {
-            get => EncodedEditorPrefs.GetString(UserPasswordKey, "");
-            set => EncodedEditorPrefs.SetString(UserPasswordKey, value);
-        }
         
         public static string SteamSDKEXEPath
         {
@@ -263,7 +256,7 @@ namespace Wireframe
             return fileName + ".vdf";
         }
 
-        public async Task<bool> Upload(AppVDFFile appFile, string appFilePath, bool uploadToSteam, UploadTaskReport.StepResult stepResult)
+        public async Task<bool> Upload(AppVDFFile appFile, string appFilePath, UploadTaskReport.StepResult stepResult)
         {
             await m_lock.WaitAsync();
 
@@ -280,11 +273,12 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
                     m_uploadProcess.StartInfo.FileName = m_steamCMDPath;
-                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFilePath, true, uploadToSteam, steamGuardCode, stepResult);
+                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildSteamArguments(appFilePath, true);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                     m_uploadProcess.EnableRaisingEvents = true;
 
+                    string userName = UserName; // Cache just in case they change their username mid-way
                     try
                     {
                         if (!m_uploadProcess.Start())
@@ -301,20 +295,19 @@ namespace Wireframe
                         return false;
                     }
 
-                    stepResult.AddLog(
-                        "Uploading to Steam. If you have Steam Guard lookout for a notification on your phone!");
+                    stepResult.AddLog("Uploading to Steam...");
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
                     stopwatch.Stop();
                     stepResult.AddLog($"Steam upload took {stopwatch.ElapsedMilliseconds}ms");
 
                     // Hide username
-                    if (UserName != null && UserName.Length > 2)
+                    if (userName != null && userName.Length > 2)
                     {
-                        textDump = textDump.Replace(UserName, "**********");
+                        textDump = textDump.Replace(userName, "**********");
                     }
 
-                    var outputResults = await LogOutSteamResult(textDump, uploadToSteam, false, appFile.appid);
+                    var outputResults = await LogOutSteamResult(textDump, false, appFile.appid);
 
                     try
                     {
@@ -333,15 +326,6 @@ namespace Wireframe
                     {
                         stepResult.SetFailed("[Steam] " + outputResults.errorText + "\n\n" + textDump);
                         retry = outputResults.retry;
-                        if (!string.IsNullOrEmpty(outputResults.steamGuardCode))
-                        {
-                            steamGuardCode = outputResults.steamGuardCode;
-                        }
-
-                        if (!string.IsNullOrEmpty(outputResults.steamTwoFactorCode))
-                        {
-                            steamGuardCode = outputResults.steamTwoFactorCode;
-                        }
                     }
                     else
                     {
@@ -362,24 +346,12 @@ namespace Wireframe
             return stepResult.Successful;
         }
 
-        private string CreateUploadBuildSteamArguments(string appFilePath, bool quitOnComplete, bool upload,
-            string steamGuardCode, UploadTaskReport.StepResult stepResult)
+        private string CreateUploadBuildSteamArguments(string appFilePath, bool quitOnComplete)
         {
             string username = UserName;
-            string password = UserPassword;
-            string guard = string.IsNullOrEmpty(steamGuardCode) ? "" : " " + steamGuardCode;
-
-            string uploadArg = "";
-            if (upload)
-            { 
-                uploadArg = $" +run_app_build \"{appFilePath}\"";
-            }
-            else
-            {
-                stepResult.AddLog("Upload to Steam is disabled. Not but still attempting login.");
-            }
+            string uploadArg = $"+run_app_build \"{appFilePath}\"";
             
-            string arguments = string.Format("+login \"{0}\" \"{1}\"{2}{3}", username, password, guard, uploadArg);
+            string arguments = string.Format("+login \"{0}\" {1}", username, uploadArg);
             if (quitOnComplete)
             {
                 arguments += " +quit";
@@ -388,18 +360,13 @@ namespace Wireframe
             return arguments;
         }
         
-        private string CreateDRMWrapSteamArguments(bool quitOnComplete, bool upload, string steamGuardCode, int appID, string sourcePath, string destinationPath, int flags)
+        private string CreateDRMWrapSteamArguments(bool quitOnComplete, string steamGuardCode, int appID, string sourcePath, string destinationPath, int flags)
         {
             string username = UserName;
-            string password = UserPassword;
             string guard = string.IsNullOrEmpty(steamGuardCode) ? "" : " " + steamGuardCode;
-            if (!upload)
-            {
-                Debug.Log("Upload to Steam is disabled. Not but still attempting login.");
-            }
             
-            string uploadArg = !upload ? "" : $" +drm_wrap {appID} \"{sourcePath}\" \"{destinationPath}\" drmtoolp {flags}";
-            string arguments = $"+login \"{username}\" \"{password}\" {guard} {uploadArg}";
+            string uploadArg = $" +drm_wrap {appID} \"{sourcePath}\" \"{destinationPath}\" drmtoolp {flags}";
+            string arguments = $"+login \"{username}\" {guard} {uploadArg}";
             
             if (quitOnComplete)
             {
@@ -412,12 +379,10 @@ namespace Wireframe
         {
             public bool successful = false;
             public bool retry = false;
-            public string steamGuardCode = "";
-            public string steamTwoFactorCode = "";
             public string errorText;
         }
         
-        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool uploading, bool drmWrapping, int appID)
+        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool drmWrapping, int appID)
         {
             OutputResultArgs result = new OutputResultArgs();
             
@@ -475,58 +440,6 @@ namespace Wireframe
  
                 return result;
             }
-            
-            if (ContainsText(lines, "Steam Guard code:FAILED", "", out index) ||
-                ContainsText(lines, "Steam Guard code:ERROR", "", out index))
-            {
-                await SteamGuardWindow.ShowAsync((code) =>
-                {
-                    result.steamGuardCode = code;
-                    result.retry = !string.IsNullOrEmpty(code);
-                    if (result.retry)
-                    {
-                        result.errorText = "Retrying Steam Guard with code";
-                    }
-                    else
-                    {
-                        result.errorText = "Steam Guard code was not entered. Cannot continue.";
-                    }
-                });
-
-                return result;
-            }
-            
-            if (ContainsText(lines, "Two-factor code:FAILED", "", out index) ||
-                ContainsText(lines, "Wait for confirmation timed out", "", out index))
-            {
-                await SteamGuardTwoFactorWindow.ShowAsync((confirmed) =>
-                {
-                    result.retry = confirmed;
-                    if (result.retry)
-                    {
-                        result.errorText = "Retrying Steam Guard two factor after confirmation on device";
-                    }
-                    else
-                    {
-                        result.errorText = "Steam Guard code rejected.";
-                    }
-                },
-                (twoFactorCode) =>
-                {
-                    result.steamTwoFactorCode = twoFactorCode;
-                    result.retry = !string.IsNullOrEmpty(twoFactorCode);
-                    if (result.retry)
-                    {
-                        result.errorText = "Retrying with entered Steam Guard two factor code";
-                    }
-                    else
-                    {
-                        result.errorText = "Steam Guard two factor code was not entered. Cannot continue.";
-                    }
-                });
-
-                return result;
-            }
 
             if (text.Contains("Rate Limit Exceeded"))
             {
@@ -536,30 +449,27 @@ namespace Wireframe
 
             if (text.Contains("Invalid Password"))
             {
-                result.errorText = "Incorrect username or password.";
+                result.errorText = "Your computer is not authorized to upload to steam.\nOpen the SteamCMD within preferences and login manually to authorize it and try again.";
                 return result;
             }
 
-            if (uploading)
+            if (drmWrapping)
             {
-                if (drmWrapping)
+                if (!ContainsText(lines, "Module is already DRM protected", "", out index)) // TODO: Separate this into a separate verification check
                 {
-                    if (!ContainsText(lines, "Module is already DRM protected", "", out index)) // TODO: Separate this into a separate verification check
+                    if (!ContainsText(lines, "DRM wrap completed", "", out index))
                     {
-                        if (!ContainsText(lines, "DRM wrap completed", "", out index))
-                        {
-                            result.errorText = "Failed to DRM wrap...";
-                            return result;
-                        }
-                    }
-                }
-                else
-                {
-                    if (!ContainsText(lines, "Uploading content...", "", out index))
-                    {
-                        result.errorText = "Failed to scan content to upload...";
+                        result.errorText = "Failed to DRM wrap...";
                         return result;
                     }
+                }
+            }
+            else
+            {
+                if (!ContainsText(lines, "Uploading content...", "", out index))
+                {
+                    result.errorText = "Failed to scan content to upload...";
+                    return result;
                 }
             }
             
@@ -632,7 +542,7 @@ namespace Wireframe
                     m_uploadProcess.StartInfo.CreateNoWindow = true;
                     m_uploadProcess.StartInfo.UseShellExecute = false;
                     m_uploadProcess.StartInfo.FileName = m_steamCMDPath;
-                    m_uploadProcess.StartInfo.Arguments = CreateDRMWrapSteamArguments(true, true, steamGuardCode, appID, sourceExe, resultEXE, flags);
+                    m_uploadProcess.StartInfo.Arguments = CreateDRMWrapSteamArguments(true, steamGuardCode, appID, sourceExe, resultEXE, flags);
                     m_uploadProcess.StartInfo.RedirectStandardError = true;
                     m_uploadProcess.StartInfo.RedirectStandardOutput = true;
                     m_uploadProcess.EnableRaisingEvents = true;
@@ -647,7 +557,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
                     
-                    var outputResults = await LogOutSteamResult(textDump, true, true, appID);
+                    var outputResults = await LogOutSteamResult(textDump, true, appID);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
@@ -655,15 +565,6 @@ namespace Wireframe
                     {
                         stepResult.AddError("[Steam] " + outputResults.errorText + "\n\n" + textDump);
                         retry = outputResults.retry;
-                        if (!string.IsNullOrEmpty(outputResults.steamGuardCode))
-                        {
-                            steamGuardCode = outputResults.steamGuardCode;
-                        }
-
-                        if (!string.IsNullOrEmpty(outputResults.steamTwoFactorCode))
-                        {
-                            steamGuardCode = outputResults.steamTwoFactorCode;
-                        }
 
                         if (!retry)
                         {

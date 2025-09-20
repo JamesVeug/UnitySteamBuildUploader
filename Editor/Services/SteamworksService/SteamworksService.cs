@@ -1,16 +1,10 @@
-﻿using UnityEditor;
-using UnityEngine;
-
-namespace Wireframe
+﻿namespace Wireframe
 {
     /// <summary>
     /// Used by reflection
     /// </summary>
     internal partial class SteamworksService : AService
     {
-        private static string steamPasswordConfirmation;
-        private static bool steamPasswordConfirmed = string.IsNullOrEmpty(SteamSDK.UserPassword);
-
         public SteamworksService()
         {
             // Needed for reflection
@@ -31,10 +25,9 @@ namespace Wireframe
                 return false;
             }
 
-            if (string.IsNullOrEmpty(SteamSDK.UserName) ||
-                string.IsNullOrEmpty(SteamSDK.UserPassword))
+            if (string.IsNullOrEmpty(SteamSDK.UserName))
             {
-                reason = "Steam SDK credentials are not set in Preferences";
+                reason = "Steam Username not set in Preferences";
                 return false;
             }
 

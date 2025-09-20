@@ -61,12 +61,6 @@ namespace Wireframe
                     }
                 }
             }
-
-            using (new GUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Upload To Steam:", GUILayout.Width(120));
-                isDirty |= CustomToggle.DrawToggle(ref m_uploadToSteam);
-            }
         }
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)

@@ -36,9 +36,6 @@ namespace Wireframe
         [Wiki("DepotFile", "If Create DepotFile is false then use a file with this name that  will be found in the SteamSDKs path to upload a build to Steam.", 4)]
         private string m_depotFileName = "";
         
-        [Wiki("Upload to Steam", "If true, the build will be uploaded to Steam. Otherwise will still attempt to login. Good for testing if you can login correctly.", 5)]
-        private bool m_uploadToSteam = true;
-        
         private SteamApp m_uploadApp;
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
@@ -84,11 +81,10 @@ namespace Wireframe
             m_destinationBranch = new SteamBranch(branchName);
         }
         
-        public void SetFlags(bool createAppFile = true, bool createDepotFile = true, bool uploadToSteam = true)
+        public void SetFlags(bool createAppFile = true, bool createDepotFile = true)
         {
             m_createAppFile = createAppFile;
             m_createDepotFile = createDepotFile;
-            m_uploadToSteam = uploadToSteam;
         }
 
         public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
@@ -193,7 +189,7 @@ namespace Wireframe
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            return await SteamSDK.Instance.Upload(m_uploadApp.App, m_appPath, m_uploadToSteam, result);
+            return await SteamSDK.Instance.Upload(m_uploadApp.App, m_appPath, result);
         }
 
         public override Task CleanUp(UploadTaskReport.StepResult stepResult)
@@ -236,7 +232,6 @@ namespace Wireframe
                 ["m_appFileName"] = m_appFileName,
                 ["m_createDepotFile"] = m_createDepotFile,
                 ["m_depotFileName"] = m_depotFileName,
-                ["m_uploadToSteam"] = m_uploadToSteam,
                 ["configID"] = m_current?.Id,
                 ["depotID"] = m_depot?.Id,
                 ["branchID"] = m_destinationBranch?.Id,
@@ -266,8 +261,6 @@ namespace Wireframe
             {
                 m_depotFileName = "";
             }
-            
-            m_uploadToSteam = (bool)data["m_uploadToSteam"];
             
             // Note: In 1.2.2 the serialization data was changed from the Name to ID
             
@@ -312,11 +305,6 @@ namespace Wireframe
         public override void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
         {
             base.TryGetWarnings(warnings, ctx);
-
-            if (!m_uploadToSteam)
-            {
-                warnings.Add("Uploading to Steam is disabled but the Build Uploader will still create required and log into Steam.");
-            }
         }
 
         public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)

@@ -77,5 +77,14 @@ namespace Wireframe
             EditorPrefs.DeleteKey(encodedOldKey);
             // Debug.Log($"[{oldKey}][{newKey}] Migrated key.");
         }
+
+        public static void DeleteKey(string key)
+        {
+            string encodedKey = EncodedValue<string>.Encode64(key);
+            if (EditorPrefs.HasKey(encodedKey))
+            {
+                EditorPrefs.DeleteKey(encodedKey);
+            }
+        }
     }
 }

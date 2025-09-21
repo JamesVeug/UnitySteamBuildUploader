@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Wireframe
@@ -24,6 +25,18 @@ namespace Wireframe
             
             public AUploadAction UploadAction;
             public UIHelpers.BuildActionPopup.ActionData ActionType;
+
+            public PostUploadActionData()
+            {
+                
+            }
+            
+            public PostUploadActionData(AUploadAction action, UploadCompleteStatus whenToExecute = UploadCompleteStatus.Always)
+            {
+                WhenToExecute = whenToExecute;
+                UploadAction = action;
+                ActionType = UIHelpers.ActionsPopup.Values.FirstOrDefault(a => a.Type == action.GetType());
+            }
             
             public void SetupDefaults()
             {

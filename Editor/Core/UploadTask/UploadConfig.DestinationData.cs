@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Wireframe
@@ -12,6 +13,18 @@ namespace Wireframe
             public bool Enabled = true;
             public AUploadDestination Destination;
             public UIHelpers.BuildDestinationsPopup.DestinationData DestinationType;
+
+            public DestinationData()
+            {
+                
+            }
+            
+            public DestinationData(AUploadDestination destination, bool enabled=true)
+            {
+                Enabled = enabled;
+                Destination = destination;
+                DestinationType = UIHelpers.DestinationsPopup.Values.FirstOrDefault(a => a.Type == destination.GetType());
+            }
 
             public Dictionary<string,object> Serialize()
             {

@@ -336,6 +336,17 @@ namespace Wireframe
             m_buildSources.Add(source);
         }
         
+        public void AddSource(AUploadSource source)
+        {
+            if (source == null)
+            {
+                return;
+            }
+            
+            SourceData sourceData = new SourceData(source);
+            m_buildSources.Add(sourceData);
+        }
+        
         public void AddDestination(DestinationData destination)
         {
             if (destination == null)
@@ -346,6 +357,17 @@ namespace Wireframe
             m_buildDestinations.Add(destination);
         }
         
+        public void AddDestination(AUploadDestination destination)
+        {
+            if (destination == null)
+            {
+                return;
+            }
+            
+            DestinationData destinationData = new DestinationData(destination);
+            m_buildDestinations.Add(destinationData);
+        }
+        
         public void AddModifier(ModifierData modifier)
         {
             if (modifier == null)
@@ -354,6 +376,17 @@ namespace Wireframe
             }
             
             m_modifiers.Add(modifier);
+        }
+        
+        public void AddModifier(AUploadModifer modifier)
+        {
+            if (modifier == null)
+            {
+                return;
+            }
+            
+            ModifierData modifierData = new ModifierData(modifier);
+            m_modifiers.Add(modifierData);
         }
 
         public bool ReplaceString(string key, out string value)

@@ -24,7 +24,18 @@ namespace Wireframe
             
             public AUploadSource Source;
             public UIHelpers.BuildSourcesPopup.SourceData SourceType;
+
+            public SourceData()
+            {
+                
+            }
             
+            public SourceData(AUploadSource source, bool enabled=true)
+            {
+                Enabled = enabled;
+                Source = source;
+                SourceType = UIHelpers.SourcesPopup.Values.FirstOrDefault(a => a.Type == source.GetType());
+            }
 
             public Dictionary<string,object> Serialize()
             {

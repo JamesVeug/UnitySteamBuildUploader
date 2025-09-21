@@ -55,6 +55,13 @@ namespace Wireframe
             this.postUploadActions = uploadProfile.PostUploadActions ?? new List<UploadConfig.PostUploadActionData>();
         }
         
+        public UploadTask(string name, UploadConfig config) : this()
+        {
+            this.uploadName = name;
+            this.uploadConfigs = new List<UploadConfig>() { config };
+            this.postUploadActions = new List<UploadConfig.PostUploadActionData>();
+        }
+        
         public UploadTask(string name, List<UploadConfig> uploadConfigs, List<UploadConfig.PostUploadActionData> postUploadActions = null) : this()
         {
             this.uploadName = name;
@@ -304,6 +311,16 @@ namespace Wireframe
             }
             
             postUploadActions.Add(action);
+        }
+        
+        public void AddPostUploadAction(AUploadAction action, UploadConfig.PostUploadActionData.UploadCompleteStatus whenToExecute = UploadConfig.PostUploadActionData.UploadCompleteStatus.Always)
+        {
+            if (action == null)
+            {
+                return;
+            }
+
+            postUploadActions.Add(new UploadConfig.PostUploadActionData(action, whenToExecute);
         }
         
         public void SetBuildDescription(string description)

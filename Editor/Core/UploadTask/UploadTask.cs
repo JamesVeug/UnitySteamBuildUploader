@@ -320,7 +320,7 @@ namespace Wireframe
                 return;
             }
 
-            postUploadActions.Add(new UploadConfig.PostUploadActionData(action, whenToExecute);
+            postUploadActions.Add(new UploadConfig.PostUploadActionData(action, whenToExecute));
         }
         
         public void SetBuildDescription(string description)

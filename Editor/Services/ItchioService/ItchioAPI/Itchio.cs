@@ -256,8 +256,6 @@ namespace Wireframe
         {
             public bool successful = false;
             public bool retry = false;
-            public string ItchioGuardCode = "";
-            public string ItchioTwoFactorCode = "";
             public string errorText;
         }
     }

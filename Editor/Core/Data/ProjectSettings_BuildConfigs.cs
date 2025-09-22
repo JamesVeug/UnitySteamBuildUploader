@@ -142,6 +142,15 @@ namespace Wireframe
                     {
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent(dropdownText + "Save"), false, Save);
+                        
+                        menu.AddSeparator("");
+                        
+                        menu.AddItem(new GUIContent("Add Default Build Configs"), false, ()=>
+                        {
+                            BuildConfigsUIUtils.CreateDefaultConfigs();
+                            BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
+                            m_isDirty = true;
+                        });
                         menu.ShowAsContext();
                     }
                 }

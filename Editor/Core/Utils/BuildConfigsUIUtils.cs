@@ -148,7 +148,7 @@ namespace Wireframe
             Save();
         }
 
-        private static void CreateDefaultConfigs()
+        public static void CreateDefaultConfigs()
         {
             BuildConfig debugBuild = new BuildConfig();
             debugBuild.Id = data.Count > 0 ? data.Max(a=>a.Id) + 1 : 1;
@@ -158,7 +158,7 @@ namespace Wireframe
             data.Add(debugBuild);
 
             BuildConfig releaseBuild = new BuildConfig();
-            debugBuild.Id = data.Count > 0 ? data.Max(a=>a.Id) + 1 : 1;
+            releaseBuild.Id = data.Count > 0 ? data.Max(a=>a.Id) + 1 : 1;
             releaseBuild.SetEditorSettings();
             releaseBuild.BuildName = "Release Build";
 #if UNITY_2021_1_OR_NEWER

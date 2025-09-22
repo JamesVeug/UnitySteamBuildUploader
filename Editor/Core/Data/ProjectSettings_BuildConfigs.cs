@@ -103,7 +103,6 @@ namespace Wireframe
 
             using (new GUILayout.VerticalScope())
             {
-                GUILayout.Label("Build Configs", m_titleStyle);
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     if (GUILayout.Button("New Build Config"))

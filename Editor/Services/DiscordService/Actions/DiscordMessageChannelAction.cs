@@ -161,10 +161,13 @@ namespace Wireframe
                 m_server = servers.FirstOrDefault(a => a.Id == (long)serverIDString);
             
                 List<(DiscordConfig.DiscordServer, List<DiscordConfig.DiscordChannel>)> channels = DiscordUIUtils.ChannelPopup.GetAllData();
-                if (data.TryGetValue("channelId", out object channelIDString) && channelIDString != null)
+                if (data.TryGetValue("channelId", out object channelIDString) && channelIDString != null && channels != null)
                 {
-                    m_channel = channels.FirstOrDefault(a => a.Item1.Id == m_server.Id)
-                        .Item2.FirstOrDefault(c => c.ChannelID == (long)channelIDString);
+                    (DiscordConfig.DiscordServer, List<DiscordConfig.DiscordChannel>) channel = channels.FirstOrDefault(a => a.Item1.Id == m_server.Id);
+                    if (channel.Item2 != null)
+                    {
+                        m_channel = channel.Item2.FirstOrDefault(c => c.ChannelID == (long)channelIDString);
+                    }
                 }
             }
             

@@ -5,7 +5,7 @@ namespace Wireframe
 {
     internal partial class WindowUploadTab : StringFormatter.IContextModifier
     {
-        private static Dictionary<string, Func<WindowUploadTab, string>> s_StringGetters = new()
+        private static Dictionary<string, Func<WindowUploadTab, string>> s_StringGetters = new Dictionary<string, Func<WindowUploadTab, string>>()
         {
             
         };

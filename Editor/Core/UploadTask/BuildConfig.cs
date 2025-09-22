@@ -275,7 +275,11 @@ namespace Wireframe
             {
                 if (TargetPlatform == BuildTargetGroup.Standalone)
                 {
+#if UNITY_2021_1_OR_NEWER
                     TargetPlatformSubTarget = (int)StandaloneBuildSubtarget.Player;
+#else
+                    TargetPlatformSubTarget = 0; // Player?
+#endif
                 }
                 else
                 {

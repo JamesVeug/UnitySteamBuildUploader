@@ -78,7 +78,7 @@ namespace Wireframe
         
         public interface IContextModifier
         {
-            public bool ReplaceString(string key, out string value);
+            bool ReplaceString(string key, out string value);
         }
 
         public class Context

@@ -48,7 +48,12 @@ namespace Wireframe
                 for (var i = 0; i < savedData.Configs.Count; i++)
                 {
                     var saveData = savedData.Configs[i];
-                    if (!saveData.TryGetValue("GUID", out object obj) || obj is not string id || id != guid)
+                    if (!saveData.TryGetValue("GUID", out object obj))
+                    {
+                        continue;
+                    }
+
+                    if (!(obj is string id) || id != guid)
                     {
                         continue;
                     }
@@ -88,7 +93,12 @@ namespace Wireframe
                 for (var i = 0; i < savedData.Configs.Count; i++)
                 {
                     var saveData = savedData.Configs[i];
-                    if (!saveData.TryGetValue("BuildName", out object obj) || obj is not string id || id != name)
+                    if (!saveData.TryGetValue("BuildName", out object obj))
+                    {
+                        continue;
+                    }
+
+                    if (!(obj is string id) || id != name)
                     {
                         continue;
                     }

@@ -339,7 +339,7 @@ namespace Wireframe
                         foreach (UploadConfig.SourceData s in b.Sources)
                         {
                             if (!s.Enabled) continue;
-                            if (s.Source is not BuildConfigSource otherSource) continue;
+                            if (!(s.Source is BuildConfigSource otherSource)) continue;
                             if (otherSource == this) continue;
                             
                             if (otherSource.BuildConfig == m_BuildConfig)
@@ -467,7 +467,11 @@ namespace Wireframe
             }
             else
             {
+#if UNITY_2021_1_OR_NEWER
                 m_TargetPlatformSubTarget = (int)StandaloneBuildSubtarget.Player;
+#else
+                m_TargetPlatformSubTarget = 0; // Player?
+#endif
             }
             
             if (data.TryGetValue("Target", out var targetObj) && targetObj is string targetStr && Enum.TryParse<BuildTarget>(targetStr, out var target))

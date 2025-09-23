@@ -32,6 +32,7 @@ namespace Wireframe
         private GUIStyle m_subTitleStyle;
         
         private List<UploadTask> m_loadedTasks;
+        private Vector2 m_scrollPosition;
         private Vector2 m_reportErrorScrollPosition;
         private string m_OpenTaskGUID = "";
         private Dictionary<AUploadTask_Step.StepType, (bool, Vector2)> m_OpenTaskSteps;
@@ -128,11 +129,13 @@ namespace Wireframe
                     return;
                 }
 
+                m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
                 for (var i = 0; i < tasks.Length; i++)
                 {
                     // Derive state and color
                     DrawTask(tasks[i]);
                 }
+                EditorGUILayout.EndScrollView();
             }
         }
 
@@ -338,9 +341,9 @@ namespace Wireframe
                             {
                                 // Show logs for this step
                                 StringBuilder sb = new StringBuilder();
-                                stepUI.position = EditorGUILayout.BeginScrollView(stepUI.position, GUILayout.ExpandHeight(true));
+                                stepUI.position = EditorGUILayout.BeginScrollView(stepUI.position, GUILayout.ExpandHeight(true), GUILayout.MinHeight(300));
                                 t.Report.GetStepLogs(true, stepType, sb);
-                                EditorGUILayout.TextArea(sb.ToString(), GUILayout.ExpandHeight(true));
+                                EditorGUILayout.TextArea(sb.ToString(), GUILayout.ExpandHeight(true), GUILayout.MinHeight(300));
                                 EditorGUILayout.EndScrollView();
                             }
                             m_OpenTaskSteps[stepType] = stepUI;

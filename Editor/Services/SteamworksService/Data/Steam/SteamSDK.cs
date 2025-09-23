@@ -385,6 +385,12 @@ namespace Wireframe
         private async Task<OutputResultArgs> LogOutSteamResult(string text, bool drmWrapping, int appID)
         {
             OutputResultArgs result = new OutputResultArgs();
+
+            if (text.Contains("Invalid Password"))
+            {
+                result.errorText = "Your computer is not authorized to upload to this Steam username.\nCheck the username is correct or Open the SteamCMD within preferences and login manually to authorize it and try again.";
+                return result;
+            }
             
             int errorTextStartIndex = text.IndexOf("Error", StringComparison.CurrentCultureIgnoreCase);
             if (errorTextStartIndex >= 0)
@@ -444,12 +450,6 @@ namespace Wireframe
             if (text.Contains("Rate Limit Exceeded"))
             {
                 result.errorText = "You tried logging in too many times. Try again later.";
-                return result;
-            }
-
-            if (text.Contains("Invalid Password"))
-            {
-                result.errorText = "Your computer is not authorized to upload to steam.\nOpen the SteamCMD within preferences and login manually to authorize it and try again.";
                 return result;
             }
 

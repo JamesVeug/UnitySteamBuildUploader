@@ -13,6 +13,7 @@ namespace Wireframe
         internal bool Collapsed { get; set; } = true;
         
         private GUIStyle m_titleStyle;
+        private bool m_deferredIsDirty;
 
         public void SetupDefaults()
         {
@@ -30,6 +31,11 @@ namespace Wireframe
                 DestinationType = null
             });
             
+            AddDefaultModifiers();
+        }
+
+        private void AddDefaultModifiers()
+        {
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
             ExcludeFoldersModifier regexBuildModifier = new ExcludeFoldersModifier();
@@ -37,7 +43,7 @@ namespace Wireframe
             regexBuildModifier.Add(".*ButDontShipItWithYourGame", true, false);
             AddModifier(new ModifierData(regexBuildModifier, true));
         }
-        
+
         private void SetupGUI()
         {
             if (m_titleStyle == null)
@@ -231,6 +237,12 @@ namespace Wireframe
 
         private void OnGUIExpanded(float windowWidth, ref bool isDirty)
         {
+            if (m_deferredIsDirty)
+            {
+                isDirty = true;
+                m_deferredIsDirty = false;
+            }
+            
             using (new GUILayout.HorizontalScope())
             {
                 using (new GUILayout.VerticalScope("box", GUILayout.MaxWidth(windowWidth/2)))
@@ -263,16 +275,21 @@ namespace Wireframe
                                     }
                                 }
                             }
-
-                            if (GUILayout.Button("X", GUILayout.Width(20)))
+                            
+                            if (CustomSettingsIcon.OnGUI())
                             {
-                                if (EditorUtility.DisplayDialog("Remove Source",
-                                        "Are you sure you want to remove this source?",
-                                        "Yes", "Oops No!"))
+                                GenericMenu menu = new GenericMenu();
+                                menu.AddItem(new GUIContent("Remove Source"), false, () =>
                                 {
-                                    m_buildSources.RemoveAt(i--);
-                                    isDirty = true;
-                                }
+                                    if (EditorUtility.DisplayDialog("Remove Source",
+                                            "Are you sure you want to remove this source?",
+                                            "Yes", "Oops No!"))
+                                    {
+                                        m_buildSources.Remove(source);
+                                        m_deferredIsDirty = true;
+                                    }
+                                });
+                                menu.ShowAsContext();
                             }
                         }
 
@@ -397,15 +414,29 @@ namespace Wireframe
                                 }
                             }
 
-                            if (GUILayout.Button("X", GUILayout.Width(20)))
+                            if (CustomSettingsIcon.OnGUI())
                             {
-                                if (EditorUtility.DisplayDialog("Remove Modifier",
-                                        "Are you sure you want to remove this Modifier?",
-                                        "Yes", "Oops No!"))
+                                GenericMenu menu = new GenericMenu();
+
+                                menu.AddItem(new GUIContent("Add Default Modifiers"), false, () =>
                                 {
-                                    m_modifiers.RemoveAt(i--);
-                                    isDirty = true;
-                                }
+                                    AddDefaultModifiers();
+                                    m_deferredIsDirty = true;
+                                });
+                                
+                                menu.AddSeparator("");
+                                
+                                menu.AddItem(new GUIContent("Remove Modifier"), false, () =>
+                                {
+                                    if (EditorUtility.DisplayDialog("Remove Modifier",
+                                            "Are you sure you want to remove this Modifier?",
+                                            "Yes", "Oops No!"))
+                                    {
+                                        m_modifiers.Remove(modifiers);
+                                        m_deferredIsDirty = true;
+                                    }
+                                });
+                                menu.ShowAsContext();
                             }
                         }
                         
@@ -482,15 +513,21 @@ namespace Wireframe
                                 }
                             }
                             
-                            if (GUILayout.Button("X", GUILayout.Width(20)))
+                            
+                            if (CustomSettingsIcon.OnGUI())
                             {
-                                if(EditorUtility.DisplayDialog("Remove Destination",
-                                       "Are you sure you want to remove this destination?", 
-                                       "Yes", "Oops No!"))
+                                GenericMenu menu = new GenericMenu();
+                                menu.AddItem(new GUIContent("Remove Destination"), false, () =>
                                 {
-                                    m_buildDestinations.RemoveAt(i--);
-                                    isDirty = true;
-                                }
+                                    if(EditorUtility.DisplayDialog("Remove Destination",
+                                           "Are you sure you want to remove this destination?", 
+                                           "Yes", "Oops No!"))
+                                    {
+                                        m_buildDestinations.Remove(destinationData);
+                                        m_deferredIsDirty = true;
+                                    }
+                                });
+                                menu.ShowAsContext();
                             }
                         }
 

@@ -42,12 +42,12 @@ namespace Wireframe
             public void Deserialize(Dictionary<string,object> data)
             {
                 Enabled = data.ContainsKey("enabled") ? (bool)data["enabled"] : true;
-                ModifierType = new UIHelpers.BuildModifiersPopup.ModifierData();
                 if (data.TryGetValue("modifierType", out object modifierType) && modifierType != null)
                 {
                     Type type = Type.GetType(modifierType as string);
                     if (UIHelpers.ModifiersPopup.TryGetValueFromType(type, out ModifierType))
                     {
+                        ModifierType = new UIHelpers.BuildModifiersPopup.ModifierData();
                         if (Utils.CreateInstance(ModifierType.Type, out Modifier))
                         {
                             Modifier.Deserialize(data["modifier"] as Dictionary<string, object>);
@@ -55,12 +55,12 @@ namespace Wireframe
                     }
                     else
                     {
-                        Debug.LogError($"Modifier type {modifierType} not found");
+                        Debug.LogError($"Modifier type `{modifierType}` not found");
                     }
                 }
                 else
                 {
-                    Debug.LogError($"Modifier type not found in data: {modifierType}");
+                    Debug.LogError($"Modifier type not found: `null`");
                 }
             }
         }

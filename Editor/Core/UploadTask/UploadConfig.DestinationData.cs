@@ -41,12 +41,12 @@ namespace Wireframe
             public void Deserialize(Dictionary<string,object> data)
             {
                 Enabled = data.ContainsKey("enabled") ? (bool)data["enabled"] : true;
-                DestinationType = new UIHelpers.BuildDestinationsPopup.DestinationData();
                 if (data.TryGetValue("destinationType", out object destinationType) && destinationType != null)
                 {
                     var type = System.Type.GetType(destinationType as string);
                     if (UIHelpers.DestinationsPopup.TryGetValueFromType(type, out DestinationType))
                     {
+                        DestinationType = new UIHelpers.BuildDestinationsPopup.DestinationData();
                         if (Utils.CreateInstance(DestinationType.Type, out Destination))
                         {
                             Destination.Deserialize(data["destination"] as Dictionary<string, object>);
@@ -54,8 +54,12 @@ namespace Wireframe
                     }
                     else
                     {
-                        Debug.LogError($"Destination type {destinationType} not found");
+                        Debug.LogError($"Destination type `{destinationType}` not found");
                     }
+                }
+                else
+                {
+                    Debug.LogError("Destination type 'null' not found");
                 }
             }
         }

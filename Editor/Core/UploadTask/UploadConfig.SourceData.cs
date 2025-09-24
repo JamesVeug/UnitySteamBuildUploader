@@ -56,12 +56,12 @@ namespace Wireframe
                 Enabled = data.ContainsKey("enabled") ? (bool)data["enabled"] : true;
                 DuplicateFileHandling = data.ContainsKey("duplicateFileHandling") ? (Utils.FileExistHandling)System.Enum.Parse(typeof(Utils.FileExistHandling), data["duplicateFileHandling"] as string) : Utils.FileExistHandling.Error;
                 SubFolder = data.ContainsKey("subFolderPath") ? data["subFolderPath"] as string : "";
-                SourceType = new UIHelpers.BuildSourcesPopup.SourceData();
                 if (data.TryGetValue("sourceType", out object sourceType) && sourceType != null)
                 {
-                    var type = System.Type.GetType(sourceType as string);
+                    var type = Type.GetType(sourceType as string);
                     if (UIHelpers.SourcesPopup.TryGetValueFromType(type, out SourceType))
                     {
+                        SourceType = new UIHelpers.BuildSourcesPopup.SourceData();
                         if (Utils.CreateInstance(SourceType.Type, out Source))
                         {
                             Source.Deserialize(data["source"] as Dictionary<string, object>);
@@ -69,12 +69,12 @@ namespace Wireframe
                     }
                     else
                     {
-                        Debug.LogError($"Cannot find type {sourceType}");
+                        Debug.LogError($"Cannot find type '{sourceType}'");
                     }
                 }
                 else
                 {
-                    Debug.LogError($"Source type {sourceType} not found");
+                    Debug.LogError($"Source type 'null' not found");
                 }
             }
         }

@@ -45,11 +45,11 @@ namespace Wireframe
                 if (data.TryGetValue("modifierType", out object modifierType) && modifierType != null)
                 {
                     Type type = Type.GetType(modifierType as string);
-                    if (UIHelpers.ModifiersPopup.TryGetValueFromType(type, out ModifierType))
+                    if (UIHelpers.ModifiersPopup.TryGetValueFromType(type, out var newModifierType))
                     {
-                        ModifierType = new UIHelpers.BuildModifiersPopup.ModifierData();
-                        if (Utils.CreateInstance(ModifierType.Type, out Modifier))
+                        if (Utils.CreateInstance(newModifierType.Type, out Modifier))
                         {
+                            ModifierType = newModifierType;
                             Modifier.Deserialize(data["modifier"] as Dictionary<string, object>);
                         }
                     }

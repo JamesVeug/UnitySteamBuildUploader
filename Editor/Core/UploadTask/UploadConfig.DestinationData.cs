@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -43,12 +44,12 @@ namespace Wireframe
                 Enabled = data.ContainsKey("enabled") ? (bool)data["enabled"] : true;
                 if (data.TryGetValue("destinationType", out object destinationType) && destinationType != null)
                 {
-                    var type = System.Type.GetType(destinationType as string);
-                    if (UIHelpers.DestinationsPopup.TryGetValueFromType(type, out DestinationType))
+                    Type type = Type.GetType(destinationType as string);
+                    if (UIHelpers.DestinationsPopup.TryGetValueFromType(type, out var newDestinationType))
                     {
-                        DestinationType = new UIHelpers.BuildDestinationsPopup.DestinationData();
-                        if (Utils.CreateInstance(DestinationType.Type, out Destination))
+                        if (Utils.CreateInstance(newDestinationType.Type, out Destination))
                         {
+                            DestinationType = newDestinationType;
                             Destination.Deserialize(data["destination"] as Dictionary<string, object>);
                         }
                     }

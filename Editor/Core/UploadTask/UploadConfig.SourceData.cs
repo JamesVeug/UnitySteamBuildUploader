@@ -58,12 +58,12 @@ namespace Wireframe
                 SubFolder = data.ContainsKey("subFolderPath") ? data["subFolderPath"] as string : "";
                 if (data.TryGetValue("sourceType", out object sourceType) && sourceType != null)
                 {
-                    var type = Type.GetType(sourceType as string);
-                    if (UIHelpers.SourcesPopup.TryGetValueFromType(type, out SourceType))
+                    Type type = Type.GetType(sourceType as string);
+                    if (UIHelpers.SourcesPopup.TryGetValueFromType(type, out var newSourceType))
                     {
-                        SourceType = new UIHelpers.BuildSourcesPopup.SourceData();
-                        if (Utils.CreateInstance(SourceType.Type, out Source))
+                        if (Utils.CreateInstance(newSourceType.Type, out Source))
                         {
+                            SourceType = newSourceType;
                             Source.Deserialize(data["source"] as Dictionary<string, object>);
                         }
                     }

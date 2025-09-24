@@ -163,6 +163,60 @@ namespace Wireframe
         private async Task Execute(AUploadTask_Step[] steps)
         {
             // Validate
+            bool valid = false;
+            try{
+                valid = Validate();
+            } 
+            catch (Exception e)
+            {
+                UploadTaskReport.StepResult result = report.NewReport(AUploadTask_Step.StepType.Validation);
+                result.AddException(e);
+            }
+            
+            if (!valid)
+            {
+                UploadTaskReport.StepResult result = report.NewReport(AUploadTask_Step.StepType.Validation);
+                result.SetFailed("Validation failed. See errors above.");
+                SetProgress(0, 1f, CurrentStep.ToString());
+                return;
+            }
+            
+            // Do upload steps
+            bool allStepsSuccessful = true;
+            CancellationTokenSource token = new CancellationTokenSource();
+            for (int i = 0; i < steps.Length; i++)
+            {
+                AUploadTask_Step step = steps[i];
+                CurrentStep = step.Type;
+                if (!allStepsSuccessful && step.RequiresEverythingBeforeToSucceed)
+                {
+                    continue;
+                }
+                
+                // Perform the Step (GetSources, CacheSources, etc.)
+                report.SetProcess(AUploadTask_Step.StepProcess.Intra);
+                Task<bool> intraTask = step.Run(this, report, token);
+                while (!intraTask.IsCompleted)
+                {
+                    float progress = report.GetProgress(step.Type, AUploadTask_Step.StepProcess.Intra);
+                    SetProgress(i, progress, CurrentStep.ToString());
+                    await Task.Yield();
+                }
+                bool stepSuccessful = intraTask.Result;
+                SetProgress(i, 1f, CurrentStep.ToString());
+                
+                // Post-step logic mainly for logging
+                report.SetProcess(AUploadTask_Step.StepProcess.Post);
+                bool postStepSuccessful = await step.PostRunResult(this, report);
+                if (!stepSuccessful || !postStepSuccessful || token.IsCancellationRequested)
+                {
+                    allStepsSuccessful = false;
+                }
+            }
+        }
+
+        private bool Validate()
+        {
             report.SetProcess(AUploadTask_Step.StepProcess.Intra);
             UploadTaskReport.StepResult[] reports = report.NewReports(AUploadTask_Step.StepType.Validation, uploadConfigs.Count);
             bool valid = true;
@@ -225,46 +279,7 @@ namespace Wireframe
                 }
             }
 
-            if (!valid)
-            {
-                UploadTaskReport.StepResult result = report.NewReport(AUploadTask_Step.StepType.Validation);
-                result.SetFailed("Validation failed. See errors above.");
-                SetProgress(0, 1f, CurrentStep.ToString());
-                return;
-            }
-            
-            // Do upload steps
-            bool allStepsSuccessful = true;
-            CancellationTokenSource token = new CancellationTokenSource();
-            for (int i = 0; i < steps.Length; i++)
-            {
-                AUploadTask_Step step = steps[i];
-                CurrentStep = step.Type;
-                if (!allStepsSuccessful && step.RequiresEverythingBeforeToSucceed)
-                {
-                    continue;
-                }
-                
-                // Perform the Step (GetSources, CacheSources, etc.)
-                report.SetProcess(AUploadTask_Step.StepProcess.Intra);
-                Task<bool> intraTask = step.Run(this, report, token);
-                while (!intraTask.IsCompleted)
-                {
-                    float progress = report.GetProgress(step.Type, AUploadTask_Step.StepProcess.Intra);
-                    SetProgress(i, progress, CurrentStep.ToString());
-                    await Task.Yield();
-                }
-                bool stepSuccessful = intraTask.Result;
-                SetProgress(i, 1f, CurrentStep.ToString());
-                
-                // Post-step logic mainly for logging
-                report.SetProcess(AUploadTask_Step.StepProcess.Post);
-                bool postStepSuccessful = await step.PostRunResult(this, report);
-                if (!stepSuccessful || !postStepSuccessful || token.IsCancellationRequested)
-                {
-                    allStepsSuccessful = false;
-                }
-            }
+            return valid;
         }
 
         private void SetProgress(int step, float percent, string message)

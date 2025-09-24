@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build;
@@ -90,7 +89,6 @@ namespace Wireframe
         {
             AllowDebugging = on;
             IsDevelopmentBuild = on;
-            EnableDeepProfilingSupport = on;
             ConnectProfiler = on;
 
             StackTraceLogTypes[LogType.Log] = on ? StackTraceLogType.ScriptOnly : StackTraceLogType.None;

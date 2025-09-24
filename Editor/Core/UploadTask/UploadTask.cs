@@ -188,6 +188,15 @@ namespace Wireframe
                 {
                     result.AddLog("No errors found in config: " + config.GUID);
                 }
+                
+                List<string> warnings = config.GetAllWarnings();
+                if (warnings.Count > 0)
+                {
+                    foreach (string warning in warnings)
+                    {
+                        result.AddWarning(warning);
+                    }
+                }
             }
 
             reports = report.NewReports(AUploadTask_Step.StepType.Validation, postUploadActions.Count);

@@ -349,20 +349,27 @@ namespace Wireframe
                         
                         }
                         
-                        if (source.Source != null && source.Enabled)
+                        if (source.Enabled)
                         {
-                            List<string> errors = new List<string>();
-                            source.Source.TryGetErrors(errors, m_context);
-                            foreach (string error in errors)
+                            if (source.Source != null)
                             {
-                                DrawError(error);
-                            }
+                                List<string> errors = new List<string>();
+                                source.Source.TryGetErrors(errors, m_context);
+                                foreach (string error in errors)
+                                {
+                                    DrawError(error);
+                                }
                             
-                            List<string> warnings = new List<string>();
-                            source.Source.TryGetWarnings(warnings);
-                            foreach (string warning in warnings)
+                                List<string> warnings = new List<string>();
+                                source.Source.TryGetWarnings(warnings);
+                                foreach (string warning in warnings)
+                                {
+                                    DrawWarning(warning);
+                                }
+                            }
+                            else
                             {
-                                DrawWarning(warning);
+                                DrawError("No source selected");
                             }
                         }
                         
@@ -465,6 +472,10 @@ namespace Wireframe
                                 }
                             }
                         }
+                        else if (modifiers.Enabled)
+                        {
+                            DrawError("No modifier selected");
+                        }
                         
                         GUILayout.Space(10);
                     }
@@ -564,6 +575,10 @@ namespace Wireframe
                                     }
                                 }
                             }
+                        }
+                        else if(destinationData.Enabled)
+                        {
+                            DrawError("No destination selected");
                         }
                         
                         GUILayout.Space(10);

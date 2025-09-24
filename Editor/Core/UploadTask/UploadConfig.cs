@@ -55,6 +55,7 @@ namespace Wireframe
         {
             List<string> warnings = new List<string>();
             warnings.AddRange(GetSourceErrors());
+            warnings.AddRange(GetModifierErrors());
             warnings.AddRange(GetDestinationErrors());
 
             return warnings;
@@ -64,6 +65,7 @@ namespace Wireframe
         {
             List<string> warnings = new List<string>();
             warnings.AddRange(GetSourceWarnings());
+            warnings.AddRange(GetModifierWarnings());
             warnings.AddRange(GetDestinationWarnings());
 
             return warnings;
@@ -74,23 +76,18 @@ namespace Wireframe
             List<string> errors = new List<string>();
             foreach (SourceData sourceData in m_buildSources)
             {
-                if(sourceData.Enabled && sourceData.Source != null)
-                {
-                    sourceData.Source.TryGetErrors(errors, m_context);
-                }
-            }
-            
-            foreach (ModifierData modifer in m_modifiers)
-            {
-                if (!modifer.Enabled || modifer.ModifierType == null)
+                if (!sourceData.Enabled)
                 {
                     continue;
                 }
-                
-                foreach (SourceData sourceData in m_buildSources)
+
+                if (sourceData.Source == null)
                 {
-                    modifer.Modifier?.TryGetErrors(sourceData.Source, errors);
+                    errors.Add("Source not set");
+                    continue;
                 }
+                
+                sourceData.Source.TryGetErrors(errors, m_context);
             }
             
             return errors;
@@ -101,8 +98,14 @@ namespace Wireframe
             List<string> errors = new List<string>();
             foreach (ModifierData modifier in m_modifiers)
             {
-                if (!modifier.Enabled || modifier.ModifierType == null)
+                if (!modifier.Enabled)
                 {
+                    continue;
+                }
+                
+                if (modifier.ModifierType == null)
+                {
+                    errors.Add("Modifier type not set");
                     continue;
                 }
                 
@@ -133,10 +136,18 @@ namespace Wireframe
             List<string> errors = new List<string>();
             foreach (DestinationData destinationData in m_buildDestinations)
             {
-                if(destinationData.Enabled && destinationData.Destination != null)
+                if (!destinationData.Enabled)
                 {
-                    destinationData.Destination.TryGetErrors(errors, m_context);
+                    continue;
                 }
+
+                if (destinationData.Destination == null)
+                {
+                    errors.Add("Destination not set");
+                    continue;
+                }
+                
+                destinationData.Destination.TryGetErrors(errors, m_context);
             }
             
             foreach (ModifierData modifier in m_modifiers)
@@ -162,20 +173,7 @@ namespace Wireframe
             {
                 if (sourceData.Enabled && sourceData.Source != null)
                 {
-                    sourceData.Source?.TryGetWarnings(warnings);
-                }
-            }
-            
-            foreach (ModifierData modifer in m_modifiers)
-            {
-                if (!modifer.Enabled || modifer.ModifierType == null)
-                {
-                    continue;
-                }
-                
-                foreach (SourceData sourceData in m_buildSources)
-                {
-                    modifer.Modifier?.TryGetWarnings(sourceData.Source, warnings);
+                    sourceData.Source.TryGetWarnings(warnings);
                 }
             }
             

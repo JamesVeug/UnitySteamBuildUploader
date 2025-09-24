@@ -170,6 +170,11 @@ namespace Wireframe
             {
                 UploadTaskReport.StepResult result = reports[i];
                 UploadConfig config = uploadConfigs[i];
+                if (!config.Enabled)
+                {
+                    continue;
+                }
+                
                 List<string> errors = config.GetAllErrors();
                 if (errors.Count > 0)
                 {

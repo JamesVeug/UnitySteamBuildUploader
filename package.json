@@ -12,8 +12,10 @@
     "upload",
     "pipeline",
     "steampipe",
-    "depot"
+    "depot",
+    "itchio",
+    "github"
   ],
-  "version": "2.4.1",
+  "version": "3.0.0",
   "dependencies": {}
 }

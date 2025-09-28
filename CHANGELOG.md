@@ -1,3 +1,80 @@
+# 3.0.0
+
+## Highlights
+  - Create multiple builds and upload them with 1 button
+  - Upload builds to itch.io
+  - Post a message to Discord using an App (Bot)
+  - New Upload Task window to view old and in-progress tasks and their logs
+  - Lots of Steamworks destination fixes (No more 2 factor per upload!)
+  - Lots of UI and UX improvements
+
+## What's new
+  - Added BuildConfigs (Define all Editor and Player settings that you want in a build)
+  - Added Itch.io upload destination
+  - Added Post upload actions
+  - Added Discord app messaging action (Can send messages to discord on successful upload)
+  - Added Upload Profiles (Can name multiple sets of uploads and change between them)
+  - Replaced Report window with new Task window to view in progress tasks and their logs `Window/Build Uploader/Open Upload Tasks Window`
+  - Added BuildConfig source (Start a new build using the config when uploading)
+  - Added BuildData to every build's StreamingAssets to see its build number (can be opted out in ProjectSettings)
+  - Build Uploader now makes a ProjectID.txt to differentiate between different projects when using EditorPrefs
+  - New string formats
+    - {buildName} - The name of the build as specified in a build config.
+    - {buildNumber} - The unique number of the build that is produced if enabled in Project Settings.
+    - {buildTarget} - The target group of the upcoming build as defined in Player Settings.
+    - {buildTargetGroup} - The target group of the upcoming build as defined in Player Settings.
+    - {cacheFolderPath} - The path where all files and builds are stored when build uploader is working.
+    - {machineName} - The name of the machine running the build.
+    - {persistentDataPath} - The version of your project as specified in Player Settings.
+    - {projectPath} - The version of your project as specified in Player Settings.
+    - {productName} - The name of your product as specified in Player Settings. (Previously projectName)
+    - {scriptingBackend} - The scripting backend for the next build as defined in Player Settings.
+    - {taskFailedReasons} - Gets the reasons why the task failed to upload all destinations.
+    - {taskProfileName} - The name of the upload profile or task specified when creating the task.
+
+## What's changed
+  - General
+    - Removed Build button in the upload window in favor of using build configs.
+    - Upload profiles / upload configs are saved per project and can sync with source control
+    - Upload tab no longer shows percentage of upload
+    - Added settings context options to reorder upload configs
+    - Added foldout and right-click context options to all reorderable lists
+    - Can now remove Steamworks Configs
+    - Added `.*ButDontShipItWithYourGame` when creating a new folder regex modifier for IL2CPP builds
+    - UI changes to Project settings and Preferences
+  - Upload Tasks
+    - API changed to allow for more customisability
+    - Added Validation step to prevent starting an upload via CI if there are errors
+    - Added PrepareSource step for caching before starting to make builds and modify editor
+    - More logs added to assist debugging
+    - Cleanup step is now async
+    - Cleanup will now happen even if Preferences is set to not clear cache after upload
+  - Unity Cloud
+    - Tab moved to its own window `Window/Build Uploader/Open Unity Cloud Window`
+    - CloudBuildManifest no longer makes a new UnityCloudBuildManifest.json in builds if it doesn't exist
+  - Welcome Window
+    - Changelog shows dropdowns per versions instead of everything all at once
+
+## What's fixed
+  - String formats
+    - Fixed unable to use taskDescription and other strings in destinations
+    - Fixed dropdowns not formatting (eg: Source type, steam depot...)
+  - LocalPathDestination
+    - Fixed show button not going to the path if its formatted
+    - Fixed Duplicate File Handling not save/loading
+    - Added error check for invalid characters in path 
+  - Steamworks destination
+    - Fixed uploading multiple builds to multiple depots on steam resulting in the same build being uploaded
+    - Fixed first time uploading to steamworks without a branch throwing an error
+    - Fixed changing Steam DRM toggle and flags from not auto-saving
+    - Possible fix for Steam DRM wrapping the wrong .exe depending on Product name
+  - Github
+    - Fixed draft and prerelease always true when uploading
+  - Other
+    - Fixed some JSON deserialization edge cases
+    - Fixed window icons not showing when the package is added to the Assets folder.
+
+
 # 2.4.1
 - Upload tab
   - Added pre-upload error reporting when Exclude files/folders has bad regex

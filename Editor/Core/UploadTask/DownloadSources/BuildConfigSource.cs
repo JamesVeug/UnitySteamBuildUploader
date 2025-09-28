@@ -177,12 +177,12 @@ namespace Wireframe
 
                 // Get all enabled scenes in build settings
                 BuildOptions buildOptions = m_buildConfigToApply.GetBuildOptions();
+#if UNITY_2021_2_OR_NEWER
+                buildOptions |= BuildOptions.DetailedBuildReport;
                 if (m_CleanBuild)
                 {
                     buildOptions |= BuildOptions.CleanBuildCache;
                 }
-#if UNITY_2021_2_OR_NEWER
-                buildOptions |= BuildOptions.DetailedBuildReport;
 #endif
 
                 string productName = m_buildConfigToApply.GetFormattedProductName(ctx);

@@ -88,18 +88,17 @@ namespace Wireframe
             PropertyInfo targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
             BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
 
-            MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            bool isSupported = (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { target });
+            bool isSupported = IsTargetGroupSupported(targetGroup, target);
 #elif UNITY_2021_1_OR_NEWER
             PropertyInfo targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
             BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
-            bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroup, target);
+            bool isSupported = BuildUtils.IsTargetGroupSupported(targetGroup, target);
             bool installed = BuildUtils.IsTargetGroupInstalled(targetGroup, target);
 #else
             FieldInfo targetGroupField = platformType.GetField("targetGroup", BindingFlags.Instance | BindingFlags.Public);
             BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
             
-            bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroup, target);
+            bool isSupported = BuildUtils.IsTargetGroupSupported(targetGroup, target);
             bool installed = isSupported && BuildUtils.IsTargetGroupInstalled(targetGroup, target);
 #endif
             

@@ -73,7 +73,7 @@ namespace Wireframe
                 return result;
             }
 #endif
-            
+
             // Assume always 64 bit
             return Architecture.x64;
         }
@@ -190,10 +190,14 @@ namespace Wireframe
                         
                         BuildPlatform macBuildPlatform = BuildPlatform.ToBuildPlatform(platform);
                         macBuildPlatform.defaultTarget = BuildTarget.StandaloneOSX;
+                        macBuildPlatform.supported = IsTargetGroupSupported(macBuildPlatform.targetGroup, macBuildPlatform.defaultTarget);
+                        macBuildPlatform.installed = IsTargetGroupInstalled(macBuildPlatform.targetGroup, macBuildPlatform.defaultTarget);
                         validPlatforms.Add(macBuildPlatform);
                         
                         BuildPlatform linuxBuildPlatform = BuildPlatform.ToBuildPlatform(platform);
                         linuxBuildPlatform.defaultTarget = BuildTarget.StandaloneLinux64;
+                        linuxBuildPlatform.supported = IsTargetGroupSupported(linuxBuildPlatform.targetGroup, linuxBuildPlatform.defaultTarget);
+                        linuxBuildPlatform.installed = IsTargetGroupInstalled(linuxBuildPlatform.targetGroup, linuxBuildPlatform.defaultTarget);
                         validPlatforms.Add(linuxBuildPlatform);
                     }
                 }
@@ -453,6 +457,16 @@ namespace Wireframe
             return targetGroup == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(target, BuildOptions.None, false) != string.Empty;
 #else
             return targetGroup == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(targetGroup, target, BuildOptions.None) != string.Empty;
+#endif
+        }
+
+        public static bool IsTargetGroupSupported(BuildTargetGroup targetGroup, BuildTarget target)
+        {
+#if UNITY_6000_0_OR_NEWER
+            MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            return (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { target });
+#else
+            return BuildPipeline.IsBuildTargetSupported(targetGroup, target);
 #endif
         }
     }

@@ -14,6 +14,7 @@ namespace Wireframe
         public const string BUNDLE_VERSION_KEY = "{bundleVersion}";
         public const string COMPANY_NAME_KEY = "{companyName}";
         public const string BUILD_TARGET_KEY = "{buildTarget}";
+        public const string BUILD_ARCHITECTURE_KEY = "{buildArchitecture}";
         public const string BUILD_TARGET_GROUP_KEY = "{buildTargetGroup}";
         public const string SCRIPTING_BACKEND_KEY = "{scriptingBackend}";
         public const string PROJECT_PATH_KEY = "{projectPath}";
@@ -38,6 +39,7 @@ namespace Wireframe
             Commands.Add(new Command(BUNDLE_VERSION_KEY, nameof(Context.BundleVersion), "The version of your project for android/ios as specified in Player Settings."));
             Commands.Add(new Command(COMPANY_NAME_KEY, nameof(Context.CompanyName), "The name of your company as specified in Player Settings."));
             Commands.Add(new Command(BUILD_TARGET_KEY, nameof(Context.buildTarget), "Which platform targeting for the next build as defined in Build Settings."));
+            Commands.Add(new Command(BUILD_ARCHITECTURE_KEY, nameof(Context.buildArchitecture), "Which architecture the build will be (eg x64/x84)"));
             Commands.Add(new Command(BUILD_TARGET_GROUP_KEY, nameof(Context.buildTargetGroup), "The target group of the upcoming build as defined in Player Settings."));
             Commands.Add(new Command(SCRIPTING_BACKEND_KEY, nameof(Context.scriptingBackend), "The scripting backend for the next build as defined in Player Settings."));
             Commands.Add(new Command(PROJECT_PATH_KEY, nameof(Context.ProjectPath), "The path of your Unity Project contains the Assets folder."));
@@ -90,6 +92,7 @@ namespace Wireframe
             public Func<string> CompanyName { get; set; } = ()=> PlayerSettings.companyName;
             
             public Func<string> buildTarget { get; set; } = ()=> EditorUserBuildSettings.activeBuildTarget.ToString();
+            public Func<string> buildArchitecture { get; set; } = ()=> BuildUtils.CurrentTargetArchitecture().ToString();
             public Func<string> buildTargetGroup { get; set; } = ()=> BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget).ToString();
             public Func<string> scriptingBackend { get; set; } = ()=> BuildUtils.ScriptingBackendDisplayName(BuildUtils.CurrentScriptingBackend());
             public Func<string> ProjectPath { get; set; } = ()=> Path.GetDirectoryName(Application.dataPath);

@@ -133,6 +133,12 @@ namespace Wireframe
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
                 m_filePath = GetBuiltDirectory(ctx);
+                if (string.IsNullOrEmpty(m_filePath))
+                {
+                    stepResult.SetFailed("Could not get built directory. Possible invalid build config or platform. Check you have the modules installed for the selected platform.");
+                    return false;
+                }
+                
                 if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
@@ -277,10 +283,17 @@ namespace Wireframe
             {
                 return "";
             }
+            
+            BuildPlatform platform = BuildUtils.GetBuildPlatform(config.TargetPlatform, config.Target, config.TargetPlatformSubTarget);
+            if (platform == null)
+            {
+                return "";
+            }
+            
             string buildName = StringFormatter.FormatString(config.BuildName, ctx);
             string guid = config.GUID;
             string buildPath = string.Format("{0} ({1})", buildName, guid); // Development (1234)
-            string targetName = BuildUtils.GetBuildPlatform(config.TargetPlatform, config.Target, config.TargetPlatformSubTarget).DisplayName;
+            string targetName = platform.DisplayName;
             string platformPath = string.Format("{0} {1}", targetName, config.TargetArchitecture); // StandaloneWindows64 x64
             return Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", buildPath, platformPath);
         }

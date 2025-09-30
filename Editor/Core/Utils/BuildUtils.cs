@@ -301,7 +301,7 @@ namespace Wireframe
         public static int CurrentSubTarget()
         {
 #if UNITY_2021_1_OR_NEWER
-            MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("GetSelectedSubtargetFor", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("GetActiveSubtargetFor", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             int subTarget = (int)methodInfo.Invoke(null, new object[] { EditorUserBuildSettings.activeBuildTarget });
             return subTarget;
 #else

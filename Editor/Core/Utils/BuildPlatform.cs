@@ -90,7 +90,7 @@ namespace Wireframe
 
             MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             bool isSupported = (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { target });
-#elif UNITY_2022_2_OR_NEWER
+#elif UNITY_2021_1_OR_NEWER
             PropertyInfo targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
             BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
             bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroup, target);

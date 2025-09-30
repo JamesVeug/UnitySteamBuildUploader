@@ -68,10 +68,19 @@ namespace Wireframe
             }
 #endif
 
+            var defaultTargetField = platformType.GetField("defaultTarget", BindingFlags.Instance | BindingFlags.Public);
+            BuildTarget target = (BuildTarget)defaultTargetField.GetValue(platform);
+            var defaultTargetFieldInfo = typeof(BuildTarget).GetField(target.ToString());
+            bool isObsolete = defaultTargetFieldInfo != null && Attribute.IsDefined(defaultTargetFieldInfo, typeof(ObsoleteAttribute));
+            if (isObsolete)
+            {
+                return null;
+            }
+            
+            
             var nameField = platformType.GetField("name", BindingFlags.Instance | BindingFlags.Public);
             var titleField = platformType.GetProperty("title", BindingFlags.Instance | BindingFlags.Public);
             var tooltipField = platformType.GetField("tooltip", BindingFlags.Instance | BindingFlags.Public);
-            var defaultTargetField = platformType.GetField("defaultTarget", BindingFlags.Instance | BindingFlags.Public);
             var subtargetField = platformType.GetField("subtarget", BindingFlags.Instance | BindingFlags.Public);
             
             string name = (string)nameField.GetValue(platform);
@@ -79,7 +88,6 @@ namespace Wireframe
             string tooltip = (string)tooltipField.GetValue(platform);
             int subTarget = subtargetField != null ? (int)subtargetField.GetValue(platform) : 0;
             
-            BuildTarget target = (BuildTarget)defaultTargetField.GetValue(platform);
             
 #if UNITY_6000_0_OR_NEWER
             FieldInfo installedField = platformType.GetField("installed", BindingFlags.Instance | BindingFlags.Public);

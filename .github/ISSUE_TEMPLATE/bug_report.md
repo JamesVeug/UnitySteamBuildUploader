@@ -9,6 +9,10 @@ assignees: JamesVeug
 
 **Describe the bug**
 A clear and concise description of what the bug is.
+Example: 
+- When i open this window unity crashes
+- When i click on this button it does nothing
+- When i make a build using these settings the screen goes blank
 
 **To Reproduce**
 Steps to reproduce the behavior:
@@ -27,8 +31,8 @@ If applicable, add screenshots to help explain your problem.
 If applicable, add the report from the build task
 
 **Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Build Uploader Version [e.g. 22]
+ - OS: [e.g. Windows, Linux, Mac]
+ - Build Uploader Version [e.g. v3.0.0]
 
 **Additional context**
 Add any other context about the problem here.

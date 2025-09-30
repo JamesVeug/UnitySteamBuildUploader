@@ -407,25 +407,27 @@ namespace Wireframe
                 }
             }
 
-            bool switchPlatform = m_OverrideSwitchTargetPlatform || config.SwitchTargetPlatform;
-            if (switchPlatform)
-            {
-                BuildTarget target = ResultingTarget();
-                BuildTargetGroup targetGroup = ResultingTargetGroup();
-                int subTarget = ResultingTargetPlatformSubTarget();
+            BuildTarget target = ResultingTarget();
+            BuildTargetGroup targetGroup = ResultingTargetGroup();
+            int subTarget = ResultingTargetPlatformSubTarget();
 
-                BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
-                if (buildPlatform == null)
-                {
-                    reason = $"The selected target platform {target} ({targetGroup}) is not valid.";
-                    return false;
-                }
-                
-                if (!buildPlatform.installed)
-                {
-                    reason = $"The selected target platform {buildPlatform.DisplayName} is not installed.";
-                    return false;
-                }
+            BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
+            if (buildPlatform == null)
+            {
+                reason = $"The selected target platform {target} ({targetGroup}) is not valid.";
+                return false;
+            }
+            
+            if (!buildPlatform.installed)
+            {
+                reason = $"The selected target platform {buildPlatform.DisplayName} is not installed. Use Unity Hub to install the module.";
+                return false;
+            }
+            
+            if (!buildPlatform.supported)
+            {
+                reason = $"The selected target platform {buildPlatform.DisplayName} is not supported by Unity. Not installed or deprecated in this version of Unity?\nUse Unity Hub to install the module.";
+                return false;
             }
             
             reason = "";

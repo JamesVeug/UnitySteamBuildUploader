@@ -448,7 +448,12 @@ namespace Wireframe
         
         public static bool IsTargetGroupInstalled(BuildTargetGroup targetGroup, BuildTarget target)
         {
+            // Copied from BuildPlayerWindow.cs
+#if UNITY_2021_1_OR_NEWER
             return targetGroup == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(target, BuildOptions.None, false) != string.Empty;
+#else
+            return targetGroup == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(targetGroup, target, BuildOptions.None) != string.Empty;
+#endif
         }
     }
 }

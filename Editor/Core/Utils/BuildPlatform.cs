@@ -79,32 +79,28 @@ namespace Wireframe
             string tooltip = (string)tooltipField.GetValue(platform);
             int subTarget = subtargetField != null ? (int)subtargetField.GetValue(platform) : 0;
             
-            BuildTarget defaultTargetValue = (BuildTarget)defaultTargetField.GetValue(platform);
+            BuildTarget target = (BuildTarget)defaultTargetField.GetValue(platform);
             
-#if UNITY_6000_0_OR_NEWER // Build Profiles were added came with a massive refactor
+#if UNITY_6000_0_OR_NEWER
             FieldInfo installedField = platformType.GetField("installed", BindingFlags.Instance | BindingFlags.Public);
             bool installed = (bool)installedField?.GetValue(platform);
             
             PropertyInfo targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
-            BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
+            BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
 
             MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            bool isSupported = (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { defaultTargetValue });
+            bool isSupported = (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { target });
 #elif UNITY_2022_2_OR_NEWER
-            
             PropertyInfo targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
-            BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
-            bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroupValue, defaultTargetValue);
-            
-            // Copied from BuildPlayerWindow.cs
-            bool installed = targetGroupValue == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(defaultTargetValue, BuildOptions.None, false) != string.Empty;
+            BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
+            bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroup, target);
+            bool installed = BuildUtils.IsTargetGroupInstalled(targetGroup, target);
 #else
-            bool installed = true; // Don't support checking if its installed before uploading
-            
             FieldInfo targetGroupField = platformType.GetField("targetGroup", BindingFlags.Instance | BindingFlags.Public);
-            BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
+            BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
             
-            bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroupValue, defaultTargetValue);
+            bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroup, target);
+            bool installed = isSupported && BuildUtils.IsTargetGroupInstalled(targetGroup, target);
 #endif
             
             BuildPlatform buildPlatform = new BuildPlatform
@@ -114,8 +110,8 @@ namespace Wireframe
                 title = title,
                 installed = installed,
                 supported = isSupported,
-                defaultTarget = defaultTargetValue,
-                targetGroup = targetGroupValue,
+                defaultTarget = target,
+                targetGroup = targetGroup,
                 subTarget = subTarget
             };
             return buildPlatform;

@@ -32,57 +32,7 @@ namespace Wireframe
             /// </summary>
             x86,
         }
-        
-        public class BuildPlatform
-        {
-            public string DisplayName
-            {
-                get
-                {
-                    if (targetGroup == BuildTargetGroup.Standalone)
-                    {
-                        string os = "";
-                        switch (defaultTarget)
-                        {
-                            case BuildTarget.StandaloneWindows:
-                            case BuildTarget.StandaloneWindows64:
-                                os = "Windows";
-                                break;
-                            case BuildTarget.StandaloneOSX:
-                                os = "macOS";
-                                break;
-                            case BuildTarget.StandaloneLinux64:
-                                os = "Linux";
-                                break;
-                        }
-                        
-#if UNITY_2021_1_OR_NEWER
-                        if (subTarget == (int)StandaloneBuildSubtarget.Server)
-                        {
-                            os += " " + name;
-                        }
-#endif
-                        return os;
-                    }
-                    return title.text;
-                }
-            }
 
-            public string name;
-            public string tooltip;
-            public bool installed;
-            public GUIContent title;
-            public BuildTarget defaultTarget;
-            public BuildTargetGroup targetGroup;
-            public int subTarget;
-            public List<BuildPlatform> derivedPlatforms = new List<BuildPlatform>();
-
-            public override string ToString()
-            {
-                return $"{name} - {tooltip} - ({targetGroup} - {defaultTarget})";
-            }
-        }
-        
         public static ManagedStrippingLevel CurrentStrippingLevel()
         {
 #if UNITY_2021_1_OR_NEWER
@@ -183,8 +133,6 @@ namespace Wireframe
             return Application.productName;
         }
     
-        private static Type BuildPlatformsType = Type.GetType("UnityEditor.Build.BuildPlatforms, UnityEditor");
-        private static PropertyInfo BuildPlatformsTypeInstanceProp = BuildPlatformsType.GetProperty("instance", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 
         private static List<BuildPlatform> BuildPlatforms = null;
 
@@ -220,6 +168,8 @@ namespace Wireframe
             return (newTargetGroup, newTargetGroupSubTarget, newTarget);
         }
         
+        private static Type BuildPlatformsType = Type.GetType("UnityEditor.Build.BuildPlatforms, UnityEditor");
+        private static PropertyInfo BuildPlatformsTypeInstanceProp = BuildPlatformsType.GetProperty("instance", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
         private static List<BuildPlatform> GetValidPlatforms()
         {
             object instance = BuildPlatformsTypeInstanceProp.GetValue(null);
@@ -229,7 +179,7 @@ namespace Wireframe
             List<BuildPlatform> validPlatforms = new List<BuildPlatform>();
             foreach (var platform in (IList)result)
             {
-                BuildPlatform buildPlatform = ToBuildPlatform(platform);
+                BuildPlatform buildPlatform = BuildPlatform.ToBuildPlatform(platform);
                 if (buildPlatform != null)
                 {
                     validPlatforms.Add(buildPlatform);
@@ -238,11 +188,11 @@ namespace Wireframe
                     {
                         buildPlatform.defaultTarget = BuildTarget.StandaloneWindows64;
                         
-                        BuildPlatform macBuildPlatform = ToBuildPlatform(platform);
+                        BuildPlatform macBuildPlatform = BuildPlatform.ToBuildPlatform(platform);
                         macBuildPlatform.defaultTarget = BuildTarget.StandaloneOSX;
                         validPlatforms.Add(macBuildPlatform);
                         
-                        BuildPlatform linuxBuildPlatform = ToBuildPlatform(platform);
+                        BuildPlatform linuxBuildPlatform = BuildPlatform.ToBuildPlatform(platform);
                         linuxBuildPlatform.defaultTarget = BuildTarget.StandaloneLinux64;
                         validPlatforms.Add(linuxBuildPlatform);
                     }
@@ -250,70 +200,6 @@ namespace Wireframe
             }
             
             return validPlatforms;
-
-            BuildPlatform ToBuildPlatform(object platform)
-            {
-                var platformType = platform.GetType();
-        
-#if UNITY_2021_1_OR_NEWER
-                var hideInUiField = platformType.GetField("hideInUi", BindingFlags.Instance | BindingFlags.Public);
-                bool hideInUi = (bool)hideInUiField.GetValue(platform);
-                if (hideInUi)
-                {
-                    return null;
-                }
-#endif
-
-                var nameField = platformType.GetField("name", BindingFlags.Instance | BindingFlags.Public);
-                var titleField = platformType.GetProperty("title", BindingFlags.Instance | BindingFlags.Public);
-                var tooltipField = platformType.GetField("tooltip", BindingFlags.Instance | BindingFlags.Public);
-                var defaultTargetField = platformType.GetField("defaultTarget", BindingFlags.Instance | BindingFlags.Public);
-                var subtargetField = platformType.GetField("subtarget", BindingFlags.Instance | BindingFlags.Public);
-                
-                string name = (string)nameField.GetValue(platform);
-                GUIContent title = (GUIContent)titleField.GetValue(platform);
-                string tooltip = (string)tooltipField.GetValue(platform);
-                int subTarget = subtargetField != null ? (int)subtargetField.GetValue(platform) : 0;
-                
-                BuildTarget defaultTargetValue = (BuildTarget)defaultTargetField.GetValue(platform);
-                
-#if UNITY_2021_1_OR_NEWER
-                var installedField = platformType.GetField("installed", BindingFlags.Instance | BindingFlags.Public);
-                bool installed = (bool)installedField.GetValue(platform);
-                
-                var targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
-                BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
-
-                MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-                bool isSupported = (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { defaultTargetValue });
-#else
-                bool installed = true; // Don't support checking if its installed before uploading
-                
-                var targetGroupField = platformType.GetField("targetGroup", BindingFlags.Instance | BindingFlags.Public);
-                BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
-                
-                bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroupValue, defaultTargetValue);
-#endif
-                
-                
-                
-                if (!isSupported)
-                {
-                    // return null;
-                }
-
-                BuildPlatform buildPlatform = new BuildPlatform
-                {
-                    name = name,
-                    tooltip = tooltip,
-                    title = title,
-                    installed = installed,
-                    defaultTarget = defaultTargetValue,
-                    targetGroup = targetGroupValue,
-                    subTarget = subTarget
-                };
-                return buildPlatform;
-            }
         }
 
         public static bool TrySwitchPlatform(BuildTargetGroup TargetPlatform, int TargetPlatformSubTarget, BuildTarget Target, Architecture architecture, UploadTaskReport.StepResult stepResult)
@@ -558,6 +444,11 @@ namespace Wireframe
                 default:
                     return script.ToString();
             }
+        }
+        
+        public static bool IsTargetGroupInstalled(BuildTargetGroup targetGroup, BuildTarget target)
+        {
+            return targetGroup == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(target, BuildOptions.None, false) != string.Empty;
         }
     }
 }

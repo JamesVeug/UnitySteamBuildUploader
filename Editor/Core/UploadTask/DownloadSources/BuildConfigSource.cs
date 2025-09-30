@@ -400,7 +400,7 @@ namespace Wireframe
                 BuildTargetGroup targetGroup = ResultingTargetGroup();
                 int subTarget = ResultingTargetPlatformSubTarget();
 
-                BuildUtils.BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
+                BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
                 if (buildPlatform == null)
                 {
                     reason = $"The selected target platform {target} ({targetGroup}) is not valid.";
@@ -606,7 +606,7 @@ namespace Wireframe
             return BuildUtils.BuildTargetToPlatform();
         }
 
-        public BuildUtils.BuildPlatform ResultingPlatform()
+        public BuildPlatform ResultingPlatform()
         {
             BuildTargetGroup group = ResultingTargetGroup();
             BuildTarget target = ResultingTarget();

@@ -29,6 +29,12 @@ namespace Wireframe
             set => EditorPrefs.SetInt("BuildUploader_ShowConfirmationWindowAfterUpload", (int)value);
         }
         
+        public static bool AutoFocusNewUploadTask
+        {
+            get => EditorPrefs.GetBool("BuildUploader_AutoFocusNewUploadTask", true);
+            set => EditorPrefs.SetBool("BuildUploader_AutoFocusNewUploadTask", value);
+        }
+        
         public static bool AutoSaveReportToCacheFolder
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveReportToCacheFolder", false);

@@ -578,8 +578,11 @@ namespace Wireframe
             
             // Start task
             Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
-            BuildUploaderTaskWindow.FocusTask(uploadTask);
-            
+            if (Preferences.AutoFocusNewUploadTask)
+            {
+                BuildUploaderTaskWindow.FocusTask(uploadTask);
+            }
+
             await Task.Yield(); // Yield to allow the UI to update before starting the task
             await Task.Yield(); // Yield to allow the UI to update before starting the task
             await Task.Yield(); // Yield to allow the UI to update before starting the task

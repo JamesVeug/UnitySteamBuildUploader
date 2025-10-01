@@ -1,23 +1,25 @@
 ﻿using UnityEngine;
-using Wireframe;
 
-public static class CustomFoldoutButton
+namespace Wireframe
 {
-    public static bool OnGUI(bool collapse)
+    public static class CustomFoldoutButton
     {
-        var icon = collapse ? Utils.FoldoutClosedIcon : Utils.FoldoutOpenIcon;
-        int padding = 5;
-        GUIStyle style = new GUIStyle(GUI.skin.label)
+        public static bool OnGUI(bool collapse)
         {
-            padding = new RectOffset(padding, padding, padding, padding),
-            alignment = TextAnchor.MiddleCenter,
-        };
-        
-        if (GUILayout.Button(icon, style, GUILayout.Width(20), GUILayout.Height(20)))
-        {
-            return true;
-        }
+            var icon = collapse ? Utils.FoldoutClosedIcon : Utils.FoldoutOpenIcon;
+            int padding = 5;
+            GUIStyle style = new GUIStyle(GUI.skin.label)
+            {
+                padding = new RectOffset(padding, padding, padding, padding),
+                alignment = TextAnchor.MiddleCenter,
+            };
 
-        return false;
+            if (GUILayout.Button(icon, style, GUILayout.Width(20), GUILayout.Height(20)))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

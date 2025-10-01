@@ -1,24 +1,26 @@
 ﻿using System;
 using System.Reflection;
-using Wireframe;
 
-public static class TypeUtils
+namespace Wireframe
 {
-    public static T GetCustomAttribute<T>(this FieldInfo field) where T : System.Attribute
+    public static class TypeUtils
     {
-        return (T)Attribute.GetCustomAttribute(field, typeof(T));
-    }
-    
-    public static bool TryGetCustomAttribute<T>(this FieldInfo field, out T attribute) where T : System.Attribute
-    {
-        Attribute customAttribute = Attribute.GetCustomAttribute(field, typeof(T));
-        if (customAttribute == null)
+        public static T GetCustomAttribute<T>(this FieldInfo field) where T : System.Attribute
         {
-            attribute = null;
-            return false;
+            return (T)Attribute.GetCustomAttribute(field, typeof(T));
         }
-        
-        attribute = (T)customAttribute;
-        return true;
+
+        public static bool TryGetCustomAttribute<T>(this FieldInfo field, out T attribute) where T : System.Attribute
+        {
+            Attribute customAttribute = Attribute.GetCustomAttribute(field, typeof(T));
+            if (customAttribute == null)
+            {
+                attribute = null;
+                return false;
+            }
+
+            attribute = (T)customAttribute;
+            return true;
+        }
     }
 }

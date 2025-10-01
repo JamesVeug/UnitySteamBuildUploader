@@ -188,6 +188,7 @@ namespace Wireframe
 
                 if (!ApplyBuildConfig(m_buildConfigToApply, stepResult, ctx))
                 {
+                    token.Cancel();
                     return false;
                 }
 

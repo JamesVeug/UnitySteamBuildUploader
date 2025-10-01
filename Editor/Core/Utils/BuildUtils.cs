@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 #if UNITY_2021_1_OR_NEWER
@@ -31,6 +32,24 @@ namespace Wireframe
             ///   <para>Supported for Windows.</para>
             /// </summary>
             x86,
+        }
+            
+        public static int GetIntValue(this Architecture architecture)
+        {
+#if UNITY_2021_1_OR_NEWER
+            return (int)architecture;
+#else
+            // 0 - None, 1 - ARM64, 2 - Universal
+            // https://docs.unity3d.com/2020.3/Documentation/ScriptReference/PlayerSettings.GetArchitecture.html
+            int architectureValue = 2;
+            switch (architecture)
+            {
+                case Architecture.x86:
+                    architectureValue = 1;
+                    break;
+            }
+            return architectureValue;
+#endif
         }
 
         public static ManagedStrippingLevel CurrentStrippingLevel()
@@ -348,30 +367,17 @@ namespace Wireframe
                     return false;
                 }
                 
+                int architectureValue = architecture.GetIntValue();
 #if UNITY_2021_1_OR_NEWER
-                PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(targetPlatform), (int)architecture);
+                PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(targetPlatform), architectureValue);
 #else
-                // switch (architecture)
-                // {
-                //     case Architecture.x64:
-                //         break;
-                //     case Architecture.ARM64:
-                //         break;
-                //     case Architecture.x64ARM64:
-                //         PlayerSettings.SetArchitecture(targetPlatform, 1);
-                //         break;
-                //     case Architecture.x86:
-                //         PlayerSettings.SetArchitecture(targetPlatform, 2);
-                //         break;
-                //     default:
-                //         throw new ArgumentOutOfRangeException(nameof(architecture), architecture, null);
-                // }
-                PlayerSettings.SetArchitecture(targetPlatform, (int)architecture);
+                PlayerSettings.SetArchitecture(targetPlatform, architectureValue);
 #endif
             }
             catch (Exception e)
             {
                 Debug.LogError($"Failed to switch build target to {targetPlatform} - {target} - {subTarget}: {e}");
+                Debug.LogException(e);
                 return false;
             }
 

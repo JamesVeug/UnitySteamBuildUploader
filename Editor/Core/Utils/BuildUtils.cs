@@ -249,14 +249,18 @@ namespace Wireframe
 
             
 #if UNITY_2021_1_OR_NEWER
+    #if UNITY_6000_0_OR_NEWER
             if (TargetPlatform == BuildTargetGroup.Standalone && TargetPlatformSubTarget == 0)
+    #else
+            if (TargetPlatform == BuildTargetGroup.Standalone && TargetPlatformSubTarget == -1)
+    #endif
             {
                 stepResult?.AddError("No target platform sub-target selected for Standalone platform");
                 stepResult?.SetFailed("No target platform sub-target selected for Standalone platform");
                 return false;
             }
 #else
-            // No sub-targets before Unity 2021.1
+            // No sub-targets before Unity 2021.1 for standalone
 #endif
             
             if ((int)Target == 0)
@@ -366,10 +370,14 @@ namespace Wireframe
                         break;
                 }
 
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
                 MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("SwitchActiveBuildTargetAndSubtarget",
                     BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 bool successful = (bool)methodInfo.Invoke(null, new object[] { target, subTarget });
+#elif UNITY_2021_1_OR_NEWER
+                MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("SwitchActiveBuildTargetAndSubtarget",
+                    BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                bool successful = (bool)methodInfo.Invoke(null, new object[] { targetPlatform, target, subTarget });
 #else
                 // Subtargets not supported before Unity 2021.1
                 bool successful = EditorUserBuildSettings.SwitchActiveBuildTarget(targetPlatform, target);

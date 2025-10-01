@@ -1,3 +1,26 @@
+# 3.0.1
+
+## What's new
+- Added preferences toggle to auto show Upload Task Window when starting an upload
+- Added `Remove all Build Configs` to Build Configs settings context menu
+- Added {buildArchitecture} string format
+- Added error messages if selected platforms aren't installed or supported
+
+## What's fixed
+- Fixed exception spam when viewing build configs in project settings
+- Fixed unable to make builds in some Unity versions
+- Fixed able to start an upload using platforms that aren't installed or supported
+- Fixed obsolete platforms showing in dropdowns
+- Fixed sometimes platforms defaulting to windows server - not windows player
+- Fixed upload validation failing due to starting an upload that contains build configs
+- Fixed upload task continuing to make multiple builds of previous have failed. (early out)
+- Fixed unable to make WebGL builds if Unity isn't already set to WebGL
+- Fixed WebGL builds not including build meta data
+- Fixed default build configs not having any scenes in them (now adds current open scene)
+- Fixed Task window not expanding to show all possible text for a step (still cuts off if over 32k character)
+- Fixed builds failing if deep profile is enable but development build is disabled
+
+
 # 3.0.0
 
 ## Highlights

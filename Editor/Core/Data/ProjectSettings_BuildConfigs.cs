@@ -144,12 +144,28 @@ namespace Wireframe
                         
                         menu.AddSeparator("");
                         
+                        
                         menu.AddItem(new GUIContent("Add Default Build Configs"), false, ()=>
                         {
                             BuildConfigsUIUtils.CreateDefaultConfigs();
                             BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
                             m_isDirty = true;
                         });
+                        
+                        menu.AddSeparator("");
+                        
+                        menu.AddItem(new GUIContent(dropdownText + "Remove all Build Configs"), false, () =>
+                        {
+                            if (EditorUtility.DisplayDialog("Remove all Build Configs",
+                                    "Are you sure you want to remove all build configs?" +
+                                    "\n\nThis will remove them from Player Settings and can NOT be undone!", "Remove All", "No"))
+                            {
+                                BuildConfigsUIUtils.Clear();
+                                BuildConfigsUIUtils.BuildConfigsPopup.Refresh();
+                                m_isDirty = true;
+                            }
+                        });
+                        
                         menu.ShowAsContext();
                     }
                 }

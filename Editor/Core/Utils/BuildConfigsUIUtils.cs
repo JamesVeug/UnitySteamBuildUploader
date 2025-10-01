@@ -179,6 +179,11 @@ namespace Wireframe
             releaseBuild.SetDebuggingOn(false);
             data.Add(releaseBuild);
         }
+        
+        public static void Clear()
+        {
+            data.Clear();
+        }
 
         public static void Save()
         {

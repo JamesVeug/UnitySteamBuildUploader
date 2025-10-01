@@ -148,6 +148,13 @@ namespace Wireframe
                         stepResult.AddLog($"Clean build set and build already exists so deleting to make a fresh build: {m_filePath}");
                         Directory.Delete(m_filePath, true);
                     }
+                    catch (DirectoryNotFoundException e)
+                    {
+                        stepResult.AddError($"Failed to clear build directory: {e.Message}");
+                        stepResult.SetFailed("Failed to clear build directory. Your folder path is likely too long. Try changing the cache directory in preferences!");
+                        token.Cancel();
+                        return false;
+                    }
                     catch (Exception e)
                     {
                         stepResult.AddError($"Failed to clear build directory: {e.Message}");

@@ -96,7 +96,7 @@ namespace Wireframe
             PropertyInfo targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
             BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);
 
-            bool isSupported = IsTargetGroupSupported(targetGroup, target);
+            bool isSupported = BuildUtils.IsTargetGroupSupported(targetGroup, target);
 #elif UNITY_2021_1_OR_NEWER
             PropertyInfo targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
             BuildTargetGroup targetGroup = (BuildTargetGroup)targetGroupField.GetValue(platform);

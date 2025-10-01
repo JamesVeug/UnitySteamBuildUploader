@@ -209,7 +209,7 @@ namespace Wireframe
                         .Select(scene => scene.path)
                         .ToArray(),
                     locationPathName = Path.Combine(m_filePath, productName),
-                    targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
+                    targetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget),
                     target = EditorUserBuildSettings.activeBuildTarget,
                     options = buildOptions,
                 };

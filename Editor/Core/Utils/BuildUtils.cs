@@ -144,6 +144,19 @@ namespace Wireframe
                 }
             }
 
+            if (defaultScenes.Count == 0)
+            {
+                if (EditorSceneManager.GetActiveScene().IsValid())
+                {
+                    string path = EditorSceneManager.GetActiveScene().path;
+                    string guid = AssetDatabase.AssetPathToGUID(path);
+                    if (!string.IsNullOrEmpty(guid))
+                    {
+                        defaultScenes.Add(guid);
+                    }
+                }
+            }
+
             return defaultScenes;
         }
 

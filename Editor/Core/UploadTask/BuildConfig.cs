@@ -382,21 +382,18 @@ namespace Wireframe
         public BuildOptions GetBuildOptions()
         {
             BuildOptions buildOptions = BuildOptions.None;
-            
+
             if (IsDevelopmentBuild)
+            {
                 buildOptions |= BuildOptions.Development;
 
-            if (AllowDebugging)
-                buildOptions |= BuildOptions.AllowDebugging;
+                if (AllowDebugging) buildOptions |= BuildOptions.AllowDebugging;
+                if (ConnectProfiler) buildOptions |= BuildOptions.ConnectWithProfiler;
+                if (EnableDeepProfilingSupport) buildOptions |= BuildOptions.EnableDeepProfilingSupport;
+            }
 
             if (BuildScriptsOnly)
                 buildOptions |= BuildOptions.BuildScriptsOnly;
-
-            if (ConnectProfiler)
-                buildOptions |= BuildOptions.ConnectWithProfiler;
-            
-            if (EnableDeepProfilingSupport)
-                buildOptions |= BuildOptions.EnableDeepProfilingSupport;
 
             return buildOptions;
         }

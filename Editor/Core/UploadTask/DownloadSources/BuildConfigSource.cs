@@ -332,7 +332,7 @@ namespace Wireframe
                 if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
                 {
                     stepResult.AddLog("Saving build meta data to StreamingAssets folder");
-                    BuildUploaderProjectSettings.SaveToStreamingAssets(m_buildMetaData, report.summary.outputPath);
+                    BuildUploaderProjectSettings.SaveToStreamingAssets(m_buildMetaData, options, report.summary.outputPath);
                 }
             }
             

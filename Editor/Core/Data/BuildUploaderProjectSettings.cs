@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -64,7 +65,7 @@ namespace Wireframe
             }
         }
         
-        public static void SaveToStreamingAssets(BuildMetaData meta, string buildPath)
+        public static void SaveToStreamingAssets(BuildMetaData meta, BuildPlayerOptions options, string buildPath)
         {
             if (!Directory.Exists(buildPath))
             {
@@ -72,18 +73,47 @@ namespace Wireframe
             }
         
             // TODO: Support non-mono builds
-            string[] resourceFolders = Directory.GetDirectories(buildPath, "Resources", SearchOption.AllDirectories);
-            if (resourceFolders.Length > 0)
+            
+            string streamingAssetPath = "";
+            string[] streamingAssetsFolders = Directory.GetDirectories(buildPath, "StreamingAssets", SearchOption.AllDirectories);
+            if (streamingAssetsFolders.Length == 0)
             {
-                buildPath = Path.GetDirectoryName(resourceFolders[0]);
+                if (options.target == BuildTarget.WebGL)
+                {
+                    string[] indexFiles = Directory.GetFiles(buildPath, "index.html", SearchOption.AllDirectories);
+                    if (indexFiles.Length > 0)
+                    {
+                        streamingAssetPath = Path.Combine(Path.GetDirectoryName(indexFiles[0]), "StreamingAssets");
+                    }
+                    else
+                    {
+                        Debug.LogError(
+                            $"Failed to find index.html for WebGL build to include build meta data in path '{buildPath}'.");
+                        return;
+                    }
+                }
+                // TODO: More platforms
+                else
+                {
+                    // Standalone.
+                    string[] resourceFolders = Directory.GetDirectories(buildPath, "Resources", SearchOption.AllDirectories);
+                    if (resourceFolders.Length > 0)
+                    {
+                        streamingAssetPath = Path.Combine(Path.GetDirectoryName(resourceFolders[0]), "StreamingAssets");
+                    }
+                    else
+                    {
+                        Debug.LogError(
+                            $"Failed to find StreamingAssets folder to include build meta data in path '{buildPath}'.");
+                        return;
+                    }
+                }
             }
             else
             {
-                Debug.LogError("Failed to find Resources folder in build output path. Cannot include build meta data.");
-                return;
+                streamingAssetPath = streamingAssetsFolders[0];
             }
-        
-            string streamingAssetPath = Path.Combine(buildPath, "StreamingAssets");
+
             if (!Directory.Exists(streamingAssetPath))
             {
                 Directory.CreateDirectory(streamingAssetPath);

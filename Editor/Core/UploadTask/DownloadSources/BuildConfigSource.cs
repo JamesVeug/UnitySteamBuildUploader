@@ -136,6 +136,7 @@ namespace Wireframe
                 if (string.IsNullOrEmpty(m_filePath))
                 {
                     stepResult.SetFailed("Could not get built directory. Possible invalid build config or platform. Check you have the modules installed for the selected platform.");
+                    token.Cancel();
                     return false;
                 }
                 
@@ -151,6 +152,7 @@ namespace Wireframe
                     {
                         stepResult.AddError($"Failed to clear build directory: {e.Message}");
                         stepResult.SetFailed("Failed to clear build directory. Please check the console for more details.");
+                        token.Cancel();
                         return false;
                     }
                 }
@@ -158,6 +160,7 @@ namespace Wireframe
                 if (token.IsCancellationRequested)
                 {
                     stepResult.AddLog("Build cancelled by user.");
+                    token.Cancel();
                     return false;
                 }
 

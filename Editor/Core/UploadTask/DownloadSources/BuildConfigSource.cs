@@ -133,6 +133,13 @@ namespace Wireframe
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
                 m_filePath = GetBuiltDirectory(ctx);
+                if (string.IsNullOrEmpty(m_filePath))
+                {
+                    stepResult.SetFailed("Could not get built directory. Possible invalid build config or platform. Check you have the modules installed for the selected platform.");
+                    token.Cancel();
+                    return false;
+                }
+                
                 if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
@@ -141,10 +148,18 @@ namespace Wireframe
                         stepResult.AddLog($"Clean build set and build already exists so deleting to make a fresh build: {m_filePath}");
                         Directory.Delete(m_filePath, true);
                     }
+                    catch (DirectoryNotFoundException e)
+                    {
+                        stepResult.AddError($"Failed to clear build directory: {e.Message}");
+                        stepResult.SetFailed("Failed to clear build directory. Your folder path is likely too long. Try changing the cache directory in preferences!");
+                        token.Cancel();
+                        return false;
+                    }
                     catch (Exception e)
                     {
                         stepResult.AddError($"Failed to clear build directory: {e.Message}");
                         stepResult.SetFailed("Failed to clear build directory. Please check the console for more details.");
+                        token.Cancel();
                         return false;
                     }
                 }
@@ -152,6 +167,7 @@ namespace Wireframe
                 if (token.IsCancellationRequested)
                 {
                     stepResult.AddLog("Build cancelled by user.");
+                    token.Cancel();
                     return false;
                 }
 
@@ -172,6 +188,7 @@ namespace Wireframe
 
                 if (!ApplyBuildConfig(m_buildConfigToApply, stepResult, ctx))
                 {
+                    token.Cancel();
                     return false;
                 }
 
@@ -193,7 +210,7 @@ namespace Wireframe
                         .Select(scene => scene.path)
                         .ToArray(),
                     locationPathName = Path.Combine(m_filePath, productName),
-                    targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
+                    targetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget),
                     target = EditorUserBuildSettings.activeBuildTarget,
                     options = buildOptions,
                 };
@@ -277,10 +294,17 @@ namespace Wireframe
             {
                 return "";
             }
+            
+            BuildPlatform platform = BuildUtils.GetBuildPlatform(config.TargetPlatform, config.Target, config.TargetPlatformSubTarget);
+            if (platform == null)
+            {
+                return "";
+            }
+            
             string buildName = StringFormatter.FormatString(config.BuildName, ctx);
             string guid = config.GUID;
             string buildPath = string.Format("{0} ({1})", buildName, guid); // Development (1234)
-            string targetName = BuildUtils.GetBuildPlatform(config.TargetPlatform, config.Target, config.TargetPlatformSubTarget).DisplayName;
+            string targetName = platform.DisplayName;
             string platformPath = string.Format("{0} {1}", targetName, config.TargetArchitecture); // StandaloneWindows64 x64
             return Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", buildPath, platformPath);
         }
@@ -308,7 +332,7 @@ namespace Wireframe
                 if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
                 {
                     stepResult.AddLog("Saving build meta data to StreamingAssets folder");
-                    BuildUploaderProjectSettings.SaveToStreamingAssets(m_buildMetaData, report.summary.outputPath);
+                    BuildUploaderProjectSettings.SaveToStreamingAssets(m_buildMetaData, options, report.summary.outputPath);
                 }
             }
             
@@ -335,6 +359,7 @@ namespace Wireframe
                 foreach (UploadTask a in UploadTask.AllTasks)
                 {
                     if (a.IsComplete) continue;
+                    if (a.CurrentStep == AUploadTask_Step.StepType.Validation) continue;
                     
                     foreach (UploadConfig b in a.UploadConfigs)
                     {
@@ -393,25 +418,27 @@ namespace Wireframe
                 }
             }
 
-            bool switchPlatform = m_OverrideSwitchTargetPlatform || config.SwitchTargetPlatform;
-            if (switchPlatform)
-            {
-                BuildTarget target = ResultingTarget();
-                BuildTargetGroup targetGroup = ResultingTargetGroup();
-                int subTarget = ResultingTargetPlatformSubTarget();
+            BuildTarget target = ResultingTarget();
+            BuildTargetGroup targetGroup = ResultingTargetGroup();
+            int subTarget = ResultingTargetPlatformSubTarget();
 
-                BuildUtils.BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
-                if (buildPlatform == null)
-                {
-                    reason = $"The selected target platform {target} ({targetGroup}) is not valid.";
-                    return false;
-                }
-                
-                if (!buildPlatform.installed)
-                {
-                    reason = $"The selected target platform {buildPlatform.DisplayName} is not installed.";
-                    return false;
-                }
+            BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
+            if (buildPlatform == null)
+            {
+                reason = $"The selected target platform {target} ({targetGroup}) is not valid.";
+                return false;
+            }
+            
+            if (!buildPlatform.installed)
+            {
+                reason = $"The selected target platform {buildPlatform.DisplayName} is not installed. Use Unity Hub to install the module.";
+                return false;
+            }
+            
+            if (!buildPlatform.supported)
+            {
+                reason = $"The selected target platform {buildPlatform.DisplayName} is not supported by Unity. Not installed or deprecated in this version of Unity?\nUse Unity Hub to install the module.";
+                return false;
             }
             
             reason = "";
@@ -606,7 +633,7 @@ namespace Wireframe
             return BuildUtils.BuildTargetToPlatform();
         }
 
-        public BuildUtils.BuildPlatform ResultingPlatform()
+        public BuildPlatform ResultingPlatform()
         {
             BuildTargetGroup group = ResultingTargetGroup();
             BuildTarget target = ResultingTarget();

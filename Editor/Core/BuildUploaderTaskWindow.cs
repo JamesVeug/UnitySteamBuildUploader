@@ -343,7 +343,7 @@ namespace Wireframe
                                 StringBuilder sb = new StringBuilder();
                                 stepUI.position = EditorGUILayout.BeginScrollView(stepUI.position, GUILayout.ExpandHeight(true), GUILayout.MinHeight(300));
                                 t.Report.GetStepLogs(true, stepType, sb);
-                                EditorGUILayout.TextArea(sb.ToString(), GUILayout.ExpandHeight(true), GUILayout.MinHeight(300));
+                                EditorGUILayout.TextArea(sb.ToString(), GUILayout.ExpandHeight(true));
                                 EditorGUILayout.EndScrollView();
                             }
                             m_OpenTaskSteps[stepType] = stepUI;

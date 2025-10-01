@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 #if UNITY_2021_1_OR_NEWER
@@ -32,57 +33,25 @@ namespace Wireframe
             /// </summary>
             x86,
         }
-        
-        public class BuildPlatform
+            
+        public static int GetIntValue(this Architecture architecture)
         {
-            public string DisplayName
-            {
-                get
-                {
-                    if (targetGroup == BuildTargetGroup.Standalone)
-                    {
-                        string os = "";
-                        switch (defaultTarget)
-                        {
-                            case BuildTarget.StandaloneWindows:
-                            case BuildTarget.StandaloneWindows64:
-                                os = "Windows";
-                                break;
-                            case BuildTarget.StandaloneOSX:
-                                os = "macOS";
-                                break;
-                            case BuildTarget.StandaloneLinux64:
-                                os = "Linux";
-                                break;
-                        }
-                        
 #if UNITY_2021_1_OR_NEWER
-                        if (subTarget == (int)StandaloneBuildSubtarget.Server)
-                        {
-                            os += " " + name;
-                        }
-#endif
-                        return os;
-                    }
-                    return title.text;
-                }
-            }
-
-            public string name;
-            public string tooltip;
-            public bool installed;
-            public GUIContent title;
-            public BuildTarget defaultTarget;
-            public BuildTargetGroup targetGroup;
-            public int subTarget;
-            public List<BuildPlatform> derivedPlatforms = new List<BuildPlatform>();
-
-            public override string ToString()
+            return (int)architecture;
+#else
+            // 0 - None, 1 - ARM64, 2 - Universal
+            // https://docs.unity3d.com/2020.3/Documentation/ScriptReference/PlayerSettings.GetArchitecture.html
+            int architectureValue = 2;
+            switch (architecture)
             {
-                return $"{name} - {tooltip} - ({targetGroup} - {defaultTarget})";
+                case Architecture.x86:
+                    architectureValue = 1;
+                    break;
             }
+            return architectureValue;
+#endif
         }
-        
+
         public static ManagedStrippingLevel CurrentStrippingLevel()
         {
 #if UNITY_2021_1_OR_NEWER
@@ -123,7 +92,7 @@ namespace Wireframe
                 return result;
             }
 #endif
-            
+
             // Assume always 64 bit
             return Architecture.x64;
         }
@@ -175,6 +144,19 @@ namespace Wireframe
                 }
             }
 
+            if (defaultScenes.Count == 0)
+            {
+                if (EditorSceneManager.GetActiveScene().IsValid())
+                {
+                    string path = EditorSceneManager.GetActiveScene().path;
+                    string guid = AssetDatabase.AssetPathToGUID(path);
+                    if (!string.IsNullOrEmpty(guid))
+                    {
+                        defaultScenes.Add(guid);
+                    }
+                }
+            }
+
             return defaultScenes;
         }
 
@@ -183,8 +165,6 @@ namespace Wireframe
             return Application.productName;
         }
     
-        private static Type BuildPlatformsType = Type.GetType("UnityEditor.Build.BuildPlatforms, UnityEditor");
-        private static PropertyInfo BuildPlatformsTypeInstanceProp = BuildPlatformsType.GetProperty("instance", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 
         private static List<BuildPlatform> BuildPlatforms = null;
 
@@ -220,6 +200,8 @@ namespace Wireframe
             return (newTargetGroup, newTargetGroupSubTarget, newTarget);
         }
         
+        private static Type BuildPlatformsType = Type.GetType("UnityEditor.Build.BuildPlatforms, UnityEditor");
+        private static PropertyInfo BuildPlatformsTypeInstanceProp = BuildPlatformsType.GetProperty("instance", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
         private static List<BuildPlatform> GetValidPlatforms()
         {
             object instance = BuildPlatformsTypeInstanceProp.GetValue(null);
@@ -229,7 +211,7 @@ namespace Wireframe
             List<BuildPlatform> validPlatforms = new List<BuildPlatform>();
             foreach (var platform in (IList)result)
             {
-                BuildPlatform buildPlatform = ToBuildPlatform(platform);
+                BuildPlatform buildPlatform = BuildPlatform.ToBuildPlatform(platform);
                 if (buildPlatform != null)
                 {
                     validPlatforms.Add(buildPlatform);
@@ -238,82 +220,22 @@ namespace Wireframe
                     {
                         buildPlatform.defaultTarget = BuildTarget.StandaloneWindows64;
                         
-                        BuildPlatform macBuildPlatform = ToBuildPlatform(platform);
+                        BuildPlatform macBuildPlatform = BuildPlatform.ToBuildPlatform(platform);
                         macBuildPlatform.defaultTarget = BuildTarget.StandaloneOSX;
+                        macBuildPlatform.supported = IsTargetGroupSupported(macBuildPlatform.targetGroup, macBuildPlatform.defaultTarget);
+                        macBuildPlatform.installed = IsTargetGroupInstalled(macBuildPlatform.targetGroup, macBuildPlatform.defaultTarget);
                         validPlatforms.Add(macBuildPlatform);
                         
-                        BuildPlatform linuxBuildPlatform = ToBuildPlatform(platform);
+                        BuildPlatform linuxBuildPlatform = BuildPlatform.ToBuildPlatform(platform);
                         linuxBuildPlatform.defaultTarget = BuildTarget.StandaloneLinux64;
+                        linuxBuildPlatform.supported = IsTargetGroupSupported(linuxBuildPlatform.targetGroup, linuxBuildPlatform.defaultTarget);
+                        linuxBuildPlatform.installed = IsTargetGroupInstalled(linuxBuildPlatform.targetGroup, linuxBuildPlatform.defaultTarget);
                         validPlatforms.Add(linuxBuildPlatform);
                     }
                 }
             }
             
             return validPlatforms;
-
-            BuildPlatform ToBuildPlatform(object platform)
-            {
-                var platformType = platform.GetType();
-        
-#if UNITY_2021_1_OR_NEWER
-                var hideInUiField = platformType.GetField("hideInUi", BindingFlags.Instance | BindingFlags.Public);
-                bool hideInUi = (bool)hideInUiField.GetValue(platform);
-                if (hideInUi)
-                {
-                    return null;
-                }
-#endif
-
-                var nameField = platformType.GetField("name", BindingFlags.Instance | BindingFlags.Public);
-                var titleField = platformType.GetProperty("title", BindingFlags.Instance | BindingFlags.Public);
-                var tooltipField = platformType.GetField("tooltip", BindingFlags.Instance | BindingFlags.Public);
-                var defaultTargetField = platformType.GetField("defaultTarget", BindingFlags.Instance | BindingFlags.Public);
-                var subtargetField = platformType.GetField("subtarget", BindingFlags.Instance | BindingFlags.Public);
-                
-                string name = (string)nameField.GetValue(platform);
-                GUIContent title = (GUIContent)titleField.GetValue(platform);
-                string tooltip = (string)tooltipField.GetValue(platform);
-                int subTarget = subtargetField != null ? (int)subtargetField.GetValue(platform) : 0;
-                
-                BuildTarget defaultTargetValue = (BuildTarget)defaultTargetField.GetValue(platform);
-                
-#if UNITY_2021_1_OR_NEWER
-                var installedField = platformType.GetField("installed", BindingFlags.Instance | BindingFlags.Public);
-                bool installed = (bool)installedField.GetValue(platform);
-                
-                var targetGroupField = platformType.GetProperty("targetGroup", BindingFlags.Instance | BindingFlags.Public);
-                BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
-
-                MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-                bool isSupported = (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { defaultTargetValue });
-#else
-                bool installed = true; // Don't support checking if its installed before uploading
-                
-                var targetGroupField = platformType.GetField("targetGroup", BindingFlags.Instance | BindingFlags.Public);
-                BuildTargetGroup targetGroupValue = (BuildTargetGroup)targetGroupField.GetValue(platform);
-                
-                bool isSupported = BuildPipeline.IsBuildTargetSupported(targetGroupValue, defaultTargetValue);
-#endif
-                
-                
-                
-                if (!isSupported)
-                {
-                    // return null;
-                }
-
-                BuildPlatform buildPlatform = new BuildPlatform
-                {
-                    name = name,
-                    tooltip = tooltip,
-                    title = title,
-                    installed = installed,
-                    defaultTarget = defaultTargetValue,
-                    targetGroup = targetGroupValue,
-                    subTarget = subTarget
-                };
-                return buildPlatform;
-            }
         }
 
         public static bool TrySwitchPlatform(BuildTargetGroup TargetPlatform, int TargetPlatformSubTarget, BuildTarget Target, Architecture architecture, UploadTaskReport.StepResult stepResult)
@@ -327,14 +249,18 @@ namespace Wireframe
 
             
 #if UNITY_2021_1_OR_NEWER
+    #if UNITY_6000_0_OR_NEWER
             if (TargetPlatform == BuildTargetGroup.Standalone && TargetPlatformSubTarget == 0)
+    #else
+            if (TargetPlatform == BuildTargetGroup.Standalone && TargetPlatformSubTarget == -1)
+    #endif
             {
                 stepResult?.AddError("No target platform sub-target selected for Standalone platform");
                 stepResult?.SetFailed("No target platform sub-target selected for Standalone platform");
                 return false;
             }
 #else
-            // No sub-targets before Unity 2021.1
+            // No sub-targets before Unity 2021.1 for standalone
 #endif
             
             if ((int)Target == 0)
@@ -415,7 +341,7 @@ namespace Wireframe
         public static int CurrentSubTarget()
         {
 #if UNITY_2021_1_OR_NEWER
-            MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("GetSelectedSubtargetFor", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("GetActiveSubtargetFor", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             int subTarget = (int)methodInfo.Invoke(null, new object[] { EditorUserBuildSettings.activeBuildTarget });
             return subTarget;
 #else
@@ -444,10 +370,14 @@ namespace Wireframe
                         break;
                 }
 
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
                 MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("SwitchActiveBuildTargetAndSubtarget",
                     BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 bool successful = (bool)methodInfo.Invoke(null, new object[] { target, subTarget });
+#elif UNITY_2021_1_OR_NEWER
+                MethodInfo methodInfo = typeof(EditorUserBuildSettings).GetMethod("SwitchActiveBuildTargetAndSubtarget",
+                    BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                bool successful = (bool)methodInfo.Invoke(null, new object[] { targetPlatform, target, subTarget });
 #else
                 // Subtargets not supported before Unity 2021.1
                 bool successful = EditorUserBuildSettings.SwitchActiveBuildTarget(targetPlatform, target);
@@ -458,30 +388,17 @@ namespace Wireframe
                     return false;
                 }
                 
+                int architectureValue = architecture.GetIntValue();
 #if UNITY_2021_1_OR_NEWER
-                PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(targetPlatform), (int)architecture);
+                PlayerSettings.SetArchitecture(NamedBuildTarget.FromBuildTargetGroup(targetPlatform), architectureValue);
 #else
-                // switch (architecture)
-                // {
-                //     case Architecture.x64:
-                //         break;
-                //     case Architecture.ARM64:
-                //         break;
-                //     case Architecture.x64ARM64:
-                //         PlayerSettings.SetArchitecture(targetPlatform, 1);
-                //         break;
-                //     case Architecture.x86:
-                //         PlayerSettings.SetArchitecture(targetPlatform, 2);
-                //         break;
-                //     default:
-                //         throw new ArgumentOutOfRangeException(nameof(architecture), architecture, null);
-                // }
-                PlayerSettings.SetArchitecture(targetPlatform, (int)architecture);
+                PlayerSettings.SetArchitecture(targetPlatform, architectureValue);
 #endif
             }
             catch (Exception e)
             {
                 Debug.LogError($"Failed to switch build target to {targetPlatform} - {target} - {subTarget}: {e}");
+                Debug.LogException(e);
                 return false;
             }
 
@@ -558,6 +475,26 @@ namespace Wireframe
                 default:
                     return script.ToString();
             }
+        }
+        
+        public static bool IsTargetGroupInstalled(BuildTargetGroup targetGroup, BuildTarget target)
+        {
+            // Copied from BuildPlayerWindow.cs
+#if UNITY_2021_1_OR_NEWER
+            return targetGroup == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(target, BuildOptions.None, false) != string.Empty;
+#else
+            return targetGroup == BuildTargetGroup.Standalone || BuildPipeline.GetPlaybackEngineDirectory(targetGroup, target, BuildOptions.None) != string.Empty;
+#endif
+        }
+
+        public static bool IsTargetGroupSupported(BuildTargetGroup targetGroup, BuildTarget target)
+        {
+#if UNITY_6000_0_OR_NEWER
+            MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            return (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { target });
+#else
+            return BuildPipeline.IsBuildTargetSupported(targetGroup, target);
+#endif
         }
     }
 }

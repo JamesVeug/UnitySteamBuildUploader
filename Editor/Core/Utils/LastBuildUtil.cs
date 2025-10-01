@@ -1,22 +1,25 @@
 ﻿using UnityEditor;
 
-public class LastBuildUtil
+namespace Wireframe
 {
-    public static string LastBuildDirectory
+    public class LastBuildUtil
     {
-        get => EditorPrefs.GetString("LastBuildDirectory", string.Empty);
-        private set => EditorPrefs.SetString("LastBuildDirectory", value);
-    }
-    
-    public static string LastBuildName
-    {
-        get => EditorPrefs.GetString("LastBuildName", string.Empty);
-        private set => EditorPrefs.SetString("LastBuildName", value);
-    }
-    
-    public static void SetLastBuild(string path, string buildName)
-    {
-        LastBuildDirectory = path;
-        LastBuildName = buildName;
+        public static string LastBuildDirectory
+        {
+            get => EditorPrefs.GetString("LastBuildDirectory", string.Empty);
+            private set => EditorPrefs.SetString("LastBuildDirectory", value);
+        }
+
+        public static string LastBuildName
+        {
+            get => EditorPrefs.GetString("LastBuildName", string.Empty);
+            private set => EditorPrefs.SetString("LastBuildName", value);
+        }
+
+        public static void SetLastBuild(string path, string buildName)
+        {
+            LastBuildDirectory = path;
+            LastBuildName = buildName;
+        }
     }
 }

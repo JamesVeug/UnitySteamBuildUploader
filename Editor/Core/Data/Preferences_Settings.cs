@@ -137,6 +137,24 @@ namespace Wireframe
                 }
             }
             
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("UI", EditorStyles.boldLabel);
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent("Auto show new upload reports", 
+                        "If enabled, when starting new Upload tasks using the GUI the Task Report window will open and follow the new upload task."), 
+                    GUILayout.Width(200));
+
+                bool autoFocusTask = Preferences.AutoFocusNewUploadTask;
+                bool newAutoFocusTask = EditorGUILayout.Toggle(autoFocusTask);
+                if (newAutoFocusTask != Preferences.AutoFocusNewUploadTask)
+                {
+                    Preferences.AutoFocusNewUploadTask = newAutoFocusTask;
+                }
+            }
+            
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
@@ -155,7 +173,7 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
-                    new GUIContent("Show Build report after uploading", "" +
+                    new GUIContent("Show upload report after uploading", "" +
                                                               "If enabled, when an upload completes a window will appear showing all information about what it did."),
                     GUILayout.Width(200));
 

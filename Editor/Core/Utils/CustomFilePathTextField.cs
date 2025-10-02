@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -41,6 +42,29 @@ namespace Wireframe
                 {
                     EditorUtility.RevealInFinder(StringFormatter.FormatString(unformattedPath, ctx));
                 }
+            }
+
+            if (isDirty)
+            {
+                // Make sure there are no invalid characters copied over like double quotes at the start or end
+                string directory = "";
+                int lastSlash = unformattedPath.LastIndexOfAny(new char[] {'/', '\\'});
+                if (lastSlash > 0)
+                {
+                    directory = unformattedPath.Substring(0, lastSlash);
+                    foreach (char invalidChar in Path.GetInvalidPathChars())
+                    {
+                        directory = directory.Replace(invalidChar.ToString(), "");
+                    }
+                }
+                
+                string fileName = lastSlash >= 0 ? unformattedPath.Substring(lastSlash + 1) : unformattedPath;
+                foreach (char invalidChar in Path.GetInvalidFileNameChars())
+                {
+                    fileName = fileName.Replace(invalidChar.ToString(), "");
+                }
+                
+                unformattedPath = Path.Combine(directory, fileName);
             }
             
             return isDirty;

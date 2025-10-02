@@ -9,7 +9,7 @@ using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    internal partial class SteamSDK
+    public partial class SteamSDK
     {
         public static SteamSDK Instance
         {

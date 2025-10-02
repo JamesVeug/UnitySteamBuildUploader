@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using UnityEditor;
 using UnityEngine.Networking;
 
 namespace Wireframe
@@ -176,7 +175,7 @@ namespace Wireframe
             appFile.desc = description;
             appFile.buildoutput = "..\\output\\";
             appFile.contentroot = sourceFilePath;
-            appFile.setlive = branch == "none" ? "" : branch;
+            appFile.setlive = branch.Equals("none", StringComparison.OrdinalIgnoreCase) ? "" : branch;
 
             string depotFileName = GetDepotFileName(depot, appFile.setlive, fileSuffix);
             appFile.depots.Clear();
@@ -239,7 +238,7 @@ namespace Wireframe
         private static string GetDepotFileName(DepotVDFFile depot, string branchName = "", string fileSuffix = "")
         {
             string fileName;
-            if (string.IsNullOrEmpty(branchName))
+            if (string.IsNullOrEmpty(branchName) || branchName.Equals("none", StringComparison.OrdinalIgnoreCase))
             {
                 fileName = string.Format("depot_build_{0}", depot.DepotID);
             }

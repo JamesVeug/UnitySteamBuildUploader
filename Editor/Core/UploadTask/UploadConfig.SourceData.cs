@@ -72,10 +72,6 @@ namespace Wireframe
                         Debug.LogError($"Cannot find type '{sourceType}'");
                     }
                 }
-                else
-                {
-                    Debug.LogError($"Source type 'null' not found");
-                }
             }
         }
     }

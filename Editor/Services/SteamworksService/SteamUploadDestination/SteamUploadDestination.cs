@@ -30,6 +30,9 @@ namespace Wireframe
         [Wiki("AppFile Path", "If Create AppFile is false then use a file with this name that will be found in the SteamSDKs path to upload a build to Steam.", 3)]
         private string m_appFileName = "";
         
+        [Wiki("Overwrite AppFile Description", "If Create AppFile is false and this is true, the the chosen appFile will be copied and description changed to fit selected Build Uploader description.", 4)]
+        private bool m_appFileOverwriteDesc = true;
+        
         [Wiki("Create DepotFile", "If true, a new Depot File is creating to upload the build to Steam.", 5)]
         private bool m_createDepotFile = true;
         
@@ -136,6 +139,15 @@ namespace Wireframe
                 }
                 
                 m_appPath = files[0];
+
+                if (m_appFileOverwriteDesc)
+                {
+                    if (!SteamSDK.TryCopyAppFileAndModifyDescAtPath(m_appPath, out m_appPath, m_buildDescription, result))
+                    {
+                        return false;
+                    }
+                }
+                
             }
             
             if (string.IsNullOrEmpty(m_appPath) || !File.Exists(m_appPath))
@@ -184,6 +196,14 @@ namespace Wireframe
                 appFileName += ".vdf"; // Ensure it has .vdf extension
             }
             appFileName = StringFormatter.FormatString(appFileName, ctx);
+
+            if (Path.IsPathRooted(appFileName))
+            {
+                // NOTE: At this time i only support specifying files that are in the Scripts folder
+                // TODO: Copy the selected file over to the scripts folder or modify the .vdfs to use absolute paths
+                appFileName = Path.GetFileName(appFileName);
+            }
+            
             return Directory.GetFiles(SteamSDK.SteamScriptPath, appFileName, SearchOption.AllDirectories);
         }
 
@@ -230,6 +250,7 @@ namespace Wireframe
             {
                 ["m_createAppFile"] = m_createAppFile,
                 ["m_appFileName"] = m_appFileName,
+                ["m_appFileOverwriteDesc"] = m_appFileOverwriteDesc,
                 ["m_createDepotFile"] = m_createDepotFile,
                 ["m_depotFileName"] = m_depotFileName,
                 ["configID"] = m_current?.Id,
@@ -260,6 +281,15 @@ namespace Wireframe
             else
             {
                 m_depotFileName = "";
+            }
+            
+            if (data.TryGetValue("m_appFileOverwriteDesc", out object appFileOverwriteDescObj) && appFileOverwriteDescObj != null)
+            {
+                m_appFileOverwriteDesc = appFileOverwriteDescObj is bool b && b;
+            }
+            else
+            {
+                m_appFileOverwriteDesc = true;
             }
             
             // Note: In 1.2.2 the serialization data was changed from the Name to ID
@@ -332,11 +362,11 @@ namespace Wireframe
                     string[] appFiles = GetVDFFile(m_appFileName, ctx);
                     if (appFiles.Length == 0)
                     {
-                        errors.Add("App File not found: " + m_appFileName);
+                        errors.Add("App File '" + m_appFileName + "' not found in path '" + SteamSDK.SteamScriptPath + "'!");
                     }
                     else if(appFiles.Length > 1)
                     {
-                        errors.Add("Multiple App Files found with name: " + m_appFileName + ". Please specify a unique App File name.");
+                        errors.Add("Multiple App Files found with name: '" + m_appFileName + "'. Please specify a unique App File name.");
                     }
                 }
             }
@@ -357,7 +387,7 @@ namespace Wireframe
                     string[] depotFiles = GetVDFFile(m_depotFileName, ctx);
                     if (depotFiles.Length == 0)
                     {
-                        errors.Add("Depot File not found: " + m_depotFileName);
+                        errors.Add("Depot File '" + m_depotFileName + "' not found in path '" + SteamSDK.SteamScriptPath + "'!");
                     }
                     else if(depotFiles.Length > 1)
                     {

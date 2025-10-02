@@ -34,28 +34,28 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Create AppFile:", GUILayout.Width(120));
-                isDirty |= CustomToggle.DrawToggle(ref m_createAppFile, GUILayout.Width(50));
+                isDirty |= CustomToggle.DrawToggle(ref m_createAppFile, GUILayout.Width(20));
 
                 using(new EditorGUI.DisabledScope(m_createAppFile))
                 {
                     GUILayout.Label("Path:", GUILayout.Width(35));
                     isDirty |= CustomFilePathTextField.OnGUI(ref m_appFileName, ref m_showFormattedLocalPath, ctx, "vdf");
+                    
+                    GUILayout.Label("Overwrite Desc:", GUILayout.Width(100));
+                    isDirty |= CustomToggle.DrawToggle(ref m_appFileOverwriteDesc, GUILayout.Width(20));
                 }
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Create DepotFile:", GUILayout.Width(120));
-                bool drawToggle = CustomToggle.DrawToggle(ref m_createDepotFile, GUILayout.Width(50));
+                bool drawToggle = CustomToggle.DrawToggle(ref m_createDepotFile, GUILayout.Width(20));
                 isDirty |= drawToggle;
             
                 using(new EditorGUI.DisabledScope(m_createDepotFile))
                 {
-                    GUILayout.Label("File Name:", GUILayout.Width(70));
-                    if (EditorUtils.FormatStringTextField(ref m_depotFileName, ref m_showFormattedLocalPath, ctx))
-                    {
-                        isDirty = true;
-                    }
+                    GUILayout.Label("Path:", GUILayout.Width(35));
+                    isDirty |= CustomFilePathTextField.OnGUI(ref m_depotFileName, ref m_showFormattedLocalPath, ctx, "vdf");
                 }
             }
         }

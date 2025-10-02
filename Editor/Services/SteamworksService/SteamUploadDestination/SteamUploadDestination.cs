@@ -27,13 +27,13 @@ namespace Wireframe
         [Wiki("Create AppFile", "If true, a new App File is creating to upload the build to Steam.", 2)]
         private bool m_createAppFile = true;
         
-        [Wiki("AppFile", "If Create AppFile is false then use a file with this name that will be found in the SteamSDKs path to upload a build to Steam.", 3)]
+        [Wiki("AppFile Path", "If Create AppFile is false then use a file with this name that will be found in the SteamSDKs path to upload a build to Steam.", 3)]
         private string m_appFileName = "";
         
-        [Wiki("Create DepotFile", "If true, a new Depot File is creating to upload the build to Steam.", 4)]
+        [Wiki("Create DepotFile", "If true, a new Depot File is creating to upload the build to Steam.", 5)]
         private bool m_createDepotFile = true;
         
-        [Wiki("DepotFile", "If Create DepotFile is false then use a file with this name that  will be found in the SteamSDKs path to upload a build to Steam.", 4)]
+        [Wiki("DepotFile Path", "If Create DepotFile is false then use a file with this name that  will be found in the SteamSDKs path to upload a build to Steam.", 6)]
         private string m_depotFileName = "";
         
         private SteamApp m_uploadApp;

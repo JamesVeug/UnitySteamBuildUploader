@@ -38,11 +38,8 @@ namespace Wireframe
 
                 using(new EditorGUI.DisabledScope(m_createAppFile))
                 {
-                    GUILayout.Label("File Name:", GUILayout.Width(70));
-                    if (EditorUtils.FormatStringTextField(ref m_appFileName, ref m_showFormattedLocalPath, ctx))
-                    {
-                        isDirty = true;
-                    }
+                    GUILayout.Label("Path:", GUILayout.Width(35));
+                    isDirty |= CustomFilePathTextField.OnGUI(ref m_appFileName, ref m_showFormattedLocalPath, ctx, "vdf");
                 }
             }
 

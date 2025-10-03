@@ -5,12 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using UnityEditor;
 using UnityEngine.Networking;
 
 namespace Wireframe
 {
-    internal partial class SteamSDK
+    public partial class SteamSDK
     {
         public static SteamSDK Instance
         {
@@ -176,7 +175,7 @@ namespace Wireframe
             appFile.desc = description;
             appFile.buildoutput = "..\\output\\";
             appFile.contentroot = sourceFilePath;
-            appFile.setlive = branch == "none" ? "" : branch;
+            appFile.setlive = branch.Equals("none", StringComparison.OrdinalIgnoreCase) ? "" : branch;
 
             string depotFileName = GetDepotFileName(depot, appFile.setlive, fileSuffix);
             appFile.depots.Clear();
@@ -239,7 +238,7 @@ namespace Wireframe
         private static string GetDepotFileName(DepotVDFFile depot, string branchName = "", string fileSuffix = "")
         {
             string fileName;
-            if (string.IsNullOrEmpty(branchName))
+            if (string.IsNullOrEmpty(branchName) || branchName.Equals("none", StringComparison.OrdinalIgnoreCase))
             {
                 fileName = string.Format("depot_build_{0}", depot.DepotID);
             }
@@ -585,7 +584,56 @@ namespace Wireframe
 
             return stepResult.Successful;
         }
+        
+        /// <summary>
+        /// Tries loading the app file at appPath, copies it to a new unique name and modifies the "desc" field with the given description.
+        /// </summary>
+        /// <returns></returns>
+        public static bool TryCopyAppFileAndModifyDescAtPath(string appPath, out string newAppPath, string description, UploadTaskReport.StepResult result)
+        {
+            newAppPath = "";
+            
+            // Copy the file at appPath to a unique name, modify the "desc" field with what we need
+            if (!File.Exists(appPath))
+            {
+                result.SetFailed("App file does not exist: " + appPath);
+                return false;
+            }
+            
+            string allText = File.ReadAllText(appPath);
+            int desc = allText.IndexOf("\"desc\"", StringComparison.OrdinalIgnoreCase);
+            if (desc < 0)
+            {
+                result.SetFailed("App file does not contain a 'desc' field: " + appPath);
+                return false;
+            }
+            
+            try
+            {
+                int endOfLine = allText.IndexOf('\n', desc);
+                if (endOfLine < 0)
+                {
+                    endOfLine = allText.Length;
+                }
+                
+                string after = allText.Substring(endOfLine);
+                string newDesc = $" \"{description}\"";
+                string newText = allText.Substring(0, desc + 6) + newDesc + after;
+                
+                string newPath = Path.Combine(Path.GetDirectoryName(appPath), Path.GetFileNameWithoutExtension(appPath) + "_modified" + ".vdf");
+                File.WriteAllText(newPath, newText);
+                result.AddLog("Copied and modified app file to: " + newPath);
+                newAppPath = newPath;
+            }
+            catch (Exception e)
+            {
+                result.SetFailed("Failed to copy and modify app file: " + e.Message);
+                return false;
+            }
 
+            return true;
+        }
+        
         /// <summary>
         /// Looks for Readme.txt in Steam SDK path and tries to find the version number.
         /// The version number is listed in the Readme like so:

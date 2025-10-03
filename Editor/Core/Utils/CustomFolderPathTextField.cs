@@ -3,22 +3,16 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public static class CustomPathTextField
+    public static class CustomFolderPathTextField
     {
         private static GUIStyle m_pathInputFieldExistsStyle;
         private static GUIStyle m_pathInputFieldDoesNotExistStyle;
-        private static GUIStyle m_pathLabelExistsStyle;
-        private static GUIStyle m_pathLabelDoesNotExistStyle;
         
-        static CustomPathTextField()
+        static CustomFolderPathTextField()
         {
             m_pathInputFieldExistsStyle = new GUIStyle(GUI.skin.textField);
             m_pathInputFieldDoesNotExistStyle = new GUIStyle(GUI.skin.textField);
             m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.yellow;
-            
-            m_pathLabelExistsStyle = new GUIStyle(GUI.skin.label);
-            m_pathLabelDoesNotExistStyle = new GUIStyle(GUI.skin.label);
-            m_pathLabelDoesNotExistStyle.normal.textColor = Color.yellow;
         }
 
         public static bool OnGUI(ref string unformattedPath, ref bool showFormatted, StringFormatter.Context ctx)

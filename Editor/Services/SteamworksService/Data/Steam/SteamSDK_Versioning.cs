@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    internal partial class SteamSDK
+    public partial class SteamSDK
     {
         private const int CurrentServiceVersion = 2;
 

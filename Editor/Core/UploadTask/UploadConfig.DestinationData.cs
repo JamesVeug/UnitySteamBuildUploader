@@ -58,10 +58,6 @@ namespace Wireframe
                         Debug.LogError($"Destination type `{destinationType}` not found");
                     }
                 }
-                else
-                {
-                    Debug.LogError("Destination type 'null' not found");
-                }
             }
         }
     }

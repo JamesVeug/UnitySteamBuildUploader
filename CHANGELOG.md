@@ -1,3 +1,15 @@
+# 3.0.2
+
+## What's new
+- Added Steam desination toggle to overwrite the description when an using existing app file.
+- Added Steam desination app/depot contextual options when in advanced mode
+- Added Steam desination tooltips
+
+## What's fixed
+- Fixed unable to upload builds to 'none' branch on Steamworks
+- Fixed issue where 'NullReferenceException' would show when opening the build uploader window with unspecified sources or destinations.
+- Exposed SteamSDK for use outside the package
+
 # 3.0.1
 
 ## What's new

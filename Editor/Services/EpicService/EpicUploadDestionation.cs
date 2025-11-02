@@ -108,6 +108,8 @@ namespace Wireframe
             string appLaunch = StringFormatter.FormatString(AppLaunch, ctx);
             string appArgs = StringFormatter.FormatString(AppArgs, ctx);
 
+            string platform = "";
+
             // Log each individually to catch blanks or nulls
             UnityEngine.Debug.Log(
                 $"[EpicUpload] Formatted arguments:\n" +
@@ -143,8 +145,7 @@ namespace Wireframe
 
             string labelArgs =
                 $"-mode=LabelBinary " +
-                $"-Platform=\"{{buildRoot}}\" " +
-
+                $"-Platform=\"{platform}\" ";
 
 
             UnityEngine.Debug.Log($"[EpicUpload] Final BuildPatchTool command:\n{Epic.SDKPath} {uploadArgs}");

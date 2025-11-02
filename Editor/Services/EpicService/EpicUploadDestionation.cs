@@ -123,26 +123,36 @@ namespace Wireframe
                 $"AppArgs: {appArgs}"
             );
 
-            string args =
+            string baseArgs =
                 $"-OrganizationId=\"{orgId}\" " +
                 $"-ProductId=\"{productId}\" " +
                 $"-ArtifactId=\"{artifactId}\" " +
                 $"-ClientId=\"{clientId}\" " +
-                $"-ClientSecret=\"{clientSecretEnv}\" " +
-                $"-mode=UploadBinary " +                  // lowercase 'mode' per your doc
+                $"-BuildVersion=\"{buildVer}\" " +
+                $"-ClientSecret=\"{clientSecretEnv}\" ";
+
+            string uploadArgs =
+                baseArgs +
+                $"-mode=UploadBinary " +                  
                 $"-BuildRoot=\"{buildRoot}\" " +
                 $"-CloudDir=\"{cloudDir.TrimEnd('\\', '/')}\" " +  // trim trailing slash
-                $"-BuildVersion=\"{buildVer}\" " +
+
                 $"-AppLaunch=\"{appLaunch}\" " +
                 $"-AppArgs=\"{appArgs}\"";
 
 
-            UnityEngine.Debug.Log($"[EpicUpload] Final BuildPatchTool command:\n{Epic.SDKPath} {args}");
+            string labelArgs =
+                $"-mode=LabelBinary " +
+                $"-Platform=\"{{buildRoot}}\" " +
+
+
+
+            UnityEngine.Debug.Log($"[EpicUpload] Final BuildPatchTool command:\n{Epic.SDKPath} {uploadArgs}");
 
             var startInfo = new ProcessStartInfo
             {
                 FileName = Epic.SDKPath,
-                Arguments = args,
+                Arguments = uploadArgs,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,

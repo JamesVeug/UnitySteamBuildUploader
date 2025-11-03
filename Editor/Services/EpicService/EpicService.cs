@@ -12,15 +12,15 @@ namespace Wireframe
 
         public override bool IsReadyToStartBuild(out string reason)
         {
-            if (!Github.Enabled)
+            if (!Epic.Enabled)
             {
-                reason = "Github is not enabled in Preferences";
+                reason = "Epic is not enabled in Preferences";
                 return false;
             }
 
-            if (string.IsNullOrEmpty(Github.Token))
+            if (string.IsNullOrEmpty(Epic.SDKPath))
             {
-                reason = "Github Token credentials are not set in Preferences";
+                reason = "Epic SDK Path is not set in Preferences";
                 return false;
             }
 
@@ -36,9 +36,11 @@ namespace Wireframe
         public override void PreferencesGUI()
         {
             GUILayout.Label("EpicGames", EditorStyles.boldLabel);
+
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 bool newEnabled = GUILayout.Toggle(Epic.Enabled, "Enabled");
+
                 if (newEnabled != Epic.Enabled)
                 {
                     Epic.Enabled = newEnabled;
@@ -46,32 +48,27 @@ namespace Wireframe
 
                 using (new EditorGUI.DisabledScope(!Epic.Enabled))
                 {
-                    DrawSteamworks();
+                    Draw();
                 }
             }
         }
 
-        private static void DrawSteamworks()
+        private static void Draw()
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 Color temp = GUI.color;
-                GUILayout.Label(new GUIContent("EpicGamesSDK Path:",
-                        "The path to the EpicGamesSDK folder. Build Uploader uses this to upload builds to EpicGames."),
-                    GUILayout.Width(105));
+                
+                GUILayout.Label(new GUIContent("EpicGamesSDK Path:", "The path to the EpicGamesSDK folder. Build Uploader uses this to upload builds to EpicGames."), GUILayout.Width(105));
+                
                 GUI.color = temp;
-
-
-                if (GUILayout.Button("?", GUILayout.Width(20)))
-                {
-                    Application.OpenURL("https://partner.steamgames.com/doc/sdk");
-                }
 
                 string newPath = GUILayout.TextField(Epic.SDKPath);
 
                 if (GUILayout.Button("...", GUILayout.Width(50)))
                 {
                     var newFolderPath = EditorUtility.OpenFilePanel("EpicGamesSDK Folder", ".", "exe");
+
                     if (!string.IsNullOrEmpty(newFolderPath))
                     {
                         newPath = newFolderPath;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -96,7 +94,6 @@ namespace Wireframe
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            // Format everything once and store it
             string orgId = StringFormatter.FormatString(OrganizationId, ctx);
             string productId = StringFormatter.FormatString(ProductId, ctx);
             string artifactId = StringFormatter.FormatString(ArtifactId, ctx);
@@ -110,7 +107,6 @@ namespace Wireframe
 
             string platform = "";
 
-            // Log each individually to catch blanks or nulls
             UnityEngine.Debug.Log(
                 $"[EpicUpload] Formatted arguments:\n" +
                 $"OrganizationId: {orgId}\n" +
@@ -137,7 +133,7 @@ namespace Wireframe
                 baseArgs +
                 $"-mode=UploadBinary " +                  
                 $"-BuildRoot=\"{buildRoot}\" " +
-                $"-CloudDir=\"{cloudDir.TrimEnd('\\', '/')}\" " +  // trim trailing slash
+                $"-CloudDir=\"{cloudDir.TrimEnd('\\', '/')}\" " +
 
                 $"-AppLaunch=\"{appLaunch}\" " +
                 $"-AppArgs=\"{appArgs}\"";
@@ -153,33 +149,43 @@ namespace Wireframe
             var startInfo = new ProcessStartInfo
             {
                 FileName = Epic.SDKPath,
+
                 Arguments = uploadArgs,
+
                 RedirectStandardOutput = true,
+
                 RedirectStandardError = true,
+
                 UseShellExecute = false,
+
                 CreateNoWindow = true
             };
 
             try
             {
                 using var process = Process.Start(startInfo);
+
                 if (process == null)
                 {
                     result.SetFailed("Failed to start BuildPatchTool process (process is null).");
+
                     return false;
                 }
 
                 string output = await process.StandardOutput.ReadToEndAsync();
+
                 string errors = await process.StandardError.ReadToEndAsync();
+
                 process.WaitForExit();
 
                 UnityEngine.Debug.Log($"[EpicUpload] Output:\n{output}");
-                if (!string.IsNullOrEmpty(errors))
-                    UnityEngine.Debug.LogError($"[EpicUpload] Errors:\n{errors}");
+
+                if (!string.IsNullOrEmpty(errors)) UnityEngine.Debug.LogError($"[EpicUpload] Errors:\n{errors}");
 
                 if (process.ExitCode != 0)
                 {
                     result.SetFailed($"BuildPatchTool exited with code {process.ExitCode}.\nSee log for details.");
+
                     return false;
                 }
 
@@ -188,26 +194,26 @@ namespace Wireframe
             catch (Exception ex)
             {
                 result.AddException(ex);
+
                 result.SetFailed($"Failed to run BuildPatchTool: {ex.Message}");
+
                 return false;
             }
         }
 
-
         public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
         {
-            if (string.IsNullOrEmpty(OrganizationId))
-                errors.Add("Organization ID is not set.");
-            if (string.IsNullOrEmpty(ProductId))
-                errors.Add("Product ID is not set.");
-            if (string.IsNullOrEmpty(ArtifactId))
-                errors.Add("Artifact ID is not set.");
-            if (string.IsNullOrEmpty(ClientId))
-                errors.Add("Client ID is not set.");
-            if (string.IsNullOrEmpty(ClientSecretEnvVar))
-                errors.Add("Client Secret Env Var is not set.");
-            if (string.IsNullOrEmpty(CloudDir))
-                errors.Add("Cloud Dir is not set.");
+            if (string.IsNullOrEmpty(OrganizationId)) errors.Add("Organization ID is not set.");
+
+            if (string.IsNullOrEmpty(ProductId)) errors.Add("Product ID is not set.");
+
+            if (string.IsNullOrEmpty(ArtifactId)) errors.Add("Artifact ID is not set.");
+
+            if (string.IsNullOrEmpty(ClientId)) errors.Add("Client ID is not set.");
+
+            if (string.IsNullOrEmpty(ClientSecretEnvVar)) errors.Add("Client Secret Env Var is not set.");
+
+            if (string.IsNullOrEmpty(CloudDir)) errors.Add("Cloud Dir is not set.");
         }
 
         public override Dictionary<string, object> Serialize()
@@ -215,13 +221,21 @@ namespace Wireframe
             return new()
             {
                 { "organizationId", OrganizationId },
+
                 { "productId", ProductId },
+
                 { "artifactId", ArtifactId },
+
                 { "clientId", ClientId },
+
                 { "clientSecretEnvVar", ClientSecretEnvVar },
+
                 { "cloudDir", CloudDir },
+
                 { "buildVersion", BuildVersion },
+
                 { "appLaunch", AppLaunch },
+
                 { "appArgs", AppArgs }
             };
         }
@@ -229,35 +243,51 @@ namespace Wireframe
         public override void Deserialize(Dictionary<string, object> s)
         {
             OrganizationId = s.TryGetValue("organizationId", out var org) ? org as string : null;
+            
             ProductId = s.TryGetValue("productId", out var prod) ? prod as string : null;
+            
             ArtifactId = s.TryGetValue("artifactId", out var art) ? art as string : null;
+
             ClientId = s.TryGetValue("clientId", out var cid) ? cid as string : null;
+            
             ClientSecretEnvVar = s.TryGetValue("clientSecretEnvVar", out var env) ? env as string : null;
+            
             CloudDir = s.TryGetValue("cloudDir", out var cloud) ? cloud as string : null;
+            
             BuildVersion = s.TryGetValue("buildVersion", out var ver) ? ver as string : null;
+            
             AppLaunch = s.TryGetValue("appLaunch", out var app) ? app as string : null;
+            
             AppArgs = s.TryGetValue("appArgs", out var args) ? args as string : null;
         }
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             string text = $"{OrganizationId}/{ProductId}/{ArtifactId}/{BuildVersion}";
+
             EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
         }
 
         protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
-            if (GUILayout.Button("Docs", GUILayout.Width(50)))
-                Application.OpenURL("https://dev.epicgames.com/docs");
+            if (GUILayout.Button("Docs", GUILayout.Width(50))) Application.OpenURL("https://dev.epicgames.com/docs");
 
             DrawFormattedField("Organization ID", ref OrganizationId, ref m_showFormattedOrganizationId, ref isDirty, ctx);
+
             DrawFormattedField("Product ID", ref ProductId, ref m_showFormattedProductId, ref isDirty, ctx);
+
             DrawFormattedField("Artifact ID", ref ArtifactId, ref m_showFormattedArtifactId, ref isDirty, ctx);
+
             DrawFormattedField("Client ID", ref ClientId, ref m_showFormattedClientId, ref isDirty, ctx);
+
             DrawFormattedField("Client Secret Env Var", ref ClientSecretEnvVar, ref m_showFormattedClientSecretEnvVar, ref isDirty, ctx);
+
             DrawFormattedField("Cloud Dir", ref CloudDir, ref m_showFormattedCloudDir, ref isDirty, ctx);
+
             DrawFormattedField("Build Version", ref BuildVersion, ref m_showFormattedBuildVersion, ref isDirty, ctx);
+
             DrawFormattedField("App Launch", ref AppLaunch, ref m_showFormattedAppLaunch, ref isDirty, ctx);
+
             DrawFormattedField("App Args", ref AppArgs, ref m_showFormattedAppArgs, ref isDirty, ctx);
         }
 
@@ -266,6 +296,7 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label(label + ":", GUILayout.Width(160));
+
                 isDirty |= EditorUtils.FormatStringTextField(ref value, ref showFormatted, ctx);
             }
         }

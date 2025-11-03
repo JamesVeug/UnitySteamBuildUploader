@@ -49,10 +49,6 @@ namespace Wireframe
         private string AppArgs;
         private bool m_showFormattedAppArgs;
 
-        [Wiki("Labelling Platform", "The platform to assign the artifact to.")]
-        private string LabelPlatform;
-        private bool m_showLabelPlatform;
-
         public EpicUploadDestionation() : base() { }
 
         public EpicUploadDestionation(
@@ -66,7 +62,6 @@ namespace Wireframe
             string buildVersion,
             string appLaunch,
             string appArgs,
-            string labelPlatform,
             bool showFormattedOrganizationId,
             bool showFormattedProductId,
             bool showFormattedArtifactId,
@@ -76,8 +71,7 @@ namespace Wireframe
             bool showFormattedCloudDir,
             bool showFormattedBuildVersion,
             bool showFormattedAppLaunch,
-            bool showFormattedAppArgs,
-            bool showLabelPlatform)
+            bool showFormattedAppArgs)
         {
             OrganizationId = organizationId;
             ProductId = productId;
@@ -88,7 +82,6 @@ namespace Wireframe
             BuildVersion = buildVersion;
             AppLaunch = appLaunch;
             AppArgs = appArgs;
-            LabelPlatform = labelPlatform;
 
             m_showFormattedOrganizationId = showFormattedOrganizationId;
             m_showFormattedProductId = showFormattedProductId;
@@ -99,7 +92,6 @@ namespace Wireframe
             m_showFormattedBuildVersion = showFormattedBuildVersion;
             m_showFormattedAppLaunch = showFormattedAppLaunch;
             m_showFormattedAppArgs = showFormattedAppArgs;
-            m_showLabelPlatform = showLabelPlatform;
         }
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
@@ -115,7 +107,8 @@ namespace Wireframe
             string buildVer = StringFormatter.FormatString(BuildVersion, ctx);
             string appLaunch = StringFormatter.FormatString(AppLaunch, ctx);
             string appArgs = StringFormatter.FormatString(AppArgs, ctx);
-            string labelPlatform = StringFormatter.FormatString(LabelPlatform, ctx);
+
+            string platform = "";
 
             // Log each individually to catch blanks or nulls
             UnityEngine.Debug.Log(
@@ -152,7 +145,7 @@ namespace Wireframe
 
             string labelArgs =
                 $"-mode=LabelBinary " +
-                $"-Platform=\"{labelPlatform}\" ";
+                $"-Platform=\"{platform}\" ";
 
 
             UnityEngine.Debug.Log($"[EpicUpload] Final BuildPatchTool command:\n{Epic.SDKPath} {uploadArgs}");
@@ -170,7 +163,6 @@ namespace Wireframe
             try
             {
                 using var process = Process.Start(startInfo);
-
                 if (process == null)
                 {
                     result.SetFailed("Failed to start BuildPatchTool process (process is null).");
@@ -178,14 +170,12 @@ namespace Wireframe
                 }
 
                 string output = await process.StandardOutput.ReadToEndAsync();
-                
                 string errors = await process.StandardError.ReadToEndAsync();
-                
                 process.WaitForExit();
 
                 UnityEngine.Debug.Log($"[EpicUpload] Output:\n{output}");
-                
-                if (!string.IsNullOrEmpty(errors)) UnityEngine.Debug.LogError($"[EpicUpload] Errors:\n{errors}");
+                if (!string.IsNullOrEmpty(errors))
+                    UnityEngine.Debug.LogError($"[EpicUpload] Errors:\n{errors}");
 
                 if (process.ExitCode != 0)
                 {
@@ -218,8 +208,6 @@ namespace Wireframe
                 errors.Add("Client Secret Env Var is not set.");
             if (string.IsNullOrEmpty(CloudDir))
                 errors.Add("Cloud Dir is not set.");
-            if (string.IsNullOrEmpty(LabelPlatform))
-                errors.Add("Labelling platform is not set.");
         }
 
         public override Dictionary<string, object> Serialize()
@@ -235,7 +223,6 @@ namespace Wireframe
                 { "buildVersion", BuildVersion },
                 { "appLaunch", AppLaunch },
                 { "appArgs", AppArgs }
-                { "labelPlatform", LabelPlatform }
             };
         }
 
@@ -250,7 +237,6 @@ namespace Wireframe
             BuildVersion = s.TryGetValue("buildVersion", out var ver) ? ver as string : null;
             AppLaunch = s.TryGetValue("appLaunch", out var app) ? app as string : null;
             AppArgs = s.TryGetValue("appArgs", out var args) ? args as string : null;
-            LabelPlatform = s.TryGetValue("labelPlatform", out var label) ? label as string : null;
         }
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
@@ -273,7 +259,6 @@ namespace Wireframe
             DrawFormattedField("Build Version", ref BuildVersion, ref m_showFormattedBuildVersion, ref isDirty, ctx);
             DrawFormattedField("App Launch", ref AppLaunch, ref m_showFormattedAppLaunch, ref isDirty, ctx);
             DrawFormattedField("App Args", ref AppArgs, ref m_showFormattedAppArgs, ref isDirty, ctx);
-            DrawFormattedField("App Args", ref LabelPlatform, ref m_showLabelPlatform, ref isDirty, ctx);
         }
 
         private void DrawFormattedField(string label, ref string value, ref bool showFormatted, ref bool isDirty, StringFormatter.Context ctx)

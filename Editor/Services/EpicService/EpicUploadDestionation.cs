@@ -12,28 +12,29 @@ namespace Wireframe
     public partial class EpicUploadDestionation : AUploadDestination
     {
         [Wiki("OrganizationId", "The ID of the Epic organization.")]
-        private string OrganizationId;
-        private bool m_showFormattedOrganizationId;
+        private List<UploadDestinationStringWrapper> OrganizationId = new()
+        {
+            new("OrganizationId","organizationId"),
+            new("ProductId","productId"),
+            new("ArtifactId","artifactId"),
+            new("ClientId","clientId"),
+            new("ClientSecret","clientSecret"),
+        };
 
         [Wiki("ProductId", "The ID of the product in the Epic ecosystem.")]
-        private string ProductId;
-        private bool m_showFormattedProductId;
+        private UploadDestinationStringWrapper ProductId =  
 
         [Wiki("ArtifactId", "The artifact identifier for the uploaded build.")]
-        private string ArtifactId;
-        private bool m_showFormattedArtifactId;
+        private UploadDestinationStringWrapper ArtifactId = ;
 
         [Wiki("ClientId", "The Epic Client ID used for authentication.")]
-        private string ClientId;
-        private bool m_showFormattedClientId;
+        private UploadDestinationStringWrapper ClientId;
 
         [Wiki("ClientSecretEnvVar", "The environment variable name containing the Epic Client Secret.")]
-        private string ClientSecretEnvVar;
-        private bool m_showFormattedClientSecretEnvVar;
+        private UploadDestinationStringWrapper ClientSecretEnvVar;
 
         [Wiki("CloudDir", "Directory on Epic’s cloud storage where files will be uploaded.")]
-        private string CloudDir;
-        private bool m_showFormattedCloudDir;
+        private UploadDestinationStringWrapper CloudDir;
 
         [Wiki("BuildVersion", "Version string for the build.")]
         private string BuildVersion;
@@ -48,49 +49,6 @@ namespace Wireframe
         private bool m_showFormattedAppArgs;
 
         public EpicUploadDestionation() : base() { }
-
-        public EpicUploadDestionation(
-            string organizationId,
-            string productId,
-            string artifactId,
-            string clientId,
-            string clientSecretEnvVar,
-            string buildRoot,
-            string cloudDir,
-            string buildVersion,
-            string appLaunch,
-            string appArgs,
-            bool showFormattedOrganizationId,
-            bool showFormattedProductId,
-            bool showFormattedArtifactId,
-            bool showFormattedClientId,
-            bool showFormattedClientSecretEnvVar,
-            bool showFormattedBuildRoot,
-            bool showFormattedCloudDir,
-            bool showFormattedBuildVersion,
-            bool showFormattedAppLaunch,
-            bool showFormattedAppArgs)
-        {
-            OrganizationId = organizationId;
-            ProductId = productId;
-            ArtifactId = artifactId;
-            ClientId = clientId;
-            ClientSecretEnvVar = clientSecretEnvVar;
-            CloudDir = cloudDir;
-            BuildVersion = buildVersion;
-            AppLaunch = appLaunch;
-            AppArgs = appArgs;
-
-            m_showFormattedOrganizationId = showFormattedOrganizationId;
-            m_showFormattedProductId = showFormattedProductId;
-            m_showFormattedArtifactId = showFormattedArtifactId;
-            m_showFormattedClientId = showFormattedClientId;
-            m_showFormattedClientSecretEnvVar = showFormattedClientSecretEnvVar;
-            m_showFormattedCloudDir = showFormattedCloudDir;
-            m_showFormattedBuildVersion = showFormattedBuildVersion;
-            m_showFormattedAppLaunch = showFormattedAppLaunch;
-            m_showFormattedAppArgs = showFormattedAppArgs;
-        }
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {

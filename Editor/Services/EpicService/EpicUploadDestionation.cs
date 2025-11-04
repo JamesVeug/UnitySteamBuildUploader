@@ -124,62 +124,7 @@ namespace Wireframe
 
             UnityEngine.Debug.Log($"[EpicUpload] Final BuildPatchTool command:\n{Epic.SDKPath} {uploadArgs}");
 
-            ProcessStartInfo startInfo = new()
-            {
-                FileName = Epic.SDKPath,
-
-                Arguments = uploadArgs,
-
-                RedirectStandardOutput = true,
-
-                RedirectStandardError = true,
-
-                UseShellExecute = false,
-
-                CreateNoWindow = true
-            };
-
-            try
-            {
-                using Process process = Process.Start(startInfo);
-
-                if (process == null)
-                {
-                    result.SetFailed("Failed to start BuildPatchTool process (process is null).");
-
-                    return false;
-                }
-
-                string output = await process.StandardOutput.ReadToEndAsync();
-
-                string errors = await process.StandardError.ReadToEndAsync();
-
-                process.WaitForExit();
-
-                UnityEngine.Debug.Log($"[EpicUpload] Output:\n{output}");
-
-                if (!string.IsNullOrEmpty(errors))
-                {
-                    UnityEngine.Debug.LogError($"[EpicUpload] Errors:\n{errors}");
-                }
-
-                if (process.ExitCode != 0)
-                {
-                    result.SetFailed($"BuildPatchTool exited with code {process.ExitCode}.\nSee log for details.");
-
-                    return false;
-                }
-
-                return result.Successful;
-            }
-            catch (Exception ex)
-            {
-                result.AddException(ex);
-
-                result.SetFailed($"Failed to run BuildPatchTool: {ex.Message}");
-
-                return false;
-            }
+            return await Process_Utilities.RunTask(Epic.SDK, uploadArgs);
         }
 
         public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
@@ -244,7 +189,7 @@ namespace Wireframe
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
-            string text = $"{OrganizationId}/{ProductId}/{ArtifactId}/{BuildVersion}";
+            string text = $"Epic Games Destination";
 
             EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
         }

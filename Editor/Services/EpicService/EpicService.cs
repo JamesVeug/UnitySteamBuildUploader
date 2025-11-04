@@ -24,7 +24,8 @@ namespace Wireframe
                 return false;
             }
 
-            reason = "";
+            reason = string.Empty;
+            
             return true;
         }
 

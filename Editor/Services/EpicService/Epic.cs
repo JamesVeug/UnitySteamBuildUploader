@@ -2,7 +2,7 @@
 
 namespace Wireframe
 {
-    internal static partial class Epic
+    internal static class Epic
     {
         private const string EPIC_ENABLED = "epic_enabled";
 

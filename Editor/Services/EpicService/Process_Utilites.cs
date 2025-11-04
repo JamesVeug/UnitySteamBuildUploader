@@ -10,7 +10,7 @@ namespace Wireframe
 
     internal static class Process_Utilities
     {
-        public static async Task<bool> RunTask(string path, string args)
+        public static async Task<bool> RunTask(UploadTaskReport.StepResult result,string path, string args)
         {
             ProcessStartInfo startInfo = new()
             {

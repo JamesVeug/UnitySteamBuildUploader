@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    [Wiki("EpicNewRelease", "destinations", "Create a new release on the Epic platform.")]
+    [Wiki("EpicNewRelease", "destinations", "Upload an artifact to epic games.")]
     [UploadDestination("EpicNewRelease")]
     public partial class EpicUploadDestionation : AUploadDestination
     {
@@ -105,22 +105,6 @@ namespace Wireframe
             string appLaunch = StringFormatter.FormatString(AppLaunch, ctx);
             string appArgs = StringFormatter.FormatString(AppArgs, ctx);
 
-            string platform = "";
-
-            UnityEngine.Debug.Log(
-                $"[EpicUpload] Formatted arguments:\n" +
-                $"OrganizationId: {orgId}\n" +
-                $"ProductId: {productId}\n" +
-                $"ArtifactId: {artifactId}\n" +
-                $"ClientId: {clientId}\n" +
-                $"ClientSecret: {clientSecretEnv}\n" +
-                $"BuildRoot: {buildRoot}\n" +
-                $"CloudDir: {cloudDir}\n" +
-                $"BuildVersion: {buildVer}\n" +
-                $"AppLaunch: {appLaunch}\n" +
-                $"AppArgs: {appArgs}"
-            );
-
             string baseArgs =
                 $"-OrganizationId=\"{orgId}\" " +
                 $"-ProductId=\"{productId}\" " +
@@ -134,19 +118,13 @@ namespace Wireframe
                 $"-mode=UploadBinary " +                  
                 $"-BuildRoot=\"{buildRoot}\" " +
                 $"-CloudDir=\"{cloudDir.TrimEnd('\\', '/')}\" " +
-
                 $"-AppLaunch=\"{appLaunch}\" " +
                 $"-AppArgs=\"{appArgs}\"";
 
 
-            string labelArgs =
-                $"-mode=LabelBinary " +
-                $"-Platform=\"{platform}\" ";
-
-
             UnityEngine.Debug.Log($"[EpicUpload] Final BuildPatchTool command:\n{Epic.SDKPath} {uploadArgs}");
 
-            var startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo = new()
             {
                 FileName = Epic.SDKPath,
 
@@ -163,7 +141,7 @@ namespace Wireframe
 
             try
             {
-                using var process = Process.Start(startInfo);
+                using Process process = Process.Start(startInfo);
 
                 if (process == null)
                 {
@@ -180,7 +158,10 @@ namespace Wireframe
 
                 UnityEngine.Debug.Log($"[EpicUpload] Output:\n{output}");
 
-                if (!string.IsNullOrEmpty(errors)) UnityEngine.Debug.LogError($"[EpicUpload] Errors:\n{errors}");
+                if (!string.IsNullOrEmpty(errors))
+                {
+                    UnityEngine.Debug.LogError($"[EpicUpload] Errors:\n{errors}");
+                }
 
                 if (process.ExitCode != 0)
                 {

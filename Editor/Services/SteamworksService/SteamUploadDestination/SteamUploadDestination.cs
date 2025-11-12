@@ -263,15 +263,6 @@ namespace Wireframe
 
         public override void Deserialize(Dictionary<string, object> data)
         {
-            if (data.TryGetValue("depotID", out var depotIDString) && depotIDString != null)
-            {
-                long depotId = Convert.ToInt64(depotIDString);
-                m_depot = m_current?.Depots?.FirstOrDefault(a => a.Id == depotId);
-                if (m_depot == null)
-                    UnityEngine.Debug.LogWarning($"[SteamUploadDestination] Could not find depot with ID {depotId} under app {m_current?.App?.appid}");
-            }
-
-
             m_createAppFile = (bool)data["m_createAppFile"];
             if (data.TryGetValue("m_appFileName", out object appFileNameObj) && appFileNameObj != null)
             {
@@ -321,7 +312,7 @@ namespace Wireframe
             }
             
             // Depot
-            if(data.TryGetValue("depotID", out depotIDString) && depotIDString != null)
+            if(data.TryGetValue("depotID", out var depotIDString) && depotIDString != null)
             {
                 m_depot = m_current.Depots.FirstOrDefault(a=>a.Id == (long)depotIDString);
             }

@@ -15,7 +15,7 @@ namespace Wireframe
             m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.yellow;
         }
 
-        public static bool OnGUI(ref string unformattedPath, ref bool showFormatted, StringFormatter.Context ctx)
+        public static bool OnGUI(string title, ref string unformattedPath, ref bool showFormatted, StringFormatter.Context ctx)
         {
             bool exists = Utils.PathExists(StringFormatter.FormatString(unformattedPath, ctx));
             bool isDirty = false;
@@ -29,7 +29,7 @@ namespace Wireframe
 
                 if (GUILayout.Button("...", GUILayout.Width(20)))
                 {
-                    string newPath = EditorUtility.OpenFolderPanel("Select Folder to upload", unformattedPath, "");
+                    string newPath = EditorUtility.OpenFolderPanel(title, unformattedPath, "");
                     if (!string.IsNullOrEmpty(newPath))
                     {
                         unformattedPath = newPath; // This is an unformatted path

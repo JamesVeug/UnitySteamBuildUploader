@@ -7,6 +7,7 @@ namespace Wireframe
     public abstract class CustomMultiDropdown<T, Y> where Y : DropdownElement
     {
         public virtual string FirstEntryText => "Choose from Dropdown";
+        public virtual bool AddChooseFromDropdownEntry => true;
 
         public abstract List<(T, List<Y>)> GetAllData();
 
@@ -43,12 +44,19 @@ namespace Wireframe
             Y[] values = valueLookup[target];
 
             int index = -1;
-            for (int i = 0; i < values.Length; i++)
+            if (!AddChooseFromDropdownEntry && initial == null)
             {
-                if (initial == null || initial.Equals(values[i]))
+                // Choose first entry in the list
+            }
+            else
+            {
+                for (int i = 0; i < values.Length; i++)
                 {
-                    index = i;
-                    break;
+                    if (initial == null || initial.Equals(values[i]))
+                    {
+                        index = i;
+                        break;
+                    }
                 }
             }
 
@@ -89,7 +97,10 @@ namespace Wireframe
                 builds.Sort(SortByName);
 
                 List<Y> values = new List<Y>();
-                values.Add(default);
+                if (AddChooseFromDropdownEntry)
+                {
+                    values.Add(default);
+                }
 
                 for (var j = 0; j < builds.Count; j++)
                 {
@@ -116,7 +127,10 @@ namespace Wireframe
             foreach (KeyValuePair<T, Y[]> pair in valueLookup)
             {
                 List<string> names = new List<string>();
-                names.Add(FirstEntryText);
+                if (AddChooseFromDropdownEntry)
+                {
+                    names.Add(FirstEntryText);
+                }
                 for (var j = 0; j < pair.Value.Length; j++)
                 {
                     if (pair.Value[j] != null)
@@ -129,6 +143,7 @@ namespace Wireframe
                         names.Add(displayName);
                     }
                 }
+                
                 nameLookup[pair.Key] = names.ToArray();
             }
         }

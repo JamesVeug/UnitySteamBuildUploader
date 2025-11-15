@@ -16,9 +16,12 @@ namespace Wireframe
                 {
                     realLabelLength -= 20;
                 }
-                
-                GUILayout.Label(new GUIContent(label, tooltip), GUILayout.Width(realLabelLength));
-                
+
+                if (labelLength > 0)
+                {
+                    GUILayout.Label(new GUIContent(label, tooltip), GUILayout.Width(realLabelLength));
+                }
+
                 if (onHelpPressed != null)
                 {
                     if (GUILayout.Button("?", GUILayout.Width(20)))
@@ -55,7 +58,6 @@ namespace Wireframe
                 
                 return newPassword;
             }
-            
         }
     }
 }

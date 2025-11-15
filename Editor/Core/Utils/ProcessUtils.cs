@@ -1,16 +1,26 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 
 namespace Wireframe
 {
-
-    internal static class Process_Utilities
+    public static class ProcessUtils
     {
-        public static async Task<bool> RunTask(UploadTaskReport.StepResult result,string path, string args)
+        public readonly struct ProcessResult
+        {
+            public readonly bool Successful;
+            public readonly string Output;
+            public readonly string Errors;
+            
+            public ProcessResult(bool successful, string output, string errors)
+            {
+                Successful = successful;
+                Output = output;
+                Errors = errors;
+            }
+        }
+        
+        public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result,string path, string args)
         {
             ProcessStartInfo startInfo = new()
             {
@@ -33,9 +43,8 @@ namespace Wireframe
 
                 if (process == null)
                 {
-                    result.SetFailed("Failed to start process (process is null).");
-
-                    return false;
+                    result.AddError("Failed to start process (process is null).");
+                    return new ProcessResult(false, "", "Failed to start process (process is null).");
                 }
 
                 string output = await process.StandardOutput.ReadToEndAsync();
@@ -44,29 +53,19 @@ namespace Wireframe
 
                 process.WaitForExit();
 
-                UnityEngine.Debug.Log($"[Process] Output:\n{output}");
+                result.AddLog(output);
 
                 if (!string.IsNullOrEmpty(errors))
                 {
-                    UnityEngine.Debug.LogError($"[Process] Errors:\n{errors}");
+                    result.AddError(errors);
                 }
 
-                if (process.ExitCode != 0)
-                {
-                    result.SetFailed($"Process exited with code {process.ExitCode}.\nSee log for details.");
-
-                    return false;
-                }
-
-                return result.Successful;
+                return new ProcessResult(process.ExitCode == 0, output, errors);
             }
             catch (Exception ex)
             {
                 result.AddException(ex);
-
-                result.SetFailed($"Failed to run Process: {ex.Message}");
-
-                return false;
+                return new ProcessResult(false, "", ex.Message);
             }
         }
 

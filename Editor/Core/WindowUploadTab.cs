@@ -139,28 +139,39 @@ namespace Wireframe
                             });
                         });
 
-                        if (m_unloadedUploadProfiles.Count > 1)
+                        menu.AddMenuItem("Duplicate Upload Profile", false, () =>
                         {
-                            menu.AddItem(new GUIContent("Delete"), false, () =>
+                            UploadProfileSavedData data = UploadProfileSavedData.FromUploadProfile(m_currentUploadProfile);
+                            string json = JSON.SerializeObject(data);
+                            UploadProfileSavedData deserializedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+                            UploadProfile duplicateProfile = deserializedData.ToUploadProfile();
+                            duplicateProfile.GUID = Guid.NewGuid().ToString().Substring(0, 6);
+                            duplicateProfile.ProfileName += " (Copy)";
+                            m_currentUploadProfileData = CreateMetaData(duplicateProfile);
+                            m_unloadedUploadProfiles.Add(m_currentUploadProfileData);
+                            m_currentUploadProfile = duplicateProfile;
+                            m_isDirty = true;
+                        }, m_currentUploadProfile == null);
+                        
+                        menu.AddMenuItem("Delete", false, () =>
+                        {
+                            if (EditorUtility.DisplayDialog("Delete Upload Profile",
+                                    "Are you sure you want to delete this upload profile?", "Yes", "No"))
                             {
-                                if (EditorUtility.DisplayDialog("Delete Upload Profile",
-                                        "Are you sure you want to delete this upload profile?", "Yes", "No"))
+                                int index = m_unloadedUploadProfiles.FindIndex(a =>
+                                    a.GUID == m_currentUploadProfile.GUID);
+                                UploadProfileMeta meta = m_unloadedUploadProfiles[index];
+                                if (!string.IsNullOrEmpty(meta.FilePath))
                                 {
-                                    int index = m_unloadedUploadProfiles.FindIndex(a =>
-                                        a.GUID == m_currentUploadProfile.GUID);
-                                    UploadProfileMeta meta = m_unloadedUploadProfiles[index];
-                                    if (!string.IsNullOrEmpty(meta.FilePath))
-                                    {
-                                        File.Delete(meta.FilePath);
-                                    }
-
-                                    m_unloadedUploadProfiles.RemoveAt(index);
-                                    int newIndex = Mathf.Clamp(index, 0, m_unloadedUploadProfiles.Count - 1);
-                                    LoadMetaDataFromPath(m_unloadedUploadProfiles[newIndex]);
-                                    m_isDirty = true;
+                                    File.Delete(meta.FilePath);
                                 }
-                            });
-                        }
+
+                                m_unloadedUploadProfiles.RemoveAt(index);
+                                int newIndex = Mathf.Clamp(index, 0, m_unloadedUploadProfiles.Count - 1);
+                                LoadMetaDataFromPath(m_unloadedUploadProfiles[newIndex]);
+                                m_isDirty = true;
+                            }
+                        }, m_unloadedUploadProfiles.Count <= 1);
                         
                         menu.AddSeparator("");
                         menu.AddItem(new GUIContent("-- Create New Upload Profile --"), false, () =>
@@ -868,12 +879,18 @@ namespace Wireframe
             defaultProfile.ProfileName = profileName;
             m_currentUploadProfile = defaultProfile;
             
+            UploadProfileMeta meta = CreateMetaData(defaultProfile);
+            m_unloadedUploadProfiles.Add(meta);
+            m_currentUploadProfileData = meta;
+        }
+
+        private static UploadProfileMeta CreateMetaData(UploadProfile defaultProfile)
+        {
             UploadProfileMeta defaultMetaData = new UploadProfileMeta();
             defaultMetaData.GUID = defaultProfile.GUID;
             defaultMetaData.ProfileName = defaultProfile.ProfileName;
             defaultMetaData.FilePath = Path.Combine(UploadProfilePath, $"{defaultMetaData.GUID}.json");
-            m_unloadedUploadProfiles.Add(defaultMetaData);
-            m_currentUploadProfileData = defaultMetaData;
+            return defaultMetaData;
         }
 
         private void LoadMetaDataFromPath(UploadProfileMeta metaData)

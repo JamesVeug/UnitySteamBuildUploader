@@ -16,9 +16,8 @@ namespace Wireframe
                     label = "General",
                     keywords = new HashSet<string>(new[]
                     {
-                        "Steam", "Build", "Uploader", "Pipe", "line", "Github", "Cache"
+                        "Build", "Uploader", "Pipe", "line", "Cache"
                     }),
-                    
                 };
 
             return provider;

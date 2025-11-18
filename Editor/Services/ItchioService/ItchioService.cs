@@ -2,6 +2,9 @@
 {
     internal partial class ItchioService : AService
     {
+        public override string ServiceName => "Itch.io";
+        public override string[] SearchKeyworks => new string[]{"itch.io", "itch", "game distribution", "game upload"};
+
         public ItchioService()
         {
             // Needed for reflection

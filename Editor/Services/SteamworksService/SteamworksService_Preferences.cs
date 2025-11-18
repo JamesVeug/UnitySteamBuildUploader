@@ -7,7 +7,6 @@ namespace Wireframe
     {
         public override void PreferencesGUI()
         {
-            GUILayout.Label("Steamworks", EditorStyles.boldLabel);
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 bool newEnabled = GUILayout.Toggle(SteamSDK.Enabled, "Enabled");

@@ -13,10 +13,7 @@ namespace Wireframe
                 new ItchioService_ProjectSettings_Provider("Project/BuildUploader/Services/Itchio", SettingsScope.Project)
                 {
                     label = "Itchio",
-                    keywords = new HashSet<string>(new[]
-                    {
-                        "Build", "Uploader", "Pipe", "line", "service", "Itchio"
-                    })
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is ItchioService).SearchKeyworks
                 };
             return provider;
         }

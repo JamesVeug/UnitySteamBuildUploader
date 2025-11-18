@@ -13,10 +13,7 @@ namespace Wireframe
                 new SteamworksService_ProjectSettings_Provider("Project/BuildUploader/Services/Steamworks", SettingsScope.Project)
                 {
                     label = "Steamworks",
-                    keywords = new HashSet<string>(new[]
-                    {
-                        "Build", "Uploader", "Pipe", "line", "service", "Steam", "Steamworks"
-                    })
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is SteamworksService).SearchKeyworks
                 };
             return provider;
         }

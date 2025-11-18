@@ -7,7 +7,6 @@ namespace Wireframe
     {
         public override void PreferencesGUI()
         {
-            GUILayout.Label("Unity Cloud", EditorStyles.boldLabel);
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 UnityCloud.Enabled = GUILayout.Toggle(UnityCloud.Enabled, "Enabled");

@@ -16,7 +16,7 @@ namespace Wireframe
                 
                 // Name
                 float labelWidth = 50;
-                float textWidth = 100;
+                float textWidth = 200;
                 Rect rect0 = new Rect(containerRect.x, containerRect.y, labelWidth, containerRect.height);
                 GUI.Label(rect0, "Name");
                 rect0.x += rect0.width;

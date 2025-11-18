@@ -28,16 +28,17 @@ namespace Wireframe
             public string color;
         }
         
-        [Wiki("App", "Which Steam App to upload to. eg: 1141030", 1)]
+        [Wiki("App", "Which App/Bot will be sending the message", 1)]
         private DiscordConfig.DiscordApp m_app;
         
-        [Wiki("Server", "What server to send the message to", 2)]
+        [Wiki("Server", "What Discord server to send the message to", 2)]
         private DiscordConfig.DiscordServer m_server;
         
-        [Wiki("Channel", "What channel in the server to send the message to", 2)]
+        [Wiki("Channel", "What channel in the Discord server to send the message to", 2)]
         private DiscordConfig.DiscordChannel m_channel;
 
-        [Wiki("Text", "What text to send", 3)] private string m_text = "";
+        [Wiki("Text", "What text to send", 3)] 
+        private string m_text = "";
 
         [Wiki("Embeds", "A list of embeds to send with the message. This is optional and can be used to format the message nicely.", 5)]
         private List<Embed> m_embeds = new List<Embed>();
@@ -159,14 +160,15 @@ namespace Wireframe
             if (data.TryGetValue("serverId", out object serverIDString) && serverIDString != null)
             {
                 m_server = servers.FirstOrDefault(a => a.Id == (long)serverIDString);
-            
-                List<(DiscordConfig.DiscordServer, List<DiscordConfig.DiscordChannel>)> channels = DiscordUIUtils.ChannelPopup.GetAllData();
-                if (data.TryGetValue("channelId", out object channelIDString) && channelIDString != null && channels != null)
-                {
-                    (DiscordConfig.DiscordServer, List<DiscordConfig.DiscordChannel>) channel = channels.FirstOrDefault(a => a.Item1.Id == m_server.Id);
-                    if (channel.Item2 != null)
+                if (m_server != null){
+                    List<(DiscordConfig.DiscordServer, List<DiscordConfig.DiscordChannel>)> channels = DiscordUIUtils.ChannelPopup.GetAllData();
+                    if (data.TryGetValue("channelId", out object channelIDString) && channelIDString != null && channels != null)
                     {
-                        m_channel = channel.Item2.FirstOrDefault(c => c.ChannelID == (long)channelIDString);
+                        (DiscordConfig.DiscordServer, List<DiscordConfig.DiscordChannel>) channel = channels.FirstOrDefault(a => a.Item1.Id == m_server.Id);
+                        if (channel.Item2 != null)
+                        {
+                            m_channel = channel.Item2.FirstOrDefault(c => c.ChannelID == (long)channelIDString);
+                        }
                     }
                 }
             }

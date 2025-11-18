@@ -84,6 +84,11 @@ namespace Wireframe
                     profileNames.Add("-- Select Upload Profile --");
                     
                     profileNames.AddRange(m_unloadedUploadProfiles.Select(p => StringFormatter.FormatString(p.ProfileName, m_context)));
+                    for (int i = 1; i < profileNames.Count; i++)
+                    {
+                        profileNames[i] = $"{i}. {profileNames[i]}";
+                    }
+                    
                     int selectedIndex = m_unloadedUploadProfiles.FindIndex(a=>a.GUID == m_currentUploadProfile.GUID);
                     if (selectedIndex != -1)
                     {

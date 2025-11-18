@@ -10,13 +10,10 @@ namespace Wireframe
         public static SettingsProvider CreateSettingsProvider()
         {
             var provider =
-                new EpicGamesService_ProjectSettings_Provider("Project/BuildUploader/Services/EpicGames", SettingsScope.Project)
+                new EpicGamesService_ProjectSettings_Provider("Project/BuildUploader/Services/Epic Games", SettingsScope.Project)
                 {
-                    label = "EpicGames",
-                    keywords = new HashSet<string>(new[]
-                    {
-                        "Build", "Uploader", "Pipe", "line", "service", "Epic", "Games", "Unreal", "Engine"
-                    })
+                    label = "Epic Games",
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is EpicGamesService).SearchKeyworks
                 };
             return provider;
         }

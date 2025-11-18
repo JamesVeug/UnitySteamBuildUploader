@@ -11,8 +11,6 @@ namespace Wireframe
         
         public override void PreferencesGUI()
         {
-            GUILayout.Label("EpicGames", EditorStyles.boldLabel);
-
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 bool newEnabled = GUILayout.Toggle(EpicGames.Enabled, "Enabled");

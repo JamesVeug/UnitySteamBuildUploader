@@ -5,6 +5,9 @@ namespace Wireframe
 {
     internal partial class EpicGamesService : AService
     {
+        public override string ServiceName => "Epic Games";
+        public override string[] SearchKeyworks => new string[]{"epic", "games", "epicgames", "epic games", "unreal", "ue", "game distribution", "game upload"};
+
         public EpicGamesService()
         {
             // Needed for reflection

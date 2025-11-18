@@ -143,7 +143,7 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
-                    new GUIContent("Auto show new upload reports", 
+                    new GUIContent("Auto show new Upload Tasks", 
                         "If enabled, when starting new Upload tasks using the GUI the Task Report window will open and follow the new upload task."), 
                     GUILayout.Width(200));
 

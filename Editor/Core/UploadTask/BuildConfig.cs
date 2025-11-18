@@ -186,7 +186,7 @@ namespace Wireframe
                 else
                 {
                     // Deserialize, TO JSON then from JSON
-                    SceneGUIDs = ((List<object>)scenesData).Cast<string>().ToList();
+                    SceneGUIDs = ((List<object>)scenesData).Cast<string>().Distinct().ToList();
                 }
             }
             else

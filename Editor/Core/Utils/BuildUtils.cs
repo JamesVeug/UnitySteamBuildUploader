@@ -136,11 +136,12 @@ namespace Wireframe
         public static List<string> GetCurrentScenesGUIDs()
         {
             List<string> defaultScenes = new List<string>();
-            foreach (var scene in EditorBuildSettings.scenes)
+            foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
             {
-                if (scene.enabled)
+                string guid = scene.guid.ToString();
+                if (scene.enabled && !defaultScenes.Contains(guid))
                 {
-                    defaultScenes.Add(scene.guid.ToString());
+                    defaultScenes.Add(guid);
                 }
             }
 
@@ -150,7 +151,7 @@ namespace Wireframe
                 {
                     string path = EditorSceneManager.GetActiveScene().path;
                     string guid = AssetDatabase.AssetPathToGUID(path);
-                    if (!string.IsNullOrEmpty(guid))
+                    if (!string.IsNullOrEmpty(guid) && !defaultScenes.Contains(guid))
                     {
                         defaultScenes.Add(guid);
                     }

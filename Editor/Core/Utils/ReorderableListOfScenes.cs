@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -9,8 +10,24 @@ namespace Wireframe
     {
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
-            string[] _allScenePaths = SceneUIUtils.GetScenePaths();
-            string[] _allSceneGUIDs = SceneUIUtils.GetSceneGUIDS();
+            string[] allSceneGUIDs = SceneUIUtils.GetSceneGUIDS();
+            string[] allScenePaths = SceneUIUtils.GetScenePaths();
+            List<string> filteredScenes = new List<string>();
+            List<string> filteredScenePaths = new List<string>();
+            for (var i = 0; i < allSceneGUIDs.Length; i++)
+            {
+                string sceneGUID = allSceneGUIDs[i];
+                if (!list.Contains(sceneGUID) || list[index] == sceneGUID)
+                {
+                    filteredScenes.Add(sceneGUID);
+                    filteredScenePaths.Add(allScenePaths[i]);
+                }
+            }
+            
+            string[] filteredSceneGUIDs = filteredScenes.ToArray();
+            string[] filteredScenePathsArray = filteredScenePaths.ToArray();
+            
+            
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -20,12 +37,16 @@ namespace Wireframe
                 Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
                 
                 EditorGUI.BeginChangeCheck();
-                int selectedIndex = Array.IndexOf(_allSceneGUIDs, element);
-                int chosen = EditorGUI.Popup(rect1, selectedIndex, _allScenePaths);
+                int selectedIndex = Array.IndexOf(filteredSceneGUIDs, element);
+                int chosen = EditorGUI.Popup(rect1, selectedIndex, filteredScenePathsArray);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    list[index] = _allSceneGUIDs[chosen];
-                    dirty = true;
+                    string sceneGUID = filteredSceneGUIDs[chosen];
+                    if (!list.Contains(sceneGUID))
+                    {
+                        list[index] = sceneGUID;
+                        dirty = true;
+                    }
                 }
             }
         }
@@ -52,7 +73,7 @@ namespace Wireframe
             menu.AddItem(new GUIContent("Add missing scenes"), false, () =>
             {
                 var allScenes = SceneUIUtils.GetScenes().Select(s => s.GUID);
-                foreach (var scene in allScenes)
+                foreach (string scene in allScenes)
                 {
                     if (!list.Contains(scene))
                     {
@@ -82,6 +103,15 @@ namespace Wireframe
 
         protected override string CreateItem(int index)
         {
+            string[] allSceneGUIDs = SceneUIUtils.GetSceneGUIDS();
+            foreach (string guiD in allSceneGUIDs)
+            {
+                if (!list.Contains(guiD))
+                {
+                    return guiD;
+                }
+            }
+            
             return "";
         }
     }

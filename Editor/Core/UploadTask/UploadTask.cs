@@ -33,12 +33,12 @@ namespace Wireframe
         public AUploadTask_Step.StepType CurrentStep { get; private set; }
         public AUploadTask_Step[] CurrentSteps => m_CurrentSteps;
         
-        public StringFormatter.Context Context => context;
+        public UploadTaskStringFormatterContext Context => context;
 
         private UploadTaskReport report;
         private List<UploadConfig> uploadConfigs;
         private List<UploadConfig.PostUploadActionData> postUploadActions;
-        private StringFormatter.Context context;
+        private UploadTaskStringFormatterContext context;
         private string[] cachedLocations;
         private int progressId;
         private int totalSteps;
@@ -82,7 +82,7 @@ namespace Wireframe
             uploadConfigs = new List<UploadConfig>();
             postUploadActions = new List<UploadConfig.PostUploadActionData>();
             
-            context = new StringFormatter.Context();
+            context = new UploadTaskStringFormatterContext(this);
             context.TaskProfileName = () => uploadName;
             context.TaskDescription = () => uploadDescription;
         }
@@ -122,7 +122,7 @@ namespace Wireframe
             CurrentStep = AUploadTask_Step.StepType.Validation;
 
             context.CacheCallbacks();
-            for (var i = 0; i < UploadConfigs.Count; i++)
+            for (var i = 0; i < uploadConfigs.Count; i++)
             {
                 uploadConfigs[i].Context.SetParent(context);
                 uploadConfigs[i].Context.CacheCallbacks();

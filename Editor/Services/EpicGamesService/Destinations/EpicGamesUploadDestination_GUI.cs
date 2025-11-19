@@ -65,7 +65,7 @@ namespace Wireframe
                 }
 
                 string path = CloudDirOverride;
-                if (CustomFolderPathTextField.OnGUI("Cloud Directory", ref path, ref showFormattedCloudDirectory, ctx))
+                if (CustomFolderPathTextField.OnGUI("Cloud DirectoryOverride", ref path, ref showFormattedCloudDirectory, ctx))
                 {
                     CloudDirOverride = path;
                 }

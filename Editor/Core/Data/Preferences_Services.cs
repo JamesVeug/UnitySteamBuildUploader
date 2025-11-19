@@ -15,13 +15,6 @@ namespace Wireframe
             {
                 "Build", "Uploader", "Pipe", "line", "Cache",
             });
-            foreach (AService service in InternalUtils.AllServices())
-            {
-                foreach (string searchKeywork in service.SearchKeyworks)
-                {
-                    keywords.Add(searchKeywork);
-                }
-            }
             
             var provider = new PreferencesServices("Preferences/Build Uploader/Services", SettingsScope.User)
             {

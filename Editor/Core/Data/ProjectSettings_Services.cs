@@ -19,7 +19,7 @@ namespace Wireframe
             });
             
             var provider =
-                new ProjectSettings_Services("Project/BuildUploader/Services", SettingsScope.Project)
+                new ProjectSettings_Services("Project/Build Uploader/Services", SettingsScope.Project)
                 {
                     label = "Services",
                     keywords = keywords

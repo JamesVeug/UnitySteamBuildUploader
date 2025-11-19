@@ -14,13 +14,13 @@ namespace Wireframe
         {
             HashSet<string> keywords = new HashSet<string>(new[]
             {
-                "Build", "Uploader", "Pipe", "line", "settings" 
+                "Build", "Uploader", "Build Uploader", "BuildUploader", "Pipe", "line", "pipe line", "Pipeline", "meta", "data"
             });
             
             var provider =
-                new ProjectSettings_Settings("Project/BuildUploader", SettingsScope.Project)
+                new ProjectSettings_Settings("Project/Build Uploader/General", SettingsScope.Project)
                 {
-                    label = "BuildUploader",
+                    label = "General",
                     keywords = keywords
                 };
     

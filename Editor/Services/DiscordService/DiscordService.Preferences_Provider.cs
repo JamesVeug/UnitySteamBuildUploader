@@ -4,13 +4,13 @@ using UnityEditor;
 
 namespace Wireframe
 {
-    public class DiscordService_ProjectSettings_Provider : SettingsProvider
+    public class DiscordService_Preferences_Provider : SettingsProvider
     {
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
         {
             var provider =
-                new DiscordService_ProjectSettings_Provider("Project/Build Uploader/Services/Discord", SettingsScope.Project)
+                new DiscordService_Preferences_Provider("Preferences/Build Uploader/Services/Discord", SettingsScope.User)
                 {
                     label = "Discord",
                     keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is DiscordService).SearchKeyworks
@@ -18,14 +18,14 @@ namespace Wireframe
             return provider;
         }
         
-        private DiscordService_ProjectSettings_Provider(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords)
+        private DiscordService_Preferences_Provider(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords)
         {
         }
         
         public override void OnGUI(string searchContext)
         {
             base.OnGUI(searchContext);
-            InternalUtils.AllServices().FirstOrDefault(a=>a is DiscordService)?.ProjectSettingsGUI();
+            InternalUtils.AllServices().FirstOrDefault(a=>a is DiscordService)?.PreferencesGUI();
         }
     }
 }

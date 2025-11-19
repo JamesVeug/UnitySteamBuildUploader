@@ -13,7 +13,7 @@ namespace Wireframe
                 "Build", "Uploader", "Pipe", "line", "Config"
             });
 
-            var provider = new ProjectSettings_BuildConfigs("Project/BuildUploader/Build Configs", SettingsScope.Project)
+            var provider = new ProjectSettings_BuildConfigs("Project/Build Uploader/Build Configs", SettingsScope.Project)
                 {
                     label = "Build Configs",
                     keywords = keywords

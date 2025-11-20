@@ -31,6 +31,7 @@ namespace Wireframe
         public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes;
         public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
         public ScriptingImplementation ScriptingBackend = ScriptingImplementation.Mono2x;
+        public BuildUtils.Compression CompressionMethod = BuildUtils.Compression.Default;
 
         public BuildConfig()
         {
@@ -55,6 +56,7 @@ namespace Wireframe
             TargetArchitecture = BuildUtils.Architecture.x64;
             StrippingLevel = ManagedStrippingLevel.Disabled;
             ScriptingBackend = ScriptingImplementation.Mono2x;
+            CompressionMethod = BuildUtils.Compression.Default;
             StackTraceLogTypes = new Dictionary<LogType, StackTraceLogType>();
             foreach (LogType logType in Enum.GetValues(typeof(LogType)))
             {
@@ -83,6 +85,7 @@ namespace Wireframe
             StackTraceLogTypes = BuildUtils.CurrentStackTraceLogTypes();
             StrippingLevel = BuildUtils.CurrentStrippingLevel();
             ScriptingBackend = BuildUtils.CurrentScriptingBackend();
+            CompressionMethod = BuildUtils.CurrentCompressionMethod(TargetPlatform);
         }
 
         public void SetDebuggingOn(bool on)
@@ -125,6 +128,7 @@ namespace Wireframe
                 { "StackTraceLogTypes", StackTraceLogTypes.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()) },
                 { "StrippingLevel", StrippingLevel.ToString() },
                 { "ScriptingBackend", ScriptingBackend.ToString() },
+                { "CompressionMethod", CompressionMethod.ToString() }
             };
             return dict;
         }
@@ -377,6 +381,23 @@ namespace Wireframe
             {
                 ScriptingBackend = BuildUtils.CurrentScriptingBackend();
             }
+            
+            if (dict.TryGetValue("CompressionMethod", out var compressionMethodData) && compressionMethodData is string compressionMethodStr)
+            {
+                if (Enum.TryParse(compressionMethodStr, out BuildUtils.Compression compress))
+                {
+                    CompressionMethod = compress;
+                }
+                else
+                {
+                    Debug.LogWarning($"Invalid Compression value: {compressionMethodStr}. Defaulting to Default.");
+                    CompressionMethod = BuildUtils.Compression.Default;
+                }
+            }
+            else
+            {
+                CompressionMethod = BuildUtils.CurrentCompressionMethod(TargetPlatform);
+            }
         }
 
         public BuildOptions GetBuildOptions()
@@ -431,7 +452,7 @@ namespace Wireframe
             EditorUserBuildSettings.allowDebugging = AllowDebugging;
             EditorUserBuildSettings.buildWithDeepProfilingSupport = EnableDeepProfilingSupport;
             EditorUserBuildSettings.buildScriptsOnly = BuildScriptsOnly;
-            
+            BuildUtils.SetCompressionType(TargetPlatform, CompressionMethod);
             
             // Scene list
             if (SceneGUIDs == null || SceneGUIDs.Count == 0)

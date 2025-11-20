@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Wireframe
 {
+    /// <summary>
+    /// WindowsBuildProfileExtension.cs for reference
+    /// </summary>
     public partial class BuildConfig : DropdownElement
     {
         internal bool Collapsed { get; set; } = true;
@@ -123,6 +126,7 @@ namespace Wireframe
                             dirty = true;
                         }
                     }
+                    
                     using (new EditorGUI.DisabledScope(!IsDevelopmentBuild))
                     {
                     
@@ -192,6 +196,21 @@ namespace Wireframe
                         }
                     }
                     
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        GUIContent label = new GUIContent("Compression:", 
+                            "Compression applied to Player data (scenes and resources).\n" +
+                            "Default - none or default platform compression.\n" +
+                            "LZ4 - fast compression suitable for Development Builds.\n" +
+                            "LZ4HC - high compression rate variance of LZ4, causes longer build Times. Works best for Release Builds");
+                        GUILayout.Label(label, GUILayout.Width(150));
+                        BuildUtils.Compression compression = (BuildUtils.Compression)EditorGUILayout.EnumPopup(CompressionMethod);
+                        if (compression != CompressionMethod)
+                        {
+                            CompressionMethod = compression;
+                            dirty = true;
+                        }
+                    }
                     
                     EditorGUILayout.Space();
 

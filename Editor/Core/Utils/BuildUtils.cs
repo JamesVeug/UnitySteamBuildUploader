@@ -33,6 +33,13 @@ namespace Wireframe
             /// </summary>
             x86,
         }
+        
+        public enum Compression // From BuildProfilePlatformSettingsBase.cs
+        {
+            Default = 0,
+            Lz4 = 2,
+            Lz4HC = 3,
+        }
             
         public static int GetIntValue(this Architecture architecture)
         {
@@ -492,10 +499,37 @@ namespace Wireframe
         {
 #if UNITY_6000_0_OR_NEWER
             MethodInfo IsBuildPlatformSupportedMethod = typeof(BuildPipeline).GetMethod("IsBuildPlatformSupported", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            return (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { target });
+            if (IsBuildPlatformSupportedMethod != null) return (bool)IsBuildPlatformSupportedMethod.Invoke(null, new object[] { target });
+
+            Debug.LogError("Could not find BuildPipeline.IsBuildPlatformSupported method via reflection.");
+            return false;
 #else
             return BuildPipeline.IsBuildTargetSupported(targetGroup, target);
 #endif
+        }
+
+        public static void SetCompressionType(BuildTargetGroup targetGroup, Compression compression)
+        {
+            // EditorUserBuildSettings.SetCompressionType(namedBuildTarget.ToBuildTargetGroup(), BuildPlayerWindow.styles.compressionTypes[index]);
+            MethodInfo SetCompressionTypeMethod = typeof(EditorUserBuildSettings).GetMethod("SetCompressionType", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            if (SetCompressionTypeMethod != null)
+            {
+                SetCompressionTypeMethod.Invoke(null, new object[] { targetGroup, (int)compression });
+            }
+            else
+            {
+                Debug.LogError("Could not find EditorUserBuildSettings.SetCompressionType method via reflection.");
+            }
+        }
+
+        public static Compression CurrentCompressionMethod(BuildTargetGroup targetGroup)
+        {
+            // EditorUserBuildSettings.GetCompressionType(namedBuildTarget.ToBuildTargetGroup())
+            MethodInfo GetCompressionMethod = typeof(EditorUserBuildSettings).GetMethod("GetCompressionType", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            if (GetCompressionMethod != null) return (Compression)GetCompressionMethod.Invoke(null, new object[] { targetGroup });
+
+            Debug.LogError("Could not find EditorUserBuildSettings.GetCompressionType method via reflection.");
+            return Compression.Default;
         }
     }
 }

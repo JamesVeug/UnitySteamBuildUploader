@@ -83,6 +83,35 @@ namespace Wireframe
                 }
             });
             
+            menu.AddItem(new GUIContent("Remove invalid scenes"), false, () =>
+            {
+                if (EditorUtility.DisplayDialog("Remove invalid scenes",
+                        "Are you sure you want to remove invalid scenes?",
+                        "Yes", "No"))
+                {
+
+                    string[] allSceneGUIDs = SceneUIUtils.GetSceneGUIDS();
+                    List<string> guidsToRemove = new List<string>();
+                    foreach (string addedSceneGUID in list)
+                    {
+                        if (!allSceneGUIDs.Contains(addedSceneGUID))
+                        {
+                            guidsToRemove.Add(addedSceneGUID);
+                        }
+                    }
+
+                    if (guidsToRemove.Count > 0)
+                    {
+                        foreach (string sceneGUID in guidsToRemove)
+                        {
+                            list.Remove(sceneGUID);
+                        }
+
+                        dirty = true;
+                    }
+                }
+            });
+            
             return menu;
         }
 

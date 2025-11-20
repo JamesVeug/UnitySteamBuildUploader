@@ -277,6 +277,26 @@ namespace Wireframe
                             
                             menu.AddSeparator("");
                             
+                            menu.AddItem(new GUIContent("Add Source"), false, () =>
+                            {
+                                uploadConfig.AddSource(new UploadConfig.SourceData()
+                                {
+                                    Enabled = true,
+                                });
+                                m_isDirty = true;
+                            });
+                            
+                            menu.AddItem(new GUIContent("Add Destination"), false, () =>
+                            {
+                                uploadConfig.AddDestination(new UploadConfig.DestinationData()
+                                {
+                                    Enabled = true,
+                                });
+                                m_isDirty = true;
+                            });
+                            
+                            menu.AddSeparator("");
+                            
                             menu.AddItem(new GUIContent("Reset All Settings"), false, () =>
                             {
                                 if (EditorUtility.DisplayDialog("Reset all Upload Config",

@@ -7,6 +7,7 @@ namespace Wireframe
 {
     public partial class ItchioDestination
     {
+        private bool m_showFormattedDescription;
         private bool m_queuedDirty; // Workaround for changing channels via GenericMenu since it can't reference isDirty
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
@@ -67,6 +68,15 @@ namespace Wireframe
 
             GUILayout.Label("Channels:", GUILayout.Width(120));
             DrawChannels(ref isDirty);
+            
+            
+
+            using (new GUILayout.HorizontalScope())
+            {
+                GUIContent label = new GUIContent("Description Format:", "Description for developers that appears on Steamworks.");
+                GUILayout.Label(label, GUILayout.Width(120));
+                isDirty |= EditorUtils.FormatStringTextArea(ref m_descriptionFormat, ref m_showFormattedDescription, ctx);
+            }
         }
 
         private void DrawChannels(ref bool isDirty)

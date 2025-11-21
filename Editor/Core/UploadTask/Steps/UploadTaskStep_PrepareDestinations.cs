@@ -76,7 +76,6 @@ namespace Wireframe
         private async Task<bool> PrepareDestination(int configIndex, UploadTask uploadTask, UploadTaskReport report)
         {
             UploadConfig uploadConfig = uploadTask.UploadConfigs[configIndex];
-            string desc = uploadTask.UploadDescription;
             string cachePath = uploadTask.CachedLocations[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);
             for (var i = 0; i < uploadConfig.Destinations.Count; i++)
@@ -93,7 +92,7 @@ namespace Wireframe
                 AUploadDestination uploadDestination = destination.Destination;
                 try
                 {
-                    bool success = await uploadDestination.Prepare(uploadTask.GUID, configIndex, i, cachePath, desc, result, uploadConfig.Context);
+                    bool success = await uploadDestination.Prepare(uploadTask.GUID, configIndex, i, cachePath, result, uploadConfig.Context);
                     if (!success)
                     {
                         return false;

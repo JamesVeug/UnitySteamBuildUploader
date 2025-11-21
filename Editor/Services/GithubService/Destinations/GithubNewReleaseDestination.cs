@@ -31,6 +31,9 @@ namespace Wireframe
         
         [Wiki("ZipContents", "Each file is uploaded individually to Github as a separate download. If true, all files will be sent as a single compressed file instead.")]
         private bool m_zipContents = true;
+        
+        [Wiki("Description Format", "What description to appear on the package.")]
+        private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
 
         public GithubNewReleaseDestination() : base()
         {
@@ -87,9 +90,10 @@ namespace Wireframe
             string releaseName = StringFormatter.FormatString(m_releaseName, ctx);
             string tagName = StringFormatter.FormatString(m_tagName, ctx);
             string target = StringFormatter.FormatString(m_target, ctx);
+            string buildDescription = StringFormatter.FormatString(m_descriptionFormat, ctx);
             
             int processID = ProgressUtils.Start("Github Release", "Uploading a new Github Release");
-            bool success = await Github.NewRelease(owner, repo, releaseName, m_buildDescription, tagName, target, m_draft, m_prerelease, Github.Token, result, files);
+            bool success = await Github.NewRelease(owner, repo, releaseName, buildDescription, tagName, target, m_draft, m_prerelease, Github.Token, result, files);
             ProgressUtils.Remove(processID);
             
             return success;
@@ -133,6 +137,11 @@ namespace Wireframe
             {
                 errors.Add("Target is not set");
             }
+            
+            if (string.IsNullOrEmpty(m_descriptionFormat))
+            {
+                errors.Add("Description Format is not set");
+            }
         }
 
         public override Dictionary<string, object> Serialize()
@@ -146,6 +155,7 @@ namespace Wireframe
             dict["zipContents"] = m_zipContents;
             dict["draft"] = m_draft;
             dict["prerelease"] = m_prerelease;
+            dict["descriptionFormat"] = m_descriptionFormat;
             return dict;
         }
 
@@ -159,6 +169,12 @@ namespace Wireframe
             m_zipContents = (bool) s["zipContents"];
             m_draft = s.TryGetValue("draft", out object draftValue) && (bool) draftValue;
             m_prerelease = s.TryGetValue("prerelease", out object prereleaseValue) && (bool) prereleaseValue;
+            
+            // Added in v3.1.0
+            if (s.TryGetValue("descriptionFormat", out object descriptionFormatValue) && descriptionFormatValue is string str)
+                m_descriptionFormat = str;
+            else
+                m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
         }
     }
 }

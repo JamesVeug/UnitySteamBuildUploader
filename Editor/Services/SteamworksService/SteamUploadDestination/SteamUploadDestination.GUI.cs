@@ -6,6 +6,7 @@ namespace Wireframe
     public partial class SteamUploadDestination
     {
         private bool m_showFormattedLocalPath = false;
+        private bool m_showFormattedDescription = false;
         
         protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
@@ -67,6 +68,13 @@ namespace Wireframe
                     GUILayout.Label(pathLabel, GUILayout.Width(35));
                     isDirty |= CustomFilePathTextField.OnGUI(ref m_depotFileName, ref m_showFormattedLocalPath, ctx, "vdf");
                 }
+            }
+
+            using (new GUILayout.HorizontalScope())
+            {
+                GUIContent label = new GUIContent("Description Format:", "Description for developers that appears on Steamworks.");
+                GUILayout.Label(label, GUILayout.Width(120));
+                isDirty |= EditorUtils.FormatStringTextArea(ref m_descriptionFormat, ref m_showFormattedDescription, ctx);
             }
         }
 

@@ -39,6 +39,9 @@ namespace Wireframe
         [Wiki("DepotFile Path", "If Create DepotFile is false then use a file with this name that  will be found in the SteamSDKs path to upload a build to Steam.", 6)]
         private string m_depotFileName = "";
         
+        [Wiki("Description Format", "What description to upload to steam to appear on steamworks.", 7)]
+        private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+        
         private SteamApp m_uploadApp;
         private SteamDepot m_uploadDepot;
         private SteamBranch m_uploadBranch;
@@ -91,9 +94,9 @@ namespace Wireframe
         }
 
         public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
-            string cachedFolderPath, string buildDescription, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+            string cachedFolderPath, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
         {
-            await base.Prepare(taskGUID, configIndex, destinationIndex, cachedFolderPath, buildDescription, result, ctx);
+            await base.Prepare(taskGUID, configIndex, destinationIndex, cachedFolderPath, result, ctx);
 
             if (m_current == null)
             {
@@ -117,6 +120,7 @@ namespace Wireframe
             m_uploadDepot = new SteamDepot(m_depot);
             m_uploadBranch = new SteamBranch(m_destinationBranch);
 
+            string buildDescription = StringFormatter.FormatString(m_descriptionFormat, ctx);
             string suffix = $"buildUploader_{taskGUID}_{configIndex}_{destinationIndex}";
             if (m_createAppFile)
             {
@@ -142,7 +146,7 @@ namespace Wireframe
 
                 if (m_appFileOverwriteDesc)
                 {
-                    if (!SteamSDK.TryCopyAppFileAndModifyDescAtPath(m_appPath, out m_appPath, m_buildDescription, result))
+                    if (!SteamSDK.TryCopyAppFileAndModifyDescAtPath(m_appPath, out m_appPath, buildDescription, result))
                     {
                         return false;
                     }
@@ -256,6 +260,7 @@ namespace Wireframe
                 ["configID"] = m_current?.Id,
                 ["depotID"] = m_depot?.Id,
                 ["branchID"] = m_destinationBranch?.Id,
+                ["m_descriptionFormat"] = m_descriptionFormat
             };
 
             return data;
@@ -330,6 +335,16 @@ namespace Wireframe
             {
                 m_destinationBranch = m_current.ConfigBranches.FirstOrDefault(a=>a.name == m_destinationBranchName.ToString());
             }
+            
+            // Build Description Format - Added in v3.1.0
+            if (data.TryGetValue("m_descriptionFormat", out object descriptionFormatObj) && descriptionFormatObj != null)
+            {
+                m_descriptionFormat = descriptionFormatObj.ToString();
+            }
+            else
+            {
+                m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+            }
         }
 
         public override void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
@@ -403,6 +418,11 @@ namespace Wireframe
             else if (m_destinationBranch.name == "default")
             {
                 errors.Add("Uploading to the 'default' branch is not allowed by the SteamSDK.\nUse none or an empty branch name instead and use the Steamworks dashboard to assign to default.");
+            }
+
+            if (string.IsNullOrEmpty(m_descriptionFormat))
+            {
+                errors.Add("No build description specified.");
             }
         }
     }

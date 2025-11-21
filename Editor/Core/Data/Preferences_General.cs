@@ -157,6 +157,22 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
+                    new GUIContent("Default show formatted text on", 
+                        "If enabled, all toggles to show text fields/areas as their formatted text will start on by default eg:(#{buildversion} = #42)\n" +
+                        "Can be toggled per field with the \"F\" button next to the field."), 
+                    GUILayout.Width(200));
+
+                bool autoFocusTask = Preferences.DefaultShowFormattedTextToggle;
+                bool newAutoFocusTask = EditorGUILayout.Toggle(autoFocusTask);
+                if (newAutoFocusTask != Preferences.DefaultShowFormattedTextToggle)
+                {
+                    Preferences.DefaultShowFormattedTextToggle = newAutoFocusTask;
+                }
+            }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
                     new GUIContent("Show upload confirmation window", 
                         "If enabled, a popup window will appear indicating if the upload was successful and if not why not."), 
                     GUILayout.Width(200));

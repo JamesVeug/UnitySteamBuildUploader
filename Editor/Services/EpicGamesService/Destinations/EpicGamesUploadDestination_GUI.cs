@@ -5,10 +5,10 @@ namespace Wireframe
 {
     public partial class EpicGamesUploadDestination
     {
-        private bool showFormattedCloudDirectory;
-        private bool showFormattedBuildVersion;
-        private bool showFormattedAppLaunch;
-        private bool showFormattedAppArgs;
+        private bool showFormattedCloudDirectory = Preferences.DefaultShowFormattedTextToggle;
+        private bool showFormattedBuildVersion = Preferences.DefaultShowFormattedTextToggle;
+        private bool showFormattedAppLaunch = Preferences.DefaultShowFormattedTextToggle;
+        private bool showFormattedAppArgs = Preferences.DefaultShowFormattedTextToggle;
         
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {

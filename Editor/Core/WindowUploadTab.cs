@@ -27,7 +27,7 @@ namespace Wireframe
         private GUIStyle m_subTitleStyle;
         private Vector2 m_scrollPosition;
         private string m_buildDescription;
-        private bool m_showFormattedDescription = false;
+        private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
         private bool m_isDirty;
         private Vector2 m_descriptionScrollPosition;
         private bool m_descriptionFoldoutCollapsed;
@@ -824,7 +824,18 @@ namespace Wireframe
                     {
                         string file = files[j];
                         string json = File.ReadAllText(file);
-                        UploadProfileSavedData savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+                        UploadProfileSavedData savedData;
+                        try
+                        {
+                            savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogWarning($"Failed to deserialize UploadProfileSavedData from file: {file}. Skipping this file.");
+                            Debug.LogException(e);
+                            continue;
+                        }
+
                         if (savedData == null)
                         {
                             Debug.LogWarning($"Failed to deserialize UploadProfileSavedData from file: {file}. Skipping this file.");

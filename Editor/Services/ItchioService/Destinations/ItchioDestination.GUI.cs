@@ -7,7 +7,7 @@ namespace Wireframe
 {
     public partial class ItchioDestination
     {
-        private bool m_showFormattedDescription;
+        private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
         private bool m_queuedDirty; // Workaround for changing channels via GenericMenu since it can't reference isDirty
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)

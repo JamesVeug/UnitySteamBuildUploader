@@ -5,7 +5,7 @@ namespace Wireframe
 {
     public partial class SlackMessageChannelAction
     {
-        private bool m_showFormattedText;
+        private bool m_showFormattedText = Preferences.DefaultShowFormattedTextToggle;
         private ReorderableListOfSlackMessageAttachments m_attachmentList;
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)

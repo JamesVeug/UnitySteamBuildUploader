@@ -7,8 +7,8 @@ namespace Wireframe
 {
     public partial class URLSource
     {
-        private bool m_showFormattedURL = false;
-        private bool m_showFormattedFileName = false;
+        private bool m_showFormattedURL = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedFileName = Preferences.DefaultShowFormattedTextToggle;
         
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {

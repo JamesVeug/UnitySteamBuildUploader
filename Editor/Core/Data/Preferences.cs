@@ -35,6 +35,12 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_AutoFocusNewUploadTask", value);
         }
         
+        public static bool DefaultShowFormattedTextToggle
+        {
+            get => EditorPrefs.GetBool("BuildUploader_DefaultShowFormattedTextToggle", true);
+            set => EditorPrefs.SetBool("BuildUploader_DefaultShowFormattedTextToggle", value);
+        }
+        
         public static bool AutoSaveReportToCacheFolder
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveReportToCacheFolder", false);

@@ -5,8 +5,8 @@ namespace Wireframe
 {
     public partial class SteamUploadDestination
     {
-        private bool m_showFormattedLocalPath = false;
-        private bool m_showFormattedDescription = false;
+        private bool m_showFormattedLocalPath = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
         
         protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {

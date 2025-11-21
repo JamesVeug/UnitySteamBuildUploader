@@ -5,12 +5,12 @@ namespace Wireframe
 {
     public partial class GithubNewReleaseDestination
     {
-        private bool m_showFormattedOwner;
-        private bool m_showFormattedRepo;
-        private bool m_showFormattedReleaseName;
-        private bool m_showFormattedTagName;
-        private bool m_showFormattedTarget;
-        private bool m_showFormattedDescription;
+        private bool m_showFormattedOwner = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedRepo = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedReleaseName = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedTagName = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedTarget = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {

@@ -5,7 +5,7 @@ namespace Wireframe
 {
     public partial class DiscordMessageChannelAction
     {
-        private bool m_showFormattedText;
+        private bool m_showFormattedText = Preferences.DefaultShowFormattedTextToggle;
         private ReorderableListOfDiscordMessageEmbeds m_embedList;
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)

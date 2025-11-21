@@ -16,6 +16,7 @@ namespace Wireframe
                 ["sources"] = m_buildSources.Select(a => a.Serialize()).ToList(),
                 ["allModifiers"] = m_modifiers.Select(a => a.Serialize()).ToList(),
                 ["destinations"] = m_buildDestinations.Select(a => a.Serialize()).ToList(),
+                ["actions"] = m_postActions.Select(a => a.Serialize()).ToList()
             };
 
             return data;
@@ -43,6 +44,7 @@ namespace Wireframe
             m_buildSources = new List<SourceData>();
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
+            m_postActions = new List<PostUploadActionData>();
 
             // Migrate any old data
             try
@@ -106,6 +108,26 @@ namespace Wireframe
                         DestinationData destinationData = new DestinationData();
                         destinationData.Deserialize(destinationDictionary);
                         m_buildDestinations.Add(destinationData);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            
+            // Actions
+            try
+            {
+                if (data.TryGetValue("actions", out object actions))
+                {
+                    List<object> actionList = (List<object>)actions;
+                    foreach (object action in actionList)
+                    {
+                        Dictionary<string, object> actionDictionary = (Dictionary<string, object>)action;
+                        PostUploadActionData actionData = new PostUploadActionData();
+                        actionData.Deserialize(actionDictionary);
+                        m_postActions.Add(actionData);
                     }
                 }
             }

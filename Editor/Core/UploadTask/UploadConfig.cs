@@ -13,10 +13,12 @@ namespace Wireframe
         public List<SourceData> Sources => m_buildSources;
         public List<ModifierData > Modifiers => m_modifiers;
         public List<DestinationData> Destinations => m_buildDestinations;
+        public List<PostUploadActionData> Actions => m_postActions;
 
         private List<SourceData> m_buildSources;
         private List<ModifierData> m_modifiers;
         private List<DestinationData> m_buildDestinations;
+        private List<PostUploadActionData> m_postActions;
         
         private StringFormatter.Context m_context;
 
@@ -32,6 +34,7 @@ namespace Wireframe
             m_buildSources = new List<SourceData>();
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
+            m_postActions = new List<PostUploadActionData>();
             
             m_context = new StringFormatter.Context();
             m_context.AddModifier(this);
@@ -47,6 +50,7 @@ namespace Wireframe
             m_buildSources.Clear();
             m_modifiers.Clear();
             m_buildDestinations.Clear();
+            m_postActions.Clear();
             
             m_context = null;
         }
@@ -57,6 +61,7 @@ namespace Wireframe
             warnings.AddRange(GetSourceErrors());
             warnings.AddRange(GetModifierErrors());
             warnings.AddRange(GetDestinationErrors());
+            warnings.AddRange(GetActionErrors());
 
             return warnings;
         }
@@ -67,6 +72,7 @@ namespace Wireframe
             warnings.AddRange(GetSourceWarnings());
             warnings.AddRange(GetModifierWarnings());
             warnings.AddRange(GetDestinationWarnings());
+            warnings.AddRange(GetActionWarnings());
 
             return warnings;
         }
@@ -115,6 +121,28 @@ namespace Wireframe
             return errors;
         }
         
+        public List<string> GetActionErrors()
+        {
+            List<string> errors = new List<string>();
+            foreach (PostUploadActionData action in m_postActions)
+            {
+                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never)
+                {
+                    continue;
+                }
+                
+                if (action.ActionType == null)
+                {
+                    errors.Add("Action type not set");
+                    continue;
+                }
+                
+                action.UploadAction.TryGetErrors(errors, m_context);
+            }
+            
+            return errors;
+        }
+        
         public List<string> GetModifierWarnings()
         {
             List<string> warnings = new List<string>();
@@ -126,6 +154,22 @@ namespace Wireframe
                 }
                 
                 modifier.Modifier.TryGetWarnings(this, warnings);
+            }
+            
+            return warnings;
+        }
+        
+        public List<string> GetActionWarnings()
+        {
+            List<string> warnings = new List<string>();
+            foreach (PostUploadActionData action in m_postActions)
+            {
+                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never || action.UploadAction == null)
+                {
+                    continue;
+                }
+                
+                action.UploadAction.TryGetWarnings(warnings, m_context);
             }
             
             return warnings;
@@ -301,6 +345,29 @@ namespace Wireframe
                 }
             }
 
+            for (int i = 0; i < m_postActions.Count; i++)
+            {
+                var action = m_postActions[i];
+                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never)
+                {
+                    continue;
+                }
+                
+                if (action.UploadAction == null)
+                {
+                    reason = $"Action #{i+1} is not setup";
+                    return false;
+                }
+
+                List<string> errors = new List<string>();
+                action.UploadAction.TryGetErrors(errors, m_context);
+                if (errors.Count > 0)
+                {
+                    reason = $"Action #{i+1}: " + string.Join(", ", errors);
+                    return false;
+                }
+            }
+
             reason = "";
             return true;
         }
@@ -364,6 +431,27 @@ namespace Wireframe
             
             DestinationData destinationData = new DestinationData(destination);
             m_buildDestinations.Add(destinationData);
+        }
+        
+        public void AddAction(PostUploadActionData action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+            
+            m_postActions.Add(action);
+        }
+        
+        public void AddAction(AUploadAction action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+            
+            PostUploadActionData actionData = new PostUploadActionData(action);
+            m_postActions.Add(actionData);
         }
         
         public void AddModifier(ModifierData modifier)

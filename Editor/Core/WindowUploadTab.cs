@@ -88,13 +88,17 @@ namespace Wireframe
                     {
                         profileNames[i] = $"{i}. {profileNames[i]}";
                     }
-                    
-                    int selectedIndex = m_unloadedUploadProfiles.FindIndex(a=>a.GUID == m_currentUploadProfile.GUID);
-                    if (selectedIndex != -1)
+
+                    int selectedIndex = 0;
+                    if (m_currentUploadProfile != null)
                     {
-                        selectedIndex++;
+                        selectedIndex = m_unloadedUploadProfiles.FindIndex(a => a.GUID == m_currentUploadProfile.GUID);
+                        if (selectedIndex != -1)
+                        {
+                            selectedIndex++;
+                        }
                     }
-                    
+
                     var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames.ToArray(), GUILayout.Width(150));
                     if (newSelectedIndex < 0)
                     {
@@ -193,6 +197,11 @@ namespace Wireframe
 
                         menu.ShowAsContext();
                     }
+                }
+
+                if (m_currentUploadProfile == null)
+                {
+                    return;
                 }
 
                 // Builds to upload

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -96,6 +98,47 @@ namespace Wireframe
             }
 
             return false;
+        }
+
+        public static void DrawPopup<T>(List<T> selected, List<T> allOptions, string emptySelection, Action<List<T>> callback) where T : DropdownElement
+        {
+            // TODO: Replace this with the actual popup with more lists/array shit?
+            string options = selected.Count == 0 ? emptySelection : string.Join(",", selected.Select(a=>a.DisplayName));
+            GUIStyle style = new GUIStyle(EditorStyles.popup);
+            Rect buttonRect = GUILayoutUtility.GetRect(new GUIContent(options), style);
+            if (GUI.Button(buttonRect, options, style)) 
+            {
+                List<T> m_channels = new List<T>(selected);
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Clear"), selected.Count == 0, () =>
+                {
+                    m_channels.Clear();
+                    callback(m_channels);
+                });
+                
+                foreach (T channel in allOptions.OrderBy(a=>a.DisplayName))
+                {
+                    bool isSelected = selected.Contains(channel);
+                    menu.AddItem(new GUIContent(channel.DisplayName), isSelected, () =>
+                    {
+                        if (isSelected)
+                        {
+                            m_channels.Remove(channel);
+                        }
+                        else
+                        {
+                            m_channels.Add(channel);
+                            m_channels.Sort((a, b) => a.DisplayName.CompareTo(b.DisplayName));
+                        }
+
+                        callback(m_channels);
+                    });
+                }
+                
+                Rect rect = buttonRect;
+                // rect.y += rect.height;
+                menu.DropDown(rect);
+            }
         }
     }
 }

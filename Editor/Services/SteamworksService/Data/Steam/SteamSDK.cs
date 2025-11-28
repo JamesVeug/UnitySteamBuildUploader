@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -172,14 +173,23 @@ namespace Wireframe
         public async Task<string> CreateAppFiles(AppVDFFile appFile, DepotVDFFile depot, string branch,
             string description, string sourceFilePath, UploadTaskReport.StepResult result, string fileSuffix = "")
         {
+            List<DepotVDFFile> depots = new List<DepotVDFFile> { depot };
+            return await CreateAppFiles(appFile, depots, branch, description, sourceFilePath, result, fileSuffix);
+        }
+        
+        public async Task<string> CreateAppFiles(AppVDFFile appFile, List<DepotVDFFile> depots, string branch,
+            string description, string sourceFilePath, UploadTaskReport.StepResult result, string fileSuffix = "")
+        {
             appFile.desc = description;
             appFile.buildoutput = "..\\output\\";
             appFile.contentroot = sourceFilePath;
             appFile.setlive = branch.Equals("none", StringComparison.OrdinalIgnoreCase) ? "" : branch;
-
-            string depotFileName = GetDepotFileName(depot, appFile.setlive, fileSuffix);
             appFile.depots.Clear();
-            appFile.depots.Add(depot.DepotID, depotFileName);
+            foreach (DepotVDFFile depot in depots)
+            {
+                string depotFileName = GetDepotFileName(depot, appFile.setlive, fileSuffix);
+                appFile.depots.Add(depot.DepotID, depotFileName);
+            }
 
             string fullPath = GetAppScriptOutputPath(appFile, fileSuffix);
             bool saved = await VDFFile.Save(appFile, fullPath, result);

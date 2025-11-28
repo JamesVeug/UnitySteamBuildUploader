@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -7,6 +8,7 @@ namespace Wireframe
     {
         private bool m_showFormattedLocalPath = Preferences.DefaultShowFormattedTextToggle;
         private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_queuedDirty; // Workaround for changing channels via GenericMenu since it can't reference isDirty
         
         protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
         {
@@ -18,14 +20,6 @@ namespace Wireframe
                 isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current, ctx);
             }
 
-            // Depot
-            using (new GUILayout.HorizontalScope())
-            {
-                GUIContent label = new GUIContent("Depot:", "The Steam Depot to upload to. Depots are defined in your Steamworks partner account and represent a build target (for example Windows, Mac, Linux).");
-                GUILayout.Label(label, GUILayout.Width(120));
-                isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot, ctx);
-            }
-
             // Branch
             using (new GUILayout.HorizontalScope())
             {
@@ -34,6 +28,20 @@ namespace Wireframe
                                                              "\nNOTE: Uploading to 'none' will upload the build to steamworks but not assign to a branch.");
                 GUILayout.Label(label, GUILayout.Width(120));
                 isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch, ctx);
+            }
+
+            // Depots
+            using (new GUILayout.HorizontalScope())
+            {
+                GUIContent label = new GUIContent("Depots:", "The Steam Depot to upload to. Depots are defined in your Steamworks partner account and represent a build target (for example Windows, Mac, Linux).");
+                GUILayout.Label(label, GUILayout.Width(120));
+                
+                EditorUtils.DrawPopup(m_depots, m_current.Depots, "Choose Depots",
+                    (newDepots) =>
+                    {
+                        m_depots = newDepots;
+                        m_queuedDirty = true;
+                    });
             }
 
             // Tools
@@ -66,7 +74,8 @@ namespace Wireframe
                 {
                     GUIContent pathLabel = new GUIContent("Path:", "The path to an existing depot file to use for the upload. This is only used if 'Create DepotFile' is disabled.");
                     GUILayout.Label(pathLabel, GUILayout.Width(35));
-                    isDirty |= CustomFilePathTextField.OnGUI(ref m_depotFileName, ref m_showFormattedLocalPath, ctx, "vdf");
+                    // TODO: Reorderable list of paths
+                    // isDirty |= CustomFilePathTextField.OnGUI(ref m_depotFileName, ref m_showFormattedLocalPath, ctx, "vdf");
                 }
             }
 
@@ -76,13 +85,24 @@ namespace Wireframe
                 GUILayout.Label(label, GUILayout.Width(120));
                 isDirty |= EditorUtils.FormatStringTextArea(ref m_descriptionFormat, ref m_showFormattedDescription, ctx);
             }
+            
+            isDirty |= m_queuedDirty;
+            m_queuedDirty = false;
         }
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
             isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_current, ctx);
-            isDirty |= SteamUIUtils.DepotPopup.DrawPopup(m_current, ref m_depot, ctx);
             isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_current, ref m_destinationBranch, ctx);
+            EditorUtils.DrawPopup(m_depots, m_current.Depots, "Choose Depots",
+                (newDepots) =>
+                {
+                    m_depots = newDepots;
+                    m_queuedDirty = true;
+                });
+            
+            isDirty |= m_queuedDirty;
+            m_queuedDirty = false;
         }
     }
 }

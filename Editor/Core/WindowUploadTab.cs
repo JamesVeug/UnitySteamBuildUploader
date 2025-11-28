@@ -810,7 +810,6 @@ namespace Wireframe
                     Debug.Log("SteamBuildData exists from a previous version. Migrating it over");
                     LoadOldUploadTabDataFromPath(Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json");
                     
-                    // TODO: Delete the old file
                     Save();
                     return;
                 }

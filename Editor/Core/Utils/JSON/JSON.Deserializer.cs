@@ -211,7 +211,7 @@ namespace Wireframe
                                 depth--;
                             }
 
-                            if (json[i] == '"')
+                            if (json[i] == '"' && i > 0 && json[i - 1] != '\\')
                             {
                                 inString = !inString;
                             }
@@ -263,7 +263,7 @@ namespace Wireframe
                                 depth--;
                             }
 
-                            if (json[i] == '"')
+                            if (json[i] == '"' && i > 0 && json[i - 1] != '\\')
                             {
                                 inString = !inString;
                             }

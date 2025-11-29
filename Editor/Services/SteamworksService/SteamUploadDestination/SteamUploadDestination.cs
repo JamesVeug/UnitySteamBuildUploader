@@ -17,7 +17,7 @@ namespace Wireframe
     public partial class SteamUploadDestination : AUploadDestination
     {
         [Wiki("App", "Which Steam App to upload to. eg: 1141030", 1)]
-        private SteamApp m_current;
+        private SteamApp m_app;
         
         [Wiki("Branch", "Which Branch to upload to. eg: internal", 2)]
         private SteamBranch m_destinationBranch;
@@ -33,13 +33,7 @@ namespace Wireframe
         
         [Wiki("Overwrite AppFile Description", "If Create AppFile is false and this is true, the the chosen appFile will be copied and description changed to fit selected Build Uploader description.", 6)]
         private bool m_appFileOverwriteDesc = true;
-        
-        [Wiki("Create DepotFile", "If true, a new Depot File is creating to upload the build to Steam.", 7)]
-        private bool m_createDepotFile = true;
-        
-        [Wiki("DepotFile Paths", "If Create DepotFile is false then use a file with this name that  will be found in the SteamSDKs path to upload a build to Steam.", 8)]
-        private List<string> m_depotFileNames = new List<string>();
-        
+
         [Wiki("Description Format", "What description to upload to steam to appear on steamworks.", 9)]
         private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
         
@@ -66,7 +60,7 @@ namespace Wireframe
 
         public void SetSteamApp(int appID)
         {
-            m_current = new SteamApp()
+            m_app = new SteamApp()
             {
                 App = new AppVDFFile()
                 {
@@ -91,10 +85,10 @@ namespace Wireframe
             m_destinationBranch = new SteamBranch(branchName);
         }
         
-        public void SetFlags(bool createAppFile = true, bool createDepotFile = true)
+        public void UseExistingAppFile(string appFilePath)
         {
-            m_createAppFile = createAppFile;
-            m_createDepotFile = createDepotFile;
+            m_createAppFile = true;
+            m_appFileName = appFilePath;
         }
 
         public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
@@ -102,7 +96,7 @@ namespace Wireframe
         {
             await base.Prepare(taskGUID, configIndex, destinationIndex, cachedFolderPath, result, ctx);
 
-            if (m_current == null)
+            if (m_app == null)
             {
                 result.SetFailed("No App selected");
                 return false;
@@ -120,57 +114,23 @@ namespace Wireframe
                 return false;
             }
             
-            m_uploadApp = new SteamApp(m_current);
-            m_uploadBranch = new SteamBranch(m_destinationBranch);
-            m_uploadDepots = m_depots.Select(a=>new SteamDepot(a).Depot).ToList();
 
             string buildDescription = StringFormatter.FormatString(m_descriptionFormat, ctx);
             string suffix = $"buildUploader_{taskGUID}_{configIndex}_{destinationIndex}";
             if (m_createAppFile)
             {
+                result.AddLog("Creating new app file: " + m_appPath);
+                m_uploadApp = new SteamApp(m_app);
+                m_uploadBranch = new SteamBranch(m_destinationBranch);
+                m_uploadDepots = m_depots.Select(a=>new SteamDepot(a).Depot).ToList();
                 string appFiles = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepots, m_uploadBranch.name, buildDescription, m_cachedFolderPath, result, suffix);
                 if (string.IsNullOrEmpty(appFiles))
                 {
+                    // NOTE: SetFailed called in CreateAppFiles
                     return false;
                 }
                 m_appPath = appFiles; 
-                result.AddLog("Created new app file: " + m_appPath);
-            }
-            else
-            {
-                // Use the provided app file name
-                string[] files = GetVDFFile(m_appFileName, ctx);
-                if (files.Length == 0)
-                {
-                    result.SetFailed("App file not found: " + m_appFileName);
-                    return false;
-                }
-                else if (files.Length > 1)
-                {
-                    result.SetFailed("Multiple App files found with name: " + m_appFileName + ". Please specify a unique App File name.");
-                    return false;
-                }
                 
-                m_appPath = files[0];
-
-                if (m_appFileOverwriteDesc)
-                {
-                    if (!SteamSDK.TryCopyAppFileAndModifyDescAtPath(m_appPath, out m_appPath, buildDescription, result))
-                    {
-                        return false;
-                    }
-                }
-                
-            }
-            
-            if (string.IsNullOrEmpty(m_appPath) || !File.Exists(m_appPath))
-            {
-                result.SetFailed("Failed to create app file or app file does not exist: " + m_appPath);
-                return false;
-            }
-
-            if (m_createDepotFile)
-            {
                 result.AddLog("Creating new depot files");
                 foreach (DepotVDFFile file in m_uploadDepots)
                 {
@@ -185,23 +145,78 @@ namespace Wireframe
             }
             else
             {
-                // Use the provided depot file name
-                foreach (string m_depotFileName in m_depotFileNames)
-                {
-                    string[] files = GetVDFFile(m_depotFileName, ctx);
-                    if (files.Length == 0)
-                    {
-                        result.SetFailed("Depot file not found: " + m_depotFileName);
-                        return false;
-                    }
-                    else if (files.Length > 1)
-                    {
-                        result.SetFailed("Multiple Depot files found with name: " + m_depotFileName + ". Please specify a unique Depot File name.");
-                        return false;
-                    }
+                result.SetFailed("using existing add file: '" + m_appFileName + "'");
                 
-                    m_depotPaths.Add(files[0]);
+                // Use the provided app file name
+                string[] files = GetVDFFile(m_appFileName, ctx);
+                if (files.Length == 0)
+                {
+                    result.SetFailed("App file not found: '" + m_appFileName + "'");
+                    return false;
                 }
+                else if (files.Length > 1)
+                {
+                    result.SetFailed("Multiple App files found with name: '" + m_appFileName + "'. Please specify a unique App File name.");
+                    return false;
+                }
+                
+                m_appPath = files[0];
+                if (m_appFileOverwriteDesc)
+                {
+                    if (!SteamSDK.TryCopyAppFileAndModifyDescAtPath(m_appPath, out m_appPath, buildDescription, result))
+                    {
+                        return false;
+                    }
+                }
+                
+                // Load app file
+                AppVDFFile appFile = VDFFile.Load<AppVDFFile>(m_appPath);
+                if (appFile == null)
+                {
+                    result.SetFailed("Failed to load app file to get branch: " + m_appPath);
+                    return false;
+                }
+
+                m_uploadApp = new SteamApp(appFile);
+                
+                // Get branch
+                m_uploadBranch = new SteamBranch(appFile.setlive);
+
+                // Get depots
+                foreach (VdfMap<int, string>.MapData depots in appFile.depots.GetData())
+                {
+                    string[] depotFiles = GetVDFFile(depots.Value, ctx);
+                    if (depotFiles.Length == 0)
+                    {
+                        result.SetFailed("Depot file not found: '" + depots.Value + "'");
+                        return false;
+                    }
+                    else if (depotFiles.Length > 1)
+                    {
+                        result.SetFailed("Multiple Depot files found with name: '" + depots.Value + "'. Please specify a unique Depot File name.");
+                        return false;
+                    }
+                    
+                    DepotVDFFile depotFile = VDFFile.Load<DepotVDFFile>(depotFiles[0]);
+                    if (depotFile == null)
+                    {
+                        result.SetFailed("Failed to load depot file: " + depotFiles[0]);
+                        return false;
+                    }
+                    else if (depotFile.DepotID != depots.Key)
+                    {
+                        result.SetFailed("Depot ID in depot file does not match depot ID in app file: " + depotFiles[0]);
+                        return false;
+                    }
+                    
+                    m_depotPaths.Add(depotFiles[0]);
+                }
+            }
+            
+            if (string.IsNullOrEmpty(m_appPath) || !File.Exists(m_appPath))
+            {
+                result.SetFailed("Failed to create app file or app file does not exist: " + m_appPath);
+                return false;
             }
 
             if (m_depotPaths == null || m_depotPaths.Count == 0)
@@ -261,11 +276,7 @@ namespace Wireframe
                 {
                     File.Delete(m_appPath);
                 }
-            }
-            m_appPath = null;
-            
-            if (m_createDepotFile)
-            {
+                
                 foreach (string m_depotPath in m_depotPaths)
                 {
                     stepResult.AddLog("Deleting depot file: " + m_depotPath);
@@ -275,6 +286,8 @@ namespace Wireframe
                     }
                 }
             }
+            m_appPath = null;
+            
             m_depotPaths.Clear();
             
             return Task.CompletedTask;
@@ -287,9 +300,7 @@ namespace Wireframe
                 ["m_createAppFile"] = m_createAppFile,
                 ["m_appFileName"] = m_appFileName,
                 ["m_appFileOverwriteDesc"] = m_appFileOverwriteDesc,
-                ["m_createDepotFile"] = m_createDepotFile,
-                ["depotFileNames"] = m_depotFileNames,
-                ["configID"] = m_current?.Id,
+                ["configID"] = m_app?.Id,
                 ["depotIDs"] = m_depots.Select(a=>a.ID).ToArray(),
                 ["branchID"] = m_destinationBranch?.Id,
                 ["m_descriptionFormat"] = m_descriptionFormat
@@ -309,21 +320,7 @@ namespace Wireframe
             {
                 m_appFileName = "";
             }
-            
-            m_createDepotFile = (bool)data["m_createDepotFile"];
-            m_depotFileNames.Clear();
-            if (data.TryGetValue("depotFileNames", out object depotFileNamesObj))
-            {
-                if(depotFileNamesObj != null && depotFileNamesObj is object[] depotFileNamesArray)
-                {
-                    m_depotFileNames = depotFileNamesArray.Cast<string>().ToList();
-                }
-            }
-            else if (data.TryGetValue("m_depotFileName", out object depotFileNameObj) && depotFileNameObj != null)
-            {
-                m_depotFileNames.Add(depotFileNameObj.ToString());
-            }
-            
+
             if (data.TryGetValue("m_appFileOverwriteDesc", out object appFileOverwriteDescObj) && appFileOverwriteDescObj != null)
             {
                 m_appFileOverwriteDesc = appFileOverwriteDescObj is bool b && b;
@@ -337,18 +334,18 @@ namespace Wireframe
             
             // Config
             SteamApp[] buildConfigs = SteamUIUtils.ConfigPopup.Values;
-            if (data.TryGetValue("configID", out object configIDString) && configIDString != null)
+            if (data.TryGetValue("configID", out object configIDString) && configIDString != null && configIDString is long configID)
             {
-                m_current = buildConfigs.FirstOrDefault(a=> a.Id == (long)configIDString);
+                m_app = buildConfigs.FirstOrDefault(a=> a.Id == configID);
             }
             else if (data.TryGetValue("m_currentConfig", out object m_currentConfigName))
             {
-                m_current = buildConfigs.FirstOrDefault(a=>a.Name == m_currentConfigName.ToString());
+                m_app = buildConfigs.FirstOrDefault(a=>a.Name == m_currentConfigName.ToString());
             }
 
-            if (m_current == null)
+            if (m_app == null)
             {
-                // No config found so don't continue.
+                // No config found, so don't continue.
                 return;
             }
             
@@ -369,23 +366,23 @@ namespace Wireframe
             else if(data.TryGetValue("depotID", out var depotIDString))
             {
                 // v1.2.2 changed from m_buildDepot to depotID
-                if(depotIDString != null)
+                if(depotIDString != null && depotIDString is long depotID)
                 {
-                    depotIDs.Add((long)depotIDString);
+                    depotIDs.Add(depotID);
                 }
             }
             else if (data.TryGetValue("m_buildDepot", out object m_buildDepotName))
             {
                 // Added in v1v1.2.2
-                if(m_buildDepotName != null)
+                if (m_buildDepotName != null && m_buildDepotName is long depotIDLong)
                 {
-                    depotIDs.Add((long)depotIDString);
+                    depotIDs.Add(depotIDLong);
                 }
             }
             
             foreach (long depotID in depotIDs)
             {
-                SteamDepot depot = m_current.Depots.FirstOrDefault(a => a.Id == depotID);
+                SteamDepot depot = m_app.Depots.FirstOrDefault(a => a.Id == depotID);
                 if (depot != null)
                 {
                     m_depots.Add(depot);
@@ -395,11 +392,11 @@ namespace Wireframe
             // Branch
             if (data.TryGetValue("branchID", out object branchIDString) && branchIDString != null)
             {
-                m_destinationBranch = m_current.ConfigBranches.FirstOrDefault(a=>a.Id == (long)branchIDString);
+                m_destinationBranch = m_app.ConfigBranches.FirstOrDefault(a=>a.Id == (long)branchIDString);
             }
             else if (data.TryGetValue("m_destinationBranch", out object m_destinationBranchName))
             {
-                m_destinationBranch = m_current.ConfigBranches.FirstOrDefault(a=>a.name == m_destinationBranchName.ToString());
+                m_destinationBranch = m_app.ConfigBranches.FirstOrDefault(a=>a.name == m_destinationBranchName.ToString());
             }
             
             // Build Description Format - Added in v3.1.0
@@ -427,7 +424,7 @@ namespace Wireframe
                 errors.Add(serviceReason);
             }
             
-            if (m_current == null)
+            if (m_app == null)
             {
                 errors.Add("No App selected");
             }
@@ -455,29 +452,6 @@ namespace Wireframe
             if (m_depots == null || m_depots.Count == 0)
             {
                 errors.Add("No Depot selected");
-            }
-            
-            if(!m_createDepotFile)
-            {
-                if(m_depotFileNames == null || m_depotFileNames.Count == 0)
-                {
-                    errors.Add("No Depot File names specified. Either create new Depot Files or specify existing Depot File names.");
-                }
-                else
-                {
-                    foreach (string depotFileName in m_depotFileNames)
-                    {
-                        string[] depotFiles = GetVDFFile(depotFileName, ctx);
-                        if (depotFiles.Length == 0)
-                        {
-                            errors.Add("Depot File '" + depotFileName + "' not found in path '" + SteamSDK.SteamScriptPath + "'!");
-                        }
-                        else if(depotFiles.Length > 1)
-                        {
-                            errors.Add("Multiple Depot Files found with name: " + depotFileName + ". Please specify a unique Depot File name.");
-                        }
-                    }
-                }
             }
 
             if (m_destinationBranch == null)

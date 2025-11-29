@@ -100,13 +100,13 @@ namespace Wireframe
             return false;
         }
 
-        public static void DrawPopup<T>(List<T> selected, List<T> allOptions, string emptySelection, Action<List<T>> callback) where T : DropdownElement
+        public static void DrawPopup<T>(List<T> selected, List<T> allOptions, string emptySelection, Action<List<T>> callback, params GUILayoutOption[] options) where T : DropdownElement
         {
             // TODO: Replace this with the actual popup with more lists/array shit?
-            string options = selected.Count == 0 ? emptySelection : string.Join(",", selected.Select(a=>a.DisplayName));
+            string buttonText = selected.Count == 0 ? emptySelection : string.Join(",", selected.Select(a=>a.DisplayName));
             GUIStyle style = new GUIStyle(EditorStyles.popup);
-            Rect buttonRect = GUILayoutUtility.GetRect(new GUIContent(options), style);
-            if (GUI.Button(buttonRect, options, style)) 
+            Rect buttonRect = GUILayoutUtility.GetRect(new GUIContent(buttonText), style, options);
+            if (GUI.Button(buttonRect, buttonText, style)) 
             {
                 List<T> m_channels = new List<T>(selected);
                 GenericMenu menu = new GenericMenu();

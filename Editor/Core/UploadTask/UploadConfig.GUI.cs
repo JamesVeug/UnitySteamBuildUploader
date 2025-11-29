@@ -184,6 +184,7 @@ namespace Wireframe
                             {
                                 if (destinationData.Destination != null)
                                 {
+                                    destinationData.Destination.OnPreGUI(ref isDirty, m_context);
                                     destinationData.Destination.OnGUICollapsed(ref isDirty, parts, m_context);
                                 }
                             }
@@ -568,6 +569,7 @@ namespace Wireframe
                 {
                     using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                     {
+                        destinationData.Destination.OnPreGUI(ref isDirty, m_context);
                         destinationData.Destination.OnGUIExpanded(ref isDirty, m_context);
 
                         if (destinationData.Enabled)

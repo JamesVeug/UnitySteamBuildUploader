@@ -269,21 +269,28 @@ namespace Wireframe
             m_uploadDepots = new List<DepotVDFFile>();
             m_uploadBranch = null;
             
-            if (m_createAppFile && !string.IsNullOrEmpty(m_appPath))
+            if (m_createAppFile)
             {
-                stepResult.AddLog("Deleting app file: " + m_appPath);
-                if (File.Exists(m_appPath))
+                if (SteamworksService.DeleteVDFFilesDuringCleanup)
                 {
-                    File.Delete(m_appPath);
-                }
-                
-                foreach (string m_depotPath in m_depotPaths)
-                {
-                    stepResult.AddLog("Deleting depot file: " + m_depotPath);
-                    if (File.Exists(m_depotPath))
+                    if (File.Exists(m_appPath))
                     {
-                        File.Delete(m_depotPath);
+                        stepResult.AddLog("Deleting app file: " + m_appPath);
+                        File.Delete(m_appPath);
                     }
+
+                    foreach (string m_depotPath in m_depotPaths)
+                    {
+                        if (File.Exists(m_depotPath))
+                        {
+                            stepResult.AddLog("Deleting depot file: " + m_depotPath);
+                            File.Delete(m_depotPath);
+                        }
+                    }
+                }
+                else
+                {
+                    stepResult.AddLog("Skipping deletion of app and depot files as per preferences.");
                 }
             }
             m_appPath = null;

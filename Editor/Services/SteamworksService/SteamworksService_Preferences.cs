@@ -5,6 +5,12 @@ namespace Wireframe
 {
     internal partial class SteamworksService
     {
+        public static bool DeleteVDFFilesDuringCleanup
+        {
+            get => EditorPrefs.GetBool("BuildUploader_DeleteVDFFilesDuringCleanup", true);
+            set => EditorPrefs.SetBool("BuildUploader_DeleteVDFFilesDuringCleanup", value);
+        }
+        
         public override void PreferencesGUI()
         {
             using (new EditorGUILayout.VerticalScope("box"))
@@ -18,6 +24,24 @@ namespace Wireframe
                 using (new EditorGUI.DisabledScope(!SteamSDK.Enabled))
                 {
                     DrawSteamworks();
+                }
+                
+                EditorGUILayout.Space();
+                
+                GUILayout.Label("Options:");
+                using (new GUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField(
+                        new GUIContent("Delete VDF files after uploading",
+                            "If enabled, newly created app.vdf and depot.vdf files will not be deleted when an upload completes."),
+                        GUILayout.Width(200));
+
+                    bool delete = DeleteVDFFilesDuringCleanup;
+                    bool newDelete = EditorGUILayout.Toggle(delete);
+                    if (newDelete != DeleteVDFFilesDuringCleanup)
+                    {
+                        DeleteVDFFilesDuringCleanup = newDelete;
+                    }
                 }
             }
         }

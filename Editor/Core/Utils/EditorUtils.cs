@@ -14,12 +14,12 @@ namespace Wireframe
             StringBuilder tooltipBuilder = new StringBuilder();
             tooltipBuilder.AppendLine("Show the text as it will appear with formats:");
 
-            int maximum = 20;
+            int maximum = 30;
             foreach (StringFormatter.Command command in StringFormatter.Commands.OrderBy(a=>a.Key))
             {
                 if (maximum-- <= 0)
                 {
-                    tooltipBuilder.AppendLine("\n...See docs to see available string formats.");
+                    tooltipBuilder.AppendLine("...\n\nFor all format see the Wiki:\nWindow->Build Uploader->Welcome->Documentation");
                     break;
                 }
                 

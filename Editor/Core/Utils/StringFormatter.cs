@@ -19,7 +19,6 @@ namespace Wireframe
         public const string SCRIPTING_BACKEND_KEY = "{scriptingBackend}";
         public const string PROJECT_PATH_KEY = "{projectPath}";
         public const string PERSISTENT_DATA_PATH_KEY = "{persistentDataPath}";
-        public const string VERSION_KEY = "{version}";
         public const string CACHE_FOLDER_KEY = "{cacheFolderPath}";
         public const string UNITY_VERSION_KEY = "{unityVersion}";
         public const string DATE_KEY = "{date}";
@@ -31,6 +30,18 @@ namespace Wireframe
         public const string TASK_FAILED_REASONS_KEY = "{taskFailedReasons}";
         public const string BUILD_NAME_KEY = "{buildName}";
         public const string BUILD_NUMBER_KEY = "{buildNumber}";
+        
+        public const string VERSION_KEY = "{version}";
+        public const string VERSION_MAJOR_KEY = "{versionM}";
+        public const string VERSION_MINOR_KEY = "{versionO}";
+        public const string VERSION_PATCH_KEY = "{versionP}";
+        public const string VERSION_REVISION_KEY = "{versionR}";
+        
+        public const string VERSION_SEM_KEY = "{versionSem}";
+        public const string VERSION_MAJOR_SEM_KEY = "{versionMSem}";
+        public const string VERSION_MINOR_SEM_KEY = "{versionOSem}";
+        public const string VERSION_PATCH_SEM_KEY = "{versionPSem}";
+        public const string VERSION_REVISION_SEM_KEY = "{versionRSem}";
         
         static StringFormatter()
         {
@@ -45,7 +56,6 @@ namespace Wireframe
             Commands.Add(new Command(PROJECT_PATH_KEY, nameof(Context.ProjectPath), "The path of your Unity Project contains the Assets folder."));
             Commands.Add(new Command(PERSISTENT_DATA_PATH_KEY, nameof(Context.PersistentDataPath), "The path of the Persistent Data folder"));
             Commands.Add(new Command(CACHE_FOLDER_KEY, nameof(Context.CacheFolderPath), "The path where all files and builds are stored when build uploader is working."));
-            Commands.Add(new Command(VERSION_KEY, nameof(Context.Version), "The version of your project as specified in Player Settings."));
             Commands.Add(new Command(UNITY_VERSION_KEY, nameof(Context.UnityVersion), "The version of Unity you are using."));
             Commands.Add(new Command(DATE_KEY, nameof(Context.Date), "The current local date in the format YYYY-MM-DD."));
             Commands.Add(new Command(TIME_KEY, nameof(Context.Time), "The current local time in the format HH-MM-SS."));
@@ -56,6 +66,19 @@ namespace Wireframe
             Commands.Add(new Command(TASK_FAILED_REASONS_KEY, nameof(Context.UploadTaskFailText), "Gets the reasons why the task failed to upload all destinations."));
             Commands.Add(new Command(BUILD_NAME_KEY, nameof(Context.BuildName), "The name of the build as specified in a build config."));
             Commands.Add(new Command(BUILD_NUMBER_KEY, nameof(Context.BuildNumber), "The unique number of the build that is produced if enabled in Project Settings."));
+            
+            // Versions
+            Commands.Add(new Command(VERSION_KEY, nameof(Context.Version), "The version of your project as specified in Player Settings."));
+            Commands.Add(new Command(VERSION_MAJOR_KEY, nameof(Context.VersionMajor), "The version of your project as specified in Player Settings but only the major segment. eg: 1 from 1.2.3.4"));
+            Commands.Add(new Command(VERSION_MINOR_KEY, nameof(Context.VersionMinor), "The version of your project as specified in Player Settings but only the minor segment. eg: 2 from 1.2.3.4"));
+            Commands.Add(new Command(VERSION_PATCH_KEY, nameof(Context.VersionPatch), "The version of your project as specified in Player Settings but only the patch segment. eg: 3 from 1.2.3.4"));
+            Commands.Add(new Command(VERSION_REVISION_KEY, nameof(Context.VersionRevision), "The version of your project as specified in Player Settings but only the revision segment. eg: 4 from 1.2.3.4"));
+            
+            Commands.Add(new Command(VERSION_SEM_KEY, nameof(Context.VersionSem), "The version of your project as specified in Player Settings but with only numbers. eg: 1.2.3 from a1.2.3-beta1"));
+            Commands.Add(new Command(VERSION_MAJOR_SEM_KEY, nameof(Context.VersionMajorSem), "The major segment of the version of your project as specified in Player Settings but with only numbers. eg: 1 from a1.2.3-beta1"));
+            Commands.Add(new Command(VERSION_MINOR_SEM_KEY, nameof(Context.VersionMinorSem), "The minor segment of the version of your project as specified in Player Settings but with only numbers. eg: 2 from a1.2.3-beta1"));
+            Commands.Add(new Command(VERSION_PATCH_SEM_KEY, nameof(Context.VersionPatchSem), "The patch segment of the version of your project as specified in Player Settings but with only numbers. eg: 3 from a1.2.3-beta1"));
+            Commands.Add(new Command(VERSION_REVISION_SEM_KEY, nameof(Context.VersionRevisionSem), "The revision segment of the version of your project as specified in Player Settings but with only numbers. eg: 1 from a1.2.3-beta1"));
         }
 
         internal class Command
@@ -98,12 +121,21 @@ namespace Wireframe
             public Func<string> ProjectPath { get; set; } = ()=> Path.GetDirectoryName(Application.dataPath);
             public Func<string> PersistentDataPath { get; set; } = ()=> Application.persistentDataPath;
             public Func<string> CacheFolderPath { get; set; } = ()=> Preferences.CacheFolderPath;
-            public Func<string> Version { get; set; } = ()=> Application.version;
             public Func<string> UnityVersion { get; set; } = ()=> Application.unityVersion;
             public Func<string> Date { get; set; } = ()=> System.DateTime.Now.ToString("yyyy-MM-dd");
             public Func<string> Time { get; set; } = ()=> System.DateTime.Now.ToString("HH-mm-ss");
             public Func<string> DateTime { get; set; } = ()=> System.DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
             public Func<string> MachineName { get; set; } = ()=> Environment.MachineName;
+            public Func<string> Version { get; set; } = ()=> Application.version;
+            public Func<string> VersionMajor { get; set; } = ()=> Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Major);
+            public Func<string> VersionMinor { get; set; } = ()=> Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Minor);
+            public Func<string> VersionPatch { get; set; } = ()=> Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Patch);
+            public Func<string> VersionRevision { get; set; } = ()=> Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Revision);
+            public Func<string> VersionSem { get; set; } = ()=> Utils.ToSemantic(Application.version);
+            public Func<string> VersionMajorSem { get; set; } = ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Major));
+            public Func<string> VersionMinorSem { get; set; } = ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Minor));
+            public Func<string> VersionPatchSem { get; set; } = ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Patch));
+            public Func<string> VersionRevisionSem { get; set; } = ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Revision));
             
             [DoNotCache] public Func<string> TaskProfileName { get; set; }
             [DoNotCache] public Func<string> TaskDescription { get; set; }

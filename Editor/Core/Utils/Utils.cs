@@ -440,5 +440,47 @@ namespace Wireframe
         {
             return !string.IsNullOrEmpty(path) && File.Exists(path) || Directory.Exists(path);
         }
+        
+        public static string ToSemantic(string version)
+        {
+            StringBuilder summary = new StringBuilder();
+            foreach (char c in version)
+            {
+                if (char.IsDigit(c) || c == '.')
+                {
+                    summary.Append(c);
+                }
+            }
+
+            return summary.ToString();
+        }
+        
+        public enum VersionSegment
+        {
+            Major,
+            Minor,
+            Patch,
+            Revision
+        }
+        
+        public static string VersionSegmentToString(string version, VersionSegment segment)
+        {
+            // Split by . or -
+            // a1.2.3-rc1 -> ["a1","2","3","rc1"]
+            string[] strings = version.Split('.', '-');
+            switch (segment)
+            {
+                case VersionSegment.Major:
+                    return strings.Length > 0 ? strings[0] : "";
+                case VersionSegment.Minor:
+                    return strings.Length > 1 ? strings[1] : "";
+                case VersionSegment.Patch:
+                    return strings.Length > 2 ? strings[2] : "";
+                case VersionSegment.Revision:
+                    return strings.Length > 3 ? strings[3] : "";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(segment), segment, null);
+            }
+        }
     }
 }

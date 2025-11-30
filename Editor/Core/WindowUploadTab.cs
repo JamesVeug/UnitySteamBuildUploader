@@ -570,7 +570,8 @@ namespace Wireframe
         {
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Clear Description"), false, () => m_buildDescription = "");
-            menu.AddItem(new GUIContent("Set to " + Preferences.DefaultDescriptionFormat), false, () => m_buildDescription = Preferences.DefaultDescriptionFormat);
+            menu.AddItem(new GUIContent("Reset (" + Preferences.DefaultDescriptionFormat + ")"), false, () => m_buildDescription = Preferences.DefaultDescriptionFormat);
+            menu.AddSeparator("");
             menu.AddItem(new GUIContent("Set/Text file"), false, () =>
             {
                 // Choose file

@@ -470,6 +470,11 @@ namespace Wireframe
                 // Description
                 using (new EditorGUILayout.HorizontalScope())
                 {
+                    if (CustomSettingsIcon.OnGUI())
+                    {
+                        ShowEditDescriptionMenu();
+                    }
+                    
                     if (CustomFoldoutButton.OnGUI(m_descriptionFoldoutCollapsed))
                     {
                         m_descriptionFoldoutCollapsed = !m_descriptionFoldoutCollapsed;
@@ -502,11 +507,6 @@ namespace Wireframe
                     else
                     {
                         GUILayout.FlexibleSpace();
-                    }
-                    
-                    if (GUILayout.Button("Edit", GUILayout.MaxWidth(50)))
-                    {
-                        ShowEditDescriptionMenu();
                     }
                 }
 
@@ -569,8 +569,8 @@ namespace Wireframe
         private void ShowEditDescriptionMenu()
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Clear"), false, () => m_buildDescription = "");
-            menu.AddItem(new GUIContent("Reset"), false, () => m_buildDescription = Preferences.DefaultDescriptionFormat);
+            menu.AddItem(new GUIContent("Clear Description"), false, () => m_buildDescription = "");
+            menu.AddItem(new GUIContent("Set to " + Preferences.DefaultDescriptionFormat), false, () => m_buildDescription = Preferences.DefaultDescriptionFormat);
             menu.AddItem(new GUIContent("Set/Text file"), false, () =>
             {
                 // Choose file

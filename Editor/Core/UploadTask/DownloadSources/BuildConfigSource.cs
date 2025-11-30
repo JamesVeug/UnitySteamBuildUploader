@@ -129,7 +129,8 @@ namespace Wireframe
             BuildReport report = null;
             try
             {
-                m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
+                BuildUploaderProjectSettings.BumpBuildNumber();
+                m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings();
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
                 m_filePath = GetBuiltDirectory(ctx);

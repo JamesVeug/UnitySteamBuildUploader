@@ -45,7 +45,9 @@ namespace Wireframe
             GUILayout.Label("Build Meta Data", EditorStyles.boldLabel);
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIContent label = new GUIContent("Include Streaming Folder", "Include build number and more information in the streaming folder to be referenced in your project.");
+                GUIContent label = new GUIContent("Include Streaming Folder", 
+                    "Include a BuildData.json file in your builds StreamingAssets folder so your can reference the build number and other variables in your game." +
+                    "\n\nSee BuildMetaData.Get()");
                 GUILayout.Label(label, GUILayout.MaxWidth(150));
 
                 bool newInclude = GUILayout.Toggle(settings.IncludeBuildMetaDataInStreamingDataFolder, "");
@@ -58,13 +60,27 @@ namespace Wireframe
             
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIContent label = new GUIContent("Last Build Number", "Number of the last build created using the build uploader.");
+                GUIContent label = new GUIContent("Last Build Number", "Number of the last build created using the build uploader. This is used for {buildNumber} when formatting text fields in the build uploader. Access it in builds using BuildMetaData.Get().UploadNumber");
                 GUILayout.Label(label, GUILayout.MaxWidth(150));
                 
                 int newBuildNumber = EditorGUILayout.IntField(settings.LastBuildNumber);
                 if (newBuildNumber != settings.LastBuildNumber)
                 {
                     settings.LastBuildNumber = newBuildNumber;
+                    BuildUploaderProjectSettings.Save();
+                }
+            }
+            
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUIContent label = new GUIContent("Upload Tasks Started", 
+                    "How many upload tasks that have been started. This is used for {uploadNumber} when formatting text fields in the build uploader. Access it in builds using BuildMetaData.Get().UploadNumber");
+                GUILayout.Label(label, GUILayout.MaxWidth(150));
+                
+                int totalStartedUploadTasks = EditorGUILayout.IntField(settings.TotalUploadTasksStarted);
+                if (totalStartedUploadTasks != settings.TotalUploadTasksStarted)
+                {
+                    settings.TotalUploadTasksStarted = totalStartedUploadTasks;
                     BuildUploaderProjectSettings.Save();
                 }
             }

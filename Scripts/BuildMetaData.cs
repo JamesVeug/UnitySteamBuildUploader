@@ -8,12 +8,14 @@ namespace Wireframe
     public class BuildMetaData
     {
         public int BuildNumber;
+        public int UploadNumber;
 
         public static BuildMetaData Get()
         {
 #if UNITY_EDITOR
             BuildMetaData data = new BuildMetaData();
             data.BuildNumber = 123456789;
+            data.UploadNumber = 123456789;
             return data;
 #else
             
@@ -31,6 +33,7 @@ namespace Wireframe
             {
                 BuildMetaData data = new BuildMetaData();
                 data.BuildNumber = cloudBuildManifest.BuildNumber;
+                data.UploadNumber = cloudBuildManifest.BuildNumber;
                 return data;
             }
             

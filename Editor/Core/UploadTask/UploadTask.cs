@@ -120,6 +120,7 @@ namespace Wireframe
             PercentComplete = 0f;
             IsSuccessful = false;
             CurrentStep = AUploadTask_Step.StepType.Validation;
+            BuildUploaderProjectSettings.BumpUploadNumber();
 
             context.CacheCallbacks();
             for (var i = 0; i < uploadConfigs.Count; i++)

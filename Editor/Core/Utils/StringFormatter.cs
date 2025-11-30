@@ -30,6 +30,7 @@ namespace Wireframe
         public const string TASK_FAILED_REASONS_KEY = "{taskFailedReasons}";
         public const string BUILD_NAME_KEY = "{buildName}";
         public const string BUILD_NUMBER_KEY = "{buildNumber}";
+        public const string UPLOAD_NUMBER_KEY = "{uploadNumber}";
         
         public const string VERSION_KEY = "{version}";
         public const string VERSION_MAJOR_KEY = "{versionM}";
@@ -65,7 +66,8 @@ namespace Wireframe
             Commands.Add(new Command(TASK_DESCRIPTION_KEY, nameof(Context.TaskDescription), "The description of the current task being executed."));
             Commands.Add(new Command(TASK_FAILED_REASONS_KEY, nameof(Context.UploadTaskFailText), "Gets the reasons why the task failed to upload all destinations."));
             Commands.Add(new Command(BUILD_NAME_KEY, nameof(Context.BuildName), "The name of the build as specified in a build config."));
-            Commands.Add(new Command(BUILD_NUMBER_KEY, nameof(Context.BuildNumber), "The unique number of the build that is produced if enabled in Project Settings."));
+            Commands.Add(new Command(BUILD_NUMBER_KEY, nameof(Context.BuildNumber), "A unique number of the build that is produced."));
+            Commands.Add(new Command(UPLOAD_NUMBER_KEY, nameof(Context.UploadNumber), "A unique number of the upload task that's getting sources and uploading them."));
             
             // Versions
             Commands.Add(new Command(VERSION_KEY, nameof(Context.Version), "The version of your project as specified in Player Settings."));
@@ -113,6 +115,7 @@ namespace Wireframe
             public Func<string> ProductName { get; set; } = ()=> PlayerSettings.productName;
             public Func<string> BundleVersion { get; set; } = ()=> PlayerSettings.bundleVersion;
             public Func<string> CompanyName { get; set; } = ()=> PlayerSettings.companyName;
+            public Func<string> UploadNumber { get; set; } = ()=> (BuildUploaderProjectSettings.Instance.TotalUploadTasksStarted + 1).ToString();
             
             public Func<string> buildTarget { get; set; } = ()=> EditorUserBuildSettings.activeBuildTarget.ToString();
             public Func<string> buildArchitecture { get; set; } = ()=> BuildUtils.CurrentTargetArchitecture().ToString();

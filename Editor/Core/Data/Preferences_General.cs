@@ -139,7 +139,7 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
-                    new GUIContent("Auto generate Quick Upload options", "" +
+                    new GUIContent("Auto generate Quick Upload items", "" +
                                                                "If enabled, a new .cs file will be generated when recompiling code which will add Menu Items for each Upload Profile." +
                                                                "\n\nSee 'Window->Build Uploader->Quick Upload' when generated."),
                     GUILayout.Width(200));

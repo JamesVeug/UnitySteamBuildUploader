@@ -53,6 +53,12 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", value);
         }
         
+        public static bool AutoGenerateMenuItems
+        {
+            get => EditorPrefs.GetBool("BuildUploader_AutoGenerateMenuItems", true);
+            set => EditorPrefs.SetBool("BuildUploader_AutoGenerateMenuItems", value);
+        }
+        
         public static ShowIf ShowReportAfterUpload
         {
             get => (ShowIf)EditorPrefs.GetInt("BuildUploader_ShowReportAfterUpload", (int)ShowIf.Always);

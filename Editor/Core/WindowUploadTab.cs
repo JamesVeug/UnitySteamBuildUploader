@@ -856,7 +856,15 @@ namespace Wireframe
 
                     if (m_unloadedUploadProfiles.Count > 0)
                     {
-                        m_unloadedUploadProfiles.Sort((a,b)=>String.Compare(a.ProfileName, b.ProfileName, StringComparison.Ordinal));
+                        m_unloadedUploadProfiles.Sort((a,b)=>
+                        {
+                            int compare = String.Compare(a.ProfileName, b.ProfileName, StringComparison.Ordinal);
+                            if (compare == 0)
+                            {
+                                return String.Compare(a.GUID, b.GUID, StringComparison.Ordinal);
+                            }
+                            return compare;
+                        });
                         
                         string previouslySelectedGUID = ProjectEditorPrefs.GetString("BuildUploader.LastSelectedUploadProfileGUID", string.Empty);
                         if (string.IsNullOrEmpty(previouslySelectedGUID))

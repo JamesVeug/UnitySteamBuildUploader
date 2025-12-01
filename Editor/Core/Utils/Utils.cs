@@ -21,7 +21,7 @@ namespace Wireframe
             Overwrite,
         }
 
-        private static string s_packagePath = FindPackagePath();
+        internal static string s_packagePath = FindPackagePath();
 
         private static string FindPackagePath()
         {

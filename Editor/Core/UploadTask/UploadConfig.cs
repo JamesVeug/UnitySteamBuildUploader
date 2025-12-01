@@ -57,13 +57,13 @@ namespace Wireframe
         
         public List<string> GetAllErrors()
         {
-            List<string> warnings = new List<string>();
-            warnings.AddRange(GetSourceErrors());
-            warnings.AddRange(GetModifierErrors());
-            warnings.AddRange(GetDestinationErrors());
-            warnings.AddRange(GetActionErrors());
+            List<string> errors = new List<string>();
+            errors.AddRange(GetSourceErrors());
+            errors.AddRange(GetModifierErrors());
+            errors.AddRange(GetDestinationErrors());
+            errors.AddRange(GetActionErrors());
 
-            return warnings;
+            return errors;
         }
 
         public List<string> GetAllWarnings()

@@ -817,73 +817,29 @@ namespace Wireframe
             }
             else
             {
-                string[] files = Directory.GetFiles(UploadProfilePath, "*.json");
-                if (files.Length > 0)
+                List<UploadProfileMeta> metas = UploadProfileMeta.LoadFromProjectSettings();
+                if (metas.Count > 0)
                 {
-                    for (int j = 0; j < files.Length; j++)
+                    m_unloadedUploadProfiles.Clear();
+                    m_unloadedUploadProfiles.AddRange(metas);
+
+                    string previouslySelectedGUID = ProjectEditorPrefs.GetString("BuildUploader.LastSelectedUploadProfileGUID", string.Empty);
+                    if (string.IsNullOrEmpty(previouslySelectedGUID))
                     {
-                        string file = files[j];
-                        string json = File.ReadAllText(file);
-                        UploadProfileSavedData savedData;
-                        try
-                        {
-                            savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogWarning($"Failed to deserialize UploadProfileSavedData from file: {file}. Skipping this file.");
-                            Debug.LogException(e);
-                            continue;
-                        }
-
-                        if (savedData == null)
-                        {
-                            Debug.LogWarning($"Failed to deserialize UploadProfileSavedData from file: {file}. Skipping this file.");
-                            continue;
-                        }
-
-                        if (string.IsNullOrEmpty(savedData.GUID))
-                        {
-                            savedData.GUID = Guid.NewGuid().ToString().Substring(0, 6);
-                        }
-
-                        UploadProfileMeta metaData = new UploadProfileMeta();
-                        metaData.GUID = savedData.GUID;
-                        metaData.ProfileName = savedData.ProfileName;
-                        metaData.FilePath = file;
-                        m_unloadedUploadProfiles.Add(metaData);
+                        LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
                     }
-
-                    if (m_unloadedUploadProfiles.Count > 0)
+                    else if (m_unloadedUploadProfiles.Any(x => x.GUID == previouslySelectedGUID))
                     {
-                        m_unloadedUploadProfiles.Sort((a,b)=>
-                        {
-                            int compare = String.Compare(a.ProfileName, b.ProfileName, StringComparison.Ordinal);
-                            if (compare == 0)
-                            {
-                                return String.Compare(a.GUID, b.GUID, StringComparison.Ordinal);
-                            }
-                            return compare;
-                        });
-                        
-                        string previouslySelectedGUID = ProjectEditorPrefs.GetString("BuildUploader.LastSelectedUploadProfileGUID", string.Empty);
-                        if (string.IsNullOrEmpty(previouslySelectedGUID))
-                        {
-                            LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
-                        }
-                        else if (m_unloadedUploadProfiles.Any(x => x.GUID == previouslySelectedGUID))
-                        {
-                            // Load the previously selected profile
-                            UploadProfileMeta metaData = m_unloadedUploadProfiles.First(x => x.GUID == previouslySelectedGUID);
-                            LoadMetaDataFromPath(metaData);
-                        }
-                        else
-                        {
-                            // Load the first profile
-                            LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
-                        }
-                        return;
+                        // Load the previously selected profile
+                        UploadProfileMeta metaData = m_unloadedUploadProfiles.First(x => x.GUID == previouslySelectedGUID);
+                        LoadMetaDataFromPath(metaData);
                     }
+                    else
+                    {
+                        // Load the first profile
+                        LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
+                    }
+                    return;
                 }
             }
             
@@ -1020,17 +976,5 @@ namespace Wireframe
         }
 
 #pragma warning restore CS0618 // Type or member is obsolete
-    }
-    
-    public class UploadProfileMeta
-    {
-        public string GUID;
-        public string ProfileName;
-        public string FilePath;
-
-        public UploadProfileMeta()
-        {
-            
-        }
     }
 }

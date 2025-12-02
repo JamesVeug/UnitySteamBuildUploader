@@ -89,21 +89,16 @@ namespace Wireframe
         }
         
         /// <summary>
-        /// Called by auto generated code
+        /// Called by auto-generated code
         /// </summary>
         /// <param name="guid"></param>
         /// <param name="profileName"></param>
         public static void BeginUploadingProfile(string guid, string profileName)
         {
-            if (EditorUtility.DisplayDialog("Are you sure?",
-                    $"Are you sure you want to begin uploading '{profileName}'?" +
-                    $"\nThis may freeze Unity until its completed!", "Yes",
-                    "Cancel"))
-            {
-                UploadProfile profile = UploadProfile.FromGUID(guid);
-                UploadTask task = new UploadTask(profile);
-                task.StartAsync();
-            }
+            UploadProfileMeta metaData = new UploadProfileMeta();
+            metaData.GUID = guid;
+            metaData.ProfileName = profileName;
+            QuickUploadPopup.ShowWindow(metaData);
         }
 
         private static List<UploadProfileSavedData> GetFiles()

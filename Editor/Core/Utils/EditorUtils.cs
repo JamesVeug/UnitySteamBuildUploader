@@ -100,6 +100,46 @@ namespace Wireframe
             return false;
         }
 
+        public static bool DrawUploadProfileDropdown(ref UploadProfileMeta selectedProfile, List<UploadProfileMeta> profiles, StringFormatter.Context ctx)
+        {
+            List<string> profileNames = new List<string>();
+            profileNames.Add("-- Select Upload Profile --");
+                    
+            profileNames.AddRange(profiles.Select(p => StringFormatter.FormatString(p.ProfileName, ctx)));
+            for (int i = 1; i < profileNames.Count; i++)
+            {
+                profileNames[i] = $"{i}. {profileNames[i]}";
+            }
+
+            int selectedIndex = 0;
+            if (selectedProfile != null)
+            {
+                string guid = selectedProfile.GUID;
+                selectedIndex = profiles.FindIndex(a => a.GUID == guid);
+                if (selectedIndex != -1)
+                {
+                    selectedIndex++;
+                }
+            }
+
+            var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames.ToArray(), GUILayout.Width(150));
+            if (newSelectedIndex == selectedIndex)
+            {
+                return false;
+            }
+
+            if (newSelectedIndex <= 0)
+            {
+                selectedProfile = null;
+            }
+            else
+            {
+                selectedProfile = profiles[newSelectedIndex - 1];
+            }
+
+            return true;
+        }
+
         public static void DrawPopup<T>(List<T> selected, List<T> allOptions, string emptySelection, Action<List<T>> callback, params GUILayoutOption[] options) where T : DropdownElement
         {
             // TODO: Replace this with the actual popup with more lists/array shit?

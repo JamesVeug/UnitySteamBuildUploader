@@ -22,7 +22,7 @@ namespace Wireframe
                 keywords = keywords,
                 hasSearchInterestHandler = searchString=>
                 {
-                    return keywords.Any(a => a.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                    return keywords.Any(a => Utils.Contains(a, searchString, StringComparison.OrdinalIgnoreCase));
                 }
             };
 

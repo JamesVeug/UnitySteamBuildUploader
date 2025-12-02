@@ -22,45 +22,40 @@ namespace Wireframe
         
         public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result,string path, string args)
         {
-            ProcessStartInfo startInfo = new()
+            ProcessStartInfo startInfo = new ProcessStartInfo()
             {
                 FileName = path,
-
                 Arguments = args,
-
                 RedirectStandardOutput = true,
-
                 RedirectStandardError = true,
-
                 UseShellExecute = false,
-
                 CreateNoWindow = true
             };
 
             try
             {
-                using Process process = Process.Start(startInfo);
-
-                if (process == null)
+                using (Process process = Process.Start(startInfo))
                 {
-                    result.AddError("Failed to start process (process is null).");
-                    return new ProcessResult(false, "", "Failed to start process (process is null).");
+
+                    if (process == null)
+                    {
+                        result.AddError("Failed to start process (process is null).");
+                        return new ProcessResult(false, "", "Failed to start process (process is null).");
+                    }
+
+                    string output = await process.StandardOutput.ReadToEndAsync();
+                    string errors = await process.StandardError.ReadToEndAsync();
+
+                    process.WaitForExit();
+
+                    result.AddLog(output);
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        result.AddError(errors);
+                    }
+
+                    return new ProcessResult(process.ExitCode == 0, output, errors);
                 }
-
-                string output = await process.StandardOutput.ReadToEndAsync();
-
-                string errors = await process.StandardError.ReadToEndAsync();
-
-                process.WaitForExit();
-
-                result.AddLog(output);
-
-                if (!string.IsNullOrEmpty(errors))
-                {
-                    result.AddError(errors);
-                }
-
-                return new ProcessResult(process.ExitCode == 0, output, errors);
             }
             catch (Exception ex)
             {
@@ -68,6 +63,5 @@ namespace Wireframe
                 return new ProcessResult(false, "", ex.Message);
             }
         }
-
     }
 }

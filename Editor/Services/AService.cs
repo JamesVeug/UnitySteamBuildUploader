@@ -20,7 +20,7 @@ namespace Wireframe
                 return true;
             }
 
-            bool matchesSearchKeywords = SearchKeyworks.Any(a => a.Contains(search, StringComparison.OrdinalIgnoreCase));
+            bool matchesSearchKeywords = SearchKeyworks.Any(a => Utils.Contains(a, search, StringComparison.OrdinalIgnoreCase));
             return matchesSearchKeywords;
         }
     }

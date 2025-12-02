@@ -152,7 +152,7 @@ namespace Wireframe
 
         public override Dictionary<string, object> Serialize()
         {
-            Dictionary<string, object> dict = new();
+            Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrganizationID"] = Organization?.ID;
             dict["ProductID"] = Product?.ID;
             dict["ArtifactID"] = Artifact?.ID;

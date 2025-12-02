@@ -199,23 +199,9 @@ namespace Wireframe
 
             public Context()
             {
-                TaskProfileName = ()=> parent != null ? parent.TaskProfileName() : "<TaskProfileName>";
-                TaskDescription = ()=> parent != null ? parent.TaskDescription() : "<TaskDescription>";
-                UploadTaskFailText = () => parent != null ? parent.UploadTaskFailText() : "<UploadTaskFailText>";
-                
-                BuildName = () => "<BuildName>";
-                BuildNumber = () => "<BuildNumber>";
-                
-                DestinationLocalPath = () => "<DestinationLocalPath>";
-                SteamAppName = () => "<SteamAppName>";
-                SteamBranchName = () => "<SteamBranchName>";
-                SteamDepotName = () => "<SteamDepotName>";
-                ItchioUserName = () => "<ItchioUserName>";
-                ItchioGameName = () => "<ItchioGameName>";
-                ItchioChannelName = () => "<ItchioChannelName>";
-                EpicGamesOrganizationName = () => "<EpicGamesOrganizationName>";
-                EpicGamesProductName = () => "<EpicGamesProductName>";
-                EpicGamesArtifactName = () => "<EpicGamesArtifactName>";
+                TaskProfileName = ()=> parent != null ? parent.TaskProfileName() : null;
+                TaskDescription = ()=> parent != null ? parent.TaskDescription() : null;
+                UploadTaskFailText = () => parent != null ? parent.UploadTaskFailText() : null;
             }
             
             public void SetParent(Context context)
@@ -225,6 +211,11 @@ namespace Wireframe
 
             internal string Get(string key, string fieldName, Func<string> getter)
             {
+                if (getter == null)
+                {
+                    return key.Replace("}", ">").Replace("{", "<");
+                }
+                
                 foreach (IContextModifier modifier in modifiers)
                 {
                     if (modifier.ReplaceString(key, out string value, this))
@@ -286,9 +277,16 @@ namespace Wireframe
                     int index = Utils.IndexOf(format, command.Key, StringComparison.OrdinalIgnoreCase);
                     while (index >= 0)
                     {
-                        string formattedValue = context.Get(command.Key, command.FieldName, command.Formatter(context));
-                        format = Utils.Replace(format, command.Key, formattedValue, StringComparison.OrdinalIgnoreCase);
-                        index = Utils.IndexOf(format, command.Key, StringComparison.OrdinalIgnoreCase);
+                        Func<Context, Func<string>> formatter = command.Formatter;
+                        if (formatter == null)
+                        {
+                            format = command.Key.Replace("{", "<").Replace("}", ">");
+                        }
+                        else{
+                            string formattedValue = context.Get(command.Key, command.FieldName, formatter(context));
+                            format = Utils.Replace(format, command.Key, formattedValue, StringComparison.OrdinalIgnoreCase);
+                            index = Utils.IndexOf(format, command.Key, StringComparison.OrdinalIgnoreCase);
+                        }
                     }
                 }
             }

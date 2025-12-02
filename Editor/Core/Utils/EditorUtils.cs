@@ -14,6 +14,7 @@ namespace Wireframe
             StringBuilder tooltipBuilder = new StringBuilder();
             tooltipBuilder.AppendLine("Show the text as it will appear with formats:");
 
+            Func<string> temp = () => "???";
             int maximum = 30;
             foreach (StringFormatter.Command command in StringFormatter.Commands.OrderBy(a=>a.Key))
             {
@@ -25,7 +26,9 @@ namespace Wireframe
                 
                 tooltipBuilder.Append(command.Key);
                 tooltipBuilder.Append(" - ");
-                tooltipBuilder.AppendLine(ctx.Get(command.Key, command.FieldName, command.Formatter(ctx)));
+
+                Func<string> formatter = command.Formatter(ctx) ?? temp;
+                tooltipBuilder.AppendLine(ctx.Get(command.Key, command.FieldName, formatter));
             }
             
             return tooltipBuilder.ToString();

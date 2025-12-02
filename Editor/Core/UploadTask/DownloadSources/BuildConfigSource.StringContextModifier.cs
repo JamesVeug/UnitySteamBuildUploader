@@ -16,7 +16,7 @@ namespace Wireframe
             { StringFormatter.BUILD_NAME_KEY, (b) => b.BuildConfigContext.BuildName }
         };
         
-        public bool ReplaceString(string key, out string value)
+        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
         {
             if (key == StringFormatter.BUILD_NUMBER_KEY)
             {

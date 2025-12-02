@@ -10,7 +10,7 @@ namespace Wireframe
             
         };
         
-        public bool ReplaceString(string key, out string value)
+        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
         {
             if (s_StringGetters.TryGetValue(key, out var func))
             {
@@ -22,7 +22,7 @@ namespace Wireframe
             {
                 foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
                 {
-                    if (config.ReplaceString(key, out value))
+                    if (config.ReplaceString(key, out value, ctx))
                     {
                         return true;
                     }

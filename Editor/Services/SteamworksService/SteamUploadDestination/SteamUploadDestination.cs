@@ -38,7 +38,7 @@ namespace Wireframe
         private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
         
         private SteamApp m_uploadApp;
-        private List<DepotVDFFile> m_uploadDepots = new List<DepotVDFFile>();
+        private List<SteamDepot> m_uploadDepots = new List<SteamDepot>();
         private SteamBranch m_uploadBranch;
         private string m_appPath;
         private List<string> m_depotPaths = new List<string>();
@@ -122,8 +122,10 @@ namespace Wireframe
                 result.AddLog("Creating new app file: " + m_appPath);
                 m_uploadApp = new SteamApp(m_app);
                 m_uploadBranch = new SteamBranch(m_destinationBranch);
-                m_uploadDepots = m_depots.Select(a=>new SteamDepot(a).Depot).ToList();
-                string appFiles = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, m_uploadDepots, m_uploadBranch.name, buildDescription, m_cachedFolderPath, result, suffix);
+                m_uploadDepots = m_depots.Select(a=>new SteamDepot(a)).ToList();
+                
+                var depots = m_uploadDepots.Select(a=>a.Depot).ToList();
+                string appFiles = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, depots, m_uploadBranch.name, buildDescription, m_cachedFolderPath, result, suffix);
                 if (string.IsNullOrEmpty(appFiles))
                 {
                     // NOTE: SetFailed called in CreateAppFiles
@@ -132,7 +134,7 @@ namespace Wireframe
                 m_appPath = appFiles; 
                 
                 result.AddLog("Creating new depot files");
-                foreach (DepotVDFFile file in m_uploadDepots)
+                foreach (DepotVDFFile file in depots)
                 {
                     string depotFiles = await SteamSDK.Instance.CreateDepotFiles(file, m_uploadBranch.name, result, suffix);
                     if (string.IsNullOrEmpty(depotFiles))
@@ -266,7 +268,7 @@ namespace Wireframe
             base.CleanUp(stepResult);
             
             m_uploadApp = null;
-            m_uploadDepots = new List<DepotVDFFile>();
+            m_uploadDepots = new List<SteamDepot>();
             m_uploadBranch = null;
             
             if (m_createAppFile)

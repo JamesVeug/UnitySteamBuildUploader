@@ -10,11 +10,11 @@
             AddModifier(this);
         }
 
-        public bool ReplaceString(string key, out string value)
+        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
         {
             foreach (UploadConfig config in task.UploadConfigs)
             {
-                if (config.ReplaceString(key, out value))
+                if (config.ReplaceString(key, out value, ctx))
                 {
                     return true;
                 }

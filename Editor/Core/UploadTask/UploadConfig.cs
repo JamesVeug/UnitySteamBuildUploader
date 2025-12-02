@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public partial class UploadConfig : StringFormatter.IContextModifier
+    public partial class UploadConfig
     {
         public bool Enabled { get; set; } = true;
         public string GUID { get; private set; }
@@ -473,28 +473,6 @@ namespace Wireframe
             
             ModifierData modifierData = new ModifierData(modifier);
             m_modifiers.Add(modifierData);
-        }
-
-        public bool ReplaceString(string key, out string value)
-        {
-            foreach (SourceData source in Sources)
-            {
-                if (!source.Enabled)
-                {
-                    continue;
-                }
-                        
-                if (source.Source is StringFormatter.IContextModifier modifier)
-                {
-                    if (modifier.ReplaceString(key, out value))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            value = "";
-            return false;
         }
     }
 }

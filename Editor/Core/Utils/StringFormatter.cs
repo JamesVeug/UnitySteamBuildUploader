@@ -211,11 +211,6 @@ namespace Wireframe
 
             internal string Get(string key, string fieldName, Func<string> getter)
             {
-                if (getter == null)
-                {
-                    return key.Replace("}", ">").Replace("{", "<");
-                }
-                
                 foreach (IContextModifier modifier in modifiers)
                 {
                     if (modifier.ReplaceString(key, out string value, this))
@@ -229,6 +224,11 @@ namespace Wireframe
                     return cachedValue;
                 }
                 
+                if (getter == null)
+                {
+                    return key.Replace("}", ">").Replace("{", "<");
+                }
+
                 return getter();
             }
 

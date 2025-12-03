@@ -49,12 +49,15 @@ namespace Wireframe
                 displayedPath = emptyPathText;
             }
             
-            GUIStyle style = Utils.PathExists(displayedPath) ? pathButtonExistsStyle : pathButtonDoesNotExistStyle;
-            if (GUILayout.Button(displayedPath, style))
-            {
-                string newPath = EditorUtility.OpenFolderPanel("Select Folder to upload", displayedPath, "");
-                fullPath = newPath;
-                return true;
+            bool warning = !Utils.PathExists(displayedPath);
+            bool error = string.IsNullOrEmpty(displayedPath) || Utils.PathContainsInvalidCharacters(displayedPath);
+            using(ButtonStyleScope scope = new ButtonStyleScope(warning, error)){
+                if (GUILayout.Button(displayedPath, scope.style))
+                {
+                    string newPath = EditorUtility.OpenFolderPanel("Select Folder to upload", displayedPath, "");
+                    fullPath = newPath;
+                    return true;
+                }
             }
 
             return false;

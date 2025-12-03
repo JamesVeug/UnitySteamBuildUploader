@@ -45,7 +45,8 @@ namespace Wireframe
                 return icon;
             }
 
-            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(s_packagePath + "/" + iconPath, typeof(Object));
+            string path = Path.Combine(s_packagePath, "Assets", iconPath);
+            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
             if (loadAssetAtPath is Texture2D texture)
             {
                 s_Icons[iconPath] = texture;
@@ -56,12 +57,13 @@ namespace Wireframe
             return null;
         }
 
-        public static Texture2D WindowIcon => TryGetIcon("Icon.png");
-        public static Texture2D ErrorIcon => TryGetIcon("erroricon.png");
-        public static Texture2D WarningIcon => TryGetIcon("warningicon.png");
+        public static bool IsDarkMode => EditorGUIUtility.isProSkin;
+        public static Texture2D WindowIcon => TryGetIcon(IsDarkMode ? "Icon.png" : "IconLight.png");
+        public static Texture2D ErrorIcon => TryGetIcon(IsDarkMode ? "errorIcon.png" : "errorIconLight.png");
+        public static Texture2D WarningIcon => TryGetIcon(IsDarkMode ? "warningIcon.png" : "warningIconLight.png");
         public static Texture2D FoldoutOpenIcon => TryGetIcon("FoldoutOpen.png");
         public static Texture2D FoldoutClosedIcon => TryGetIcon("FoldoutClosed.png");
-        public static Texture2D SettingsIcon => TryGetIcon("Settings.png");
+        public static Texture2D SettingsIcon => TryGetIcon(IsDarkMode ? "Settings.png" : "SettingsLight.png");
         
         public static bool IsPathADirectory(string path)
         {

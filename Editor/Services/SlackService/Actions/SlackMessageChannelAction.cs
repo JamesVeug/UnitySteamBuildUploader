@@ -28,6 +28,45 @@ namespace Wireframe
 
         [Wiki("Attachments", "A list of attached messages with the message. This is optional and can be used to format the message nicely.", 5)]
         private List<Slack.Attachment> m_attachments = new List<Slack.Attachment>();
+
+        public SlackMessageChannelAction()
+        {
+            // Required for reflection
+        }
+
+        public void SetApp(string token)
+        {
+            m_app = new SlackConfig.SlackApp()
+            {
+                Token = token
+            };
+        }
+
+        public void SetServer(long serverID)
+        {
+            m_server = new SlackConfig.SlackServer()
+            {
+                ServerID = serverID
+            };
+        }
+
+        public void SetChannel(string channelID)
+        {
+            m_channel = new SlackConfig.SlackChannel()
+            {
+                ChannelID = channelID
+            };
+        }
+
+        public void SetText(string text)
+        {
+            m_text = text;
+        }
+
+        public void AddAttachment(Slack.Attachment attachment)
+        {
+            m_attachments.Add(attachment);
+        }
         
         public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {

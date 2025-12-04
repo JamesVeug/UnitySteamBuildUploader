@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -42,6 +43,56 @@ namespace Wireframe
 
         [Wiki("Embeds", "A list of embeds to send with the message. This is optional and can be used to format the message nicely.", 5)]
         private List<Embed> m_embeds = new List<Embed>();
+
+        public DiscordMessageChannelAction() : base()
+        {
+            // Required for reflection
+        }
+
+        public void SetApp(string token)
+        {
+            m_app = new DiscordConfig.DiscordApp()
+            {
+                Token =  token
+            };
+        }
+        
+        public void SetServer(long channel)
+        {
+            m_channel = new DiscordConfig.DiscordChannel()
+            {
+                ChannelID = channel
+            };
+        }
+        
+        public void SetChannel(long channel)
+        {
+            m_channel = new DiscordConfig.DiscordChannel()
+            {
+                ChannelID = channel
+            };
+        }
+
+        public void SetText(string text)
+        {
+            m_text = text;
+        }
+
+        public void AddEmbed(string title, string description, Color color)
+        {
+            Embed embed = new Embed()
+            {
+                title = title,
+                description = description,
+                color = "#" + ColorUtility.ToHtmlStringRGB(color),
+            };
+            AddEmbed(embed);
+        }
+
+        public void AddEmbed(Embed embed)
+        {
+            m_embeds.Add(embed);
+        }
         
         public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {

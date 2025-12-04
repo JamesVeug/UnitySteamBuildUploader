@@ -433,7 +433,7 @@ namespace Wireframe
             m_buildDestinations.Add(destinationData);
         }
         
-        public void AddAction(PostUploadActionData action)
+        public void AddPostAction(PostUploadActionData action)
         {
             if (action == null)
             {
@@ -443,14 +443,14 @@ namespace Wireframe
             m_postActions.Add(action);
         }
         
-        public void AddAction(AUploadAction action)
+        public void AddPostAction(AUploadAction action, PostUploadActionData.UploadCompleteStatus completeStatus = PostUploadActionData.UploadCompleteStatus.Always)
         {
             if (action == null)
             {
                 return;
             }
             
-            PostUploadActionData actionData = new PostUploadActionData(action);
+            PostUploadActionData actionData = new PostUploadActionData(action, completeStatus);
             m_postActions.Add(actionData);
         }
         

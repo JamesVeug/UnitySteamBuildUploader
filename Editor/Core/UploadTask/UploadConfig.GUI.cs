@@ -711,7 +711,7 @@ namespace Wireframe
             {
                 if (GUILayout.Button("Add New Acton"))
                 {
-                    AddAction(new PostUploadActionData()
+                    AddPostAction(new PostUploadActionData()
                     {
                         WhenToExecute = PostUploadActionData.UploadCompleteStatus.Always
                     });

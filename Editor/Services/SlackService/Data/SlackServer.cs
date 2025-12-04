@@ -17,7 +17,7 @@ namespace Wireframe
             public string DisplayName => Name;
 
             public string Name;
-            public int ServerID;
+            public long ServerID;
             public List<SlackChannel> channels;
             
             private int m_id;
@@ -31,7 +31,7 @@ namespace Wireframe
                 channels = new List<SlackChannel>(2);
             }
             
-            public SlackServer(int id, string displayName, int serverId)
+            public SlackServer(int id, string displayName, long serverId)
             {
                 m_id = id;
                 Name = displayName;

@@ -244,7 +244,7 @@ namespace Wireframe {
                 }
                 
                 
-                EditorGUILayout.LabelField(line, style);
+                EditorGUILayout.TextField(line, style);
             }
         }
 

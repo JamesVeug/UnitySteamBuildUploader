@@ -30,7 +30,10 @@ namespace Wireframe
         {
             using (new EditorGUILayout.HorizontalScope())
             {   
+                Color temp = GUI.color;
+                GUI.color = Utils.PathExists(EpicGames.SDKPath) ? Color.green : Color.red;
                 GUILayout.Label(new GUIContent("BuildPatch Path:", "The path to the EpicGamesSDK folder. Build Uploader uses this to upload files to EpicGames."), GUILayout.Width(105));
+                GUI.color = temp;
                 
                 if (GUILayout.Button("?", GUILayout.Width(20)))
                 {

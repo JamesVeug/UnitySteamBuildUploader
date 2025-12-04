@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -42,20 +43,8 @@ namespace Wireframe
             string clientSecret,
             string appArgs = "")
         {
-            string exePath = "";
-            if (Application.platform == RuntimePlatform.WindowsEditor)
-            {
-                exePath = Path.Combine(SDKPath, "Engine", "Binaries", "Win64", "BuildPatchTool.exe");
-            }
-            else if (Application.platform == RuntimePlatform.OSXEditor)
-            {
-                exePath = Path.Combine(SDKPath, "Engine", "Binaries", "Mac", "BuildPatchTool");
-            }
-            else if (Application.platform == RuntimePlatform.LinuxEditor)
-            {
-                exePath = Path.Combine(SDKPath, "Engine", "Binaries", "Linux", "BuildPatchTool");
-            }
-            else
+            string exePath = GetEXEPath();
+            if (string.IsNullOrEmpty(exePath))
             {
                 result.SetFailed("Unsupported platform for BuildPatchTool: " + Application.platform);
                 return false;
@@ -182,6 +171,35 @@ namespace Wireframe
             
             // TODO: Check for errors that we may have missed
             return true;
+        }
+
+        public static void ShowConsole()
+        {
+            var process = new Process();
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            process.StartInfo.FileName = "cmd.exe";
+            process.StartInfo.Arguments = $"/k \"{GetEXEPath()}\" -help"; // /k keeps the window open
+            process.EnableRaisingEvents = true;
+            process.Start();
+        }
+
+        public static string GetEXEPath()
+        {
+            string exePath = "";
+            if (Application.platform == RuntimePlatform.WindowsEditor)
+            {
+                exePath = Path.Combine(SDKPath, "Engine", "Binaries", "Win64", "BuildPatchTool.exe");
+            }
+            else if (Application.platform == RuntimePlatform.OSXEditor)
+            {
+                exePath = Path.Combine(SDKPath, "Engine", "Binaries", "Mac", "BuildPatchTool");
+            }
+            else if (Application.platform == RuntimePlatform.LinuxEditor)
+            {
+                exePath = Path.Combine(SDKPath, "Engine", "Binaries", "Linux", "BuildPatchTool");
+            }
+            
+            return exePath;
         }
     }
 }

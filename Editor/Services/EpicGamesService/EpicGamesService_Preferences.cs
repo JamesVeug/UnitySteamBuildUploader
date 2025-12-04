@@ -30,6 +30,22 @@ namespace Wireframe
         {
             using (new EditorGUILayout.HorizontalScope())
             {   
+                GUILayout.Label("Epic Games uses the Build Patch tool to upload builds to Epic Games Store.");
+
+                GUILayout.ExpandWidth(true);
+                if (GUILayout.Button("Developer Portal", GUILayout.Width(125)))
+                {
+                    Application.OpenURL("https://dev.epicgames.com/portal");
+                }
+                if (GUILayout.Button("Docs", GUILayout.Width(50)))
+                {
+                    Application.OpenURL("https://dev.epicgames.com/docs");
+                }
+            }
+            GUILayout.Label("NOTE: There is no support in the BPT for assigning labels or publishing so that will need to be done manually.");
+            
+            using (new EditorGUILayout.HorizontalScope())
+            {   
                 Color temp = GUI.color;
                 GUI.color = Utils.PathExists(EpicGames.SDKPath) ? Color.green : Color.red;
                 GUILayout.Label(new GUIContent("BuildPatch Path:", "The path to the EpicGamesSDK folder. Build Uploader uses this to upload files to EpicGames."), GUILayout.Width(105));
@@ -44,6 +60,11 @@ namespace Wireframe
                 if (CustomFolderPathTextField.OnGUI("EpicGamesSDK Folder", ref path, ref showFormattedSDKPath, ctx))
                 {
                     EpicGames.SDKPath = path;
+                }
+                
+                if (GUILayout.Button("CMD", GUILayout.Width(50)))
+                {
+                    EpicGames.ShowConsole();
                 }
             }
             

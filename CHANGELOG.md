@@ -1,3 +1,50 @@
+# 3.1.0
+
+## Highlights
+- Improved visual support for Unity Light Mode
+- Can now upload to Epic Games Store
+- Can now send messages to Slack via API
+- Can now perform actions per Upload Config
+- Steam Destination supports uploading to multiple depots.
+- Lots more string formatting options
+
+## What's new
+- Added Epic Games Store destination
+- Added Slack service to send messages via API
+- Added Post Upload Config actions
+- Added Steam Destination support for uploading to multiple depots.
+- Added Compression option to BuildConfigs
+- Added context option to duplicate Upload Profiles
+- Added description format field to steam,itchio,github destinations to override description.
+- Added preference option to make all text field format toffles start on
+- Added preference option to toggle deleting of vdf files when uploading to Steamworks
+- Added more versioning string formatting. Major, Minor, Patch, Revision and Semantic.
+- Added `{uploadNumber}` string format to represent the unique number of the upload task.
+- Added string formatting for steam/itchio/epic/local path to get certain info.
+- Added auto-generated Menu Items to quickly upload from `Window->BuildUploader->Quick Upload` 
+- Added context options that add extra new source/destination via upload config settings.
+- Added context option top build config scenes to remove invalid scenes
+- Added missing helper setter methods to Discord message action
+
+## What's changed
+- Steam Destination selecting an app file been revamped to be more user friendly.
+- Improved Upload Task UX around auto-following logs and not being able to expand steps.
+- ProjectSettings/Services has a tab per service now
+- Description Edit button has been moved to the left and changed to a settings icon
+- Changed Description "Reset" context option to show its reset text
+- Fixed string format tooltips show ??? instead of the key to reduce clutter
+- Changed discord server ID to a long so it can actually be used
+
+## What's fixed
+- Fixed unable to load UploadProfiles due to unhandled JSON 
+- Fixed only 1 Upload Profile showing in dropdown when multiple with the same name exist.
+- Fixed various edge case where duplicate scenes is possible in Build Configs.
+- Fixed Discord message clearing text after a new line
+- Fixed ProjectSettings/Preferences not properly filtering with expected keywords.
+- Fixed some string formatting not working in discord messages. eg: {buildNumber}
+- Fixed double quote characters breaking JSON deserialization in some edge cases.
+- Fixed new lines not serializing properly in some text fields.
+
 # 3.0.2
 
 ## What's new

@@ -205,7 +205,8 @@ namespace Wireframe {
                     }
 
                     string codeSnippet = line.Substring(startIndex + 1, endIndex - startIndex - 1);
-                    string coloredSnippet = $"<color=yellow>{codeSnippet}</color>";
+                    string color = Utils.IsDarkMode ? "#FFFB00" : "#7F7900";
+                    string coloredSnippet = $"<color={color}>{codeSnippet}</color>";
                     line = line.Replace($"`{codeSnippet}`", coloredSnippet);
                     
                     startIndex = line.IndexOf('`', endIndex + 1);
@@ -243,7 +244,7 @@ namespace Wireframe {
                 }
                 
                 
-                EditorGUILayout.LabelField(line, style);
+                EditorGUILayout.TextField(line, style);
             }
         }
 

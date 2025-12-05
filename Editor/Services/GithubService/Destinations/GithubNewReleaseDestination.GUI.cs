@@ -5,11 +5,12 @@ namespace Wireframe
 {
     public partial class GithubNewReleaseDestination
     {
-        private bool m_showFormattedOwner;
-        private bool m_showFormattedRepo;
-        private bool m_showFormattedReleaseName;
-        private bool m_showFormattedTagName;
-        private bool m_showFormattedTarget;
+        private bool m_showFormattedOwner = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedRepo = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedReleaseName = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedTagName = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedTarget = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
         {
@@ -76,6 +77,13 @@ namespace Wireframe
             {
                 GUILayout.Label("Zip Contents:", GUILayout.Width(120));
                 isDirty |= CustomToggle.DrawToggle(ref m_zipContents);
+            }
+
+            using (new GUILayout.HorizontalScope())
+            {
+                GUIContent label = new GUIContent("Description Format:", "Description to appears on the package.");
+                GUILayout.Label(label, GUILayout.Width(120));
+                isDirty |= EditorUtils.FormatStringTextArea(ref m_descriptionFormat, ref m_showFormattedDescription, ctx);
             }
         }
     }

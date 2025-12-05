@@ -32,8 +32,9 @@ namespace Wireframe
                     continue;
                 }
                 List<UploadConfig.DestinationData> destinations = buildConfigs[i].Destinations.Where(a=>a.Enabled).ToList();
+                List<UploadConfig.PostUploadActionData> actions = buildConfigs[i].Actions.Where(a=>a.WhenToExecute != UploadConfig.PostUploadActionData.UploadCompleteStatus.Never).ToList();
 
-                Task<bool> upload = Upload(uploadTask, i, destinations, report);
+                Task<bool> upload = Upload(uploadTask, i, destinations, actions, report);
                 uploads.Add(new Tuple<List<UploadConfig.DestinationData>, Task<bool>>(destinations, upload));
             }
             
@@ -66,7 +67,9 @@ namespace Wireframe
         }
 
         private async Task<bool> Upload(UploadTask uploadTask, int configIndex,
-            List<UploadConfig.DestinationData> destinations, UploadTaskReport report)
+            List<UploadConfig.DestinationData> destinations, 
+            List<UploadConfig.PostUploadActionData> actions,
+            UploadTaskReport report)
         {
             int uploadID = ProgressUtils.Start(Type.ToString(), $"Uploading Config {configIndex + 1}");
 
@@ -116,9 +119,49 @@ namespace Wireframe
                 await Task.Yield();
             }
             
+            await FireActions(actions, allSuccessful, report);
+            
             
             ProgressUtils.Remove(uploadID);
             return allSuccessful;
+        }
+        
+        private async Task FireActions(List<UploadConfig.PostUploadActionData> actions, bool allSuccessful, UploadTaskReport report)
+        {
+            for (var i = 0; i < actions.Count; i++)
+            {
+                UploadConfig.PostUploadActionData actionData = actions[i];
+                UploadTaskReport.StepResult actionResult = report.NewReport(StepType.PostUploadActions);
+                actionResult.AddLog($"Executing post upload action: {i+1}");
+                
+                UploadConfig.PostUploadActionData.UploadCompleteStatus status = actionData.WhenToExecute;
+                if ((status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfSuccessful && !allSuccessful) ||
+                    (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfFailed && allSuccessful))
+                {
+                    actionResult.AddLog($"Skipping post upload action {i+1} because it doesn't match the current status. Status: {status}. Successful: {allSuccessful}");
+                    continue;
+                }
+                
+                bool prepared = await actionData.UploadAction.Prepare(actionResult);
+                if (!prepared)
+                {
+                    actionResult.AddError($"Failed to prepare post upload action: {actionData.UploadAction.GetType().Name}");
+                    continue;
+                }
+
+                try
+                {
+                    await actionData.UploadAction.Execute(actionResult, m_context);
+                }
+                catch (Exception e)
+                {
+                    actionResult.AddException(e);
+                }
+                finally
+                {
+                    actionResult.SetPercentComplete(1f);
+                }
+            }
         }
 
         private async Task<bool> UploadDestinationWrapper(AUploadDestination destinationDataDestination, UploadTaskReport.StepResult result, UploadConfig config)

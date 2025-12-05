@@ -10,7 +10,6 @@ namespace Wireframe
     public abstract partial class AUploadDestination
     {
         protected string m_cachedFolderPath;
-        protected string m_buildDescription;
 
         public AUploadDestination()
         {
@@ -25,15 +24,13 @@ namespace Wireframe
         /// <param name="configIndex">Index of the upload config that contains this destination</param>
         /// <param name="destinationIndex">Index of the destination in the config to upload</param>
         /// <param name="cachedFolderPath">The files we want to upload</param>
-        /// <param name="buildDescription">Formatted description the user chose for the build</param>
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
         /// <param name="ctx">Context for formatting strings such as {version}</param>
         /// <returns>True if successfully prepared</returns>
         public virtual Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex, string cachedFolderPath,
-            string buildDescription, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+            UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
         {
             m_cachedFolderPath = cachedFolderPath;
-            m_buildDescription = buildDescription;
             stepResult.AddLog("No preparation needed for destination");
             return Task.FromResult(true);
         }

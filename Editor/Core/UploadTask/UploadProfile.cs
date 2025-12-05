@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -13,7 +12,6 @@ namespace Wireframe
         // The name of the profile, used to identify it in the UI
         public string ProfileName;
         
-        // 
         public List<UploadConfig> UploadConfigs = new List<UploadConfig>();
         public List<UploadConfig.PostUploadActionData> PostUploadActions = new List<UploadConfig.PostUploadActionData>();
         
@@ -43,7 +41,7 @@ namespace Wireframe
             foreach (string file in files)
             {
                 string json = File.ReadAllText(file);
-                GUIDOnly minimal = JsonUtility.FromJson<GUIDOnly>(json);
+                GUIDOnly minimal = JSON.DeserializeObject<GUIDOnly>(json);
                 if (minimal.GUID == guid)
                 {
                     return FromPath(file);
@@ -73,7 +71,7 @@ namespace Wireframe
             foreach (string file in files)
             {
                 string json = File.ReadAllText(file);
-                NameOnly minimal = JsonUtility.FromJson<NameOnly>(json);
+                NameOnly minimal = JSON.DeserializeObject<NameOnly>(json);
                 if (minimal.ProfileName == profileName)
                 {
                     return FromPath(file);

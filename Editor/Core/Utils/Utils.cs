@@ -21,7 +21,7 @@ namespace Wireframe
             Overwrite,
         }
 
-        private static string s_packagePath = FindPackagePath();
+        internal static string s_packagePath = FindPackagePath();
 
         private static string FindPackagePath()
         {
@@ -45,7 +45,8 @@ namespace Wireframe
                 return icon;
             }
 
-            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(s_packagePath + "/" + iconPath, typeof(Object));
+            string path = Path.Combine(s_packagePath, "Assets", iconPath);
+            Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
             if (loadAssetAtPath is Texture2D texture)
             {
                 s_Icons[iconPath] = texture;
@@ -56,12 +57,13 @@ namespace Wireframe
             return null;
         }
 
-        public static Texture2D WindowIcon => TryGetIcon("Icon.png");
-        public static Texture2D ErrorIcon => TryGetIcon("erroricon.png");
-        public static Texture2D WarningIcon => TryGetIcon("warningicon.png");
+        public static bool IsDarkMode => EditorGUIUtility.isProSkin;
+        public static Texture2D WindowIcon => TryGetIcon(IsDarkMode ? "Icon.png" : "IconLight.png");
+        public static Texture2D ErrorIcon => TryGetIcon(IsDarkMode ? "errorIcon.png" : "errorIconLight.png");
+        public static Texture2D WarningIcon => TryGetIcon(IsDarkMode ? "warningIcon.png" : "warningIconLight.png");
         public static Texture2D FoldoutOpenIcon => TryGetIcon("FoldoutOpen.png");
         public static Texture2D FoldoutClosedIcon => TryGetIcon("FoldoutClosed.png");
-        public static Texture2D SettingsIcon => TryGetIcon("Settings.png");
+        public static Texture2D SettingsIcon => TryGetIcon(IsDarkMode ? "Settings.png" : "SettingsLight.png");
         
         public static bool IsPathADirectory(string path)
         {
@@ -439,6 +441,48 @@ namespace Wireframe
         public static bool PathExists(string path)
         {
             return !string.IsNullOrEmpty(path) && File.Exists(path) || Directory.Exists(path);
+        }
+        
+        public static string ToSemantic(string version)
+        {
+            StringBuilder summary = new StringBuilder();
+            foreach (char c in version)
+            {
+                if (char.IsDigit(c) || c == '.')
+                {
+                    summary.Append(c);
+                }
+            }
+
+            return summary.ToString();
+        }
+        
+        public enum VersionSegment
+        {
+            Major,
+            Minor,
+            Patch,
+            Revision
+        }
+        
+        public static string VersionSegmentToString(string version, VersionSegment segment)
+        {
+            // Split by . or -
+            // a1.2.3-rc1 -> ["a1","2","3","rc1"]
+            string[] strings = version.Split('.', '-');
+            switch (segment)
+            {
+                case VersionSegment.Major:
+                    return strings.Length > 0 ? strings[0] : "";
+                case VersionSegment.Minor:
+                    return strings.Length > 1 ? strings[1] : "";
+                case VersionSegment.Patch:
+                    return strings.Length > 2 ? strings[2] : "";
+                case VersionSegment.Revision:
+                    return strings.Length > 3 ? strings[3] : "";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(segment), segment, null);
+            }
         }
     }
 }

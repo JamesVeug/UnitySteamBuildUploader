@@ -84,7 +84,7 @@ namespace Wireframe
                         using (new GUILayout.HorizontalScope())
                         {
                             GUILayout.Label("Server ID:", GUILayout.Width(120));
-                            int newConfigName = EditorGUILayout.IntField(m_SelectedServer.ServerID);
+                            long newConfigName = EditorGUILayout.LongField(m_SelectedServer.ServerID);
                             if (newConfigName != m_SelectedServer.ServerID)
                             {
                                 m_SelectedServer.ServerID = newConfigName;

@@ -35,6 +35,12 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_AutoFocusNewUploadTask", value);
         }
         
+        public static bool DefaultShowFormattedTextToggle
+        {
+            get => EditorPrefs.GetBool("BuildUploader_DefaultShowFormattedTextToggle", true);
+            set => EditorPrefs.SetBool("BuildUploader_DefaultShowFormattedTextToggle", value);
+        }
+        
         public static bool AutoSaveReportToCacheFolder
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveReportToCacheFolder", false);
@@ -45,6 +51,12 @@ namespace Wireframe
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", true);
             set => EditorPrefs.SetBool("BuildUploader_AutoSaveBuildConfigsAfterChanges", value);
+        }
+        
+        public static bool AutoGenerateMenuItems
+        {
+            get => EditorPrefs.GetBool("BuildUploader_AutoGenerateMenuItems", true);
+            set => EditorPrefs.SetBool("BuildUploader_AutoGenerateMenuItems", value);
         }
         
         public static ShowIf ShowReportAfterUpload

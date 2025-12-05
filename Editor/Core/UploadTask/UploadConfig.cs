@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-    public partial class UploadConfig : StringFormatter.IContextModifier
+    public partial class UploadConfig
     {
         public bool Enabled { get; set; } = true;
         public string GUID { get; private set; }
@@ -13,10 +13,12 @@ namespace Wireframe
         public List<SourceData> Sources => m_buildSources;
         public List<ModifierData > Modifiers => m_modifiers;
         public List<DestinationData> Destinations => m_buildDestinations;
+        public List<PostUploadActionData> Actions => m_postActions;
 
         private List<SourceData> m_buildSources;
         private List<ModifierData> m_modifiers;
         private List<DestinationData> m_buildDestinations;
+        private List<PostUploadActionData> m_postActions;
         
         private StringFormatter.Context m_context;
 
@@ -32,6 +34,7 @@ namespace Wireframe
             m_buildSources = new List<SourceData>();
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
+            m_postActions = new List<PostUploadActionData>();
             
             m_context = new StringFormatter.Context();
             m_context.AddModifier(this);
@@ -47,18 +50,20 @@ namespace Wireframe
             m_buildSources.Clear();
             m_modifiers.Clear();
             m_buildDestinations.Clear();
+            m_postActions.Clear();
             
             m_context = null;
         }
         
         public List<string> GetAllErrors()
         {
-            List<string> warnings = new List<string>();
-            warnings.AddRange(GetSourceErrors());
-            warnings.AddRange(GetModifierErrors());
-            warnings.AddRange(GetDestinationErrors());
+            List<string> errors = new List<string>();
+            errors.AddRange(GetSourceErrors());
+            errors.AddRange(GetModifierErrors());
+            errors.AddRange(GetDestinationErrors());
+            errors.AddRange(GetActionErrors());
 
-            return warnings;
+            return errors;
         }
 
         public List<string> GetAllWarnings()
@@ -67,6 +72,7 @@ namespace Wireframe
             warnings.AddRange(GetSourceWarnings());
             warnings.AddRange(GetModifierWarnings());
             warnings.AddRange(GetDestinationWarnings());
+            warnings.AddRange(GetActionWarnings());
 
             return warnings;
         }
@@ -115,6 +121,28 @@ namespace Wireframe
             return errors;
         }
         
+        public List<string> GetActionErrors()
+        {
+            List<string> errors = new List<string>();
+            foreach (PostUploadActionData action in m_postActions)
+            {
+                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never)
+                {
+                    continue;
+                }
+                
+                if (action.ActionType == null)
+                {
+                    errors.Add("Action type not set");
+                    continue;
+                }
+                
+                action.UploadAction.TryGetErrors(errors, m_context);
+            }
+            
+            return errors;
+        }
+        
         public List<string> GetModifierWarnings()
         {
             List<string> warnings = new List<string>();
@@ -126,6 +154,22 @@ namespace Wireframe
                 }
                 
                 modifier.Modifier.TryGetWarnings(this, warnings);
+            }
+            
+            return warnings;
+        }
+        
+        public List<string> GetActionWarnings()
+        {
+            List<string> warnings = new List<string>();
+            foreach (PostUploadActionData action in m_postActions)
+            {
+                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never || action.UploadAction == null)
+                {
+                    continue;
+                }
+                
+                action.UploadAction.TryGetWarnings(warnings, m_context);
             }
             
             return warnings;
@@ -301,6 +345,29 @@ namespace Wireframe
                 }
             }
 
+            for (int i = 0; i < m_postActions.Count; i++)
+            {
+                var action = m_postActions[i];
+                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never)
+                {
+                    continue;
+                }
+                
+                if (action.UploadAction == null)
+                {
+                    reason = $"Action #{i+1} is not setup";
+                    return false;
+                }
+
+                List<string> errors = new List<string>();
+                action.UploadAction.TryGetErrors(errors, m_context);
+                if (errors.Count > 0)
+                {
+                    reason = $"Action #{i+1}: " + string.Join(", ", errors);
+                    return false;
+                }
+            }
+
             reason = "";
             return true;
         }
@@ -366,6 +433,27 @@ namespace Wireframe
             m_buildDestinations.Add(destinationData);
         }
         
+        public void AddPostAction(PostUploadActionData action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+            
+            m_postActions.Add(action);
+        }
+        
+        public void AddPostAction(AUploadAction action, PostUploadActionData.UploadCompleteStatus completeStatus = PostUploadActionData.UploadCompleteStatus.Always)
+        {
+            if (action == null)
+            {
+                return;
+            }
+            
+            PostUploadActionData actionData = new PostUploadActionData(action, completeStatus);
+            m_postActions.Add(actionData);
+        }
+        
         public void AddModifier(ModifierData modifier)
         {
             if (modifier == null)
@@ -385,28 +473,6 @@ namespace Wireframe
             
             ModifierData modifierData = new ModifierData(modifier);
             m_modifiers.Add(modifierData);
-        }
-
-        public bool ReplaceString(string key, out string value)
-        {
-            foreach (SourceData source in Sources)
-            {
-                if (!source.Enabled)
-                {
-                    continue;
-                }
-                        
-                if (source.Source is StringFormatter.IContextModifier modifier)
-                {
-                    if (modifier.ReplaceString(key, out value))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            value = "";
-            return false;
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Wireframe
         private GUIStyle m_subTitleStyle;
         private Vector2 m_scrollPosition;
         private string m_buildDescription;
-        private bool m_showFormattedDescription = false;
+        private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
         private bool m_isDirty;
         private Vector2 m_descriptionScrollPosition;
         private bool m_descriptionFoldoutCollapsed;
@@ -84,12 +84,21 @@ namespace Wireframe
                     profileNames.Add("-- Select Upload Profile --");
                     
                     profileNames.AddRange(m_unloadedUploadProfiles.Select(p => StringFormatter.FormatString(p.ProfileName, m_context)));
-                    int selectedIndex = m_unloadedUploadProfiles.FindIndex(a=>a.GUID == m_currentUploadProfile.GUID);
-                    if (selectedIndex != -1)
+                    for (int i = 1; i < profileNames.Count; i++)
                     {
-                        selectedIndex++;
+                        profileNames[i] = $"{i}. {profileNames[i]}";
                     }
-                    
+
+                    int selectedIndex = 0;
+                    if (m_currentUploadProfile != null)
+                    {
+                        selectedIndex = m_unloadedUploadProfiles.FindIndex(a => a.GUID == m_currentUploadProfile.GUID);
+                        if (selectedIndex != -1)
+                        {
+                            selectedIndex++;
+                        }
+                    }
+
                     var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames.ToArray(), GUILayout.Width(150));
                     if (newSelectedIndex < 0)
                     {
@@ -139,28 +148,39 @@ namespace Wireframe
                             });
                         });
 
-                        if (m_unloadedUploadProfiles.Count > 1)
+                        menu.AddMenuItem("Duplicate Upload Profile", false, () =>
                         {
-                            menu.AddItem(new GUIContent("Delete"), false, () =>
+                            UploadProfileSavedData data = UploadProfileSavedData.FromUploadProfile(m_currentUploadProfile);
+                            string json = JSON.SerializeObject(data);
+                            UploadProfileSavedData deserializedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+                            UploadProfile duplicateProfile = deserializedData.ToUploadProfile();
+                            duplicateProfile.GUID = Guid.NewGuid().ToString().Substring(0, 6);
+                            duplicateProfile.ProfileName += " (Copy)";
+                            m_currentUploadProfileData = CreateMetaData(duplicateProfile);
+                            m_unloadedUploadProfiles.Add(m_currentUploadProfileData);
+                            m_currentUploadProfile = duplicateProfile;
+                            m_isDirty = true;
+                        }, m_currentUploadProfile == null);
+                        
+                        menu.AddMenuItem("Delete", false, () =>
+                        {
+                            if (EditorUtility.DisplayDialog("Delete Upload Profile",
+                                    "Are you sure you want to delete this upload profile?", "Yes", "No"))
                             {
-                                if (EditorUtility.DisplayDialog("Delete Upload Profile",
-                                        "Are you sure you want to delete this upload profile?", "Yes", "No"))
+                                int index = m_unloadedUploadProfiles.FindIndex(a =>
+                                    a.GUID == m_currentUploadProfile.GUID);
+                                UploadProfileMeta meta = m_unloadedUploadProfiles[index];
+                                if (!string.IsNullOrEmpty(meta.FilePath))
                                 {
-                                    int index = m_unloadedUploadProfiles.FindIndex(a =>
-                                        a.GUID == m_currentUploadProfile.GUID);
-                                    UploadProfileMeta meta = m_unloadedUploadProfiles[index];
-                                    if (!string.IsNullOrEmpty(meta.FilePath))
-                                    {
-                                        File.Delete(meta.FilePath);
-                                    }
-
-                                    m_unloadedUploadProfiles.RemoveAt(index);
-                                    int newIndex = Mathf.Clamp(index, 0, m_unloadedUploadProfiles.Count - 1);
-                                    LoadMetaDataFromPath(m_unloadedUploadProfiles[newIndex]);
-                                    m_isDirty = true;
+                                    File.Delete(meta.FilePath);
                                 }
-                            });
-                        }
+
+                                m_unloadedUploadProfiles.RemoveAt(index);
+                                int newIndex = Mathf.Clamp(index, 0, m_unloadedUploadProfiles.Count - 1);
+                                LoadMetaDataFromPath(m_unloadedUploadProfiles[newIndex]);
+                                m_isDirty = true;
+                            }
+                        }, m_unloadedUploadProfiles.Count <= 1);
                         
                         menu.AddSeparator("");
                         menu.AddItem(new GUIContent("-- Create New Upload Profile --"), false, () =>
@@ -177,6 +197,11 @@ namespace Wireframe
 
                         menu.ShowAsContext();
                     }
+                }
+
+                if (m_currentUploadProfile == null)
+                {
+                    return;
                 }
 
                 // Builds to upload
@@ -257,6 +282,26 @@ namespace Wireframe
                                     
                                     m_isDirty = true;
                                 }
+                            });
+                            
+                            menu.AddSeparator("");
+                            
+                            menu.AddItem(new GUIContent("Add Source"), false, () =>
+                            {
+                                uploadConfig.AddSource(new UploadConfig.SourceData()
+                                {
+                                    Enabled = true,
+                                });
+                                m_isDirty = true;
+                            });
+                            
+                            menu.AddItem(new GUIContent("Add Destination"), false, () =>
+                            {
+                                uploadConfig.AddDestination(new UploadConfig.DestinationData()
+                                {
+                                    Enabled = true,
+                                });
+                                m_isDirty = true;
                             });
                             
                             menu.AddSeparator("");
@@ -425,6 +470,11 @@ namespace Wireframe
                 // Description
                 using (new EditorGUILayout.HorizontalScope())
                 {
+                    if (CustomSettingsIcon.OnGUI())
+                    {
+                        ShowEditDescriptionMenu();
+                    }
+                    
                     if (CustomFoldoutButton.OnGUI(m_descriptionFoldoutCollapsed))
                     {
                         m_descriptionFoldoutCollapsed = !m_descriptionFoldoutCollapsed;
@@ -457,11 +507,6 @@ namespace Wireframe
                     else
                     {
                         GUILayout.FlexibleSpace();
-                    }
-                    
-                    if (GUILayout.Button("Edit", GUILayout.MaxWidth(50)))
-                    {
-                        ShowEditDescriptionMenu();
                     }
                 }
 
@@ -524,8 +569,9 @@ namespace Wireframe
         private void ShowEditDescriptionMenu()
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Clear"), false, () => m_buildDescription = "");
-            menu.AddItem(new GUIContent("Reset"), false, () => m_buildDescription = Preferences.DefaultDescriptionFormat);
+            menu.AddItem(new GUIContent("Clear Description"), false, () => m_buildDescription = "");
+            menu.AddItem(new GUIContent("Reset (" + Preferences.DefaultDescriptionFormat + ")"), false, () => m_buildDescription = Preferences.DefaultDescriptionFormat);
+            menu.AddSeparator("");
             menu.AddItem(new GUIContent("Set/Text file"), false, () =>
             {
                 // Choose file
@@ -765,61 +811,35 @@ namespace Wireframe
                     Debug.Log("SteamBuildData exists from a previous version. Migrating it over");
                     LoadOldUploadTabDataFromPath(Application.persistentDataPath + "/SteamBuilder/WindowUploadTab.json");
                     
-                    // TODO: Delete the old file
                     Save();
                     return;
                 }
             }
             else
             {
-                string[] files = Directory.GetFiles(UploadProfilePath, "*.json");
-                if (files.Length > 0)
+                List<UploadProfileMeta> metas = UploadProfileMeta.LoadFromProjectSettings();
+                if (metas.Count > 0)
                 {
-                    for (int j = 0; j < files.Length; j++)
+                    m_unloadedUploadProfiles.Clear();
+                    m_unloadedUploadProfiles.AddRange(metas);
+
+                    string previouslySelectedGUID = ProjectEditorPrefs.GetString("BuildUploader.LastSelectedUploadProfileGUID", string.Empty);
+                    if (string.IsNullOrEmpty(previouslySelectedGUID))
                     {
-                        string file = files[j];
-                        string json = File.ReadAllText(file);
-                        UploadProfileSavedData savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
-                        if (savedData == null)
-                        {
-                            Debug.LogWarning($"Failed to deserialize UploadProfileSavedData from file: {file}. Skipping this file.");
-                            continue;
-                        }
-
-                        if (string.IsNullOrEmpty(savedData.GUID))
-                        {
-                            savedData.GUID = Guid.NewGuid().ToString().Substring(0, 6);
-                        }
-
-                        UploadProfileMeta metaData = new UploadProfileMeta();
-                        metaData.GUID = savedData.GUID;
-                        metaData.ProfileName = savedData.ProfileName;
-                        metaData.FilePath = file;
-                        m_unloadedUploadProfiles.Add(metaData);
+                        LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
                     }
-
-                    if (m_unloadedUploadProfiles.Count > 0)
+                    else if (m_unloadedUploadProfiles.Any(x => x.GUID == previouslySelectedGUID))
                     {
-                        m_unloadedUploadProfiles.Sort((a,b)=>String.Compare(a.ProfileName, b.ProfileName, StringComparison.Ordinal));
-                        
-                        string previouslySelectedGUID = ProjectEditorPrefs.GetString("BuildUploader.LastSelectedUploadProfileGUID", string.Empty);
-                        if (string.IsNullOrEmpty(previouslySelectedGUID))
-                        {
-                            LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
-                        }
-                        else if (m_unloadedUploadProfiles.Any(x => x.GUID == previouslySelectedGUID))
-                        {
-                            // Load the previously selected profile
-                            UploadProfileMeta metaData = m_unloadedUploadProfiles.First(x => x.GUID == previouslySelectedGUID);
-                            LoadMetaDataFromPath(metaData);
-                        }
-                        else
-                        {
-                            // Load the first profile
-                            LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
-                        }
-                        return;
+                        // Load the previously selected profile
+                        UploadProfileMeta metaData = m_unloadedUploadProfiles.First(x => x.GUID == previouslySelectedGUID);
+                        LoadMetaDataFromPath(metaData);
                     }
+                    else
+                    {
+                        // Load the first profile
+                        LoadMetaDataFromPath(m_unloadedUploadProfiles[0]);
+                    }
+                    return;
                 }
             }
             
@@ -868,12 +888,18 @@ namespace Wireframe
             defaultProfile.ProfileName = profileName;
             m_currentUploadProfile = defaultProfile;
             
+            UploadProfileMeta meta = CreateMetaData(defaultProfile);
+            m_unloadedUploadProfiles.Add(meta);
+            m_currentUploadProfileData = meta;
+        }
+
+        private static UploadProfileMeta CreateMetaData(UploadProfile defaultProfile)
+        {
             UploadProfileMeta defaultMetaData = new UploadProfileMeta();
             defaultMetaData.GUID = defaultProfile.GUID;
             defaultMetaData.ProfileName = defaultProfile.ProfileName;
             defaultMetaData.FilePath = Path.Combine(UploadProfilePath, $"{defaultMetaData.GUID}.json");
-            m_unloadedUploadProfiles.Add(defaultMetaData);
-            m_currentUploadProfileData = defaultMetaData;
+            return defaultMetaData;
         }
 
         private void LoadMetaDataFromPath(UploadProfileMeta metaData)
@@ -950,17 +976,5 @@ namespace Wireframe
         }
 
 #pragma warning restore CS0618 // Type or member is obsolete
-    }
-    
-    public class UploadProfileMeta
-    {
-        public string GUID;
-        public string ProfileName;
-        public string FilePath;
-
-        public UploadProfileMeta()
-        {
-            
-        }
     }
 }

@@ -129,7 +129,8 @@ namespace Wireframe
             BuildReport report = null;
             try
             {
-                m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings(true);
+                BuildUploaderProjectSettings.BumpBuildNumber();
+                m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings();
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
                 m_filePath = GetBuiltDirectory(ctx);
@@ -328,7 +329,7 @@ namespace Wireframe
 
             if (report.summary.result == BuildResult.Succeeded)
             {
-                LastBuildUtil.SetLastBuild(m_filePath, ctx.BuildName());
+                LastBuildUtil.SetLastBuild(m_filePath, StringFormatter.FormatString(StringFormatter.BUILD_NAME_KEY, ctx));
                 if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
                 {
                     stepResult.AddLog("Saving build meta data to StreamingAssets folder");

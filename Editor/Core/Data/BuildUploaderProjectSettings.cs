@@ -27,6 +27,7 @@ namespace Wireframe
         public int Version;
         public bool IncludeBuildMetaDataInStreamingDataFolder = true;
         public int LastBuildNumber = 0;
+        public int TotalUploadTasksStarted = 0;
 
         public BuildUploaderProjectSettings()
         {
@@ -122,19 +123,28 @@ namespace Wireframe
             string json = JsonUtility.ToJson(meta, true);
             File.WriteAllText(streamingAssetPath + "/BuildData.json", json);
         }
+        
+        public static void BumpUploadNumber()
+        {
+            BuildUploaderProjectSettings settings = BuildUploaderProjectSettings.Instance;
+            settings.TotalUploadTasksStarted++;
+            BuildUploaderProjectSettings.Save();
+        }
+        
+        public static void BumpBuildNumber()
+        {
+            BuildUploaderProjectSettings settings = BuildUploaderProjectSettings.Instance;
+            settings.LastBuildNumber++;
+            BuildUploaderProjectSettings.Save();
+        }
 
-        public static BuildMetaData CreateFromProjectSettings(bool bumpBuildNumber)
+        public static BuildMetaData CreateFromProjectSettings()
         {
             BuildUploaderProjectSettings settings = BuildUploaderProjectSettings.Instance;
 
-            if (bumpBuildNumber)
-            {
-                settings.LastBuildNumber++;
-                BuildUploaderProjectSettings.Save();
-            }
-
             BuildMetaData metaData = new BuildMetaData();
             metaData.BuildNumber = settings.LastBuildNumber;
+            metaData.UploadNumber = settings.TotalUploadTasksStarted;
             
             return metaData;
         }

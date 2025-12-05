@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Wireframe
@@ -18,10 +19,7 @@ namespace Wireframe
             }
         }
 
-        public int Count
-        {
-            get { return Data.Count; }
-        }
+        public int Count => Data.Count;
 
         public List<MapData> GetData()
         {

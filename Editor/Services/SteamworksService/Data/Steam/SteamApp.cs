@@ -32,6 +32,31 @@ namespace Wireframe
             Depots = new List<SteamDepot>(current.Depots);
             ConfigBranches = new List<SteamBranch>(current.ConfigBranches);
         }
+
+        public SteamApp(AppVDFFile appFile)
+        {
+            App = new AppVDFFile(appFile);
+            
+            ConfigBranches.Add(new SteamBranch(1, "none"));
+            
+            if (!string.IsNullOrEmpty(appFile.setlive) && !appFile.setlive.Equals("none", StringComparison.OrdinalIgnoreCase))
+            {
+                ConfigBranches.Add(new SteamBranch(2, appFile.setlive));
+            }
+            
+            foreach (VdfMap<int, string>.MapData depotData in appFile.depots.GetData())
+            {
+                DepotVDFFile depotVDF = VDFFile.Load<DepotVDFFile>(depotData.Value);
+                if (depotVDF == null)
+                {
+                    continue;
+                }
+                
+                SteamDepot depot = new SteamDepot(Depots.Count + 1, depotVDF.FileName);
+                depot.Depot = depotVDF;
+                Depots.Add(depot);
+            }
+        }
     }
 
     [Serializable]

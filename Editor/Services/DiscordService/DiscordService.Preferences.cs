@@ -9,8 +9,6 @@ namespace Wireframe
 
         public override void PreferencesGUI()
         {
-            GUILayout.Label("Discord", EditorStyles.boldLabel);
-
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Apps are created on the developer dashboard.");

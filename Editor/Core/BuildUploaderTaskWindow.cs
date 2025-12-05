@@ -37,11 +37,12 @@ namespace Wireframe
         private string m_OpenTaskGUID = "";
         private Dictionary<AUploadTask_Step.StepType, (bool, Vector2)> m_OpenTaskSteps;
         private bool m_FollowLogs = true;
+        private bool m_AutoFollowingLogs = true;
 
         public void Update()
         {
             bool anyRunning = UploadTask.AllTasks.Any(t => !t.IsComplete);
-            if (anyRunning)
+            if (anyRunning || m_FollowLogs)
             {
                 // Force repaint to update progress bars
                 Repaint();
@@ -280,10 +281,18 @@ namespace Wireframe
                         }
                         
                         EditorGUILayout.Space(5);
-                        using (new EditorGUILayout.HorizontalScope())
+                        using (new EditorGUI.DisabledScope(t.IsComplete))
                         {
-                            // Follow logs toggle
-                            m_FollowLogs = GUILayout.Toggle(m_FollowLogs, "Follow Logs", EditorStyles.miniButton, GUILayout.Width(100));
+                            using (new EditorGUILayout.HorizontalScope())
+                            {
+                                // Follow logs toggle
+                                var newFollowLogs = GUILayout.Toggle(m_FollowLogs && !t.IsComplete, "Follow Logs", EditorStyles.miniButton, GUILayout.Width(100));
+                                if (newFollowLogs != m_FollowLogs)
+                                {
+                                    m_FollowLogs = newFollowLogs;
+                                    m_AutoFollowingLogs = false;
+                                }
+                            }
                         }
 
                         // Show logs in a scrollable area
@@ -336,8 +345,16 @@ namespace Wireframe
 
                             // Default to showing all steps
                             string label = logs > 0 ? $"{stepType} ({logs} logs)" : stepType.ToString();
-                            stepUI.foldout = EditorGUILayout.Foldout(stepUI.foldout, label, true);
-                            if (stepUI.foldout)
+                            bool oldFoldout = stepUI.foldout;
+                            var newFoldout = EditorGUILayout.Foldout(oldFoldout, label, true);
+                            if (oldFoldout != newFoldout)
+                            {
+                                stepUI.foldout = newFoldout;
+                                m_FollowLogs = false;
+                                m_AutoFollowingLogs = false;
+                            }
+
+                            if (newFoldout)
                             {
                                 // Show logs for this step
                                 StringBuilder sb = new StringBuilder();
@@ -347,6 +364,13 @@ namespace Wireframe
                                 EditorGUILayout.EndScrollView();
                             }
                             m_OpenTaskSteps[stepType] = stepUI;
+                        }
+                            
+                        if (m_FollowLogs && m_AutoFollowingLogs && t.IsComplete)
+                        {
+                            m_AutoFollowingLogs = false;
+                            m_FollowLogs = false;
+                            m_OpenTaskSteps.Clear();
                         }
                     }
                 }
@@ -363,6 +387,7 @@ namespace Wireframe
 
             m_OpenTaskGUID = uploadTask.GUID;
             m_FollowLogs = true;
+            m_AutoFollowingLogs = true;
         }
 
         private DateTime m_lastReportRead = DateTime.MinValue;

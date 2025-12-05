@@ -1,8 +1,8 @@
 {
   "displayName": "Build Uploader",
   "name": "com.veugeljame.builduploader",
-  "unity": "2022.3",
-  "description": "Open Source Editor tool that streamlines uploading builds to online services such as Steam.\nOptional Unity Cloud support.",
+  "unity": "6000.3",
+  "description": "Open Source Editor tool that simplifies making and uploading builds to services such as Steam,Itchio,Epic Games then sending message to Discord or Slack.",
   "category": "Tool",
   "keywords": [
     "steam",
@@ -14,8 +14,15 @@
     "steampipe",
     "depot",
     "itchio",
-    "github"
+    "github",
+    "epic",
+    "epicgames",
+    "games",
+    "discord",
+    "slack",
+    "message",
+    "notification"
   ],
-  "version": "3.0.2",
+  "version": "3.1.0",
   "dependencies": {}
 }

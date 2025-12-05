@@ -2,6 +2,11 @@
 {
     public abstract partial class AUploadDestination
     {
+        public virtual void OnPreGUI(ref bool isDirty, StringFormatter.Context ctx)
+        {
+            
+        }
+        
         /// <summary>
         /// Draw a 1 line summary of the source 
         /// Executed when the Upload Config is collapsed

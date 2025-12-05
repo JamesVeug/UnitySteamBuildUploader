@@ -7,7 +7,6 @@ namespace Wireframe
     {
         public override void PreferencesGUI()
         {
-            GUILayout.Label("Github", EditorStyles.boldLabel);
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 Github.Enabled = GUILayout.Toggle(Github.Enabled, "Enabled");

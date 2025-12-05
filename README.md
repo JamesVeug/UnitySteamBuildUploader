@@ -2,11 +2,11 @@
 
 <h1 align="center">Build Uploader</h1>
 
-<p align="center">Unity Editor Tool For Uploading Builds To Online Services.</p>
+<p align="center">Unity Editor Tool For Making And Uploading Builds To Online Services.</p>
 
-<p align="center">Steamworks | Itch.io | Github</p>
+<p align="center">Steamworks | Itch.io | Epic Games | Github | Discord | Slack</p>
 
-<p align="center">Open Source | Commercial Use</p>
+<p align="center">Open Source | For Commercial Use</p>
 
 <hr>
 
@@ -16,7 +16,7 @@
 
 ## Key Points 💡
 - Windows, Mac, Linux support
-- Unity Supported
+- Unity Supported (Light and Dark)
   - Unity 6000.x
   - Unity 202x
   - Unity 2020 and 2019
@@ -26,12 +26,18 @@
   - Windows, Mac, Linux, Webgl
 - Services
   - Steamworks
-    - Uploading a build to any branch or depot
+    - Uploading a build to any branch or depots
     - DRM wrap (anti-piracy)
   - Itch.io
     - Uploading a build
+  - Epic Games
+    - Upload builds to specific artifacts
   - Github
     - Upload a new Release
+  - Discord
+    - Send message to a channel
+  - Slack
+    - Send message to a channel
   - Unity Cloud Build
     - View, download and start builds
 - Safely modify builds before uploading
@@ -82,7 +88,7 @@ Include:
 - Make your changes
 - Create a pull request to the `develop` branch
   - Include detailed description of the changes you made and why
-  - Include what version of Unity you tested it on
+  - Include what versions of Unity you tested it on
   - Include any concerns with the changes you made (So i'm aware of them too)
 
 
@@ -90,9 +96,11 @@ Include:
 
 A lot of effort has been put into this package for others to freely use. Any kind of support is greatly appreciated and encourages further work!
 
-- Star ⭐ the [Github repository](https://github.com/JamesVeug/UnitySteamBuildUploader)
-- Review this package on the [Asset Store](https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907)
-- Buy me a coffee: https://buymeacoffee.com/jamesgamesnz
+- ⭐ Star the [Github repository](https://github.com/JamesVeug/UnitySteamBuildUploader)
+- ✍️ Purchase and review on the  [Asset Store](https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907)
+- ☕ Buy me a coffee: [buymeacoffee](https://buymeacoffee.com/jamesgamesnz)
+- 💬 Report bug reports or suggestions improvements: [Github Issues](https://github.com/JamesVeug/UnitySteamBuildUploader/issues)
+- 🔗 Share the package with your friends and colleagues
 
 ## License 🪪
 Creative Commons - CC0 1.0 Universal

@@ -16,6 +16,9 @@ namespace Wireframe
         
         [Wiki("Channels", "Which platforms to upload to (lower case). eg: windows,mac,linux,android.")]
         private List<ItchioChannel> m_channels;
+        
+        [Wiki("Description Format", "What description to appear on Itchio attached to the build. Typically short and listed as the version eg: 'v1.0.0'")]
+        private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
 
         public ItchioDestination() : base()
         {
@@ -55,7 +58,7 @@ namespace Wireframe
 
             string user = StringFormatter.FormatString(m_user.Name, ctx);
             string game = StringFormatter.FormatString(m_game.Name, ctx);
-            string version = m_buildDescription;
+            string version = StringFormatter.FormatString(m_descriptionFormat, ctx);
             List<string> channels = m_channels.ConvertAll((a)=>StringFormatter.FormatString(a.Name, ctx));
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
@@ -88,6 +91,11 @@ namespace Wireframe
             {
                 errors.Add("No channels specified");
             }
+
+            if (string.IsNullOrEmpty(m_descriptionFormat))
+            {
+                errors.Add("Description format is empty");
+            }
         }
 
         public override Dictionary<string, object> Serialize()
@@ -96,7 +104,8 @@ namespace Wireframe
             {
                 ["user"] = m_user?.Id,
                 ["game"] = m_game?.Id,
-                ["channels"] = m_channels.Select(a=>a.Id).ToList()
+                ["channels"] = m_channels.Select(a=>a.Id).ToList(),
+                ["descriptionFormat"] = m_descriptionFormat
             };
             return dict;
         }
@@ -119,6 +128,15 @@ namespace Wireframe
                 List<ItchioChannel> allChannels = ItchioUIUtils.GetItchioBuildData().Channels;
                 List<long> channelNames = ((List<object>)channels).Select(a=>(long)a).ToList();
                 m_channels = allChannels.Where(c => channelNames.Contains(c.ID)).ToList();
+            }
+            
+            if (s.TryGetValue("descriptionFormat", out object descriptionFormat))
+            {
+                m_descriptionFormat = (string)descriptionFormat;
+            }
+            else
+            {
+                m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
             }
         }
     }

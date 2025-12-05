@@ -7,7 +7,6 @@ namespace Wireframe
     {
         public override void PreferencesGUI()
         {
-            GUILayout.Label("Itch.io", EditorStyles.boldLabel);
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 Itchio.Enabled = GUILayout.Toggle(Itchio.Enabled, "Enabled");

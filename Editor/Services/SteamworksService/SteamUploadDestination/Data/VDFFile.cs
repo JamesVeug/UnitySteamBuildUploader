@@ -331,7 +331,7 @@ namespace Wireframe
             }
 
             myFieldInfo.SetValue(t, o);
-            Debug.Log("[VDF] Set: '" + variableName + "' to: '" + variableData + "'");
+            // Debug.Log("[VDF] Set: '" + variableName + "' to: '" + variableData + "'");
         }
 
         private static object ConvertToType(string variableData, Type type)

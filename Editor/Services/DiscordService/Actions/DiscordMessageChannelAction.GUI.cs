@@ -5,7 +5,7 @@ namespace Wireframe
 {
     public partial class DiscordMessageChannelAction
     {
-        private bool m_showFormattedText;
+        private bool m_showFormattedText = Preferences.DefaultShowFormattedTextToggle;
         private ReorderableListOfDiscordMessageEmbeds m_embedList;
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
@@ -15,11 +15,6 @@ namespace Wireframe
             isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, ctx, GUILayout.Width(120));
 
             float width = maxWidth - 375;
-            int newLine = m_text != null ? m_text.IndexOf('\n') : -1;
-            if (newLine >= 0)
-            {
-                m_text = m_text.Substring(0, newLine);
-            }
             string truncated = Utils.TruncateText(m_text, width, "");
             using (new EditorGUI.DisabledScope(true))
             {

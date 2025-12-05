@@ -17,7 +17,7 @@ namespace Wireframe
             public string DisplayName => Name;
 
             public string Name;
-            public int ServerID;
+            public long ServerID;
             public List<DiscordChannel> channels;
             
             private int m_id;
@@ -31,7 +31,7 @@ namespace Wireframe
                 channels = new List<DiscordChannel>(2);
             }
             
-            public DiscordServer(int id, string displayName, int serverId)
+            public DiscordServer(int id, string displayName, long serverId)
             {
                 m_id = id;
                 Name = displayName;

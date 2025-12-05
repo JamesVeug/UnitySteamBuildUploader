@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -12,18 +14,21 @@ namespace Wireframe
             StringBuilder tooltipBuilder = new StringBuilder();
             tooltipBuilder.AppendLine("Show the text as it will appear with formats:");
 
-            int maximum = 20;
+            Func<string> temp = () => "???";
+            int maximum = 30;
             foreach (StringFormatter.Command command in StringFormatter.Commands.OrderBy(a=>a.Key))
             {
                 if (maximum-- <= 0)
                 {
-                    tooltipBuilder.AppendLine("\n...See docs to see available string formats.");
+                    tooltipBuilder.AppendLine("...\n\nFor all format see the Wiki:\nWindow->Build Uploader->Welcome->Documentation");
                     break;
                 }
                 
                 tooltipBuilder.Append(command.Key);
                 tooltipBuilder.Append(" - ");
-                tooltipBuilder.AppendLine(ctx.Get(command.Key, command.FieldName, command.Formatter(ctx)));
+
+                Func<string> formatter = command.Formatter(ctx) ?? temp;
+                tooltipBuilder.AppendLine(ctx.Get(command.Key, command.FieldName, formatter));
             }
             
             return tooltipBuilder.ToString();
@@ -96,6 +101,87 @@ namespace Wireframe
             }
 
             return false;
+        }
+
+        public static bool DrawUploadProfileDropdown(ref UploadProfileMeta selectedProfile, List<UploadProfileMeta> profiles, StringFormatter.Context ctx)
+        {
+            List<string> profileNames = new List<string>();
+            profileNames.Add("-- Select Upload Profile --");
+                    
+            profileNames.AddRange(profiles.Select(p => StringFormatter.FormatString(p.ProfileName, ctx)));
+            for (int i = 1; i < profileNames.Count; i++)
+            {
+                profileNames[i] = $"{i}. {profileNames[i]}";
+            }
+
+            int selectedIndex = 0;
+            if (selectedProfile != null)
+            {
+                string guid = selectedProfile.GUID;
+                selectedIndex = profiles.FindIndex(a => a.GUID == guid);
+                if (selectedIndex != -1)
+                {
+                    selectedIndex++;
+                }
+            }
+
+            var newSelectedIndex = EditorGUILayout.Popup(selectedIndex, profileNames.ToArray(), GUILayout.Width(150));
+            if (newSelectedIndex == selectedIndex)
+            {
+                return false;
+            }
+
+            if (newSelectedIndex <= 0)
+            {
+                selectedProfile = null;
+            }
+            else
+            {
+                selectedProfile = profiles[newSelectedIndex - 1];
+            }
+
+            return true;
+        }
+
+        public static void DrawPopup<T>(List<T> selected, List<T> allOptions, string emptySelection, Action<List<T>> callback, params GUILayoutOption[] options) where T : DropdownElement
+        {
+            // TODO: Replace this with the actual popup with more lists/array shit?
+            string buttonText = selected.Count == 0 ? emptySelection : string.Join(",", selected.Select(a=>a.DisplayName));
+            GUIStyle style = new GUIStyle(EditorStyles.popup);
+            Rect buttonRect = GUILayoutUtility.GetRect(new GUIContent(buttonText), style, options);
+            if (GUI.Button(buttonRect, buttonText, style)) 
+            {
+                List<T> m_channels = new List<T>(selected);
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Clear"), selected.Count == 0, () =>
+                {
+                    m_channels.Clear();
+                    callback(m_channels);
+                });
+                
+                foreach (T channel in allOptions.OrderBy(a=>a.DisplayName))
+                {
+                    bool isSelected = selected.Contains(channel);
+                    menu.AddItem(new GUIContent(channel.DisplayName), isSelected, () =>
+                    {
+                        if (isSelected)
+                        {
+                            m_channels.Remove(channel);
+                        }
+                        else
+                        {
+                            m_channels.Add(channel);
+                            m_channels.Sort((a, b) => a.DisplayName.CompareTo(b.DisplayName));
+                        }
+
+                        callback(m_channels);
+                    });
+                }
+                
+                Rect rect = buttonRect;
+                // rect.y += rect.height;
+                menu.DropDown(rect);
+            }
         }
     }
 }

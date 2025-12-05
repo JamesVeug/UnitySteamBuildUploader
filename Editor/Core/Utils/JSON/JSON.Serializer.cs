@@ -23,6 +23,7 @@ namespace Wireframe
                     string s = (string)o;
                     s = s.Replace("\r", "\\r");
                     s = s.Replace("\n", "\\n");
+                    s = s.Replace("\"", "\\\"");
                     return "\"" + s + "\"";
                 }
                 if (type.IsPrimitive)

@@ -18,29 +18,33 @@ namespace Wireframe
 
         public static bool OnGUI(ref string unformattedPath, ref bool showFormatted, StringFormatter.Context ctx, string fileTypes="*")
         {
-            bool exists = Utils.PathExists(StringFormatter.FormatString(unformattedPath, ctx));
+            string formatString = StringFormatter.FormatString(unformattedPath, ctx);
+            bool error = Utils.PathContainsInvalidCharacters(formatString);
+            bool exists = !error && Utils.PathExists(formatString);
             bool isDirty = false;
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUIStyle style = exists ? m_pathInputFieldExistsStyle : m_pathInputFieldDoesNotExistStyle;
-                if (EditorUtils.FormatStringTextField(ref unformattedPath, ref showFormatted, ctx, style))
+                using (ButtonStyleScope scope = new ButtonStyleScope(!exists, error))
                 {
-                    isDirty = true;
-                }
-
-                if (GUILayout.Button("...", GUILayout.Width(20)))
-                {
-                    string newPath = EditorUtility.OpenFilePanel("Select Folder to upload", unformattedPath, fileTypes);
-                    if (!string.IsNullOrEmpty(newPath))
+                    if (EditorUtils.FormatStringTextField(ref unformattedPath, ref showFormatted, ctx, scope.style))
                     {
-                        unformattedPath = newPath; // This is an unformatted path
                         isDirty = true;
                     }
-                }
 
-                if (GUILayout.Button("Show", GUILayout.Width(50)))
-                {
-                    EditorUtility.RevealInFinder(StringFormatter.FormatString(unformattedPath, ctx));
+                    if (GUILayout.Button("...", GUILayout.Width(20)))
+                    {
+                        string newPath = EditorUtility.OpenFilePanel("Select Folder to upload", unformattedPath, fileTypes);
+                        if (!string.IsNullOrEmpty(newPath))
+                        {
+                            unformattedPath = newPath; // This is an unformatted path
+                            isDirty = true;
+                        }
+                    }
+
+                    if (GUILayout.Button("Show", GUILayout.Width(50)))
+                    {
+                        EditorUtility.RevealInFinder(StringFormatter.FormatString(unformattedPath, ctx));
+                    }
                 }
             }
 

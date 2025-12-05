@@ -19,7 +19,7 @@ namespace Wireframe
             });
             
             var provider =
-                new ProjectSettings_Services("Project/BuildUploader/Services", SettingsScope.Project)
+                new ProjectSettings_Services("Project/Build Uploader/Services", SettingsScope.Project)
                 {
                     label = "Services",
                     keywords = keywords
@@ -37,11 +37,14 @@ namespace Wireframe
             base.OnGUI(searchContext);
             GUILayout.Label("Services are external APIs that the Build Uploader can use when uploading builds. Either Uploading to websites or sending messages when completed (e.g. Discord)\n", EditorStyles.wordWrappedLabel);
     
-            foreach (AService service in InternalUtils.AllServices().OrderBy(a=>a.GetType().Name))
+            foreach (AService service in InternalUtils.AllServices()
+                         .Where(s=>s.MatchesSearchKeywords(searchContext))
+                         .OrderBy(s=>s.ServiceName))
             {
                 if (service.HasProjectSettingsGUI)
                 {
-                    GUILayout.Label(service.GetType().Name.Replace("Service", ""), EditorStyles.whiteLargeLabel);
+                    GUILayout.Space(20);
+                    GUILayout.Label(service.ServiceName, EditorStyles.boldLabel);
                     service.ProjectSettingsGUI();
                 }
             }

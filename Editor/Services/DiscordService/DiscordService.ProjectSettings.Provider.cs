@@ -10,13 +10,10 @@ namespace Wireframe
         public static SettingsProvider CreateSettingsProvider()
         {
             var provider =
-                new DiscordService_ProjectSettings_Provider("Project/BuildUploader/Services/Discord", SettingsScope.Project)
+                new DiscordService_ProjectSettings_Provider("Project/Build Uploader/Services/Discord", SettingsScope.Project)
                 {
                     label = "Discord",
-                    keywords = new HashSet<string>(new[]
-                    {
-                        "Build", "Uploader", "Pipe", "line", "service", "Discord"
-                    })
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is DiscordService).SearchKeyworks
                 };
             return provider;
         }

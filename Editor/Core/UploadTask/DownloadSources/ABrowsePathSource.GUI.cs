@@ -13,7 +13,7 @@ namespace Wireframe
         private GUIStyle m_pathInputFieldExistsStyle;
         private GUIStyle m_pathInputFieldDoesNotExistStyle;
         
-        private bool m_showFormattedFilePath = false;
+        private bool m_showFormattedFilePath = Preferences.DefaultShowFormattedTextToggle;
         
         protected internal abstract string SelectFile();
 

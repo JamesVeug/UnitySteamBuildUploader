@@ -16,7 +16,7 @@ namespace Wireframe
     [UploadSource("LastBuild", "Last Build Directory")]
     public class LastBuildSource : AUploadSource
     {
-        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             EditorGUILayout.LabelField("Build Name:", LastBuildUtil.LastBuildName);
             
@@ -38,14 +38,14 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             EditorGUILayout.LabelField(LastBuildUtil.LastBuildName, GUILayout.Width(100));
             EditorGUILayout.LabelField(LastBuildUtil.LastBuildDirectory, GUILayout.MaxWidth(maxWidth - 100));
         }
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx, CancellationTokenSource token)
+            CancellationTokenSource token)
         {
             // Wait for our turn if we need to
             await BuildConfigSource.m_lock.WaitAsync();
@@ -77,9 +77,9 @@ namespace Wireframe
             return LastBuildUtil.LastBuildDirectory;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
             {

@@ -6,13 +6,14 @@ namespace Wireframe
     public partial class SlackMessageChannelAction
     {
         private bool m_showFormattedText = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedTSFormat = Preferences.DefaultShowFormattedTextToggle;
         private ReorderableListOfSlackMessageAttachments m_attachmentList;
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            isDirty |= SlackUIUtils.AppPopup.DrawPopup(ref m_app, ctx, GUILayout.Width(120));
-            isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, ctx, GUILayout.Width(120));
-            isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, ctx, GUILayout.Width(120));
+            isDirty |= SlackUIUtils.AppPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(120));
+            isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
+            isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
 
             float width = maxWidth - 375;
             string truncated = Utils.TruncateText(m_text, width, "");
@@ -27,18 +28,18 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("App:", GUILayout.Width(120));
-                isDirty |= SlackUIUtils.AppPopup.DrawPopup(ref m_app, ctx, GUILayout.Width(120));
+                isDirty |= SlackUIUtils.AppPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(120));
             }
             
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Server:", GUILayout.Width(120));
-                isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, ctx, GUILayout.Width(120));
+                isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -51,13 +52,16 @@ namespace Wireframe
                 }
                 else
                 {
-                    isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, ctx, GUILayout.Width(120));
+                    isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
                 }
             }
+            var tsFormat = new GUIContent("TS Format", tsFormatTooltip);
+            GUILayout.Label(tsFormat, GUILayout.Width(50));
+            isDirty |= ContextGUI.DrawKey(m_responseTSFormat, ref m_showFormattedTSFormat, m_context);
 
             
             GUILayout.Label("Text:", GUILayout.Width(50));
-            if (EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, ctx))
+            if (EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, m_context))
             {
                 isDirty = true;
             }

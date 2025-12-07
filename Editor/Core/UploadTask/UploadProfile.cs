@@ -13,7 +13,8 @@ namespace Wireframe
         public string ProfileName;
         
         public List<UploadConfig> UploadConfigs = new List<UploadConfig>();
-        public List<UploadConfig.PostUploadActionData> PostUploadActions = new List<UploadConfig.PostUploadActionData>();
+        public List<UploadConfig.UploadActionData> PreUploadActions = new List<UploadConfig.UploadActionData>();
+        public List<UploadConfig.UploadActionData> PostUploadActions = new List<UploadConfig.UploadActionData>();
         
         public static UploadProfile FromPath(string fullPath)
         {

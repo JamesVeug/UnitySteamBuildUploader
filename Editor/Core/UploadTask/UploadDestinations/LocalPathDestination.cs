@@ -43,12 +43,12 @@ namespace Wireframe
             m_zippedFilesName = zippedFileName;
         }
 
-        private string FullPath(StringFormatter.Context ctx)
+        private string FullPath()
         {
-            string path = StringFormatter.FormatString(m_localPath, ctx);
+            string path = m_context.FormatString(m_localPath);
             if (m_zipContent)
             {
-                path += StringFormatter.FormatString(m_zippedFilesName, ctx) + ".zip";
+                path += m_context.FormatString(m_zippedFilesName) + ".zip";
             }
             
             return path;
@@ -65,9 +65,9 @@ namespace Wireframe
             return true;
         }
 
-        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
-            string fullPath = FullPath(ctx);
+            string fullPath = FullPath();
             string directory = m_zipContent ? Path.GetDirectoryName(fullPath) : fullPath;
 
             // Delete existing content
@@ -118,15 +118,15 @@ namespace Wireframe
             return true;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (string.IsNullOrEmpty(m_localPath))
             {
                 errors.Add("No local path selected");
             }
-            else if (Utils.PathContainsInvalidCharacters(FullPath(ctx)))
+            else if (Utils.PathContainsInvalidCharacters(FullPath()))
             {
                 errors.Add("Path contains invalid characters");
             }
@@ -140,11 +140,11 @@ namespace Wireframe
             }
         }
 
-        public override void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
+        public override void TryGetWarnings(List<string> warnings, Context ctx)
         {
             base.TryGetWarnings(warnings, ctx);
 
-            if (!Utils.PathExists(FullPath(ctx)))
+            if (!Utils.PathExists(FullPath()))
             {
                 warnings.Add("Path does not exist but may be created during upload.");
             }

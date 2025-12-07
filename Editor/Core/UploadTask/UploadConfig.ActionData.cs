@@ -8,7 +8,7 @@ namespace Wireframe
     public partial class UploadConfig
     {
         [Wiki("Actions", "Specify what actions you want to perform when the upload completes.")]
-        public class PostUploadActionData
+        public class UploadActionData
         {
             internal bool Collapsed { get; set; } = true;
             
@@ -26,12 +26,12 @@ namespace Wireframe
             public AUploadAction UploadAction;
             public UIHelpers.BuildActionPopup.ActionData ActionType;
 
-            public PostUploadActionData()
+            public UploadActionData()
             {
                 
             }
             
-            public PostUploadActionData(AUploadAction action, UploadCompleteStatus whenToExecute = UploadCompleteStatus.Always)
+            public UploadActionData(AUploadAction action, UploadCompleteStatus whenToExecute = UploadCompleteStatus.Always)
             {
                 WhenToExecute = whenToExecute;
                 UploadAction = action;
@@ -83,7 +83,7 @@ namespace Wireframe
                 }
             }
 
-            public bool CanStartBuild(out string reason, StringFormatter.Context ctx)
+            public bool CanStartBuild(out string reason, Context ctx)
             {
                 if (WhenToExecute == UploadCompleteStatus.Never)
                 {
@@ -104,7 +104,7 @@ namespace Wireframe
                 }
                 
                 List<string> errors = new List<string>();
-                UploadAction.TryGetErrors(errors, ctx);
+                UploadAction.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
                     reason = string.Join(", ", errors);

@@ -73,7 +73,7 @@ namespace Wireframe
         }
 
 
-        public override Task<bool> Prepare(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token)
+        public override Task<bool> Prepare(UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
         {
             // Create a new config since we make different changes at different times and this keeps it consistent
             m_buildConfigToApply = CreateSourceBuildConfig();
@@ -107,7 +107,7 @@ namespace Wireframe
         }
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx, CancellationTokenSource token)
+            CancellationTokenSource token)
         {
             // Start build
             if (m_buildConfigToApply == null)
@@ -133,7 +133,7 @@ namespace Wireframe
                 m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings();
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
-                m_filePath = GetBuiltDirectory(ctx);
+                m_filePath = GetBuiltDirectory();
                 if (string.IsNullOrEmpty(m_filePath))
                 {
                     stepResult.SetFailed("Could not get built directory. Possible invalid build config or platform. Check you have the modules installed for the selected platform.");
@@ -187,7 +187,7 @@ namespace Wireframe
                     m_editorSettingsBeforeUpload.SwitchTargetPlatform = true;
                 }
 
-                if (!ApplyBuildConfig(m_buildConfigToApply, stepResult, ctx))
+                if (!ApplyBuildConfig(m_buildConfigToApply, stepResult))
                 {
                     token.Cancel();
                     return false;
@@ -203,7 +203,7 @@ namespace Wireframe
                 }
 #endif
 
-                string productName = m_buildConfigToApply.GetFormattedProductName(ctx);
+                string productName = m_buildConfigToApply.GetFormattedProductName(m_context);
                 BuildPlayerOptions options = new BuildPlayerOptions
                 {
                     scenes = EditorBuildSettings.scenes
@@ -227,7 +227,7 @@ namespace Wireframe
                 // Build the player
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 stepResult.AddLog("Starting build...");
-                report = MakeBuild(options, stepResult, ctx);
+                report = MakeBuild(options, stepResult);
                 stopwatch.Stop();
                 stepResult.AddLog($"Build completed in {stopwatch.ElapsedMilliseconds} ms");
             }
@@ -288,7 +288,7 @@ namespace Wireframe
             return false;
         }
 
-        private string GetBuiltDirectory(StringFormatter.Context ctx)
+        private string GetBuiltDirectory()
         {
             BuildConfig config = BuildConfigContext;
             if (config == null)
@@ -302,7 +302,7 @@ namespace Wireframe
                 return "";
             }
             
-            string buildName = StringFormatter.FormatString(config.BuildName, ctx);
+            string buildName = m_context.FormatString(config.BuildName);
             string guid = config.GUID;
             string buildPath = string.Format("{0} ({1})", buildName, guid); // Development (1234)
             string targetName = platform.DisplayName;
@@ -310,10 +310,10 @@ namespace Wireframe
             return Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", buildPath, platformPath);
         }
 
-        private bool ApplyBuildConfig(BuildConfig config, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        private bool ApplyBuildConfig(BuildConfig config, UploadTaskReport.StepResult stepResult)
         {
             stepResult?.AddLog($"Applying settings");
-            if (!config.ApplySettings(config.SwitchTargetPlatform, ctx, stepResult))
+            if (!config.ApplySettings(config.SwitchTargetPlatform, m_context, stepResult))
             {
                 stepResult?.SetFailed("Failed to apply build settings. Please check the console for more details.");
                 return false;
@@ -323,13 +323,13 @@ namespace Wireframe
             return true;
         }
 
-        private BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        private BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult)
         {
             BuildReport report = BuildPipeline.BuildPlayer(options);
 
             if (report.summary.result == BuildResult.Succeeded)
             {
-                LastBuildUtil.SetLastBuild(m_filePath, StringFormatter.FormatString(StringFormatter.BUILD_NAME_KEY, ctx));
+                LastBuildUtil.SetLastBuild(m_filePath, m_context.FormatString(Context.BUILD_NAME_KEY));
                 if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
                 {
                     stepResult.AddLog("Saving build meta data to StreamingAssets folder");
@@ -345,9 +345,9 @@ namespace Wireframe
             return m_filePath;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (!ValidConfig(out string reason))
             {
@@ -534,9 +534,9 @@ namespace Wireframe
             }
         }
 
-        public override async Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult)
         {
-            await base.CleanUp(configIndex, stepResult, ctx);
+            await base.CleanUp(configIndex, stepResult);
 
             m_buildConfigToApply = null;
             m_buildMetaData = null;
@@ -570,7 +570,7 @@ namespace Wireframe
                 m_editorSettingsBeforeUpload = null;
 
                 stepResult.AddLog($"Restoring previous editor settings... {buildConfig.TargetPlatform} ({buildConfig.TargetPlatformSubTarget}) {buildConfig.Target} {buildConfig.TargetArchitecture}");
-                bool successful = buildConfig.ApplySettings(true, ctx);
+                bool successful = buildConfig.ApplySettings(true, m_context);
                 if (!successful)
                 {
                     stepResult.AddError("Failed to restore previous build settings!");

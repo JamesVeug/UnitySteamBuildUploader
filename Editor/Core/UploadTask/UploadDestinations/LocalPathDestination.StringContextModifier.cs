@@ -1,17 +1,12 @@
 ﻿namespace Wireframe
 {
-    public partial class LocalPathDestination : StringFormatter.IContextModifier
+    public partial class LocalPathDestination
     {
-        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
+        protected override Context CreateContext()
         {
-            if (key == StringFormatter.DESTINATION_LOCAL_PATH_KEY)
-            {
-                value = FullPath(ctx);
-                return true;
-            }
-            
-            value = "";
-            return false;
+            Context context = base.CreateContext();
+            context.AddCommand(Context.DESTINATION_LOCAL_PATH_KEY, FullPath);
+            return context;
         }
     }
 }

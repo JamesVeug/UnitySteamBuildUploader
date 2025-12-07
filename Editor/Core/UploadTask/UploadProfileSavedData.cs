@@ -19,6 +19,7 @@ namespace Wireframe
         public string ProfileName;
         
         [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
+        [SerializeField] public List<Dictionary<string, object>> PreUploads = new List<Dictionary<string, object>>();
         [SerializeField] public List<Dictionary<string, object>> PostUploads = new List<Dictionary<string, object>>();
 
         public UploadProfile ToUploadProfile()
@@ -44,11 +45,26 @@ namespace Wireframe
                 }
             }
 
+            for (int i = 0; i < PreUploads.Count; i++)
+            {
+                try
+                {
+                    UploadConfig.UploadActionData actionData = new UploadConfig.UploadActionData();
+                    actionData.Deserialize(PreUploads[i]);
+                    loadedProfile.PreUploadActions.Add(actionData);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Failed to load pre upload action: #" + (i + 1));
+                    Debug.LogException(e);
+                }
+            }
+
             for (int i = 0; i < PostUploads.Count; i++)
             {
                 try
                 {
-                    UploadConfig.PostUploadActionData actionData = new UploadConfig.PostUploadActionData();
+                    UploadConfig.UploadActionData actionData = new UploadConfig.UploadActionData();
                     actionData.Deserialize(PostUploads[i]);
                     loadedProfile.PostUploadActions.Add(actionData);
                 }
@@ -71,6 +87,10 @@ namespace Wireframe
             for (int i = 0; i < profile.UploadConfigs.Count; i++)
             {
                 data.Data.Add(profile.UploadConfigs[i].Serialize());
+            }
+            for (int i = 0; i < profile.PreUploadActions.Count; i++)
+            {
+                data.PreUploads.Add(profile.PreUploadActions[i].Serialize());
             }
             for (int i = 0; i < profile.PostUploadActions.Count; i++)
             {

@@ -167,7 +167,7 @@ namespace Wireframe
         }
 
         public override async Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig,
-            int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+            int configIndex, UploadTaskReport.StepResult stepResult)
         {
             if (m_WhenToExclude != WhenToExclude.DeleteFromCache)
             {

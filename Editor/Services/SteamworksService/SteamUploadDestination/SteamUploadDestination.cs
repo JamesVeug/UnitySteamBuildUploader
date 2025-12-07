@@ -35,7 +35,7 @@ namespace Wireframe
         private bool m_appFileOverwriteDesc = true;
 
         [Wiki("Description Format", "What description to upload to steam to appear on steamworks.", 9)]
-        private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+        private string m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
         
         private SteamApp m_uploadApp;
         private List<SteamDepot> m_uploadDepots = new List<SteamDepot>();
@@ -92,9 +92,9 @@ namespace Wireframe
         }
 
         public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
-            string cachedFolderPath, UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+            string cachedFolderPath, UploadTaskReport.StepResult result)
         {
-            await base.Prepare(taskGUID, configIndex, destinationIndex, cachedFolderPath, result, ctx);
+            await base.Prepare(taskGUID, configIndex, destinationIndex, cachedFolderPath, result);
 
             if (m_app == null)
             {
@@ -115,7 +115,7 @@ namespace Wireframe
             }
             
 
-            string buildDescription = StringFormatter.FormatString(m_descriptionFormat, ctx);
+            string buildDescription = m_context.FormatString(m_descriptionFormat);
             string suffix = $"buildUploader_{taskGUID}_{configIndex}_{destinationIndex}";
             if (m_createAppFile)
             {
@@ -150,7 +150,7 @@ namespace Wireframe
                 result.SetFailed("using existing add file: '" + m_appFileName + "'");
                 
                 // Use the provided app file name
-                string[] files = GetVDFFile(m_appFileName, ctx);
+                string[] files = GetVDFFile(m_appFileName);
                 if (files.Length == 0)
                 {
                     result.SetFailed("App file not found: '" + m_appFileName + "'");
@@ -187,7 +187,7 @@ namespace Wireframe
                 // Get depots
                 foreach (VdfMap<int, string>.MapData depots in appFile.depots.GetData())
                 {
-                    string[] depotFiles = GetVDFFile(depots.Value, ctx);
+                    string[] depotFiles = GetVDFFile(depots.Value);
                     if (depotFiles.Length == 0)
                     {
                         result.SetFailed("Depot file not found: '" + depots.Value + "'");
@@ -239,14 +239,14 @@ namespace Wireframe
             return true;
         }
 
-        private string[] GetVDFFile(string fileName, StringFormatter.Context ctx)
+        private string[] GetVDFFile(string fileName)
         {
             string appFileName = fileName;
             if (!appFileName.EndsWith(".vdf", StringComparison.OrdinalIgnoreCase))
             {
                 appFileName += ".vdf"; // Ensure it has .vdf extension
             }
-            appFileName = StringFormatter.FormatString(appFileName, ctx);
+            appFileName = m_context.FormatString(appFileName);
 
             if (Path.IsPathRooted(appFileName))
             {
@@ -258,7 +258,7 @@ namespace Wireframe
             return Directory.GetFiles(SteamSDK.SteamScriptPath, appFileName, SearchOption.AllDirectories);
         }
 
-        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
             return await SteamSDK.Instance.Upload(m_uploadApp.App, m_appPath, result);
         }
@@ -415,18 +415,18 @@ namespace Wireframe
             }
             else
             {
-                m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+                m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
             }
         }
 
-        public override void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
+        public override void TryGetWarnings(List<string> warnings, Context ctx)
         {
             base.TryGetWarnings(warnings, ctx);
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out string serviceReason))
             {
@@ -446,7 +446,7 @@ namespace Wireframe
                 }
                 else
                 {
-                    string[] appFiles = GetVDFFile(m_appFileName, ctx);
+                    string[] appFiles = GetVDFFile(m_appFileName);
                     if (appFiles.Length == 0)
                     {
                         errors.Add("App File '" + m_appFileName + "' not found in path '" + SteamSDK.SteamScriptPath + "'!");

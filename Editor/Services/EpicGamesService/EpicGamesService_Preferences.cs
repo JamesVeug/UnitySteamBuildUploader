@@ -5,7 +5,7 @@ namespace Wireframe
 {
     internal partial class EpicGamesService
     {
-        private StringFormatter.Context ctx = new StringFormatter.Context();
+        private Context ctx = new Context();
         private bool showFormattedSDKPath = true;
         private bool showFormattedCloudDirectory = true;
         

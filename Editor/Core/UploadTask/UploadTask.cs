@@ -13,7 +13,7 @@ namespace Wireframe
     /// When started a Report is created that contains all live information about the upload
     /// Listen to OnComplete to get the report when the upload is done.
     /// </summary>
-    public class UploadTask
+    public partial class UploadTask
     {
         internal static List<UploadTask> AllTasks = new List<UploadTask>();
         
@@ -21,7 +21,8 @@ namespace Wireframe
         
         public string GUID => guid;
         public List<UploadConfig> UploadConfigs => uploadConfigs;
-        public List<UploadConfig.PostUploadActionData> PostUploadActions => postUploadActions;
+        public List<UploadConfig.UploadActionData> PreUploadActions => preUploadActions;
+        public List<UploadConfig.UploadActionData> PostUploadActions => postUploadActions;
         public string UploadDescription => uploadDescription;
         public string UploadName => uploadName;
         public string[] CachedLocations => cachedLocations;
@@ -37,7 +38,8 @@ namespace Wireframe
 
         private UploadTaskReport report;
         private List<UploadConfig> uploadConfigs;
-        private List<UploadConfig.PostUploadActionData> postUploadActions;
+        private List<UploadConfig.UploadActionData> preUploadActions;
+        private List<UploadConfig.UploadActionData> postUploadActions;
         private UploadTaskStringFormatterContext context;
         private string[] cachedLocations;
         private int progressId;
@@ -48,29 +50,46 @@ namespace Wireframe
         private string guid;
         private AUploadTask_Step[] m_CurrentSteps;
 
-        public UploadTask(UploadProfile uploadProfile) : this()
+        public UploadTask(UploadProfile uploadProfile) : this(uploadProfile.ProfileName, uploadProfile.UploadConfigs)
         {
-            this.uploadName = uploadProfile.ProfileName;
-            this.uploadConfigs = uploadProfile.UploadConfigs ?? new List<UploadConfig>();
-            this.postUploadActions = uploadProfile.PostUploadActions ?? new List<UploadConfig.PostUploadActionData>();
+            
         }
         
         public UploadTask(string name, UploadConfig config) : this()
         {
-            this.uploadName = name;
-            this.uploadConfigs = new List<UploadConfig>() { config };
-            this.postUploadActions = new List<UploadConfig.PostUploadActionData>();
+            uploadName = name;
+
+            AddConfig(config);
         }
         
-        public UploadTask(string name, List<UploadConfig> uploadConfigs, List<UploadConfig.PostUploadActionData> postUploadActions = null) : this()
+        public UploadTask(string name, List<UploadConfig> uploadConfigs, List<UploadConfig.UploadActionData> preUploadActions = null, List<UploadConfig.UploadActionData> postUploadActions = null) : this()
         {
-            this.uploadName = name;
-            this.uploadConfigs = uploadConfigs;
-            this.postUploadActions = postUploadActions ?? new List<UploadConfig.PostUploadActionData>();
+            uploadName = name;
+
+            if (preUploadActions != null)
+            {
+                foreach (UploadConfig.UploadActionData action in preUploadActions)
+                {
+                    AddPreUploadAction(action);
+                }
+            }
+
+            if (postUploadActions != null)
+            {
+                foreach (UploadConfig.UploadActionData action in postUploadActions)
+                {
+                    AddPostUploadAction(action);
+                }
+            }
+
+            foreach (UploadConfig config in uploadConfigs)
+            {
+                AddConfig(config);
+            }
         }
 
-        public UploadTask(List<UploadConfig> uploadConfigs, List<UploadConfig.PostUploadActionData> postUploadActions = null)
-            : this("No Name Specified", uploadConfigs, postUploadActions)
+        public UploadTask(List<UploadConfig> uploadConfigs, List<UploadConfig.UploadActionData> preUploadActions = null, List<UploadConfig.UploadActionData> postUploadActions = null)
+            : this("No Name Specified", uploadConfigs, preUploadActions, postUploadActions)
         {
             
         }
@@ -80,11 +99,12 @@ namespace Wireframe
             guid = Guid.NewGuid().ToString().Substring(0, 6);
             uploadDescription = "";
             uploadConfigs = new List<UploadConfig>();
-            postUploadActions = new List<UploadConfig.PostUploadActionData>();
+            preUploadActions = new List<UploadConfig.UploadActionData>();
+            postUploadActions = new List<UploadConfig.UploadActionData>();
             
             context = new UploadTaskStringFormatterContext(this);
-            context.TaskProfileName = () => uploadName;
-            context.TaskDescription = () => uploadDescription;
+            context.AddCommand(Wireframe.Context.TASK_PROFILE_NAME_KEY, () => uploadName);
+            context.AddCommand(Wireframe.Context.TASK_DESCRIPTION_KEY, () => uploadDescription);
         }
 
         ~UploadTask()
@@ -172,6 +192,7 @@ namespace Wireframe
             {
                 UploadTaskReport.StepResult result = report.NewReport(AUploadTask_Step.StepType.Validation);
                 result.AddException(e);
+                valid = false;
             }
             
             if (!valid)
@@ -219,8 +240,35 @@ namespace Wireframe
         private bool Validate()
         {
             report.SetProcess(AUploadTask_Step.StepProcess.Intra);
-            UploadTaskReport.StepResult[] reports = report.NewReports(AUploadTask_Step.StepType.Validation, uploadConfigs.Count);
+
             bool valid = true;
+            UploadTaskReport.StepResult[] reports = report.NewReports(AUploadTask_Step.StepType.Validation, preUploadActions.Count);
+            for (var i = 0; i < preUploadActions.Count; i++)
+            {
+                var action = preUploadActions[i];
+                if (action.WhenToExecute == UploadConfig.UploadActionData.UploadCompleteStatus.Never)
+                {
+                    continue;
+                }
+
+                UploadTaskReport.StepResult result = reports[i];
+                if (action.UploadAction == null)
+                {
+                    result.AddError($"No pre upload action specified at index {i}");
+                    valid = false;
+                    continue;
+                }
+
+                List<string> errors = new List<string>();
+                action.UploadAction.TryGetErrors(errors);
+                foreach (string error in errors)
+                {
+                    result.AddError(error);
+                    valid = false;
+                }
+            }
+            
+            reports = report.NewReports(AUploadTask_Step.StepType.Validation, uploadConfigs.Count);
             for (var i = 0; i < uploadConfigs.Count; i++)
             {
                 UploadTaskReport.StepResult result = reports[i];
@@ -253,12 +301,12 @@ namespace Wireframe
                     }
                 }
             }
-
+            
             reports = report.NewReports(AUploadTask_Step.StepType.Validation, postUploadActions.Count);
             for (var i = 0; i < postUploadActions.Count; i++)
             {
                 var action = postUploadActions[i];
-                if (action.WhenToExecute == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never)
+                if (action.WhenToExecute == UploadConfig.UploadActionData.UploadCompleteStatus.Never)
                 {
                     continue;
                 }
@@ -272,7 +320,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                action.UploadAction.TryGetErrors(errors, context);
+                action.UploadAction.TryGetErrors(errors);
                 foreach (string error in errors)
                 {
                     result.AddError(error);
@@ -294,7 +342,7 @@ namespace Wireframe
 
         private void SetupContext(UploadTaskReport report)
         {
-            context.UploadTaskFailText = () =>
+            context.AddCommand(Wireframe.Context.TASK_FAILED_REASONS_KEY, ()=>
             {
                 if (report.Successful)
                 {
@@ -320,7 +368,7 @@ namespace Wireframe
                     }
                 }
                 return reasonText;
-            };
+            });
         }
 
         public void AddConfig(UploadConfig config)
@@ -329,11 +377,33 @@ namespace Wireframe
             {
                 return;
             }
+
+            config.Context.SetParent(context);
             
             uploadConfigs.Add(config);
         }
         
-        public void AddPostUploadAction(UploadConfig.PostUploadActionData action)
+        public void AddPreUploadAction(UploadConfig.UploadActionData action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+            
+            preUploadActions.Add(action);
+        }
+
+        public void AddPreUploadAction(AUploadAction action, UploadConfig.UploadActionData.UploadCompleteStatus whenToExecute = UploadConfig.UploadActionData.UploadCompleteStatus.Always)
+        {
+            if (action == null)
+            {
+                return;
+            }
+            
+            preUploadActions.Add(new UploadConfig.UploadActionData(action, whenToExecute));
+        }
+        
+        public void AddPostUploadAction(UploadConfig.UploadActionData action)
         {
             if (action == null)
             {
@@ -343,14 +413,14 @@ namespace Wireframe
             postUploadActions.Add(action);
         }
         
-        public void AddPostUploadAction(AUploadAction action, UploadConfig.PostUploadActionData.UploadCompleteStatus whenToExecute = UploadConfig.PostUploadActionData.UploadCompleteStatus.Always)
+        public void AddPostUploadAction(AUploadAction action, UploadConfig.UploadActionData.UploadCompleteStatus whenToExecute = UploadConfig.UploadActionData.UploadCompleteStatus.Always)
         {
             if (action == null)
             {
                 return;
             }
 
-            postUploadActions.Add(new UploadConfig.PostUploadActionData(action, whenToExecute));
+            postUploadActions.Add(new UploadConfig.UploadActionData(action, whenToExecute));
         }
         
         public void SetBuildDescription(string description)

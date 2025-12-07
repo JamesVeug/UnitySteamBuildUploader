@@ -18,7 +18,7 @@ namespace Wireframe
         private List<ItchioChannel> m_channels;
         
         [Wiki("Description Format", "What description to appear on Itchio attached to the build. Typically short and listed as the version eg: 'v1.0.0'")]
-        private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+        private string m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
 
         public ItchioDestination() : base()
         {
@@ -52,14 +52,13 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
-            string filePath = StringFormatter.FormatString(m_cachedFolderPath, ctx);
-
-            string user = StringFormatter.FormatString(m_user.Name, ctx);
-            string game = StringFormatter.FormatString(m_game.Name, ctx);
-            string version = StringFormatter.FormatString(m_descriptionFormat, ctx);
-            List<string> channels = m_channels.ConvertAll((a)=>StringFormatter.FormatString(a.Name, ctx));
+            string filePath = m_context.FormatString(m_cachedFolderPath);
+            string user = m_context.FormatString(m_user.Name);
+            string game = m_context.FormatString(m_game.Name);
+            string version = m_context.FormatString(m_descriptionFormat);
+            List<string> channels = m_channels.ConvertAll((a)=>m_context.FormatString(a.Name));
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
             bool success = await Itchio.Instance.Upload(filePath, user, game, channels, version, result);
@@ -68,9 +67,9 @@ namespace Wireframe
             return success;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (!InternalUtils.GetService<ItchioService>().IsReadyToStartBuild(out string serviceReason))
             {
@@ -136,7 +135,7 @@ namespace Wireframe
             }
             else
             {
-                m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+                m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
             }
         }
     }

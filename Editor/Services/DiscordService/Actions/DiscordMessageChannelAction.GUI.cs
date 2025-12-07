@@ -8,11 +8,11 @@ namespace Wireframe
         private bool m_showFormattedText = Preferences.DefaultShowFormattedTextToggle;
         private ReorderableListOfDiscordMessageEmbeds m_embedList;
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, ctx, GUILayout.Width(120));
-            isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, ctx, GUILayout.Width(120));
-            isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, ctx, GUILayout.Width(120));
+            isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(120));
+            isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
+            isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
 
             float width = maxWidth - 375;
             string truncated = Utils.TruncateText(m_text, width, "");
@@ -27,18 +27,18 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("App:", GUILayout.Width(120));
-                isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, ctx, GUILayout.Width(120));
+                isDirty |= DiscordUIUtils.AppPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(120));
             }
             
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Server:", GUILayout.Width(120));
-                isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, ctx, GUILayout.Width(120));
+                isDirty |= DiscordUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -51,13 +51,13 @@ namespace Wireframe
                 }
                 else
                 {
-                    isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, ctx, GUILayout.Width(120));
+                    isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
                 }
             }
 
             
             GUILayout.Label("Text:", GUILayout.Width(50));
-            if(EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, ctx))
+            if(EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, m_context))
             {
                 isDirty = true;
             }

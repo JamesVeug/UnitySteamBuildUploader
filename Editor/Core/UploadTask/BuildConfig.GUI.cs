@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -37,7 +36,7 @@ namespace Wireframe
             }
         }
 
-        public void OnGUI(float width, ref bool dirty, StringFormatter.Context context)
+        public void OnGUI(float width, ref bool dirty, Context context)
         {
             SetupGUI();
             
@@ -51,14 +50,14 @@ namespace Wireframe
             }
         }
 
-        public void OnGUICollapsed(float width, ref bool dirty, StringFormatter.Context context)
+        public void OnGUICollapsed(float width, ref bool dirty, Context context)
         {
             // Draw the collapsed view of the BuildConfig
-            string formattedBuildName = StringFormatter.FormatString(BuildName, context);
+            string formattedBuildName = context.FormatString(BuildName);
             GUILayout.Label(formattedBuildName, GUILayout.Width(width - 50));
         }
 
-        public void OnGUIExpanded(float width, ref bool dirty, StringFormatter.Context context)
+        public void OnGUIExpanded(float width, ref bool dirty, Context context)
         {
             using (new GUILayout.HorizontalScope())
             {

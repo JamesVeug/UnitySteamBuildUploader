@@ -43,7 +43,7 @@ namespace Wireframe
         private GUIStyle m_subTitleStyle;
         private bool m_isDirty;
         private Vector2 m_scrollPosition;
-        private StringFormatter.Context m_context;
+        private Context m_context;
 
         private void Setup()
         {
@@ -61,7 +61,7 @@ namespace Wireframe
                 fontStyle = FontStyle.Bold
             };
 
-            m_context = new StringFormatter.Context();
+            m_context = new Context();
         }
 
         private void CreateBuildConfigs(bool clearedBuildConfig, bool? debugging = null)

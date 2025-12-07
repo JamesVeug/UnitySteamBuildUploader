@@ -10,7 +10,7 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_Cleanup : AUploadTask_Step
     {
-        public UploadTaskStep_Cleanup(StringFormatter.Context context) : base(context)
+        public UploadTaskStep_Cleanup(Context context) : base(context)
         {
             
         }
@@ -75,7 +75,7 @@ namespace Wireframe
             UploadTaskReport.StepResult[] actionResults = report.NewReports(StepType.Cleanup, uploadTask.PostUploadActions.Count);
             for (int i = 0; i < uploadTask.PostUploadActions.Count; i++)
             {
-                UploadConfig.PostUploadActionData actionData = uploadTask.PostUploadActions[i];
+                UploadConfig.UploadActionData actionData = uploadTask.PostUploadActions[i];
                 UploadTaskReport.StepResult cleanupResult = actionResults[i];
                 if (actionData.UploadAction == null)
                 {
@@ -84,7 +84,7 @@ namespace Wireframe
                     continue;
                 }
 
-                if (actionData.WhenToExecute == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never)
+                if (actionData.WhenToExecute == UploadConfig.UploadActionData.UploadCompleteStatus.Never)
                 {
                     cleanupResult.AddLog("Skipping config cleanup because it's set to Never");
                     cleanupResult.SetPercentComplete(1f);

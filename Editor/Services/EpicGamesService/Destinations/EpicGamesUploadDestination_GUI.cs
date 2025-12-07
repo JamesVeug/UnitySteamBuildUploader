@@ -10,49 +10,49 @@ namespace Wireframe
         private bool showFormattedAppLaunch = Preferences.DefaultShowFormattedTextToggle;
         private bool showFormattedAppArgs = Preferences.DefaultShowFormattedTextToggle;
         
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            isDirty |= EpicGamesUIUtils.OrganizationPopup.DrawPopup(ref Organization, ctx);
-            isDirty |= EpicGamesUIUtils.ProductPopup.DrawPopup(Organization, ref Product, ctx);
-            isDirty |= EpicGamesUIUtils.ArtifactPopup.DrawPopup(Product, ref Artifact, ctx);
+            isDirty |= EpicGamesUIUtils.OrganizationPopup.DrawPopup(ref Organization, m_context);
+            isDirty |= EpicGamesUIUtils.ProductPopup.DrawPopup(Organization, ref Product, m_context);
+            isDirty |= EpicGamesUIUtils.ArtifactPopup.DrawPopup(Product, ref Artifact, m_context);
         }
 
-        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        protected internal override void OnGUIExpanded(ref bool isDirty)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label(new GUIContent("Organization:", "Use the Organization string that was provided along with your credentials."), GUILayout.Width(100));
-                isDirty |= EpicGamesUIUtils.OrganizationPopup.DrawPopup(ref Organization, ctx);
+                isDirty |= EpicGamesUIUtils.OrganizationPopup.DrawPopup(ref Organization, m_context);
             }
 
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label(new GUIContent("Product:", "Use the Product/Game string that was provided along with your credentials."), GUILayout.Width(100));
-                isDirty |= EpicGamesUIUtils.ProductPopup.DrawPopup(Organization, ref Product, ctx);
+                isDirty |= EpicGamesUIUtils.ProductPopup.DrawPopup(Organization, ref Product, m_context);
             }
             
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label(new GUIContent("Artifact:", "Specify the Artifact string that was provided along with your credentials."), GUILayout.Width(100));
-                isDirty |= EpicGamesUIUtils.ArtifactPopup.DrawPopup(Product, ref Artifact, ctx);
+                isDirty |= EpicGamesUIUtils.ArtifactPopup.DrawPopup(Product, ref Artifact, m_context);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label(new GUIContent("Build Version:", "The version string for the build. This needs to be unique for each build of a specific artifact, independent of platform. For example, BuildVersion-1.0 can only exists for Windows or Mac, not both. The build version string has the following restrictions: Must be between 1 and 100 chars in length, whitespace is not allowed, should only contain characters from the following sets a-z, A-Z, 0-9, or .+-_"), GUILayout.Width(100));
-                isDirty |= EditorUtils.FormatStringTextField(ref BuildVersion, ref showFormattedBuildVersion, ctx);
+                isDirty |= EditorUtils.FormatStringTextField(ref BuildVersion, ref showFormattedBuildVersion, m_context);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label(new GUIContent("App Launch:", "The path to the app executable that should be launched when running your game, relative to (and inside of) the BuildRoot. For Mac binaries, this should be the executable file contained within the .app folder, usually in the location Game.app/Contents/MacOS/Game."), GUILayout.Width(100));
-                isDirty |= EditorUtils.FormatStringTextField(ref AppLaunch, ref showFormattedAppLaunch, ctx);
+                isDirty |= EditorUtils.FormatStringTextField(ref AppLaunch, ref showFormattedAppLaunch, m_context);
             }
 
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label(new GUIContent("App Args:", "Optional: The commandline to send to the app on launch."), GUILayout.Width(100));
-                isDirty |= EditorUtils.FormatStringTextField(ref AppArgs, ref showFormattedAppArgs, ctx);
+                isDirty |= EditorUtils.FormatStringTextField(ref AppArgs, ref showFormattedAppArgs, m_context);
             }
             
             using (new EditorGUILayout.HorizontalScope())
@@ -65,7 +65,7 @@ namespace Wireframe
                 }
 
                 string path = CloudDirOverride;
-                if (CustomFolderPathTextField.OnGUI("Cloud DirectoryOverride", ref path, ref showFormattedCloudDirectory, ctx))
+                if (CustomFolderPathTextField.OnGUI("Cloud DirectoryOverride", ref path, ref showFormattedCloudDirectory, m_context))
                 {
                     CloudDirOverride = path;
                 }

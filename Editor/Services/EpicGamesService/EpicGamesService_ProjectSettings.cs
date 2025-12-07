@@ -9,7 +9,7 @@ namespace Wireframe
     internal partial class EpicGamesService
     {
         private ReorderableListOfArtifacts m_artifactList = new ReorderableListOfArtifacts();
-        private StringFormatter.Context m_context = new StringFormatter.Context();
+        private Context m_context = new Context();
         private EpicGamesOrganization selectedOrganization;
         private EpicGamesProduct selectedGame;
         

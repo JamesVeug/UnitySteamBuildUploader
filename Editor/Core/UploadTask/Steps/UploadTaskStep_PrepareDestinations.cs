@@ -12,7 +12,7 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_PrepareDestinations : AUploadTask_Step
     {
-        public UploadTaskStep_PrepareDestinations(StringFormatter.Context context) : base(context)
+        public UploadTaskStep_PrepareDestinations(Context context) : base(context)
         {
             
         }
@@ -92,7 +92,7 @@ namespace Wireframe
                 AUploadDestination uploadDestination = destination.Destination;
                 try
                 {
-                    bool success = await uploadDestination.Prepare(uploadTask.GUID, configIndex, i, cachePath, result, uploadConfig.Context);
+                    bool success = await uploadDestination.Prepare(uploadTask.GUID, configIndex, i, cachePath, result);
                     if (!success)
                     {
                         return false;

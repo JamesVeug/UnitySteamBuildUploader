@@ -49,15 +49,15 @@ namespace Wireframe
         }
 
         public override async Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig,
-            int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+            int configIndex, UploadTaskReport.StepResult stepResult)
         {
             string pathToCompress = cachedFolderPath;
             if (!string.IsNullOrEmpty(m_targetPathToCompress))
             {
-                pathToCompress = Path.Combine(cachedFolderPath, StringFormatter.FormatString(m_targetPathToCompress, ctx));
+                pathToCompress = Path.Combine(cachedFolderPath, m_context.FormatString(m_targetPathToCompress));
             }
             
-            string compressedFileName = StringFormatter.FormatString(m_compressedFileName, ctx);
+            string compressedFileName = m_context.FormatString(m_compressedFileName);
             if (!compressedFileName.EndsWith(".zip"))
             {
                 compressedFileName += ".zip";

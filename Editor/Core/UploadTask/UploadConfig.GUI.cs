@@ -99,6 +99,7 @@ namespace Wireframe
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(source.SourceType?.Type, out source.Source);
+                                source.Source.Context.SetParent(m_context);
                             }
 
                             // Source
@@ -107,7 +108,7 @@ namespace Wireframe
                             {
                                 if (source.Source != null)
                                 {
-                                    source.Source.OnGUICollapsed(ref isDirty, sourceWidth, m_context);
+                                    source.Source.OnGUICollapsed(ref isDirty, sourceWidth);
                                 }
                             }
                         }
@@ -176,6 +177,7 @@ namespace Wireframe
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
+                                destinationData.Destination.Context.SetParent(m_context);
                             }
 
                             // Destination
@@ -185,7 +187,7 @@ namespace Wireframe
                                 if (destinationData.Destination != null)
                                 {
                                     destinationData.Destination.OnPreGUI(ref isDirty, m_context);
-                                    destinationData.Destination.OnGUICollapsed(ref isDirty, parts, m_context);
+                                    destinationData.Destination.OnGUICollapsed(ref isDirty, parts);
                                 }
                             }
                         }
@@ -286,6 +288,7 @@ namespace Wireframe
                         {
                             isDirty = true;
                             Utils.CreateInstance(source.SourceType?.Type, out source.Source);
+                            source.Source.Context.SetParent(m_context);
                         }
                     }
 
@@ -321,7 +324,7 @@ namespace Wireframe
                 {
                     using (new EditorGUI.DisabledScope(!source.Enabled))
                     {
-                        source.Source.OnGUIExpanded(ref isDirty, m_context);
+                        source.Source.OnGUIExpanded(ref isDirty);
 
                         using (new GUILayout.HorizontalScope())
                         {
@@ -378,7 +381,7 @@ namespace Wireframe
                     if (source.Source != null)
                     {
                         List<string> errors = new List<string>();
-                        source.Source.TryGetErrors(errors, m_context);
+                        source.Source.TryGetErrors(errors);
                         foreach (string error in errors)
                         {
                             DrawError(error);
@@ -404,7 +407,7 @@ namespace Wireframe
             {
                 if (GUILayout.Button("Add New Source"))
                 {
-                    m_buildSources.Add(new SourceData()
+                    AddSource(new SourceData()
                     {
                         Enabled = true,
                     });
@@ -430,6 +433,7 @@ namespace Wireframe
                         {
                             isDirty = true;
                             Utils.CreateInstance(modifiers.ModifierType?.Type, out modifiers.Modifier);
+                            modifiers.Modifier.Context.SetParent(m_context);
                         }
                     }
                             
@@ -507,7 +511,7 @@ namespace Wireframe
             {
                 if (GUILayout.Button("Add New Modifier"))
                 {
-                    m_modifiers.Add(new ModifierData()
+                    AddModifier(new ModifierData()
                     {
                         Enabled = true,
                     });
@@ -533,6 +537,7 @@ namespace Wireframe
                         {
                             isDirty = true;
                             Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
+                            destinationData.Destination.Context.SetParent(m_context);
                         }
                     }
                             
@@ -570,12 +575,12 @@ namespace Wireframe
                     using (new EditorGUI.DisabledScope(!destinationData.Enabled))
                     {
                         destinationData.Destination.OnPreGUI(ref isDirty, m_context);
-                        destinationData.Destination.OnGUIExpanded(ref isDirty, m_context);
+                        destinationData.Destination.OnGUIExpanded(ref isDirty);
 
                         if (destinationData.Enabled)
                         {
                             List<string> errors = new List<string>();
-                            destinationData.Destination.TryGetErrors(errors, m_context);
+                            destinationData.Destination.TryGetErrors(errors);
                             foreach (string error in errors)
                             {
                                 DrawError(error);
@@ -612,7 +617,7 @@ namespace Wireframe
             {
                 if (GUILayout.Button("Add New Destination"))
                 {
-                    m_buildDestinations.Add(new DestinationData()
+                    AddDestination(new DestinationData()
                     {
                         Enabled = true,
                     });
@@ -631,7 +636,7 @@ namespace Wireframe
                 {
                     GUILayout.Label("Action Type: ", GUILayout.Width(120));
                     var status =
-                        (PostUploadActionData.UploadCompleteStatus)EditorGUILayout.EnumPopup(actionData.WhenToExecute,
+                        (UploadActionData.UploadCompleteStatus)EditorGUILayout.EnumPopup(actionData.WhenToExecute,
                             GUILayout.Width(100));
                     if (status != actionData.WhenToExecute)
                     {
@@ -639,7 +644,7 @@ namespace Wireframe
                         isDirty = true;
                     }
 
-                    bool disabled = actionData.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never;
+                    bool disabled = actionData.WhenToExecute == UploadActionData.UploadCompleteStatus.Never;
                     using (new EditorGUI.DisabledScope(disabled))
                     {
                         if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, m_context,
@@ -647,6 +652,7 @@ namespace Wireframe
                         {
                             isDirty = true;
                             Utils.CreateInstance(actionData.ActionType?.Type, out actionData.UploadAction);
+                            actionData.UploadAction.Context.SetParent(m_context);
                         }
                     }
                     
@@ -671,30 +677,30 @@ namespace Wireframe
                 {
                     if (actionData.ActionType != null)
                     {
-                        using (new EditorGUI.DisabledScope(actionData.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never))
+                        using (new EditorGUI.DisabledScope(actionData.WhenToExecute == UploadActionData.UploadCompleteStatus.Never))
                         {
-                            actionData.UploadAction.OnGUIExpanded(ref isDirty, m_context);
+                            actionData.UploadAction.OnGUIExpanded(ref isDirty);
 
-                            if (actionData.WhenToExecute != PostUploadActionData.UploadCompleteStatus.Never)
+                            if (actionData.WhenToExecute != UploadActionData.UploadCompleteStatus.Never)
                             {
                                 List<string> errors = new List<string>();
-                                actionData.UploadAction.TryGetErrors(errors, m_context);
+                                actionData.UploadAction.TryGetErrors(errors);
                                 foreach (string error in errors)
                                 {
                                     DrawError(error);
                                 }
 
                                 List<string> warnings = new List<string>();
-                                actionData.UploadAction.TryGetWarnings(warnings, m_context);
-                                foreach (PostUploadActionData action in m_postActions)
+                                actionData.UploadAction.TryGetWarnings(warnings);
+                                foreach (UploadActionData action in m_postActions)
                                 {
                                     if (action.UploadAction == null || action.WhenToExecute ==
-                                        PostUploadActionData.UploadCompleteStatus.Never)
+                                        UploadActionData.UploadCompleteStatus.Never)
                                     {
                                         continue;
                                     }
 
-                                    action.UploadAction.TryGetWarnings(warnings, m_context);
+                                    action.UploadAction.TryGetWarnings(warnings);
                                 }
 
                                 foreach (string warning in warnings)
@@ -711,9 +717,9 @@ namespace Wireframe
             {
                 if (GUILayout.Button("Add New Acton"))
                 {
-                    AddPostAction(new PostUploadActionData()
+                    AddPostAction(new UploadActionData()
                     {
-                        WhenToExecute = PostUploadActionData.UploadCompleteStatus.Always
+                        WhenToExecute = UploadActionData.UploadCompleteStatus.Always
                     });
                     isDirty = true;
                 }

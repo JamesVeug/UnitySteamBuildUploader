@@ -8,7 +8,7 @@ namespace Wireframe
         private bool m_showFormattedCompressedFileName = false;
         private bool m_showFormattedTargetPathToCompress = false;
         
-        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        protected internal override void OnGUIExpanded(ref bool isDirty, Context ctx)
         {
             using (new GUILayout.HorizontalScope())
             {

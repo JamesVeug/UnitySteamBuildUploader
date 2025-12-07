@@ -11,7 +11,7 @@ namespace Wireframe
         private bool m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;
         private bool m_queuedDirty; // Workaround for changing channels via GenericMenu since it can't reference isDirty
 
-        public override void OnPreGUI(ref bool isDirty, StringFormatter.Context ctx)
+        public override void OnPreGUI(ref bool isDirty, Context ctx)
         {
             base.OnPreGUI(ref isDirty, ctx);
 
@@ -88,7 +88,7 @@ namespace Wireframe
             }
         }
 
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             float segmentLength;
             if (!m_createAppFile)
@@ -125,8 +125,8 @@ namespace Wireframe
             
             using (new EditorGUI.DisabledScope(!m_createAppFile))
             {
-                isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_app, ctx, GUILayout.Width(segmentLength));
-                isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_app, ref m_destinationBranch, ctx, GUILayout.Width(segmentLength));
+                isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(segmentLength));
+                isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_app, ref m_destinationBranch, m_context, GUILayout.Width(segmentLength));
                 EditorUtils.DrawPopup(m_depots, m_app.Depots, "Choose Depots",
                     (newDepots) =>
                     {
@@ -139,7 +139,7 @@ namespace Wireframe
             m_queuedDirty = false;
         }
         
-        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        protected internal override void OnGUIExpanded(ref bool isDirty)
         {
             // Tools
             using (new GUILayout.HorizontalScope())
@@ -155,7 +155,7 @@ namespace Wireframe
                 {
                     GUIContent appFilePathLabel = new GUIContent("    Path:", "The path to an existing app file to use for the upload. This is only used if 'Create AppFile' is disabled.");
                     GUILayout.Label(appFilePathLabel, GUILayout.Width(160));
-                    isDirty |= CustomFilePathTextField.OnGUI(ref m_appFileName, ref m_showFormattedLocalPath, ctx, "vdf");
+                    isDirty |= CustomFilePathTextField.OnGUI(ref m_appFileName, ref m_showFormattedLocalPath, m_context, "vdf");
                 }
                 
                 using (new GUILayout.HorizontalScope())
@@ -173,7 +173,7 @@ namespace Wireframe
                 {
                     GUIContent label = new GUIContent("App:", "The Steam App (game) to upload to. This is the App ID you set up in your Steamworks partner account.");
                     GUILayout.Label(label, GUILayout.Width(120));
-                    isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_app, ctx);
+                    isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_app, m_context);
                 }
 
                 // Branch
@@ -183,7 +183,7 @@ namespace Wireframe
                                                                  "\nNOTE: You can not upload to 'default' branch" +
                                                                  "\nNOTE: Uploading to 'none' will upload the build to steamworks but not assign to a branch.");
                     GUILayout.Label(label, GUILayout.Width(120));
-                    isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_app, ref m_destinationBranch, ctx);
+                    isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_app, ref m_destinationBranch, m_context);
                 }
 
                 // Depots
@@ -206,7 +206,7 @@ namespace Wireframe
             {
                 GUIContent label = new GUIContent("Description Format:", "Description for developers that appears on Steamworks.");
                 GUILayout.Label(label, GUILayout.Width(120));
-                isDirty |= EditorUtils.FormatStringTextArea(ref m_descriptionFormat, ref m_showFormattedDescription, ctx);
+                isDirty |= EditorUtils.FormatStringTextArea(ref m_descriptionFormat, ref m_showFormattedDescription, m_context);
             }
             
             isDirty |= m_queuedDirty;

@@ -25,7 +25,7 @@ namespace Wireframe
         private string[] names = null;
         private T[] values = null;
         private T[] rawValues = null;
-        private StringFormatter.Context ctx = null;
+        private Context ctx = null;
 
         public void Refresh()
         {
@@ -62,7 +62,7 @@ namespace Wireframe
             }
             else
             {
-                namesTemp.AddRange(rawValues.Select(x => x.Id + ". " + StringFormatter.FormatString(x.DisplayName, ctx)));
+                namesTemp.AddRange(rawValues.Select(x => x.Id + ". " + ctx.FormatString(x.DisplayName)));
             }
             
 
@@ -88,7 +88,7 @@ namespace Wireframe
             return a.DisplayName.CompareTo(b.DisplayName);
         }
 
-        public bool DrawPopup(IList<T> collection, int index, StringFormatter.Context ctx, params GUILayoutOption[] options)
+        public bool DrawPopup(IList<T> collection, int index, Context ctx, params GUILayoutOption[] options)
         {
             T t = collection[index];
             bool edited = DrawPopup(ref t, ctx, options);
@@ -96,7 +96,7 @@ namespace Wireframe
             return edited;
         }
         
-        public bool DrawPopup(ref T initial, StringFormatter.Context ctx, params GUILayoutOption[] options)
+        public bool DrawPopup(ref T initial, Context ctx, params GUILayoutOption[] options)
         {
             if (ctx != this.ctx)
             {

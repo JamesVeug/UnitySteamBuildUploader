@@ -1,36 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Wireframe
 {
-    internal partial class WindowUploadTab : StringFormatter.IContextModifier
+    internal partial class WindowUploadTab : IContextContainer
     {
-        private static Dictionary<string, Func<WindowUploadTab, string>> s_StringGetters = new Dictionary<string, Func<WindowUploadTab, string>>()
-        {
-            
-        };
-        
-        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
-        {
-            if (s_StringGetters.TryGetValue(key, out var func))
-            {
-                value = func(this);
-                return true;
-            }
-            
-            if (m_currentUploadProfile != null)
-            {
-                foreach (UploadConfig config in m_currentUploadProfile.UploadConfigs)
-                {
-                    if (config.ReplaceString(key, out value, ctx))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            value = string.Empty;
-            return false;
-        }
+        List<UploadConfig> IContextContainer.UploadConfigs => m_currentUploadProfile.UploadConfigs;
+        List<UploadConfig.UploadActionData> IContextContainer.PreUploadActions => m_currentUploadProfile.PreUploadActions;
+        List<UploadConfig.UploadActionData> IContextContainer.PostUploadActions => m_currentUploadProfile.PostUploadActions;
     }
 }

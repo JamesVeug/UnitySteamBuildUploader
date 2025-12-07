@@ -9,37 +9,63 @@ namespace Wireframe
 {
     public static class EditorUtils
     {
-        public static string GetFormatStringTextFieldTooltip(StringFormatter.Context ctx)
+        public static string GetFormatStringTextFieldTooltip(Context ctx)
         {
             StringBuilder tooltipBuilder = new StringBuilder();
             tooltipBuilder.AppendLine("Show the text as it will appear with formats:");
 
-            Func<string> temp = () => "???";
-            int maximum = 30;
-            foreach (StringFormatter.Command command in StringFormatter.Commands.OrderBy(a=>a.Key))
+            const int maximum = 30;
+            int ignored = 0;
+            List<string> commandKeys = new List<string>(maximum);
+            List<Command> commands = new List<Command>(maximum);
+            foreach (Command command in ctx.LocalCommands.Where(a=>a.Key.Length > 2))
             {
-                if (maximum-- <= 0)
+                commands.Add(command);
+                commandKeys.Add(command.Key);
+            }
+            
+            foreach (Command command in Context.FormatToCommand.Values.OrderBy(a=>a.Key))
+            {
+                if (command.Key.Length <= 2 || commandKeys.Contains(command.Key))
                 {
-                    tooltipBuilder.AppendLine("...\n\nFor all format see the Wiki:\nWindow->Build Uploader->Welcome->Documentation");
-                    break;
+                    continue;
                 }
                 
+                if (commands.Count >= maximum)
+                {
+                    ignored++;
+                    continue;
+                }
+                
+                commands.Add(command);
+                commandKeys.Add(command.Key);
+            }
+            commands.Sort();
+            
+            
+            foreach (Command command in commands)
+            {
                 tooltipBuilder.Append(command.Key);
                 tooltipBuilder.Append(" - ");
+                tooltipBuilder.AppendLine(ctx.FormatString(command.Key));
+            }
 
-                Func<string> formatter = command.Formatter(ctx) ?? temp;
-                tooltipBuilder.AppendLine(ctx.Get(command.Key, command.FieldName, formatter));
+            if (commands.Count >= maximum)
+            {
+                tooltipBuilder.AppendLine($"+{ignored} more...");
+                tooltipBuilder.AppendLine();
+                tooltipBuilder.AppendLine("For all format see the Wiki:\nWindow->Build Uploader->Welcome->Documentation");
             }
             
             return tooltipBuilder.ToString();
         }
 
-        public static bool FormatStringTextField(ref string text, ref bool pressed, StringFormatter.Context ctx, GUILayoutOption textFieldOption)
+        public static bool FormatStringTextField(ref string text, ref bool pressed, Context ctx, GUILayoutOption textFieldOption)
         {
             return FormatStringTextField(ref text, ref pressed, ctx, null, textFieldOption);
         }
         
-        public static bool FormatStringTextField(ref string text, ref bool pressed, StringFormatter.Context ctx, GUIStyle style = null, GUILayoutOption textFieldOption = null)
+        public static bool FormatStringTextField(ref string text, ref bool pressed, Context ctx, GUIStyle style = null, GUILayoutOption textFieldOption = null)
         {
             return FormatStringText(ref text, ref pressed, style, textFieldOption, true, ctx);
         }
@@ -49,12 +75,12 @@ namespace Wireframe
             return FormatStringTextField(ref text, ref pressed, null, textFieldOption);
         }
         
-        public static bool FormatStringTextArea(ref string text, ref bool pressed, StringFormatter.Context ctx, GUIStyle style = null, GUILayoutOption textFieldOption = null)
+        public static bool FormatStringTextArea(ref string text, ref bool pressed, Context ctx, GUIStyle style = null, GUILayoutOption textFieldOption = null)
         {
             return FormatStringText(ref text, ref pressed, style, textFieldOption, false, ctx);
         }
         
-        private static bool FormatStringText(ref string text, ref bool pressed, GUIStyle style, GUILayoutOption textFieldOption, bool textField, StringFormatter.Context ctx)
+        private static bool FormatStringText(ref string text, ref bool pressed, GUIStyle style, GUILayoutOption textFieldOption, bool textField, Context ctx)
         {
             if (style == null)
             {
@@ -64,8 +90,9 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUIContent content = new GUIContent("F", GetFormatStringTextFieldTooltip(ctx));
-                
-                var newPressed = GUILayout.Toggle(pressed, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
+
+                GUIStyle guiStyle = "ToolbarButton";
+                var newPressed = GUILayout.Toggle(pressed, content, guiStyle, GUILayout.Width(20), GUILayout.Height(20));
                 if (newPressed != pressed)
                 {
                     pressed = newPressed;
@@ -74,7 +101,7 @@ namespace Wireframe
 
                 using (new EditorGUI.DisabledScope(pressed))
                 {
-                    string displayText = pressed ? StringFormatter.FormatString(text, ctx) : text;
+                    string displayText = pressed ? ctx.FormatString(text) : text;
                     string newText = "";
                     
                     if (textFieldOption == null)
@@ -103,12 +130,12 @@ namespace Wireframe
             return false;
         }
 
-        public static bool DrawUploadProfileDropdown(ref UploadProfileMeta selectedProfile, List<UploadProfileMeta> profiles, StringFormatter.Context ctx)
+        public static bool DrawUploadProfileDropdown(ref UploadProfileMeta selectedProfile, List<UploadProfileMeta> profiles, Context ctx)
         {
             List<string> profileNames = new List<string>();
             profileNames.Add("-- Select Upload Profile --");
                     
-            profileNames.AddRange(profiles.Select(p => StringFormatter.FormatString(p.ProfileName, ctx)));
+            profileNames.AddRange(profiles.Select(p => ctx.FormatString(p.ProfileName)));
             for (int i = 1; i < profileNames.Count; i++)
             {
                 profileNames[i] = $"{i}. {profileNames[i]}";

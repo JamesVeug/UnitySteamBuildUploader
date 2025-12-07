@@ -94,7 +94,7 @@ namespace Wireframe
             m_embeds.Add(embed);
         }
         
-        public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult)
         {
             List<Dictionary<string, object>> embeds = new List<Dictionary<string, object>>();
             foreach (Embed embed in m_embeds)
@@ -102,12 +102,12 @@ namespace Wireframe
                 Dictionary<string, object> embedDict = new Dictionary<string, object>();
                 if (!string.IsNullOrEmpty(embed.title))
                 {
-                    embedDict.Add("title", StringFormatter.FormatString(embed.title, ctx));
+                    embedDict.Add("title", m_context.FormatString(embed.title));
                 }
                 
                 if (!string.IsNullOrEmpty(embed.description))
                 {
-                    embedDict.Add("description", StringFormatter.FormatString(embed.description, ctx));
+                    embedDict.Add("description", m_context.FormatString(embed.description));
                 }
                 
                 if (!string.IsNullOrEmpty(embed.color))
@@ -128,13 +128,13 @@ namespace Wireframe
                 embeds.Add(embedDict);
             }
             
-            string text = StringFormatter.FormatString(m_text, ctx);
+            string text = m_context.FormatString(m_text);
             return await Discord.SendMessageToChannel(m_channel.ChannelID, text, m_app.Token, m_app.IsBot, embeds, stepResult);
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
 
             if (!Discord.Enabled)
             {

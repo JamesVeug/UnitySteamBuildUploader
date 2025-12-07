@@ -40,7 +40,7 @@ namespace Wireframe
         }
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx, CancellationTokenSource token)
+            CancellationTokenSource token)
         {
             // Preparing
             string buildName = sourceBuild.platform + "-" + sourceBuild.buildtargetid + "-" + sourceBuild.build;
@@ -104,9 +104,9 @@ namespace Wireframe
             return true;
         }
 
-        public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult)
         {
-            base.CleanUp(configIndex, stepResult, ctx);
+            base.CleanUp(configIndex, stepResult);
             if (File.Exists(downloadedFilePath))
             {
                 try
@@ -128,9 +128,9 @@ namespace Wireframe
             return sourceFilePath;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (!InternalUtils.GetService<UnityCloudService>().IsReadyToStartBuild(out string reason))
             {

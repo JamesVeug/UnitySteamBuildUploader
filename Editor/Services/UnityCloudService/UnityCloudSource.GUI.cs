@@ -6,12 +6,12 @@ namespace Wireframe
 {
     public partial class UnityCloudSource
     {
-        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Target:", GUILayout.Width(120));
-                isDirty |= UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget, ctx);
+                isDirty |= UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget, m_context);
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -57,14 +57,14 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget, ctx))
+            if (UnityCloudAPIEditorUtil.TargetPopup.DrawPopup(ref sourceTarget, m_context))
             {
                 isDirty = true;
             }
 
-            if (UnityCloudAPIEditorUtil.BuildPopup.DrawPopup(sourceTarget, ref sourceBuild, ctx))
+            if (UnityCloudAPIEditorUtil.BuildPopup.DrawPopup(sourceTarget, ref sourceBuild, m_context))
             {
                 isDirty = true;
             }

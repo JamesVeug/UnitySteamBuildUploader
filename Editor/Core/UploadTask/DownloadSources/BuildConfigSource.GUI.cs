@@ -5,9 +5,9 @@ namespace Wireframe
 {
     public partial class BuildConfigSource
     {
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig, ctx);
+            isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig, m_context);
 
             bool useSourceSettings = m_OverrideSwitchTargetPlatform;
             using (new EditorGUI.DisabledScope(!useSourceSettings))
@@ -40,12 +40,12 @@ namespace Wireframe
             }
         }
         
-        public override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        public override void OnGUIExpanded(ref bool isDirty)
         {
             using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Label("Build Config:", GUILayout.Width(120));
-                isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig, ctx);
+                isDirty |= BuildConfigsUIUtils.BuildConfigsPopup.DrawPopup(ref m_BuildConfig, m_context);
             }
             
             using (new EditorGUILayout.HorizontalScope())
@@ -106,7 +106,7 @@ namespace Wireframe
                     isDirty = true;
                 }
                 
-                string path = GetBuiltDirectory(ctx);
+                string path = GetBuiltDirectory();
                 using (new EditorGUI.DisabledScope(!System.IO.Directory.Exists(path)))
                 {
                     if (GUILayout.Button("Open Build Folder", GUILayout.Width(120)))
@@ -123,7 +123,7 @@ namespace Wireframe
                         "This will change your Player settings and Editor settings",
                         "Apply", "Cancel"))
                 {
-                    ApplyBuildConfig(CreateSourceBuildConfig(), null, ctx);
+                    ApplyBuildConfig(CreateSourceBuildConfig(), null);
                 }
             }
         }

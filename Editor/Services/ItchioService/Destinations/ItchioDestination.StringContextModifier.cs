@@ -2,52 +2,32 @@
 
 namespace Wireframe
 {
-    public partial class ItchioDestination : StringFormatter.IContextModifier
+    public partial class ItchioDestination
     {
-        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
+        protected override Context CreateContext()
         {
-            if (key == StringFormatter.ITCHIO_USER_NAME_KEY)
-            {
-                if (m_user != null)
-                {
-                    value = m_user.DisplayName;
-                }
-                else
-                {
-                    value = "Unspecified User";
-                }
+            Context context = base.CreateContext();
+            context.AddCommand(Context.ITCHIO_USER_NAME_KEY, GetUserName);
+            context.AddCommand(Context.ITCHIO_GAME_NAME_KEY, GetGameName);
+            context.AddCommand(Context.ITCHIO_CHANNEL_NAME_KEY, GetChannelName);
+            return context;
+        }
 
-                return true;
-            }
-            else if (key == StringFormatter.ITCHIO_GAME_NAME_KEY)
-            {
-                if (m_game != null)
-                {
-                    value = m_game.DisplayName;
-                }
-                else
-                {
-                    value = "Unspecified Game";
-                }
+        private string GetUserName()
+        {
+            return m_user != null ? m_user.DisplayName : "Unspecified User";
+        }
 
-                return true;
-            }
-            else if (key == StringFormatter.ITCHIO_CHANNEL_NAME_KEY)
-            {
-                if (m_channels != null && m_channels.Count > 0)
-                {
-                    value = string.Join(",", m_channels.Select(a=>a.DisplayName));
-                }
-                else
-                {
-                    value = "Unspecified Channels";
-                }
+        private string GetGameName()
+        {
+            return m_game != null ? m_game.DisplayName : "Unspecified Game";
+        }
 
-                return true;
-            }
-            
-            value = "";
-            return false;
+        private string GetChannelName()
+        {
+            return m_channels != null && m_channels.Count > 0
+                ? string.Join(",", m_channels.Select(a => a.DisplayName))
+                : "Unspecified Channels";
         }
     }
 }

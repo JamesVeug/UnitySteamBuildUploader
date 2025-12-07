@@ -10,7 +10,7 @@ namespace Wireframe
         public override bool HasProjectSettingsGUI => true;
         
         private SteamApp _current;
-        private StringFormatter.Context m_context = new StringFormatter.Context();
+        private Context m_context = new Context();
 
         private ReorderableListOfBranches m_branchesList = new ReorderableListOfBranches();
         private ReorderableListOfDepots m_depotsList = new ReorderableListOfDepots();

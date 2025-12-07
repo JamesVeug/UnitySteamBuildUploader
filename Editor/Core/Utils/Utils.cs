@@ -231,16 +231,16 @@ namespace Wireframe
             return displayedPath;
         }
         
-        public static string Replace(string text, string otherString, string with, StringComparison compare)
+        public static string Replace(string text, string replace, string with, StringComparison compare)
         {
 #if UNITY_2021_1_OR_NEWER
-            return text.Replace(otherString, with, compare);
+            return text.Replace(replace, with, compare);
 #else
-            int index = text.IndexOf(otherString, compare);
+            int index = text.IndexOf(replace, compare);
             while(index >= 0)
             {
-                text = text.Remove(index, otherString.Length).Insert(index, with);
-                index = text.IndexOf(otherString, index + with.Length, compare);
+                text = text.Remove(index, replace.Length).Insert(index, with);
+                index = text.IndexOf(replace, index + with.Length, compare);
             }
             return text;
 #endif
@@ -381,7 +381,7 @@ namespace Wireframe
 
         public static bool PathContainsInvalidCharacters(string path)
         {
-            return path.IndexOfAny(Path.GetInvalidPathChars()) >= 0;
+            return !string.IsNullOrEmpty(path) && path.IndexOfAny(Path.GetInvalidPathChars()) >= 0;
         }
 
         public static bool FileNameContainsInvalidCharacters(string fileName)
@@ -483,6 +483,39 @@ namespace Wireframe
                 default:
                     throw new ArgumentOutOfRangeException(nameof(segment), segment, null);
             }
+        }
+
+        public static int GetClosingBracketIndex(string text, int startIndex, char startBracket = '{',
+            char endBracket = '}')
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return -1;
+            }
+
+            int textLength = text.Length;
+            
+            int index = startIndex + 1;
+            int depth = 1;
+            while (index < textLength)
+            {
+                if (text[index] == startBracket)
+                {
+                    depth++;
+                }
+                else if (text[index] == endBracket)
+                {
+                    depth--;
+                    if (depth == 0)
+                    {
+                        return index;
+                    }
+                }
+                
+                index++;
+            }
+
+            return -1;
         }
     }
 }

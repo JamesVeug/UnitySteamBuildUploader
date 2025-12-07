@@ -1,43 +1,65 @@
 namespace Wireframe
 {
-    public partial class UploadConfig : StringFormatter.IContextModifier
+    public partial class UploadConfig
     {
-        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
+        private class UploadConfigContext : Context
         {
-            foreach (SourceData source in Sources)
+            private UploadConfig config;
+
+            public UploadConfigContext(UploadConfig config)
             {
-                if (!source.Enabled)
+                this.config = config;
+            }
+
+            public override bool TryFormatKeyLocally(string key, out string value)
+            {
+                if (base.TryFormatKeyLocally(key, out value))
                 {
-                    continue;
+                    return true;
                 }
 
-                if (source.Source is StringFormatter.IContextModifier modifier)
+                foreach (SourceData source in config.Sources)
                 {
-                    if (modifier.ReplaceString(key, out value, ctx))
+                    if (!source.Enabled || source.Source == null)
+                    {
+                        continue;
+                    }
+
+                    if (source.Source.Context.TryFormatKeyLocally(key, out value))
                     {
                         return true;
                     }
                 }
-            }
 
-            foreach (DestinationData destination in Destinations)
-            {
-                if (!destination.Enabled)
+                foreach (ModifierData modifier in config.Modifiers)
                 {
-                    continue;
-                }
+                    if (!modifier.Enabled || modifier.Modifier == null)
+                    {
+                        continue;
+                    }
 
-                if (destination.Destination is StringFormatter.IContextModifier modifier)
-                {
-                    if (modifier.ReplaceString(key, out value, ctx))
+                    if (modifier.Modifier.Context.TryFormatKeyLocally(key, out value))
                     {
                         return true;
                     }
                 }
+
+                foreach (DestinationData destination in config.Destinations)
+                {
+                    if (!destination.Enabled || destination.Destination == null)
+                    {
+                        continue;
+                    }
+
+                    if (destination.Destination.Context.TryFormatKeyLocally(key, out value))
+                    {
+                        return true;
+                    }
+                }
+
+                value = "";
+                return false;
             }
-            
-            value = "";
-            return false;
         }
     }
 }

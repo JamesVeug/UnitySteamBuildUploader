@@ -8,15 +8,14 @@
         /// </summary>
         /// <param name="isDirty">Set to true when something is changed to save the config</param>
         /// <param name="maxWidth">How wide the UI can be</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
-        public abstract void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx);
-        
+        public abstract void OnGUIExpanded(ref bool isDirty);
+
         /// <summary>
         /// Draw the full GUI of the source so everything can be modified
         /// Executed when the Upload Config is expanded
         /// </summary>
         /// <param name="isDirty">Set to true when something is changed to save the config</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
-        public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx);
+        /// <param name="maxWidth"></param>
+        public abstract void OnGUICollapsed(ref bool isDirty, float maxWidth);
     }
 }

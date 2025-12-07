@@ -60,7 +60,7 @@ namespace Wireframe
         }
 
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx, CancellationTokenSource token)
+            CancellationTokenSource token)
         {
             // Preparing
             string directoryPath = Path.Combine(Preferences.CacheFolderPath, "URLBuilds");
@@ -70,8 +70,8 @@ namespace Wireframe
                 Directory.CreateDirectory(directoryPath);
             }
 
-            string fullFilePath = Path.Combine(directoryPath, StringFormatter.FormatString(m_fileName, ctx));
-            string url = StringFormatter.FormatString(m_url, ctx);
+            string fullFilePath = Path.Combine(directoryPath, m_context.FormatString(m_fileName));
+            string url = m_context.FormatString(m_url);
 
             // Only download if we don't have it
             if (!File.Exists(fullFilePath))
@@ -122,9 +122,9 @@ namespace Wireframe
             return true;
         }
 
-        public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult)
         {
-            base.CleanUp(configIndex, stepResult, ctx);
+            base.CleanUp(configIndex, stepResult);
             if (File.Exists(m_sourcePath))
             {
                 stepResult.AddLog("Deleting cached file: " + m_sourcePath);
@@ -139,9 +139,9 @@ namespace Wireframe
             return m_sourcePath;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (string.IsNullOrEmpty(m_url))
             {

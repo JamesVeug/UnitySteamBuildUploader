@@ -8,19 +8,19 @@ namespace Wireframe
     {
         public bool Enabled { get; set; } = true;
         public string GUID { get; private set; }
-        public StringFormatter.Context Context => m_context;
+        public Context Context => m_context;
         
         public List<SourceData> Sources => m_buildSources;
         public List<ModifierData > Modifiers => m_modifiers;
         public List<DestinationData> Destinations => m_buildDestinations;
-        public List<PostUploadActionData> Actions => m_postActions;
+        public List<UploadActionData> PostActions => m_postActions;
 
         private List<SourceData> m_buildSources;
         private List<ModifierData> m_modifiers;
         private List<DestinationData> m_buildDestinations;
-        private List<PostUploadActionData> m_postActions;
+        private List<UploadActionData> m_postActions;
         
-        private StringFormatter.Context m_context;
+        private UploadConfigContext m_context;
 
         public UploadConfig() : this("")
         {
@@ -34,10 +34,9 @@ namespace Wireframe
             m_buildSources = new List<SourceData>();
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
-            m_postActions = new List<PostUploadActionData>();
+            m_postActions = new List<UploadActionData>();
             
-            m_context = new StringFormatter.Context();
-            m_context.AddModifier(this);
+            m_context = new UploadConfigContext(this);
         }
 
         public void NewGUID()
@@ -61,7 +60,7 @@ namespace Wireframe
             errors.AddRange(GetSourceErrors());
             errors.AddRange(GetModifierErrors());
             errors.AddRange(GetDestinationErrors());
-            errors.AddRange(GetActionErrors());
+            errors.AddRange(GetPostActionErrors());
 
             return errors;
         }
@@ -72,7 +71,7 @@ namespace Wireframe
             warnings.AddRange(GetSourceWarnings());
             warnings.AddRange(GetModifierWarnings());
             warnings.AddRange(GetDestinationWarnings());
-            warnings.AddRange(GetActionWarnings());
+            warnings.AddRange(GetPostActionWarnings());
 
             return warnings;
         }
@@ -93,7 +92,7 @@ namespace Wireframe
                     continue;
                 }
                 
-                sourceData.Source.TryGetErrors(errors, m_context);
+                sourceData.Source.TryGetErrors(errors);
             }
             
             return errors;
@@ -121,12 +120,12 @@ namespace Wireframe
             return errors;
         }
         
-        public List<string> GetActionErrors()
+        public List<string> GetPostActionErrors()
         {
             List<string> errors = new List<string>();
-            foreach (PostUploadActionData action in m_postActions)
+            foreach (UploadActionData action in m_postActions)
             {
-                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never)
+                if (action.WhenToExecute == UploadActionData.UploadCompleteStatus.Never)
                 {
                     continue;
                 }
@@ -137,7 +136,7 @@ namespace Wireframe
                     continue;
                 }
                 
-                action.UploadAction.TryGetErrors(errors, m_context);
+                action.UploadAction.TryGetErrors(errors);
             }
             
             return errors;
@@ -159,17 +158,17 @@ namespace Wireframe
             return warnings;
         }
         
-        public List<string> GetActionWarnings()
+        public List<string> GetPostActionWarnings()
         {
             List<string> warnings = new List<string>();
-            foreach (PostUploadActionData action in m_postActions)
+            foreach (UploadActionData action in m_postActions)
             {
-                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never || action.UploadAction == null)
+                if (action.WhenToExecute == UploadActionData.UploadCompleteStatus.Never || action.UploadAction == null)
                 {
                     continue;
                 }
                 
-                action.UploadAction.TryGetWarnings(warnings, m_context);
+                action.UploadAction.TryGetWarnings(warnings);
             }
             
             return warnings;
@@ -191,7 +190,7 @@ namespace Wireframe
                     continue;
                 }
                 
-                destinationData.Destination.TryGetErrors(errors, m_context);
+                destinationData.Destination.TryGetErrors(errors);
             }
             
             foreach (ModifierData modifier in m_modifiers)
@@ -275,7 +274,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                source.Source.TryGetErrors(errors, m_context);
+                source.Source.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
                     reason = $"Source #{i+1}: " + string.Join(", ", errors);
@@ -306,7 +305,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                destination.Destination.TryGetErrors(errors, m_context);
+                destination.Destination.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
                     reason = $"Destination #{i+1}: " + string.Join(", ", errors);
@@ -348,7 +347,7 @@ namespace Wireframe
             for (int i = 0; i < m_postActions.Count; i++)
             {
                 var action = m_postActions[i];
-                if (action.WhenToExecute == PostUploadActionData.UploadCompleteStatus.Never)
+                if (action.WhenToExecute == UploadActionData.UploadCompleteStatus.Never)
                 {
                     continue;
                 }
@@ -360,7 +359,7 @@ namespace Wireframe
                 }
 
                 List<string> errors = new List<string>();
-                action.UploadAction.TryGetErrors(errors, m_context);
+                action.UploadAction.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
                     reason = $"Action #{i+1}: " + string.Join(", ", errors);
@@ -378,7 +377,7 @@ namespace Wireframe
             {
                 if (source.Enabled && source.Source != null)
                 {
-                    await source.Source.CleanUp(configIndex, result, buildConfig.Context);
+                    await source.Source.CleanUp(configIndex, result);
                 }
             }
 
@@ -397,6 +396,11 @@ namespace Wireframe
             {
                 return;
             }
+
+            if (source.Source != null)
+            {
+                source.Source.Context.SetParent(m_context);
+            }
             
             m_buildSources.Add(source);
         }
@@ -407,6 +411,8 @@ namespace Wireframe
             {
                 return;
             }
+
+            source.Context.SetParent(m_context);
             
             SourceData sourceData = new SourceData(source);
             m_buildSources.Add(sourceData);
@@ -417,6 +423,11 @@ namespace Wireframe
             if (destination == null)
             {
                 return;
+            }
+
+            if (destination.Destination != null)
+            {
+                destination.Destination.Context.SetParent(m_context);
             }
             
             m_buildDestinations.Add(destination);
@@ -429,28 +440,37 @@ namespace Wireframe
                 return;
             }
             
+            destination.Context.SetParent(m_context);
+            
             DestinationData destinationData = new DestinationData(destination);
             m_buildDestinations.Add(destinationData);
         }
         
-        public void AddPostAction(PostUploadActionData action)
+        public void AddPostAction(UploadActionData action)
         {
             if (action == null)
             {
                 return;
             }
-            
+
+            if (action.UploadAction != null)
+            {
+                action.UploadAction.Context.SetParent(m_context);
+            }
+
             m_postActions.Add(action);
         }
         
-        public void AddPostAction(AUploadAction action, PostUploadActionData.UploadCompleteStatus completeStatus = PostUploadActionData.UploadCompleteStatus.Always)
+        public void AddPostAction(AUploadAction action, UploadActionData.UploadCompleteStatus completeStatus = UploadActionData.UploadCompleteStatus.Always)
         {
             if (action == null)
             {
                 return;
             }
             
-            PostUploadActionData actionData = new PostUploadActionData(action, completeStatus);
+            action.Context.SetParent(m_context);
+            
+            UploadActionData actionData = new UploadActionData(action, completeStatus);
             m_postActions.Add(actionData);
         }
         
@@ -460,7 +480,12 @@ namespace Wireframe
             {
                 return;
             }
-            
+
+            if (modifier.Modifier != null)
+            {
+                modifier.Modifier.Context.SetParent(m_context);
+            }
+
             m_modifiers.Add(modifier);
         }
         
@@ -470,6 +495,8 @@ namespace Wireframe
             {
                 return;
             }
+            
+            modifier.Context.SetParent(m_context);
             
             ModifierData modifierData = new ModifierData(modifier);
             m_modifiers.Add(modifierData);

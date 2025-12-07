@@ -12,7 +12,7 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_PrepareSources : AUploadTask_Step
     {
-        public UploadTaskStep_PrepareSources(StringFormatter.Context context) : base(context)
+        public UploadTaskStep_PrepareSources(Context context) : base(context)
         {
             
         }
@@ -92,7 +92,7 @@ namespace Wireframe
                 AUploadSource source = sourceData.Source;
                 try
                 {
-                    bool success = await source.Prepare(result, uploadConfig.Context, token);
+                    bool success = await source.Prepare(result, token);
                     if (!success)
                     {
                         return false;

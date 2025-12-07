@@ -11,7 +11,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(SlackMessageChannelAction), "actions", "Use a bot to send a message to a channel on a Slack server.")]
-    [UploadAction("Slack Message Channel")]
+    [UploadAction("Slack Send Message")]
     public partial class SlackMessageChannelAction : AUploadAction
     {
         [Wiki("App", "Which App/Bot will be sending the message", 1)]
@@ -20,16 +20,19 @@ namespace Wireframe
         [Wiki("Server", "What server to send the message to", 2)]
         private SlackConfig.SlackServer m_server;
         
-        [Wiki("Channel", "What channel in the server to send the message to", 2)]
+        [Wiki("Channel", "What channel in the server to send the message to", 3)]
         private SlackConfig.SlackChannel m_channel;
 
-        [Wiki("Text", "What text to send", 3)] 
+        [Wiki("Text", "What text to send", 4)] 
         private string m_text = "";
 
         [Wiki("Attachments", "A list of attached messages with the message. This is optional and can be used to format the message nicely.", 5)]
-        private List<Slack.Attachment> m_attachments = new List<Slack.Attachment>();
+        private List<SlackAttachment> m_attachments = new List<SlackAttachment>();
+        
+        [Wiki("ResponseFormatName", "When sending a Slack message we receive a Timestamp of that message. If a formatName is provided then that TS is saved as a string format to be used elsewhere in the Upload Task. eg: editing it as a post action.", 6)]
+        private Command m_responseTSFormat; // Created in CreateContext()
 
-        public SlackMessageChannelAction()
+        public SlackMessageChannelAction() : base()
         {
             // Required for reflection
         }
@@ -63,20 +66,39 @@ namespace Wireframe
             m_text = text;
         }
 
-        public void AddAttachment(Slack.Attachment attachment)
+        public void SetResponseTSFormatName(string TSFormatName)
+        {
+            if (TSFormatName.Length > 0)
+            {
+                if (TSFormatName[0] != '{')
+                {
+                    TSFormatName = '{' + TSFormatName;
+                }
+                if (TSFormatName[TSFormatName.Length - 1] != '}')
+                {
+                    TSFormatName += '}';
+                }
+            }
+            
+            m_responseTSFormat.Key = TSFormatName;
+        }
+
+        public void AddAttachment(SlackAttachment attachment)
         {
             m_attachments.Add(attachment);
         }
         
-        public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult)
         {
-            string text = StringFormatter.FormatString(m_text, ctx);
-            return await Slack.SendMessage(text, m_channel.ChannelID, m_app.Token, m_attachments, stepResult);
+            string text = m_context.FormatString(m_text);
+            SlackSendMessageResponse response = await Slack.SendMessage(text, m_channel.ChannelID, m_app.Token, m_attachments, stepResult);
+            m_recordedMessageTimeStamp = response.MessageTimeStamp;
+            return response.Successful;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
 
             if (!Slack.Enabled)
             {
@@ -115,7 +137,8 @@ namespace Wireframe
                 { "app", m_app?.Id ?? 0 },
                 { "serverId", m_server?.Id ?? 0 },
                 { "channelId", m_channel?.ChannelID ?? "" },
-                { "text", m_text }
+                { "text", m_text },
+                { "tsFormat", m_responseTSFormat.Key }
             };
             
             if (m_attachments != null && m_attachments.Count > 0)
@@ -172,22 +195,30 @@ namespace Wireframe
             {
                 m_text = string.Empty; // Default to empty string if not set
             }
+
+            if (data.TryGetValue("tsFormat", out object tsFormatObj) && tsFormatObj != null)
+            {
+                if (tsFormatObj is string tsFormatString)
+                {
+                    m_responseTSFormat.Key = tsFormatString;
+                }
+            }
             
             if (data.TryGetValue("attachments", out object embedsObj) && embedsObj is List<object> embedsList)
             {
-                m_attachments = new List<Slack.Attachment>();
+                m_attachments = new List<SlackAttachment>();
                 foreach (var embedData in embedsList)
                 {
                     if (embedData is Dictionary<string, object> embedDict)
                     {
-                        Slack.Attachment attachment = Slack.Attachment.Deserialize(embedDict);
+                        SlackAttachment attachment = SlackAttachment.Deserialize(embedDict);
                         m_attachments.Add(attachment);
                     }
                 }
             }
             else
             {
-                m_attachments = new List<Slack.Attachment>(); // Default to empty list if not set
+                m_attachments = new List<SlackAttachment>(); // Default to empty list if not set
             }
         }
     }

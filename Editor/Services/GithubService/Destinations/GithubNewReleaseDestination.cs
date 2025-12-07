@@ -33,7 +33,7 @@ namespace Wireframe
         private bool m_zipContents = true;
         
         [Wiki("Description Format", "What description to appear on the package.")]
-        private string m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+        private string m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
 
         public GithubNewReleaseDestination() : base()
         {
@@ -67,9 +67,9 @@ namespace Wireframe
             m_zipContents = zipContents;
         }
 
-        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
-            string filePath = StringFormatter.FormatString(m_cachedFolderPath, ctx);
+            string filePath = m_context.FormatString(m_cachedFolderPath);
             
             List<string> files = new List<string>();
             if (m_zipContents)
@@ -85,12 +85,12 @@ namespace Wireframe
             }
 
 
-            string owner = StringFormatter.FormatString(m_owner, ctx);
-            string repo = StringFormatter.FormatString(m_repo, ctx);
-            string releaseName = StringFormatter.FormatString(m_releaseName, ctx);
-            string tagName = StringFormatter.FormatString(m_tagName, ctx);
-            string target = StringFormatter.FormatString(m_target, ctx);
-            string buildDescription = StringFormatter.FormatString(m_descriptionFormat, ctx);
+            string owner = m_context.FormatString(m_owner);
+            string repo = m_context.FormatString(m_repo);
+            string releaseName = m_context.FormatString(m_releaseName);
+            string tagName = m_context.FormatString(m_tagName);
+            string target = m_context.FormatString(m_target);
+            string buildDescription = m_context.FormatString(m_descriptionFormat);
             
             int processID = ProgressUtils.Start("Github Release", "Uploading a new Github Release");
             bool success = await Github.NewRelease(owner, repo, releaseName, buildDescription, tagName, target, m_draft, m_prerelease, Github.Token, result, files);
@@ -99,9 +99,9 @@ namespace Wireframe
             return success;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
             if (!InternalUtils.GetService<GithubService>().IsReadyToStartBuild(out string reason))
             {
@@ -174,7 +174,7 @@ namespace Wireframe
             if (s.TryGetValue("descriptionFormat", out object descriptionFormatValue) && descriptionFormatValue is string str)
                 m_descriptionFormat = str;
             else
-                m_descriptionFormat = StringFormatter.TASK_DESCRIPTION_KEY;
+                m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
         }
     }
 }

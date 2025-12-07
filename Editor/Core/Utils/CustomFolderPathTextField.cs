@@ -15,9 +15,9 @@ namespace Wireframe
             m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.yellow;
         }
 
-        public static bool OnGUI(string title, ref string unformattedPath, ref bool showFormatted, StringFormatter.Context ctx)
+        public static bool OnGUI(string title, ref string unformattedPath, ref bool showFormatted, Context ctx)
         {
-            string formatString = StringFormatter.FormatString(unformattedPath, ctx);
+            string formatString = ctx.FormatString(unformattedPath);
             bool error = Utils.PathContainsInvalidCharacters(formatString);
             bool exists = !error && Utils.PathExists(formatString);
             bool isDirty = false;
@@ -42,7 +42,7 @@ namespace Wireframe
 
                     if (GUILayout.Button("Show", GUILayout.Width(50)))
                     {
-                        EditorUtility.RevealInFinder(StringFormatter.FormatString(unformattedPath, ctx));
+                        EditorUtility.RevealInFinder(ctx.FormatString(unformattedPath));
                     }
                 }
             }

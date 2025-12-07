@@ -22,7 +22,7 @@ namespace Wireframe
         public bool ConnectProfiler;
         public bool EnableDeepProfilingSupport;
         
-        // Platform specific settings
+        // Platform-specific settings
         public bool SwitchTargetPlatform = false;
         public BuildTargetGroup TargetPlatform;
         public int TargetPlatformSubTarget;
@@ -419,7 +419,7 @@ namespace Wireframe
             return buildOptions;
         }
 
-        public bool ApplySettings(bool switchPlatform, StringFormatter.Context context, UploadTaskReport.StepResult stepResult = null)
+        public bool ApplySettings(bool switchPlatform, Context context, UploadTaskReport.StepResult stepResult = null)
         {
             // Switch to the build target if necessary
             if (switchPlatform && SwitchTargetPlatform)
@@ -430,8 +430,8 @@ namespace Wireframe
                 }
             }
 
-            PlayerSettings.productName = StringFormatter.FormatString(ProductName, context);
-            string[] defines = ExtraScriptingDefines.Select(a=>StringFormatter.FormatString(a, context)).ToArray();
+            PlayerSettings.productName = context.FormatString(ProductName);
+            string[] defines = ExtraScriptingDefines.Select(context.FormatString).ToArray();
 #if UNITY_2021_1_OR_NEWER
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), defines);
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.FromBuildTargetGroup(TargetPlatform), StrippingLevel);
@@ -478,9 +478,9 @@ namespace Wireframe
             return BuildTarget.NoTarget;
         }
 
-        public string GetFormattedProductName(StringFormatter.Context ctx)
+        public string GetFormattedProductName(Context ctx)
         {
-            string formatted = StringFormatter.FormatString(ProductName, ctx);
+            string formatted = ctx.FormatString(ProductName);
             if (TargetPlatform == BuildTargetGroup.Standalone)
             {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN

@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public class ReorderableListOfSlackMessageAttachments : InternalReorderableList<Slack.Attachment>
+    public class ReorderableListOfSlackMessageAttachments : InternalReorderableList<SlackAttachment>
     {
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                Slack.Attachment element = list[index];
+                SlackAttachment element = list[index];
 
                 // Title
                 float width = Mathf.Min(100, rect.width / 2);
@@ -73,20 +73,20 @@ namespace Wireframe
             }
         }
 
-        protected override Slack.Attachment CreateItem(int index)
+        protected override SlackAttachment CreateItem(int index)
         {
-            return new Slack.Attachment()
+            return new SlackAttachment()
             {
                 text = ":white_check_mark: #123456 *Successfully* uploaded!",
                 fallback = "",
                 color = "#009000",
                 attachment_type = "",
                 callback_id = "",
-                actions = new List<Slack.Attachment.Action>()
+                actions = new List<SlackAttachment.Action>()
             };
         }
         
-        protected override int CompareTo(Slack.Attachment a, Slack.Attachment b)
+        protected override int CompareTo(SlackAttachment a, SlackAttachment b)
         {
             return String.Compare(a.text, b.text, StringComparison.Ordinal);
         }

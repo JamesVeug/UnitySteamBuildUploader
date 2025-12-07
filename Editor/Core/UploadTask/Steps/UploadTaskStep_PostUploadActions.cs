@@ -11,7 +11,7 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_PostUploadActions : AUploadTask_Step
     {
-        public UploadTaskStep_PostUploadActions(StringFormatter.Context context) : base(context)
+        public UploadTaskStep_PostUploadActions(Context context) : base(context)
         {
             
         }
@@ -25,20 +25,20 @@ namespace Wireframe
             UploadTaskReport.StepResult actionResult = report.NewReport(StepType.PostUploadActions);
             int postActionID = ProgressUtils.Start("Post Upload Actions", "Executing Post Upload Actions...");
             
-            List<UploadConfig.PostUploadActionData> postUploadActions = uploadTask.PostUploadActions;
+            List<UploadConfig.UploadActionData> postUploadActions = uploadTask.PostUploadActions;
             for (var i = 0; i < postUploadActions.Count; i++)
             {
-                UploadConfig.PostUploadActionData actionData = postUploadActions[i];
+                UploadConfig.UploadActionData actionData = postUploadActions[i];
                 if (actionData == null || actionData.UploadAction == null)
                 {
                     actionResult.AddLog($"Skipping post upload action {i+1} because it's null");
                     continue;
                 }
 
-                UploadConfig.PostUploadActionData.UploadCompleteStatus status = actionData.WhenToExecute;
-                if (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.Never ||
-                    (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfSuccessful && !report.Successful) ||
-                    (status == UploadConfig.PostUploadActionData.UploadCompleteStatus.IfFailed && report.Successful))
+                UploadConfig.UploadActionData.UploadCompleteStatus status = actionData.WhenToExecute;
+                if (status == UploadConfig.UploadActionData.UploadCompleteStatus.Never ||
+                    (status == UploadConfig.UploadActionData.UploadCompleteStatus.IfSuccessful && !report.Successful) ||
+                    (status == UploadConfig.UploadActionData.UploadCompleteStatus.IfFailed && report.Successful))
                 {
                     actionResult.AddLog($"Skipping post upload action {i+1} because it doesn't match the current status. Status: {status}. Successful: {report.Successful}");
                     continue;
@@ -58,7 +58,7 @@ namespace Wireframe
 
                 try
                 {
-                    await actionData.UploadAction.Execute(actionResult, m_context);
+                    await actionData.UploadAction.Execute(actionResult);
                 }
                 catch (Exception e)
                 {

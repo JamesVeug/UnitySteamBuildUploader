@@ -9,7 +9,7 @@ namespace Wireframe
         public override bool HasProjectSettingsGUI => true;
         
         private ItchioUser m_currentUser;
-        private StringFormatter.Context m_context = new StringFormatter.Context();
+        private Context m_context = new Context();
 
         private ReorderableListOfGames m_gameList = new ReorderableListOfGames();
         private ReorderableListOfChannels m_channelList;

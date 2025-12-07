@@ -10,7 +10,7 @@ namespace Wireframe
         private static ReorderableListOfDiscordAppsProjectSettings _reorderableListOfDiscordAppsProjectSettings;
         private static ReorderableListOfDiscordChannels _reorderableListOfDiscordChannels;
         private static DiscordConfig.DiscordServer m_SelectedServer;
-        private static StringFormatter.Context m_context = new StringFormatter.Context();
+        private static Context m_context = new Context();
 
         public override bool HasProjectSettingsGUI => true;
 

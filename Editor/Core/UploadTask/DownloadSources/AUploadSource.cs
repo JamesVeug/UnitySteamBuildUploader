@@ -10,9 +10,20 @@ namespace Wireframe
     /// </summary>
     public abstract partial class AUploadSource
     {
+        public Context Context => m_context;
+        protected Context m_context;
+
         public AUploadSource() : base()
         {
-            // Required for reflection
+            m_context = CreateContext();
+        }
+
+
+        protected virtual Context CreateContext()
+        {
+            Context context = new Context();
+            
+            return context;
         }
 
         /// <summary>
@@ -20,24 +31,22 @@ namespace Wireframe
         /// If any return false then the upload is stopped.
         /// </summary>
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
         /// <param name="token">Check this if the task has been told to stop mid-execution</param>
         /// <returns></returns>
-        public virtual Task<bool> Prepare(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token)
+        public virtual Task<bool> Prepare(UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
         {
             return Task.FromResult(true);
         }
-        
+
         /// <summary>
         /// Retrieves all the content that is needed for this source to be included in the upload.
         /// When all sources have been retrieved SourceFilePath() will be invoked to get the content that will be copied.
         /// </summary>
         /// <param name="uploadConfig">Which config this source is owned by</param>
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
         /// <param name="token">Check this if the task has been told to stop mid-execution</param>
         /// <returns></returns>
-        public abstract Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx, CancellationTokenSource token);
+        public abstract Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult, CancellationTokenSource token);
         
         /// <summary>
         /// Invoked after all sources are successful and will copy them to a cached folder location ready for upload.
@@ -50,9 +59,10 @@ namespace Wireframe
         /// Executed at the end of the upload process regardless if it was successful or not.
         /// Reset any temporary data or delete files.
         /// </summary>
+        /// <param name="configIndex"></param>
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
         /// <returns></returns>
-        public virtual Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx)
+        public virtual Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult)
         {
             return Task.CompletedTask;
         }
@@ -71,8 +81,7 @@ namespace Wireframe
         /// Executed during GUI and before an upload starts to check for any warnings in the configuration of this source
         /// </summary>
         /// <param name="errors">Errors found in this method</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
-        public virtual void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public virtual void TryGetErrors(List<string> errors)
         {
             
         }

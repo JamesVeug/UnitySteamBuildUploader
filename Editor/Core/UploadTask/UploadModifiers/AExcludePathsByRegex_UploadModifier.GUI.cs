@@ -5,7 +5,7 @@ namespace Wireframe
 {
     public abstract partial class AExcludePathsByRegex_UploadModifier
     {
-        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        protected internal override void OnGUIExpanded(ref bool isDirty, Context ctx)
         {
             using (new GUILayout.HorizontalScope())
             {

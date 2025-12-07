@@ -15,7 +15,7 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_CacheSources : AUploadTask_Step
     {
-        public UploadTaskStep_CacheSources(StringFormatter.Context context) : base(context)
+        public UploadTaskStep_CacheSources(Context context) : base(context)
         {
             
         }
@@ -115,7 +115,7 @@ namespace Wireframe
                 string subCacheFolder = cacheFolderPath;
                 if (!string.IsNullOrEmpty(sourceData.SubFolder))
                 {
-                    subCacheFolder = Path.Combine(subCacheFolder, StringFormatter.FormatString(sourceData.SubFolder, uploadConfig.Context));
+                    subCacheFolder = Path.Combine(subCacheFolder, uploadConfig.Context.FormatString(sourceData.SubFolder));
                 }
                 
                 if (!Directory.Exists(subCacheFolder))

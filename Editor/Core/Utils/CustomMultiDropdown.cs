@@ -13,14 +13,14 @@ namespace Wireframe
 
         private static Dictionary<T, string[]> nameLookup;
         private static Dictionary<T, Y[]> valueLookup;
-        private static StringFormatter.Context ctx = null;
+        private static Context ctx = null;
 
         public virtual bool IsItemValid(Y y)
         {
             return true;
         }
 
-        public bool DrawPopup(T target, ref Y initial, StringFormatter.Context context, params GUILayoutOption[] options)
+        public bool DrawPopup(T target, ref Y initial, Context context, params GUILayoutOption[] options)
         {
             if(ctx != context)
             {
@@ -138,7 +138,7 @@ namespace Wireframe
                         string displayName = pair.Value[j].Id + ". " + pair.Value[j].DisplayName;
                         if (ctx != null)
                         {
-                            displayName = StringFormatter.FormatString(displayName, ctx);
+                            displayName = ctx.FormatString(displayName);
                         }
                         names.Add(displayName);
                     }

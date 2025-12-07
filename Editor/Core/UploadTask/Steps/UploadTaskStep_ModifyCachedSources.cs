@@ -11,7 +11,7 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_ModifyCachedSources : AUploadTask_Step
     {
-        public UploadTaskStep_ModifyCachedSources(StringFormatter.Context context) : base(context)
+        public UploadTaskStep_ModifyCachedSources(Context context) : base(context)
         {
             
         }
@@ -91,7 +91,7 @@ namespace Wireframe
                 var stepResult = results[i];
                 try
                 {
-                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[configIndex], uploadConfig, configIndex, stepResult, uploadConfig.Context);
+                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[configIndex], uploadConfig, configIndex, stepResult);
                     if (!success)
                     {
                         return false;

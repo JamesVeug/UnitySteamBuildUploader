@@ -9,9 +9,18 @@ namespace Wireframe
     /// </summary>
     public abstract partial class AUploadModifer
     {
+        public Context Context => m_context;
+        protected Context m_context;
+        
         public AUploadModifer()
         {
-            // Required for reflection
+            m_context = CreateContext();
+        }
+
+
+        protected virtual Context CreateContext()
+        {
+            return new Context();
         }
 
         /// <summary>
@@ -21,10 +30,10 @@ namespace Wireframe
         /// <param name="uploadConfig">The config that contains this modifier</param>
         /// <param name="configIndex">Index of the config that contains this modifier</param>
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
         /// <returns></returns>
-        public abstract Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig, int configIndex,
-            UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx);
+        public abstract Task<bool> ModifyBuildAtPath(string cachedFolderPath, UploadConfig uploadConfig,
+            int configIndex,
+            UploadTaskReport.StepResult stepResult);
         
         /// <summary>
         /// Executed per file in the "cache source files" step to determine if the file should be ignored and not copied to the cache.

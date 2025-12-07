@@ -32,13 +32,13 @@ namespace Wireframe
 
         public EpicGamesUploadDestination() : base() { }
 
-        public override async Task<bool> Upload(UploadTaskReport.StepResult result, StringFormatter.Context ctx)
+        public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
-            string secret = GetSecret(ctx);
-            string cloudDir = GetCloudDir(ctx);
+            string secret = GetSecret();
+            string cloudDir = GetCloudDir();
             
             result.AddLog("Starting Epic Games upload...");
-            return await EpicGames.Upload(result, ctx,
+            return await EpicGames.Upload(result, m_context,
                 m_cachedFolderPath,
                 Organization.OrganizationID,
                 Product.ProductID,
@@ -52,27 +52,27 @@ namespace Wireframe
                 AppArgs);
         }
 
-        private string GetCloudDir(StringFormatter.Context ctx)
+        private string GetCloudDir()
         {
             string cloudDir = "";
             if (!string.IsNullOrEmpty(CloudDirOverride))
             {
-                cloudDir = StringFormatter.FormatString(CloudDirOverride, ctx);
+                cloudDir = m_context.FormatString(CloudDirOverride);
             }
             else
             {
-                cloudDir = StringFormatter.FormatString(EpicGames.CloudPath, ctx);
+                cloudDir = m_context.FormatString(EpicGames.CloudPath);
             }
 
             return cloudDir;
         }
 
-        private string GetSecret(StringFormatter.Context ctx)
+        private string GetSecret()
         {
             switch (Product.SecretType)
             {
                 case EpicGamesProduct.SecretTypes.EnvVar:
-                    return StringFormatter.FormatString(Product.ClientSecretEnvVar, ctx);
+                    return m_context.FormatString(Product.ClientSecretEnvVar);
                 case EpicGamesProduct.SecretTypes.ClientSecret:
                     return EpicGamesService.GetClientSecret(Organization.OrganizationID, Product.ClientID);
             }
@@ -80,7 +80,7 @@ namespace Wireframe
             return "";
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
             if (string.IsNullOrEmpty(EpicGames.SDKPath))
             {
@@ -111,19 +111,19 @@ namespace Wireframe
             {
                 errors.Add("Build Version not set");
             }
-            else if (!ValidateBuildVersion(ctx))
+            else if (!ValidateBuildVersion())
             {
                 errors.Add("Invalid Build Version: Should only contain characters from the following sets a-z, A-Z, 0-9, or .+-_");
             }
             
-            if (Utils.PathContainsInvalidCharacters(GetCloudDir(ctx)))
+            if (Utils.PathContainsInvalidCharacters(GetCloudDir()))
             {
-                errors.Add("Cloud Directory contains invalid characters: '" + GetCloudDir(ctx) + "'");
+                errors.Add("Cloud Directory contains invalid characters: '" + GetCloudDir() + "'");
             }
 
             if (Product != null && Organization != null)
             {
-                if (string.IsNullOrEmpty(GetSecret(ctx)))
+                if (string.IsNullOrEmpty(GetSecret()))
                 {
                     errors.Add("Client Secret is not set");
                 }
@@ -131,9 +131,9 @@ namespace Wireframe
         }
 
         private static readonly char[] buildVersionValidCharacters = "abcdefghijklmnopqurstuvwxyz0123456789.+-_".ToCharArray();
-        private bool ValidateBuildVersion(StringFormatter.Context ctx)
+        private bool ValidateBuildVersion()
         {
-            string formattedBuildVersion = StringFormatter.FormatString(BuildVersion, ctx).Trim();
+            string formattedBuildVersion = m_context.FormatString(BuildVersion).Trim();
             if (string.IsNullOrEmpty(formattedBuildVersion))
             {
                 return false;

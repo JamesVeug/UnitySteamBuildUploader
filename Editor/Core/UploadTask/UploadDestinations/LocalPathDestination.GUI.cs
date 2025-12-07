@@ -10,9 +10,9 @@ namespace Wireframe
         private bool m_showFormattedLocalPath = false;
         private bool m_showFormattedZippedFilesName = false;
 
-        protected internal override void OnGUIExpanded(ref bool isDirty, StringFormatter.Context ctx)
+        protected internal override void OnGUIExpanded(ref bool isDirty)
         {
-            isDirty |= CustomFolderPathTextField.OnGUI("Select Folder to upload", ref m_localPath, ref m_showFormattedLocalPath, ctx);
+            isDirty |= CustomFolderPathTextField.OnGUI("Select Folder to upload", ref m_localPath, ref m_showFormattedLocalPath, m_context);
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -31,7 +31,7 @@ namespace Wireframe
                                                                               "\nSee docs for format options such as {buildNumber} and {date}.");
                     GUILayout.Label(label, GUILayout.Width(125));
                     
-                    if (EditorUtils.FormatStringTextField(ref m_zippedFilesName, ref m_showFormattedZippedFilesName, ctx))
+                    if (EditorUtils.FormatStringTextField(ref m_zippedFilesName, ref m_showFormattedZippedFilesName, m_context))
                     {
                         isDirty = true;
                     }
@@ -50,9 +50,9 @@ namespace Wireframe
             }
         }
 
-        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth, StringFormatter.Context ctx)
+        protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            string displayedPath = FullPath(ctx);
+            string displayedPath = FullPath();
             if (CustomPathButton.OnGUI(ref displayedPath, ButtonText, maxWidth))
             {
                 m_localPath = displayedPath; // If this is changed we are given a non-formatted version

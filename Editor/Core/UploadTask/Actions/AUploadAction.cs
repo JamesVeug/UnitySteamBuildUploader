@@ -9,6 +9,21 @@ namespace Wireframe
     /// </summary>
     public abstract partial class AUploadAction
     {
+        public Context Context => m_context;
+        protected Context m_context;
+
+        public AUploadAction()
+        {
+            m_context = CreateContext();
+        }
+
+
+        protected virtual Context CreateContext()
+        {
+            Context context = new Context();
+            
+            return context;
+        }
         /// <summary>
         /// Prepare the action to ensure it's ready to execute
         /// If this returns false then Execute is not... executed.
@@ -19,14 +34,13 @@ namespace Wireframe
         {
             return Task.FromResult(true);
         }
-        
+
         /// <summary>
         /// Runs the action
         /// </summary>
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
         /// <returns>True if successfully prepared</returns>
-        public abstract Task<bool> Execute(UploadTaskReport.StepResult stepResult, StringFormatter.Context ctx);
+        public abstract Task<bool> Execute(UploadTaskReport.StepResult stepResult);
         
         /// <summary>
         /// Executed at the end of the upload process regardless if it was successful or not.
@@ -42,8 +56,7 @@ namespace Wireframe
         /// Check for anything that is concerning that the user should be warned about but not prevent upload.
         /// </summary>
         /// <param name="warnings">Add to this list any warnings you need</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
-        public virtual void TryGetWarnings(List<string> warnings, StringFormatter.Context ctx)
+        public virtual void TryGetWarnings(List<string> warnings)
         {
             
         }
@@ -52,8 +65,7 @@ namespace Wireframe
         /// Executed during GUI and before an upload starts to check for any warnings in the configuration of this source
         /// </summary>
         /// <param name="errors">Errors found in this method</param>
-        /// <param name="ctx">Context for formatting strings such as {version}</param>
-        public virtual void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public virtual void TryGetErrors(List<string> errors)
         {
             
         }

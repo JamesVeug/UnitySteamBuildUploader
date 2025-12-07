@@ -13,7 +13,7 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_GetSources : AUploadTask_Step
     {
-        public UploadTaskStep_GetSources(StringFormatter.Context context) : base(context)
+        public UploadTaskStep_GetSources(Context context) : base(context)
         {
             
         }
@@ -86,7 +86,7 @@ namespace Wireframe
 
                 try
                 {
-                    bool success = await sourceData.Source.GetSource(uploadConfig, result, uploadConfig.Context, token);
+                    bool success = await sourceData.Source.GetSource(uploadConfig, result, token);
                     if (!success)
                     {
                         return false;

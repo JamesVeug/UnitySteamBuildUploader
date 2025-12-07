@@ -44,7 +44,7 @@ namespace Wireframe
             m_buildSources = new List<SourceData>();
             m_modifiers = new List<ModifierData>();
             m_buildDestinations = new List<DestinationData>();
-            m_postActions = new List<PostUploadActionData>();
+            m_postActions = new List<UploadActionData>();
 
             // Migrate any old data
             try
@@ -67,7 +67,7 @@ namespace Wireframe
                         Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)source;
                         SourceData sourceData = new SourceData();
                         sourceData.Deserialize(sourceDictionary);
-                        m_buildSources.Add(sourceData);
+                        AddSource(sourceData);
                     }
                 }
             }
@@ -87,7 +87,7 @@ namespace Wireframe
                         Dictionary<string, object> modifierDictionary = (Dictionary<string, object>)modifier;
                         ModifierData modifierData = new ModifierData();
                         modifierData.Deserialize(modifierDictionary);
-                        m_modifiers.Add(modifierData);
+                        AddModifier(modifierData);
                     }
                 }
             }
@@ -107,7 +107,7 @@ namespace Wireframe
                         Dictionary<string, object> destinationDictionary = (Dictionary<string, object>)destination;
                         DestinationData destinationData = new DestinationData();
                         destinationData.Deserialize(destinationDictionary);
-                        m_buildDestinations.Add(destinationData);
+                        AddDestination(destinationData);
                     }
                 }
             }
@@ -125,9 +125,9 @@ namespace Wireframe
                     foreach (object action in actionList)
                     {
                         Dictionary<string, object> actionDictionary = (Dictionary<string, object>)action;
-                        PostUploadActionData actionData = new PostUploadActionData();
+                        UploadActionData actionData = new UploadActionData();
                         actionData.Deserialize(actionDictionary);
-                        m_postActions.Add(actionData);
+                        AddPostAction(actionData);
                     }
                 }
             }
@@ -166,7 +166,7 @@ namespace Wireframe
                             Dictionary<string, object> sourceDictionary = (Dictionary<string, object>)data["source"];
                             sourceData.Source.Deserialize(sourceDictionary);
                             sourceData.SourceType = UIHelpers.SourcesPopup.Values.FirstOrDefault(a => a.Type == sourceType);
-                            m_buildSources.Add(sourceData);
+                            AddSource(sourceData);
                         }
                     }
                 }
@@ -176,7 +176,7 @@ namespace Wireframe
                 Debug.LogException(e);
             }
             
-            // Convert modifiers to list of ModifierData
+            // Convert modifiers to a list of ModifierData
             try
             {
                 if (data.TryGetValue("modifiers", out object modifiers) && modifiers != null)
@@ -227,7 +227,7 @@ namespace Wireframe
                                         enabled = (bool)enabledValue;
                                     }
                                     ModifierData newModifierData = new ModifierData(uploadModifer, enabled);
-                                    m_modifiers.Add(newModifierData);
+                                    AddModifier(newModifierData);
                                 }
                             }
                         }
@@ -254,12 +254,10 @@ namespace Wireframe
                         destinationData.Destination = Activator.CreateInstance(type, new object[] { }) as AUploadDestination;
                         if (destinationData.Destination != null)
                         {
-                            Dictionary<string, object> destinationDictionary =
-                                (Dictionary<string, object>)data["destination"];
+                            Dictionary<string, object> destinationDictionary = (Dictionary<string, object>)data["destination"];
                             destinationData.Destination.Deserialize(destinationDictionary);
-                            destinationData.DestinationType =
-                                UIHelpers.DestinationsPopup.Values.FirstOrDefault(a => a.Type == type);
-                            m_buildDestinations.Add(destinationData);
+                            destinationData.DestinationType = UIHelpers.DestinationsPopup.Values.FirstOrDefault(a => a.Type == type);
+                            AddDestination(destinationData);
                         }
                     }
                 }

@@ -50,9 +50,9 @@ namespace Wireframe
             return true;
         }
 
-        public bool PathExists(StringFormatter.Context ctx)
+        public bool PathExists()
         {
-            string path = GetFullPath(ctx);
+            string path = GetFullPath();
             if (string.IsNullOrEmpty(path))
             {
                 return true;
@@ -62,7 +62,7 @@ namespace Wireframe
         }
 
         public override Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            StringFormatter.Context ctx, CancellationTokenSource token)
+            CancellationTokenSource token)
         {
             // Decide where we want to download to
             string directoryPath = Preferences.CacheFolderPath;
@@ -75,7 +75,7 @@ namespace Wireframe
             // Make copy to avoid sharing conflicts
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory
-            string sourcePath = GetFullPath(ctx);
+            string sourcePath = GetFullPath();
             bool isDirectory = Utils.IsPathADirectory(sourcePath);
             if (!isDirectory && sourcePath.EndsWith(".exe"))
             {
@@ -88,10 +88,10 @@ namespace Wireframe
             return Task.FromResult(true);
         }
 
-        public string GetFullPath(StringFormatter.Context ctx)
+        public string GetFullPath()
         {
             string path = GetSubPath();
-            string enteredPath = StringFormatter.FormatString(m_enteredFilePath, ctx);
+            string enteredPath = m_context.FormatString(m_enteredFilePath);
             if (string.IsNullOrEmpty(path))
             {
                 return enteredPath;
@@ -118,11 +118,11 @@ namespace Wireframe
             return m_finalSourcePath;
         }
 
-        public override void TryGetErrors(List<string> errors, StringFormatter.Context ctx)
+        public override void TryGetErrors(List<string> errors)
         {
-            base.TryGetErrors(errors, ctx);
+            base.TryGetErrors(errors);
             
-            string path = GetFullPath(ctx);
+            string path = GetFullPath();
             if (!File.Exists(path) && !Directory.Exists(path))
             {
                 errors.Add("Path does not exist");

@@ -61,7 +61,7 @@ namespace Wireframe
             });
             allData.Add(new Data()
             {
-                DataClass = typeof(UploadConfig.PostUploadActionData),
+                DataClass = typeof(UploadConfig.UploadActionData),
                 MDFilePath = Path.Combine(Application.dataPath, "../Wiki/Actions.md"),
                 StartOfHeader = "## Actions",
                 WikiSubPath = "actions",
@@ -144,7 +144,7 @@ namespace Wireframe
             stringFormatWikiBuilder.AppendLine("The String Formatter is used to format strings in the build task. It supports commands that can be used to insert values into the string.");
             stringFormatWikiBuilder.AppendLine();
             stringFormatWikiBuilder.AppendLine("The following commands are available:");
-            foreach (StringFormatter.Command command in StringFormatter.Commands.OrderBy(a=>a.Key))
+            foreach (Command command in Context.FormatToCommand.Values.OrderBy(a=>a.Key))
             {
                 stringFormatWikiBuilder.AppendLine($"- **{command.Key}**: {command.Tooltip}");
             }

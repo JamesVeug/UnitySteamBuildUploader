@@ -30,7 +30,7 @@ namespace Wireframe
 
         public static async Task<bool> Upload(
             UploadTaskReport.StepResult result, 
-            StringFormatter.Context ctx,
+            Context ctx,
             string buildPath,
             string organizationID,
             string productID,
@@ -56,32 +56,32 @@ namespace Wireframe
                 return false;
             }
             
-            string formattedBuildVersion = StringFormatter.FormatString(buildVersion, ctx).Trim();
+            string formattedBuildVersion = ctx.FormatString(buildVersion).Trim();
             
             string args = "-mode=UploadBinary";
-            args += $" -BuildRoot=\"{StringFormatter.FormatString(buildPath, ctx)}\"";
-            args += $" -OrganizationId=\"{StringFormatter.FormatString(organizationID, ctx)}\"";
-            args += $" -ProductId=\"{StringFormatter.FormatString(productID, ctx)}\"";
-            args += $" -ArtifactId=\"{StringFormatter.FormatString(artifactID, ctx)}\"";
-            args += $" -ClientId=\"{StringFormatter.FormatString(clientID, ctx)}\"";
+            args += $" -BuildRoot=\"{ctx.FormatString(buildPath)}\"";
+            args += $" -OrganizationId=\"{ctx.FormatString(organizationID)}\"";
+            args += $" -ProductId=\"{ctx.FormatString(productID)}\"";
+            args += $" -ArtifactId=\"{ctx.FormatString(artifactID)}\"";
+            args += $" -ClientId=\"{ctx.FormatString(clientID)}\"";
             
             switch (secretType)
             {
                 case EpicGamesProduct.SecretTypes.EnvVar:
-                    args += $" -ClientSecretEnvVar=\"{StringFormatter.FormatString(clientSecret, ctx)}\"";
+                    args += $" -ClientSecretEnvVar=\"{ctx.FormatString(clientSecret)}\"";
                     break;
                 case EpicGamesProduct.SecretTypes.ClientSecret:
-                    args += $" -ClientSecret=\"{StringFormatter.FormatString(clientSecret, ctx)}\"";
+                    args += $" -ClientSecret=\"{ctx.FormatString(clientSecret)}\"";
                     break;
                 default:
                     result.SetFailed("Invalid secret type selected: " + secretType);
                     return false;
             }
 
-            args += $" -CloudDir=\"{StringFormatter.FormatString(cloudDir, ctx)}\"";
+            args += $" -CloudDir=\"{ctx.FormatString(cloudDir)}\"";
             args += $" -BuildVersion=\"{formattedBuildVersion}\"";
-            args += $" -AppLaunch=\"{StringFormatter.FormatString(appLaunch, ctx)}\"";
-            args += $" -AppArgs=\"{StringFormatter.FormatString(appArgs, ctx)}\"";
+            args += $" -AppLaunch=\"{ctx.FormatString(appLaunch)}\"";
+            args += $" -AppArgs=\"{ctx.FormatString(appArgs)}\"";
 
             ProcessUtils.ProcessResult uploadResult = await ProcessUtils.RunTask(result, exePath, args);
             if (!uploadResult.Successful)

@@ -2,52 +2,30 @@
 
 namespace Wireframe
 {
-    public partial class EpicGamesUploadDestination : StringFormatter.IContextModifier
+    public partial class EpicGamesUploadDestination
     {
-        public bool ReplaceString(string key, out string value, StringFormatter.Context ctx)
+        protected override Context CreateContext()
         {
-            if (key == StringFormatter.EPIC_GAMES_ORGANIZATION_NAME_KEY)
-            {
-                if (Organization != null)
-                {
-                    value = Organization.DisplayName;
-                }
-                else
-                {
-                    value = "Unspecified Organization";
-                }
+            Context context = base.CreateContext();
+            context.AddCommand(Context.EPIC_GAMES_ORGANIZATION_NAME_KEY, GetOrganizationName);
+            context.AddCommand(Context.EPIC_GAMES_PRODUCT_NAME_KEY, GetProductName);
+            context.AddCommand(Context.EPIC_GAMES_ARTIFACT_NAME_KEY, GetArtifactName);
+            return context;
+        }
 
-                return true;
-            }
-            else if (key == StringFormatter.EPIC_GAMES_PRODUCT_NAME_KEY)
-            {
-                if (Product != null)
-                {
-                    value = Product.DisplayName;
-                }
-                else
-                {
-                    value = "Unspecified Product";
-                }
+        private string GetOrganizationName()
+        {
+            return Organization != null ? Organization.DisplayName : "Unspecified Organization";
+        }
 
-                return true;
-            }
-            else if (key == StringFormatter.EPIC_GAMES_ARTIFACT_NAME_KEY)
-            {
-                if (Artifact != null)
-                {
-                    value = Artifact.DisplayName;
-                }
-                else
-                {
-                    value = "Unspecified Artifact";
-                }
+        private string GetProductName()
+        {
+            return Product != null ? Product.DisplayName : "Unspecified Product";
+        }
 
-                return true;
-            }
-            
-            value = "";
-            return false;
+        private string GetArtifactName()
+        {
+            return Artifact != null ? Artifact.DisplayName : "Unspecified Artifact";
         }
     }
 }

@@ -94,7 +94,7 @@ namespace Wireframe
             // Steam username
             using (new GUILayout.HorizontalScope())
             {
-                SteamSDK.UserName = PasswordField.Draw("Steam Username:", "Your Steamworks username used to login", 105, SteamSDK.UserName);
+                SteamSDK.UserName = PasswordField.Draw("Steam Username:", "Your Steamworks username used to login", 105, SteamSDK.UserName, labelIsRedIfEmpty:true);
             }
         }
     }

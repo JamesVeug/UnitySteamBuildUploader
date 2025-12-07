@@ -6,7 +6,7 @@ namespace Wireframe
     internal partial class DiscordService : AService
     {
         public override string ServiceName => "Discord";
-        public override string[] SearchKeyworks => new string[]{"discord", "chat", "messaging"};
+        public override string[] SearchKeywords => new string[]{"discord", "chat", "messaging"};
         
         public DiscordService()
         {

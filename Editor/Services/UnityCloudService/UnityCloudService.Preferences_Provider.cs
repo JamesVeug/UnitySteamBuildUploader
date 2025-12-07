@@ -13,7 +13,7 @@ namespace Wireframe
                 new UnityCloudService_Preferences_Provider("Preferences/Build Uploader/Services/Unity Cloud", SettingsScope.User)
                 {
                     label = "Unity Cloud",
-                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is UnityCloudService).SearchKeyworks
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is UnityCloudService).SearchKeywords
                 };
             return provider;
         }

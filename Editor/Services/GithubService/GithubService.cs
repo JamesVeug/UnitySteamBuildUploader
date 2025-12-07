@@ -3,7 +3,7 @@
     internal partial class GithubService : AService
     {
         public override string ServiceName => "Github";
-        public override string[] SearchKeyworks => new string[]{"Git", "hub"};
+        public override string[] SearchKeywords => new string[]{"Git", "hub"};
 
         public GithubService()
         {

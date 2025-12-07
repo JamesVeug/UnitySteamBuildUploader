@@ -6,7 +6,7 @@
     internal partial class SteamworksService : AService
     {
         public override string ServiceName => "Steamworks";
-        public override string[] SearchKeyworks => new string[]{"steam", "steamworks", "steam works", "works", "game distribution", "game upload"};
+        public override string[] SearchKeywords => new string[]{"steam", "steamworks", "steam works", "works", "game distribution", "game upload"};
 
         public SteamworksService()
         {

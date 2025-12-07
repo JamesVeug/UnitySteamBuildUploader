@@ -3,7 +3,7 @@
     internal partial class ItchioService : AService
     {
         public override string ServiceName => "Itch.io";
-        public override string[] SearchKeyworks => new string[]{"itch.io", "itch", "game distribution", "game upload"};
+        public override string[] SearchKeywords => new string[]{"itch.io", "itch", "game distribution", "game upload"};
 
         public ItchioService()
         {
@@ -17,7 +17,6 @@
                 reason = "Itch.io service is not enabled in Preferences";
                 return false;
             }
-
             
             if (!Itchio.Instance.IsInitialized)
             {

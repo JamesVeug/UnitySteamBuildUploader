@@ -13,7 +13,7 @@ namespace Wireframe
                 new DiscordService_Preferences_Provider("Preferences/Build Uploader/Services/Discord", SettingsScope.User)
                 {
                     label = "Discord",
-                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is DiscordService).SearchKeyworks
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is DiscordService).SearchKeywords
                 };
             return provider;
         }

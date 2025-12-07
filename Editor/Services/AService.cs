@@ -6,7 +6,7 @@ namespace Wireframe
     public abstract class AService
     {
         public abstract string ServiceName { get; }
-        public abstract string[] SearchKeyworks { get; }
+        public abstract string[] SearchKeywords { get; }
         internal virtual WindowTab WindowTabType => null;
         public abstract bool IsReadyToStartBuild(out string reason);
         public abstract void PreferencesGUI();
@@ -20,7 +20,7 @@ namespace Wireframe
                 return true;
             }
 
-            bool matchesSearchKeywords = SearchKeyworks.Any(a => Utils.Contains(a, search, StringComparison.OrdinalIgnoreCase));
+            bool matchesSearchKeywords = SearchKeywords.Any(a => Utils.Contains(a, search, StringComparison.OrdinalIgnoreCase));
             return matchesSearchKeywords;
         }
     }

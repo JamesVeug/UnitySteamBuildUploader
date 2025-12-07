@@ -6,7 +6,7 @@
     internal partial class UnityCloudService : AService
     {
         public override string ServiceName => "Unity Cloud";
-        public override string[] SearchKeyworks => new string[]{"unity", "cloud", "unity cloud", "ci", "devops"};
+        public override string[] SearchKeywords => new string[]{"unity", "cloud", "unity cloud", "ci", "devops"};
 
         public UnityCloudService()
         {

@@ -3,7 +3,7 @@
     internal partial class SlackService : AService
     {
         public override string ServiceName => "Slack";
-        public override string[] SearchKeyworks => new string[]{"Slack", "Messaging", "Chat"};
+        public override string[] SearchKeywords => new string[]{"Slack", "Messaging", "Chat"};
 
         public SlackService()
         {

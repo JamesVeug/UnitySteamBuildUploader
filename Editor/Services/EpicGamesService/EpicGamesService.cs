@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using System.Linq;
 
 namespace Wireframe
 {
@@ -30,6 +29,17 @@ namespace Wireframe
             reason = string.Empty;
             
             return true;
+        }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            EpicGamesAppData data = EpicGamesUIUtils.GetEpicGamesData(false);
+            if (data == null)
+            {
+                return false;
+            }
+            
+            return data.Organizations.Count > 0 && data.Organizations.Any(a=>a.Products.Count > 0);
         }
 
         public static string GetClientSecret(string organization, string clientID)

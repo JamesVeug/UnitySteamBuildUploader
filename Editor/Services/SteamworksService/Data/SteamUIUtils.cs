@@ -43,9 +43,9 @@ namespace Wireframe
 
         private static SteamAppData data;
 
-        public static SteamAppData GetSteamBuildData()
+        public static SteamAppData GetSteamBuildData(bool createIfNotExists = true)
         {
-            if (data == null)
+            if (data == null && createIfNotExists)
             {
                 if (File.Exists(FilePath))
                 {

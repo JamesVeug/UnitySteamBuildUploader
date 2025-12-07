@@ -21,5 +21,16 @@
             reason = "";
             return true;
         }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            SlackConfig SlackConfig = SlackUIUtils.GetConfig(false);
+            if (SlackConfig == null)
+            {
+                return false;
+            }
+
+            return SlackConfig.servers.Count > 0;
+        }
     }
 }

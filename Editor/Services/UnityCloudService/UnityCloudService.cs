@@ -44,6 +44,11 @@
             return true;
         }
 
+        public override bool IsProjectSettingsSetup()
+        {
+            return true;
+        }
+
         public override void ProjectSettingsGUI()
         {
             // None

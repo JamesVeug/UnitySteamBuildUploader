@@ -24,5 +24,16 @@ namespace Wireframe
             reason = "";
             return true;
         }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            DiscordConfig data = DiscordUIUtils.GetConfig(false);
+            if (data == null)
+            {
+                return false;
+            }
+            
+            return data.servers.Count > 0;
+        }
     }
 }

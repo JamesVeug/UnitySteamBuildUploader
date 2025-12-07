@@ -1,4 +1,6 @@
-﻿namespace Wireframe
+﻿using System.Collections.Generic;
+
+namespace Wireframe
 {
     internal partial class ItchioService : AService
     {
@@ -26,6 +28,17 @@
 
             reason = "";
             return true;
+        }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            ItchioAppData configs = ItchioUIUtils.GetItchioBuildData(false);
+            if (configs == null)
+            {
+                return false;
+            }
+            
+            return configs.Users.Count > 0 && configs.Channels.Count > 0;
         }
     }
 }

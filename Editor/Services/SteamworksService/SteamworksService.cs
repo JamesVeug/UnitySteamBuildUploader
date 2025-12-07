@@ -37,5 +37,16 @@
             reason = "";
             return true;
         }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            SteamAppData data = SteamUIUtils.GetSteamBuildData(false);
+            if (data == null)
+            {
+                return false;
+            }
+
+            return data.Configs.Count > 0;
+        }
     }
 }

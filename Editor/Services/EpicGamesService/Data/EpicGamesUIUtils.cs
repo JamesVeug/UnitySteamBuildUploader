@@ -11,9 +11,9 @@ namespace Wireframe
 
         private static EpicGamesAppData data;
 
-        public static EpicGamesAppData GetEpicGamesData()
+        public static EpicGamesAppData GetEpicGamesData(bool createIfMissing = true)
         {
-            if (data == null)
+            if (data == null && createIfMissing)
             {
                 if (File.Exists(FilePath))
                 {

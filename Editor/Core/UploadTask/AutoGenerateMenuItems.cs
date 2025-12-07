@@ -104,7 +104,13 @@ namespace Wireframe
         private static List<UploadProfileSavedData> GetFiles()
         {
             List<UploadProfileSavedData> profiles = new List<UploadProfileSavedData>();
-            string[] files = Directory.GetFiles(WindowUploadTab.UploadProfilePath, "*.json");
+            string path = WindowUploadTab.UploadProfilePath;
+            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            {
+                return profiles;
+            }
+            
+            string[] files = Directory.GetFiles(path, "*.json");
             if (files.Length > 0)
             {
                 for (int j = 0; j < files.Length; j++)

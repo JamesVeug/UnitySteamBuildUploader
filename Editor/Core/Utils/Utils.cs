@@ -65,6 +65,10 @@ namespace Wireframe
         public static Texture2D FoldoutOpenIcon => TryGetIcon("FoldoutOpen.png");
         public static Texture2D FoldoutClosedIcon => TryGetIcon("FoldoutClosed.png");
         public static Texture2D SettingsIcon => TryGetIcon(IsDarkMode ? "Settings.png" : "SettingsLight.png");
+        public static Texture2D CheckIcon => TryGetIcon(IsDarkMode ? "checkIcon.png" : "checkIconLight.png");
+        public static Texture2D CheckIconSmall => TryGetIcon(IsDarkMode ? "checkIconSmall.png" : "checkIconSmallLight.png");
+        public static Texture2D CrossIcon => TryGetIcon(IsDarkMode ? "crossIcon.png" : "crossIconLight.png");
+        public static Texture2D CrossIconSmall => TryGetIcon(IsDarkMode ? "crossIconSmall.png" : "crossIconSmallLight.png");
         
         public static bool IsPathADirectory(string path)
         {

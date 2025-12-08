@@ -88,7 +88,7 @@ namespace Wireframe {
             bool allComplete = oneServiceReadyToBuild && oneServiceProjectSettingsSetup && oneUploadProfileSetup;
             
             bool show = EditorPrefs.GetBool("BuildUploader_showHowToSetup", true);
-            bool newShow = EditorGUILayout.Foldout(show, SuccessIcon(allComplete) + " Setup checklist", sectionFoldoutStyle);
+            bool newShow = EditorGUILayout.Foldout(show, new GUIContent("Setup checklist", SuccessIcon(allComplete, true)), sectionFoldoutStyle);
             if (newShow != show)
             {
                 EditorPrefs.SetBool("BuildUploader_showHowToSetup", newShow);
@@ -160,9 +160,13 @@ namespace Wireframe {
             return files.Length > 0;
         }
 
-        private string SuccessIcon(bool success)
+        private Texture2D SuccessIcon(bool success, bool big)
         {
-            return success ? "✅" : "❌";
+            if (big)
+            {
+                return success ? Utils.CheckIcon : Utils.CrossIcon;
+            }
+            return success ? Utils.CheckIconSmall : Utils.CrossIconSmall;
         }
         
         private void DrawCheckList(string text, string example, bool isComplete)
@@ -173,7 +177,7 @@ namespace Wireframe {
             exampleStyle.richText = true;
             exampleStyle.onNormal.textColor = Color.black;
             
-            GUILayout.Label(SuccessIcon(isComplete) + " " + text);
+            GUILayout.Label(new GUIContent(text, SuccessIcon(isComplete, false)));
             if (!string.IsNullOrEmpty(example))
             {
                 GUILayout.Label($"\tExample: {example}", exampleStyle);
@@ -200,7 +204,7 @@ namespace Wireframe {
             sectionLabelStyle.fontSize = 18;
 
             sectionFoldoutStyle = new GUIStyle(EditorStyles.foldout);
-            sectionFoldoutStyle.fontSize = 18;
+            sectionFoldoutStyle.fontSize = 16;
             
             var path = "Packages/com.veugeljame.builduploader/CHANGELOG.md";
             Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(path, typeof(TextAsset));

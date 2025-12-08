@@ -45,15 +45,16 @@ namespace Wireframe {
         private void OnGUI()
         {
             Parse();
+            DrawLinks();
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
             
             GUILayout.Label(Utils.WindowLargeIcon, headerLabelStyle);
             GUILayout.Label("Build Uploader", headerLabelStyle);
             
             GUILayout.Label("Welcome to the Build Uploader!");
-            DrawLinks();
-            
             GUILayout.Label("This tool is designed to make it easy to make a build and upload it to all kinds of services.");
+            
+            
             GUILayout.Label("- Want more information? See the Documentation!");
             GUILayout.Label("- Want to talk to the Dev or others that use the Build Uploader? Join our Discord!");
             GUILayout.Label("- Want to see the source code or view in progress changes/fixes? Go to Github!");
@@ -387,32 +388,32 @@ namespace Wireframe {
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("🔗Documentation"))
+                if (GUILayout.Button(new GUIContent("Documentation", Utils.LinkIcon)))
                 {
                     Application.OpenURL("https://github.com/JamesVeug/UnitySteamBuildUploader/wiki");
                 }
                 
-                if (GUILayout.Button("🔗Discord"))
+                if (GUILayout.Button(new GUIContent("Discord", Utils.LinkIcon)))
                 {
                     Application.OpenURL("https://discord.gg/R2UjXB6pQ8");
                 }
                 
-                if (GUILayout.Button("🔗Github"))
+                if (GUILayout.Button(new GUIContent("Github", Utils.LinkIcon)))
                 {
                     Application.OpenURL("https://github.com/JamesVeug/UnitySteamBuildUploader");
                 }
                 
-                if (GUILayout.Button("🔗Asset Store"))
+                if (GUILayout.Button(new GUIContent("Asset Store", Utils.LinkIcon)))
                 {
                     Application.OpenURL("https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907");
                 }
                 
-                if (GUILayout.Button("🔗Report Bug / Suggest Feature"))
+                if (GUILayout.Button(new GUIContent("Report Bug / Suggest Feature", Utils.LinkIcon)))
                 {
                     Application.OpenURL("https://github.com/JamesVeug/UnitySteamBuildUploader/issues");
                 }
                 
-                if (GUILayout.Button("🔗Support Me"))
+                if (GUILayout.Button(new GUIContent("Support Me", Utils.LinkIcon)))
                 {
                     Application.OpenURL("https://buymeacoffee.com/jamesgamesnz");
                 }

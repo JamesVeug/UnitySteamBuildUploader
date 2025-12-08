@@ -69,6 +69,7 @@ namespace Wireframe
         public static Texture2D CheckIconSmall => TryGetIcon(IsDarkMode ? "checkIconSmall.png" : "checkIconSmallLight.png");
         public static Texture2D CrossIcon => TryGetIcon(IsDarkMode ? "crossIcon.png" : "crossIconLight.png");
         public static Texture2D CrossIconSmall => TryGetIcon(IsDarkMode ? "crossIconSmall.png" : "crossIconSmallLight.png");
+        public static Texture2D LinkIcon => TryGetIcon("linkIcon.png");
         
         public static bool IsPathADirectory(string path)
         {

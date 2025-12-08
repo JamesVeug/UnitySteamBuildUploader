@@ -207,7 +207,7 @@ namespace Wireframe {
             sectionFoldoutStyle = new GUIStyle(EditorStyles.foldout);
             sectionFoldoutStyle.fontSize = 16;
             
-            var path = "Packages/com.veugeljame.builduploader/CHANGELOG.md";
+            string path = Path.Combine(Utils.s_packagePath, "CHANGELOG.md");
             Object loadAssetAtPath = AssetDatabase.LoadAssetAtPath(path, typeof(TextAsset));
             string allText = loadAssetAtPath is TextAsset textAsset ? textAsset.text : "";
             string[] lines = allText.Split('\n');

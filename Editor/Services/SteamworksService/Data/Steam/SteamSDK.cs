@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using UnityEngine.Networking;
 
 namespace Wireframe
 {
@@ -65,7 +64,6 @@ namespace Wireframe
         
         private Process m_uploadProcess;
         private string m_scriptPath;
-        private string m_contentPath;
         private string m_steamCMDPath;
         private bool m_initialized;
 
@@ -138,7 +136,7 @@ namespace Wireframe
                 return;
             }
 
-            string exePath = "";
+            string exePath;
             if (Application.platform == RuntimePlatform.WindowsEditor)
             {
                 exePath = Path.Combine(contentBuilderPath, "builder", "steamcmd.exe");
@@ -165,7 +163,6 @@ namespace Wireframe
             }
 
             m_steamCMDPath = exePath;
-            m_contentPath = content;
             m_scriptPath = scripts;
             m_initialized = true;
         }
@@ -272,7 +269,6 @@ namespace Wireframe
             try
             {
                 bool retry = true;
-                string steamGuardCode = "";
                 while (retry)
                 {
                     retry = false;
@@ -316,7 +312,7 @@ namespace Wireframe
                         textDump = textDump.Replace(userName, "**********");
                     }
 
-                    var outputResults = await LogOutSteamResult(textDump, false, appFile.appid);
+                    var outputResults = LogOutSteamResult(textDump, false, appFile.appid);
 
                     try
                     {
@@ -386,12 +382,12 @@ namespace Wireframe
 
         private class OutputResultArgs
         {
-            public bool successful = false;
+            public bool successful;
             public bool retry = false;
             public string errorText;
         }
         
-        private async Task<OutputResultArgs> LogOutSteamResult(string text, bool drmWrapping, int appID)
+        private OutputResultArgs LogOutSteamResult(string text, bool drmWrapping, int appID)
         {
             OutputResultArgs result = new OutputResultArgs();
 
@@ -427,7 +423,7 @@ namespace Wireframe
             }
 
             string[] lines = text.Split('\n');
-            int index = -1;
+            int index;
             
             if (!ContainsText(lines, "Loading Steam API", "OK", out index) &&
                 !ContainsText(lines, "Waiting for confirmation...Loading Steam API", "OK", out index))
@@ -566,7 +562,7 @@ namespace Wireframe
                         textDump = textDump.Replace(UserName, "**********");
                     }
                     
-                    var outputResults = await LogOutSteamResult(textDump, true, appID);
+                    var outputResults = LogOutSteamResult(textDump, true, appID);
                     m_uploadProcess.WaitForExit();
                     m_uploadProcess.Close();
 
@@ -629,8 +625,9 @@ namespace Wireframe
                 string after = allText.Substring(endOfLine);
                 string newDesc = $" \"{description}\"";
                 string newText = allText.Substring(0, desc + 6) + newDesc + after;
-                
-                string newPath = Path.Combine(Path.GetDirectoryName(appPath), Path.GetFileNameWithoutExtension(appPath) + "_modified" + ".vdf");
+
+                string directoryName = Path.GetDirectoryName(appPath) ?? string.Empty;
+                string newPath = Path.Combine(directoryName, Path.GetFileNameWithoutExtension(appPath) + "_modified" + ".vdf");
                 File.WriteAllText(newPath, newText);
                 result.AddLog("Copied and modified app file to: " + newPath);
                 newAppPath = newPath;
@@ -689,28 +686,6 @@ namespace Wireframe
             
             version = "Could not find a Readme.txt that has \"Welcome to the Steamworks SDK\" in it.";
             return false;
-        }
-
-        [Obsolete("Does not work. Takes you to the steam partners page to login. I don't know how to handle this properly but its a paint to write so leaving it here.")]
-        private static async Task<Tuple<bool, string>> TryGetLatestOnlineVersion()
-        {
-            Debug.Log("Getting latest version from Steam SDK website...");
-            string url = "https://partner.steamgames.com/downloads/list";
-            UnityWebRequest html = UnityWebRequest.Get(url);
-            UnityWebRequestAsyncOperation operation = html.SendWebRequest();
-            while (!operation.isDone)
-            {
-                await Task.Delay(10);
-            }
-            
-            if (html.isNetworkError || html.isHttpError)
-            {
-                return new Tuple<bool, string>(false, $"Failed to get latest version from {url}. Error: {html.error}");
-            }
-            
-            string text = html.downloadHandler.text;
-            Debug.Log(text);
-            return new Tuple<bool, string>(true, text);
         }
     }
 }

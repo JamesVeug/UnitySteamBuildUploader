@@ -19,8 +19,8 @@ namespace Wireframe
             QuickUploadPopup window = GetWindow<QuickUploadPopup>(true, "Quick Upload", true);
             window.titleContent = new GUIContent("Quick Upload");
             window.position = new Rect(
-                (Screen.currentResolution.width - 300) / 2,
-                (Screen.currentResolution.height - 100) / 2,
+                (Screen.currentResolution.width - 300) / 2f,
+                (Screen.currentResolution.height - 100) / 2f,
                 300, 300
             );
             window.m_inputText = Preferences.DefaultDescriptionFormat;
@@ -96,7 +96,7 @@ namespace Wireframe
         public void Upload()
         {
             m_task.SetBuildDescription(m_inputText);
-            m_task.StartAsync();
+            _ = m_task.StartAsync();
         }
     }
 }

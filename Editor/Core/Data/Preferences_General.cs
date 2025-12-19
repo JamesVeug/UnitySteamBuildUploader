@@ -217,7 +217,7 @@ namespace Wireframe
             }
         }
         
-        private string cachedSize = null;
+        private string cachedSize;
         private DateTime cachedSizeTime = DateTime.MinValue;
         private string GetSizeOfCacheFolder()
         {

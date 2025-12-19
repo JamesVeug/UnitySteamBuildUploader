@@ -5,8 +5,8 @@ namespace Wireframe
 {
     public partial class DecompressModifier
     {
-        private bool m_showFormattedFilePath = false;
-        private bool m_showFormattedTargetPathToCompress = false;
+        private bool m_showFormattedFilePath;
+        private bool m_showFormattedTargetPathToCompress;
         
         protected internal override void OnGUIExpanded(ref bool isDirty, Context ctx)
         {

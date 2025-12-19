@@ -34,7 +34,7 @@ namespace Wireframe
         // Enable/Disable whether this a preview build.
         // It's highly recommended that you use preview builds while doing the initially setting up SteamPipe to
         // ensure that the depot manifest contains the correct files.
-        public bool preview = false;
+        public bool preview;
 
         // File path of the local content server if it's enabled.
         public string local = "";

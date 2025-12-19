@@ -122,7 +122,7 @@ namespace Wireframe
                     {
                         savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         continue;
                     }

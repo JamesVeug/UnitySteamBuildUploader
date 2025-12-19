@@ -9,7 +9,7 @@ namespace Wireframe
     public abstract class InternalReorderableList<T>
     {
         protected List<T> list;
-        protected bool dirty = false;
+        protected bool dirty;
 
         private bool m_showFolderOut;
         private ReorderableList reorderableList;

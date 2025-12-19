@@ -7,8 +7,8 @@ namespace Wireframe
     {
         private string ButtonText => "Choose Local Path...";
         
-        private bool m_showFormattedLocalPath = false;
-        private bool m_showFormattedZippedFilesName = false;
+        private bool m_showFormattedLocalPath;
+        private bool m_showFormattedZippedFilesName;
 
         protected internal override void OnGUIExpanded(ref bool isDirty)
         {

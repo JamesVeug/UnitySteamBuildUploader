@@ -26,8 +26,8 @@ namespace Wireframe
         
         public int Version;
         public bool IncludeBuildMetaDataInStreamingDataFolder = true;
-        public int LastBuildNumber = 0;
-        public int TotalUploadTasksStarted = 0;
+        public int LastBuildNumber;
+        public int TotalUploadTasksStarted;
 
         public BuildUploaderProjectSettings()
         {

@@ -38,7 +38,7 @@ namespace Wireframe
 		// #####################
 		// #####################
 
-		private List<Artifact> m_artifacts = null;
+		private List<Artifact> m_artifacts;
 
 		// #####################
 		// #####################

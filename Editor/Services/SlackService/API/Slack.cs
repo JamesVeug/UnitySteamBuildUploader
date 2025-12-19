@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
+// TODO: Move requests to a wrapper
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace Wireframe
 {
     public static partial class Slack

@@ -25,10 +25,10 @@ namespace Wireframe
             }
         }
 
-        private static List<SceneData> data = null;
-        private static string[] sceneNames = null;
-        private static string[] scenePaths = null;
-        private static string[] sceneGUIDS = null;
+        private static List<SceneData> data;
+        private static string[] sceneNames;
+        private static string[] scenePaths;
+        private static string[] sceneGUIDS;
         
 
         public static void ReloadScenes()

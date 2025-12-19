@@ -22,7 +22,7 @@ namespace Wireframe
             }
         }
 
-        private static List<BuildConfig> data = null;
+        private static List<BuildConfig> data;
 
         public static List<BuildConfig> GetBuildConfigs()
         {

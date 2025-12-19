@@ -23,7 +23,7 @@ namespace Wireframe
         public bool EnableDeepProfilingSupport;
         
         // Platform-specific settings
-        public bool SwitchTargetPlatform = false;
+        public bool SwitchTargetPlatform;
         public BuildTargetGroup TargetPlatform;
         public int TargetPlatformSubTarget;
         public BuildTarget Target;

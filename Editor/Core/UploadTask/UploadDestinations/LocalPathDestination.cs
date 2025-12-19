@@ -21,7 +21,7 @@ namespace Wireframe
         private Utils.FileExistHandling m_duplicateFileHandling = Utils.FileExistHandling.Overwrite;
         
         [Wiki("Zip Content", "If true, the content will be zipped into a single file.")]
-        private bool m_zipContent = false;
+        private bool m_zipContent;
         
         [Wiki("Name", "If Zip Content is true, This is the name of the zipped file.")]
         private string m_zippedFilesName = "";

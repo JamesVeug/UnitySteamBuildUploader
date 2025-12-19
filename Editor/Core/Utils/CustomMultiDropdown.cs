@@ -13,7 +13,7 @@ namespace Wireframe
 
         private static Dictionary<T, string[]> nameLookup;
         private static Dictionary<T, Y[]> valueLookup;
-        private static Context ctx = null;
+        private static Context ctx;
 
         public virtual bool IsItemValid(Y y)
         {

@@ -7,6 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// TODO: Move requests to a wrapper
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace Wireframe
 {
     internal static partial class Github

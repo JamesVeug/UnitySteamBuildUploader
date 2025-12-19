@@ -27,7 +27,7 @@ namespace Wireframe
         
         public static bool Enabled
         {
-            get => ProjectEditorPrefs.GetBool("Itchio_Enabled", false);
+            get => ProjectEditorPrefs.GetBool("Itchio_Enabled");
             set => ProjectEditorPrefs.SetBool("Itchio_Enabled", value);
         }
 
@@ -70,7 +70,7 @@ namespace Wireframe
                 return;
             }
 
-            string exePath = "";
+            string exePath;
             if (Application.platform == RuntimePlatform.WindowsEditor)
             {
                 exePath = Path.Combine(ItchioSDKPath, "butler.exe");
@@ -205,14 +205,14 @@ namespace Wireframe
             "unauthorized"
         };
         
-        private async Task<OutputResultArgs> LogOutItchioResult(string textDump)
+        private Task<OutputResultArgs> LogOutItchioResult(string textDump)
         {
             OutputResultArgs result = new OutputResultArgs();
             if (string.IsNullOrEmpty(textDump))
             {
                 result.errorText = "Itchio upload failed: No output from ItchioCMD. Does your username/game_id/channel_id have spaces?";
                 result.successful = false;
-                return result;
+                return Task.FromResult(result);
             }
             
             foreach (string failString in failStrings)
@@ -229,12 +229,12 @@ namespace Wireframe
                     string errorText = textDump.Substring(index, endLineIndex - index);
                     result.errorText = $"Itchio upload failed: {errorText}";
                     result.successful = false;
-                    return result;
+                    return Task.FromResult(result);
                 }
             }
 
             result.successful = true;
-            return result;
+            return Task.FromResult(result);
         }
 
         public void ShowConsole()
@@ -247,14 +247,14 @@ namespace Wireframe
             process.StartInfo.FileName = "/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal";
 #endif
             process.StartInfo.UseShellExecute = true;
-            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(m_SDKCMDPath);  // /k keeps the terminal open, cd /d changes drive if needed
+            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(m_SDKCMDPath) ?? string.Empty;
             process.StartInfo.Arguments = $"/k \"{m_SDKCMDPath}\"";  // /k keeps the terminal open, cd /d changes drive if needed
             process.Start();
         }
 
         private class OutputResultArgs
         {
-            public bool successful = false;
+            public bool successful;
             public bool retry = false;
             public string errorText;
         }

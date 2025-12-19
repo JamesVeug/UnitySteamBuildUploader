@@ -24,7 +24,7 @@ namespace Wireframe
         public BuildConfig BuildConfig => m_BuildConfig;
 
         [Wiki("BuildConfig", "Which config to use when creating a build")]
-        private BuildConfig m_BuildConfig = null;
+        private BuildConfig m_BuildConfig;
 
         [Wiki("Override Target Platform", "If enabled, the target platform and architecture specified below will be used instead of the one in the BuildConfig")]
         private bool m_OverrideSwitchTargetPlatform;
@@ -36,21 +36,21 @@ namespace Wireframe
         private BuildUtils.Architecture m_TargetArchitecture;
         
         [Wiki("Clean Build", "If enabled, the build folder will be deleted before building. This ensures a fresh build but may increase build time.")]
-        private bool m_CleanBuild = false;
+        private bool m_CleanBuild;
         
         // Also serialized but not exposed to WIKI
         private BuildTargetGroup m_TargetPlatform;
         private int m_TargetPlatformSubTarget;
         
         private string m_filePath = "";
-        private bool m_appliedSettings = false;
-        private BuildMetaData m_buildMetaData = null;
-        private BuildConfig m_buildConfigToApply = null;
+        private bool m_appliedSettings;
+        private BuildMetaData m_buildMetaData;
+        private BuildConfig m_buildConfigToApply;
         
         // Lock to 1 build at a time regardless of how many tasks/configs are running
-        internal static BuildConfig m_editorSettingsBeforeUpload = null;
+        internal static BuildConfig m_editorSettingsBeforeUpload;
         internal static SemaphoreSlim m_lock = new SemaphoreSlim(1);
-        internal static int m_totalBuildsInProgress = 0;
+        internal static int m_totalBuildsInProgress;
 
         public BuildConfigSource()
         {

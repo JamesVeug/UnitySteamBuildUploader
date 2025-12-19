@@ -9,7 +9,7 @@ namespace Wireframe
         public int Id => ID;
         public string DisplayName => Name;
         
-        public int ID = 0;
+        public int ID;
         public string Name = "Template";
         public AppVDFFile App = new AppVDFFile();
         public List<SteamDepot> Depots = new List<SteamDepot>();
@@ -17,7 +17,7 @@ namespace Wireframe
 
         // Deprecated in v1.1.3 in favor of ConfigBranches so we can add more fields for a branch
         [Obsolete("Use ConfigBranches instead")]
-        public List<string> Branches = null;
+        public List<string> Branches;
         
         public SteamApp()
         {
@@ -65,7 +65,7 @@ namespace Wireframe
         public int Id => ID;
         public string DisplayName => Name;
         
-        public int ID = 0;
+        public int ID;
         public string Name = "Template";
         public DepotVDFFile Depot = new DepotVDFFile();
         

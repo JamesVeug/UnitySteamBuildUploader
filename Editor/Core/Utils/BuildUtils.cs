@@ -174,7 +174,7 @@ namespace Wireframe
         }
     
 
-        private static List<BuildPlatform> BuildPlatforms = null;
+        private static List<BuildPlatform> BuildPlatforms;
 
         public static List<BuildPlatform> ValidPlatforms
         {

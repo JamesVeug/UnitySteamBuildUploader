@@ -17,8 +17,8 @@ namespace Wireframe
         private ReorderableListOfScriptDefines m_definesList = new ReorderableListOfScriptDefines();
         
         private GUIStyle m_titleStyle;
-        private bool m_showFormattedBuildName = false;
-        private bool m_showFormattedProductName = false;
+        private bool m_showFormattedBuildName;
+        private bool m_showFormattedProductName;
         
         private void SetupGUI()
         {

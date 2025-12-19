@@ -22,10 +22,10 @@ namespace Wireframe
 
         protected abstract List<T> FetchAllData();
 
-        private string[] names = null;
-        private T[] values = null;
-        private T[] rawValues = null;
-        private Context ctx = null;
+        private string[] names;
+        private T[] values;
+        private T[] rawValues;
+        private Context ctx;
 
         public void Refresh()
         {

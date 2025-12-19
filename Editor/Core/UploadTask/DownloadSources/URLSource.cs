@@ -6,6 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
+// TODO: Move requests to a wrapper
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace Wireframe
 {
     /// <summary>
@@ -33,12 +36,12 @@ namespace Wireframe
 
         private string m_sourcePath;
         
-        public URLSource() : base()
+        public URLSource()
         {
             // Required for reflection
         }
         
-        public URLSource(string url, WebRequestMethod method=WebRequestMethod.GET) : base()
+        public URLSource(string url, WebRequestMethod method=WebRequestMethod.GET)
         {
             SetURL(url, method);
         }

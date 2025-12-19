@@ -6,11 +6,11 @@ namespace Wireframe
 {
     internal static class InternalUtils
     {
-        private static List<AService> allServices = null;
-        private static List<Type> allBuildSources = null;
-        private static List<Type> allBuildModifiers = null;
-        private static List<Type> allBuildDestinations = null;
-        private static List<Type> allBuildActions = null;
+        private static List<AService> allServices;
+        private static List<Type> allBuildSources;
+        private static List<Type> allBuildModifiers;
+        private static List<Type> allBuildDestinations;
+        private static List<Type> allBuildActions;
         
         public static List<AService> AllServices()
         {

@@ -31,7 +31,7 @@ namespace Wireframe
             }
             
             public bool Successful { get; private set; } = true;
-            public float PercentComplete { get; private set; } = 0f;
+            public float PercentComplete { get; private set; }
             public string FailReason { get; private set; } = "";
             public List<Log> Logs { get; private set; } = new List<Log>();
 

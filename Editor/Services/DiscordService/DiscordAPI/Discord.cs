@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// TODO: Move requests to a wrapper
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace Wireframe
 {
     /// <summary>
@@ -12,7 +15,7 @@ namespace Wireframe
     {
         public static bool Enabled
         {
-            get => ProjectEditorPrefs.GetBool("discord_enabled", false);
+            get => ProjectEditorPrefs.GetBool("discord_enabled");
             set => ProjectEditorPrefs.SetBool("discord_enabled", value);
         }
 
@@ -80,7 +83,7 @@ namespace Wireframe
                 request.SetRequestHeader("Authorization", token);
             }
             
-            request.SendWebRequest().completed += operation =>
+            request.SendWebRequest().completed += _ =>
             {
                 if (request.isHttpError || request.isNetworkError)
                 {
@@ -106,7 +109,7 @@ namespace Wireframe
                 request.SetRequestHeader("Authorization", token);
             }
             
-            request.SendWebRequest().completed += operation =>
+            request.SendWebRequest().completed += _ =>
             {
                 if (request.isHttpError || request.isNetworkError)
                 {

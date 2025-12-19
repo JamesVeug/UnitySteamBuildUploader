@@ -1,9 +1,11 @@
-﻿namespace Wireframe
+﻿using System.Collections.Generic;
+
+namespace Wireframe
 {
     internal partial class ItchioService : AService
     {
         public override string ServiceName => "Itch.io";
-        public override string[] SearchKeyworks => new string[]{"itch.io", "itch", "game distribution", "game upload"};
+        public override string[] SearchKeywords => new string[]{"itch.io", "itch", "game distribution", "game upload"};
 
         public ItchioService()
         {
@@ -17,7 +19,6 @@
                 reason = "Itch.io service is not enabled in Preferences";
                 return false;
             }
-
             
             if (!Itchio.Instance.IsInitialized)
             {
@@ -27,6 +28,17 @@
 
             reason = "";
             return true;
+        }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            ItchioAppData configs = ItchioUIUtils.GetItchioBuildData(false);
+            if (configs == null)
+            {
+                return false;
+            }
+            
+            return configs.Users.Count > 0 && configs.Channels.Count > 0;
         }
     }
 }

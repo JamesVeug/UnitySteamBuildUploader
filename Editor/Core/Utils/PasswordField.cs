@@ -7,7 +7,7 @@ namespace Wireframe
     public static class PasswordField
     {
         private static Dictionary<string, bool> m_passwordFieldToggles = new Dictionary<string, bool>();
-        public static string Draw(string label, string tooltip, int labelLength, string password, char mask = '*', Action onHelpPressed = null)
+        public static string Draw(string label, string tooltip, int labelLength, string password, char mask = '*', Action onHelpPressed = null, bool labelIsRedIfEmpty = false)
         {
             using (new GUILayout.HorizontalScope())
             {
@@ -19,7 +19,17 @@ namespace Wireframe
 
                 if (labelLength > 0)
                 {
+                    Color color = GUI.color;
+                    bool isRed = !labelIsRedIfEmpty || string.IsNullOrEmpty(password); 
+                    if (isRed)
+                    {
+                        GUI.color = Color.red;
+                    }
                     GUILayout.Label(new GUIContent(label, tooltip), GUILayout.Width(realLabelLength));
+                    if (isRed)
+                    {
+                        GUI.color = color;
+                    }
                 }
 
                 if (onHelpPressed != null)

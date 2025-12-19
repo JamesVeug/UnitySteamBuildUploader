@@ -13,7 +13,7 @@ namespace Wireframe
                 new ItchioService_ProjectSettings_Provider("Project/Build Uploader/Services/Itchio", SettingsScope.Project)
                 {
                     label = "Itchio",
-                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is ItchioService).SearchKeyworks
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is ItchioService).SearchKeywords
                 };
             return provider;
         }

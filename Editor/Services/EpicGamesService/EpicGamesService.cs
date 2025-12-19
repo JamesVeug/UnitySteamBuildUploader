@@ -1,12 +1,11 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using System.Linq;
 
 namespace Wireframe
 {
     internal partial class EpicGamesService : AService
     {
         public override string ServiceName => "Epic Games";
-        public override string[] SearchKeyworks => new string[]{"epic", "games", "epicgames", "epic games", "unreal", "ue", "game distribution", "game upload"};
+        public override string[] SearchKeywords => new string[]{"epic", "games", "epicgames", "epic games", "unreal", "ue", "game distribution", "game upload"};
 
         public EpicGamesService()
         {
@@ -30,6 +29,17 @@ namespace Wireframe
             reason = string.Empty;
             
             return true;
+        }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            EpicGamesAppData data = EpicGamesUIUtils.GetEpicGamesData(false);
+            if (data == null)
+            {
+                return false;
+            }
+            
+            return data.Organizations.Count > 0 && data.Organizations.Any(a=>a.Products.Count > 0);
         }
 
         public static string GetClientSecret(string organization, string clientID)

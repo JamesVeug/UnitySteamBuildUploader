@@ -13,7 +13,7 @@ namespace Wireframe
                 new EpicGamesService_Preferences_Provider("Preferences/Build Uploader/Services/Epic Games", SettingsScope.User)
                 {
                     label = "Epic Games",
-                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is EpicGamesService).SearchKeyworks
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is EpicGamesService).SearchKeywords
                 };
             return provider;
         }

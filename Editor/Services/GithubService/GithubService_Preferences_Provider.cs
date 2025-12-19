@@ -13,7 +13,7 @@ namespace Wireframe
                 new GithubService_Preferences_Provider("Preferences/Build Uploader/Services/Github", SettingsScope.User)
                 {
                     label = "Github",
-                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is GithubService).SearchKeyworks
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is GithubService).SearchKeywords
                 };
             return provider;
         }

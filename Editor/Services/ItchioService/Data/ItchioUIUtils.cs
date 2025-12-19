@@ -11,9 +11,9 @@ namespace Wireframe
 
         private static ItchioAppData data;
 
-        public static ItchioAppData GetItchioBuildData()
+        public static ItchioAppData GetItchioBuildData(bool createIfMissing = true)
         {
-            if (data == null)
+            if (data == null && createIfMissing)
             {
                 if (File.Exists(FilePath))
                 {

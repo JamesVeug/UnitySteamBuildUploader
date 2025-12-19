@@ -1,3 +1,17 @@
+# 3.1.1
+
+## What's new
+- Added checklist to welcome window for basic setup steps
+- Improved UX of the welcome window
+
+## What's changed
+- Steam username in preferences is now red when empty 
+
+## What's fixed
+- Fixed error showing when compiling code when no upload profiles have been made
+- Fixed changelog not showing in welcome window when the package isn't in the package folder 
+
+
 # 3.1.0
 
 ## Highlights

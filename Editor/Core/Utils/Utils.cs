@@ -59,11 +59,17 @@ namespace Wireframe
 
         public static bool IsDarkMode => EditorGUIUtility.isProSkin;
         public static Texture2D WindowIcon => TryGetIcon(IsDarkMode ? "Icon.png" : "IconLight.png");
+        public static Texture2D WindowLargeIcon => TryGetIcon("LargeIcon.png");
         public static Texture2D ErrorIcon => TryGetIcon(IsDarkMode ? "errorIcon.png" : "errorIconLight.png");
         public static Texture2D WarningIcon => TryGetIcon(IsDarkMode ? "warningIcon.png" : "warningIconLight.png");
         public static Texture2D FoldoutOpenIcon => TryGetIcon("FoldoutOpen.png");
         public static Texture2D FoldoutClosedIcon => TryGetIcon("FoldoutClosed.png");
         public static Texture2D SettingsIcon => TryGetIcon(IsDarkMode ? "Settings.png" : "SettingsLight.png");
+        public static Texture2D CheckIcon => TryGetIcon(IsDarkMode ? "checkIcon.png" : "checkIconLight.png");
+        public static Texture2D CheckIconSmall => TryGetIcon(IsDarkMode ? "checkIconSmall.png" : "checkIconSmallLight.png");
+        public static Texture2D CrossIcon => TryGetIcon(IsDarkMode ? "crossIcon.png" : "crossIconLight.png");
+        public static Texture2D CrossIconSmall => TryGetIcon(IsDarkMode ? "crossIconSmall.png" : "crossIconSmallLight.png");
+        public static Texture2D LinkIcon => TryGetIcon("linkIcon.png");
         
         public static bool IsPathADirectory(string path)
         {

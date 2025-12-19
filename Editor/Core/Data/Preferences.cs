@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace Wireframe
 {
     public static class Preferences
     {
-        private static readonly string DefaultCacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
+        internal static readonly string DefaultCacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
 
         public enum ShowIf
         {

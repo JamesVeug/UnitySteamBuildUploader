@@ -10,9 +10,9 @@ namespace Wireframe
 
         private static DiscordConfig data;
 
-        public static DiscordConfig GetConfig()
+        public static DiscordConfig GetConfig(bool createIfMissing = true)
         {
-            if (data == null)
+            if (data == null && createIfMissing)
             {
                 if (File.Exists(FilePath))
                 {

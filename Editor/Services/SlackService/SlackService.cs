@@ -3,7 +3,7 @@
     internal partial class SlackService : AService
     {
         public override string ServiceName => "Slack";
-        public override string[] SearchKeyworks => new string[]{"Slack", "Messaging", "Chat"};
+        public override string[] SearchKeywords => new string[]{"Slack", "Messaging", "Chat"};
 
         public SlackService()
         {
@@ -20,6 +20,17 @@
 
             reason = "";
             return true;
+        }
+
+        public override bool IsProjectSettingsSetup()
+        {
+            SlackConfig SlackConfig = SlackUIUtils.GetConfig(false);
+            if (SlackConfig == null)
+            {
+                return false;
+            }
+
+            return SlackConfig.servers.Count > 0;
         }
     }
 }

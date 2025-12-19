@@ -10,9 +10,9 @@ namespace Wireframe
 
         private static SlackConfig data;
 
-        public static SlackConfig GetConfig()
+        public static SlackConfig GetConfig(bool createIfMissing = true)
         {
-            if (data == null)
+            if (data == null && createIfMissing)
             {
                 if (File.Exists(FilePath))
                 {

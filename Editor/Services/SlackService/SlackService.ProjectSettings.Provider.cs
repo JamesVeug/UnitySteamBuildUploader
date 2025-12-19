@@ -13,7 +13,7 @@ namespace Wireframe
                 new SlackService_ProjectSettings_Provider("Project/Build Uploader/Services/Slack", SettingsScope.Project)
                 {
                     label = "Slack",
-                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is SlackService).SearchKeyworks
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a=>a is SlackService).SearchKeywords
                 };
             return provider;
         }

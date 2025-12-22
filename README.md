@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/JamesVeug/UnitySteamBuildUploader/blob/main/LargeIcon.png?raw=true" alt="MAS Logo"></p>
+<p align="center"><img src="https://github.com/JamesVeug/UnitySteamBuildUploader/blob/main/Assets/LargeIcon.png?raw=true" alt="MAS Logo"></p>
 
 <h1 align="center">Build Uploader</h1>
 

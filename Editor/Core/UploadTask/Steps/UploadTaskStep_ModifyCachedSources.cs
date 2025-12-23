@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -80,15 +81,29 @@ namespace Wireframe
         {
             UploadConfig uploadConfig = task.UploadConfigs[configIndex];
             UploadTaskReport.StepResult[] results = report.NewReports(Type, uploadConfig.Modifiers.Count);
+            List<UploadTaskReport.StepResult> activeResults =  new List<UploadTaskReport.StepResult>();
+            for (int i = 0; i < uploadConfig.Modifiers.Count; i++)
+            {
+                if(uploadConfig.Modifiers[i].Enabled){
+                    activeResults.Add(results[i]);}
+            }
+            m_stateResults.Add(new StateResult()
+            {
+                uploadConfig = uploadConfig,
+                reports = activeResults.ToArray(),
+                labelGetter = (index) => uploadConfig.Modifiers[index].ModifierType.DisplayName
+            });
+            
             for (var i = 0; i < uploadConfig.Modifiers.Count; i++)
             {
-                var modifer = uploadConfig.Modifiers[i];
+                UploadConfig.ModifierData modifer = uploadConfig.Modifiers[i];
+                UploadTaskReport.StepResult stepResult = results[i];
                 if (!modifer.Enabled)
                 {
+                    stepResult.SetSkipped("Skipping modifier since its disabled");
                     continue;
                 }
                 
-                var stepResult = results[i];
                 try
                 {
                     bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[configIndex], uploadConfig, configIndex, stepResult);

@@ -173,7 +173,7 @@ namespace Wireframe
             }
 
             // Current step label
-            string stepLabel = t.IsComplete ? "Done" : t.CurrentStep.ToString();
+            string stepLabel = t.IsComplete ? "Done" : t.CurrentStepType.ToString();
 
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -22,17 +23,16 @@ namespace Wireframe
 
         public override StepType Type => StepType.CacheSources;
         
-        
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
             CancellationTokenSource token)
         {
             int progressId = ProgressUtils.Start(Type.ToString(), "Setting up...");
-            List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
+            List<UploadConfig> uploadConfigs = uploadTask.UploadConfigs;
             
             List<Task<bool>> tasks = new List<Task<bool>>();
-            for (int j = 0; j < buildConfigs.Count; j++)
+            for (int j = 0; j < uploadConfigs.Count; j++)
             {
-                if (!buildConfigs[j].Enabled)
+                if (!uploadConfigs[j].Enabled)
                 {
                     continue;
                 }
@@ -88,7 +88,14 @@ namespace Wireframe
             string sanitisedName = InternalEditorUtility.RemoveInvalidCharsFromFileName(task.UploadName, false);
             string cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({task.GUID})", uploadConfig.GUID);
             bool pathAlreadyExists = Directory.Exists(cacheFolderPath);
-            
+
+            StateResult stateResult = new StateResult()
+            {
+                uploadConfig = uploadConfig,
+                reports = reports,
+                labelGetter = (index) => uploadConfig.Sources[index].SourceType.DisplayName
+            };
+            m_stateResults.Add(stateResult);
             int sourceIndex = 0;
             task.CachedLocations[configIndex] = cacheFolderPath;
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
@@ -98,6 +105,7 @@ namespace Wireframe
                 if (!sourceData.Enabled)
                 {
                     result.AddLog("Skipping cacheSources because it's disabled");
+                    result.SetPercentComplete(1f);
                     continue;
                 }
 
@@ -125,7 +133,7 @@ namespace Wireframe
 
                 try
                 {
-                    bool cached = await CacheSource(sourceData, modifiers, configIndex, i, subCacheFolder, result);
+                    bool cached = await CacheSource(sourceData, modifiers, configIndex, subCacheFolder, result);
                     if (!cached)
                     {
                         return false;
@@ -147,7 +155,7 @@ namespace Wireframe
         }
         
         private async Task<bool> CacheSource(UploadConfig.SourceData sourceData, AUploadModifer[] modifiers,
-            int configIndex, int sourceIndex, string cacheFolderPath, UploadTaskReport.StepResult result)
+            int configIndex, string cacheFolderPath, UploadTaskReport.StepResult result)
         {
             string sourcePath = sourceData.Source.SourceFilePath();
             bool sourceIsADirectory = Utils.IsPathADirectory(sourcePath);
@@ -162,7 +170,7 @@ namespace Wireframe
 
             if (string.IsNullOrEmpty(sourcePath))
             {
-                result.AddWarning($"Source path is empty for Build Config index: {configIndex} and Source index: {sourceIndex}");
+                result.AddWarning($"Source path is empty for Build Config index: {configIndex}");
                 result.SetFailed($"Source path is empty");
                 return false;
             }

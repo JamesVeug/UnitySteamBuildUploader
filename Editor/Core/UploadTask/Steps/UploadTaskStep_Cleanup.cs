@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,12 +12,20 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_Cleanup : AUploadTask_Step
     {
+        private class StateResult
+        {
+            public UploadConfig uploadConfig;
+            public UploadTaskReport.StepResult[] reports;
+        }
+        
         public UploadTaskStep_Cleanup(Context context) : base(context)
         {
             
         }
 
         public override StepType Type => StepType.Cleanup;
+        
+        private List<StateResult> StateResults = new List<StateResult>(); 
         public override bool RequiresEverythingBeforeToSucceed => false;
         
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
@@ -51,6 +61,16 @@ namespace Wireframe
             // Cleanup configs
             ProgressUtils.Report(cleanupProgressId, 0.33f, "Cleaning up Upload configs");
             UploadTaskReport.StepResult[] configResults = report.NewReports(StepType.Cleanup, uploadTask.UploadConfigs.Count);
+            for (int i = 0; i < uploadTask.UploadConfigs.Count; i++)
+            {
+                StateResults.Add(new StateResult()
+                {
+                    uploadConfig = uploadTask.UploadConfigs[i],
+                    reports = new[]{configResults[i]}
+                });
+            }
+            
+            
             int activeConfigIndex = 0;
             for (int i = 0; i < uploadTask.UploadConfigs.Count; i++)
             {
@@ -58,8 +78,7 @@ namespace Wireframe
                 UploadTaskReport.StepResult cleanupResult = configResults[i];
                 if (!config.Enabled)
                 {
-                    cleanupResult.AddLog("Skipping config cleanup because it's disabled");
-                    cleanupResult.SetPercentComplete(1f);
+                    cleanupResult.SetSkipped("Skipping config cleanup because it's disabled");
                     continue;
                 }
                 
@@ -79,15 +98,13 @@ namespace Wireframe
                 UploadTaskReport.StepResult cleanupResult = actionResults[i];
                 if (actionData.UploadAction == null)
                 {
-                    cleanupResult.AddLog("Skipping post action cleanup because it's null");
-                    cleanupResult.SetPercentComplete(1f);
+                    cleanupResult.SetSkipped("Skipping post action cleanup because it's null");
                     continue;
                 }
 
                 if (actionData.WhenToExecute == UploadConfig.UploadActionData.UploadCompleteStatus.Never)
                 {
-                    cleanupResult.AddLog("Skipping config cleanup because it's set to Never");
-                    cleanupResult.SetPercentComplete(1f);
+                    cleanupResult.SetSkipped("Skipping config cleanup because it's set to Never");
                     continue;
                 }
 

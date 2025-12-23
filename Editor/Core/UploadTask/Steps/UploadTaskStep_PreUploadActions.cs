@@ -22,16 +22,24 @@ namespace Wireframe
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
             CancellationTokenSource token)
         {
-            UploadTaskReport.StepResult actionResult = report.NewReport(StepType.PreUploadActions);
             int preActionID = ProgressUtils.Start("Pre Upload Actions", "Executing Pre Upload Actions...");
+            List<UploadConfig.UploadActionData> preUploadActions = uploadTask.PreUploadActions;
             
-            List<UploadConfig.UploadActionData> PreUploadActions = uploadTask.PreUploadActions;
-            for (var i = 0; i < PreUploadActions.Count; i++)
+            UploadTaskReport.StepResult[] results = report.NewReports(StepType.PreUploadActions, preUploadActions.Count);
+            m_stateResults.Add(new StateResult()
             {
-                UploadConfig.UploadActionData actionData = PreUploadActions[i];
+                uploadConfig = null,
+                reports =  results,
+                labelGetter = (index) => "Pre Upload Action: " + (index + 1),
+            });
+            
+            for (var i = 0; i < preUploadActions.Count; i++)
+            {
+                UploadTaskReport.StepResult result  = results[i];
+                UploadConfig.UploadActionData actionData = preUploadActions[i];
                 if (actionData == null || actionData.UploadAction == null)
                 {
-                    actionResult.AddLog($"Skipping pre upload action {i+1} because it's null");
+                    result.SetSkipped($"Skipping pre upload action {i+1} because it's null");
                     continue;
                 }
 
@@ -40,38 +48,38 @@ namespace Wireframe
                     (status == UploadConfig.UploadActionData.UploadCompleteStatus.IfSuccessful && !report.Successful) ||
                     (status == UploadConfig.UploadActionData.UploadCompleteStatus.IfFailed && report.Successful))
                 {
-                    actionResult.AddLog($"Skipping pre upload action {i+1} because it doesn't match the current status. Status: {status}. Successful: {report.Successful}");
+                    result.SetSkipped($"Skipping pre upload action {i+1} because it doesn't match the current status. Status: {status}. Successful: {report.Successful}");
                     continue;
                 }
 
                 await Task.Yield();
-                ProgressUtils.Report(preActionID, 0, $"Executing action " + (i+1) + "/" + PreUploadActions.Count);
+                ProgressUtils.Report(preActionID, 0, $"Executing action " + (i+1) + "/" + preUploadActions.Count);
                     
-                actionResult.AddLog($"Executing pre upload action: {i+1}");
+                result.AddLog($"Executing pre upload action: {i+1}");
 
-                bool prepared = await actionData.UploadAction.Prepare(actionResult);
+                bool prepared = await actionData.UploadAction.Prepare(result);
                 if (!prepared)
                 {
-                    actionResult.AddError($"Failed to prepare pre upload action: {actionData.UploadAction.GetType().Name}");
+                    result.AddError($"Failed to prepare pre upload action: {actionData.UploadAction.GetType().Name}");
+                    result.SetPercentComplete(1f);
                     continue;
                 }
 
                 try
                 {
-                    await actionData.UploadAction.Execute(actionResult);
+                    await actionData.UploadAction.Execute(result);
                 }
                 catch (Exception e)
                 {
-                    actionResult.AddException(e);
+                    result.AddException(e);
                 }
                 finally
                 {
-                    actionResult.SetPercentComplete(1f);
+                    result.SetPercentComplete(1f);
                 }
             }
             
             ProgressUtils.Remove(preActionID);
-            actionResult.SetPercentComplete(1f);
             return true;
         }
 

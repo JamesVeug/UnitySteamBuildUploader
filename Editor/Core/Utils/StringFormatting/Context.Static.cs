@@ -23,10 +23,13 @@ namespace Wireframe
         public const string TIME_KEY = "{time}";
         public const string DATE_TIME_KEY = "{dateTime}";
         public const string MACHINE_NAME_KEY = "{machineName}";
+        public const string UPLOAD_NUMBER_KEY = "{uploadNumber}";
+        
+        // Task
         public const string TASK_PROFILE_NAME_KEY = "{taskProfileName}";
         public const string TASK_DESCRIPTION_KEY = "{taskDescription}";
         public const string TASK_FAILED_REASONS_KEY = "{taskFailedReasons}";
-        public const string UPLOAD_NUMBER_KEY = "{uploadNumber}";
+        public const string TASK_STATUS_KEY = "{taskStatus}";
         
         // Sources
         public const string BUILD_NAME_KEY = "{buildName}";
@@ -76,10 +79,13 @@ namespace Wireframe
             AddS(TIME_KEY, ()=> System.DateTime.Now.ToString("HH-mm-ss"), "The current local time in the format HH-MM-SS.");
             AddS(DATE_TIME_KEY, ()=> System.DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"), "The current local date and time in the format YYYY-MM-DD HH-MM-SS.");
             AddS(MACHINE_NAME_KEY, ()=> Environment.MachineName, "The name of the machine running the build.");
+            AddS(UPLOAD_NUMBER_KEY, ()=> (BuildUploaderProjectSettings.Instance.TotalUploadTasksStarted + 1).ToString(), "A unique number of the upload task that's getting sources and uploading them.");
+            
+            // Task
             AddS(TASK_PROFILE_NAME_KEY, null, "The name of the upload profile or task specified when creating the task.");
             AddS(TASK_DESCRIPTION_KEY, null, "The description of the current task being executed.");
             AddS(TASK_FAILED_REASONS_KEY, null, "Gets the reasons why the task failed to upload all destinations.");
-            AddS(UPLOAD_NUMBER_KEY, ()=> (BuildUploaderProjectSettings.Instance.TotalUploadTasksStarted + 1).ToString(), "A unique number of the upload task that's getting sources and uploading them.");
+            AddS(TASK_STATUS_KEY, null, "Get a small message describing the status of the Upload Task.");
 
             // Sources
             AddS(BUILD_NAME_KEY, null, "The name of the build as specified in a build config.");

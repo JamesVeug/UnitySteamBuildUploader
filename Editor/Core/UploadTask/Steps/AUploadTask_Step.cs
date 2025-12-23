@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,13 @@ namespace Wireframe
     /// </summary>
     public abstract class AUploadTask_Step
     {
+        protected class StateResult
+        {
+            public UploadConfig uploadConfig;
+            public Func<int, string> labelGetter;
+            public UploadTaskReport.StepResult[] reports;
+        }
+
         public enum StepType
         {
             Validation,
@@ -38,6 +46,9 @@ namespace Wireframe
         public abstract Task<bool> Run(UploadTask uploadTask, UploadTaskReport report, CancellationTokenSource token);
         public abstract Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report);
         
+        protected List<StateResult> m_stateResults = new List<StateResult>(); 
+        protected bool m_completed;
+        protected bool m_successful;
         protected readonly Context m_context;
 
         public AUploadTask_Step(Context ctx)
@@ -85,6 +96,47 @@ namespace Wireframe
                 sb.AppendLine("\t-" + file);
             }
             result.AddLog(sb.ToString());
+        }
+
+        public virtual string GetStateSummary()
+        {
+            StringBuilder summary = new StringBuilder();
+            foreach (StateResult stateResult in m_stateResults)
+            {
+                for (var i = 0; i < stateResult.reports.Length; i++)
+                {
+                    string labelGetter = stateResult.labelGetter(i);
+                    summary.Append(labelGetter);
+                    summary.Append(": ");
+                    
+                    UploadTaskReport.StepResult stepResult = stateResult.reports[i];
+                    if (stepResult.IsSkipped)
+                    {
+                        summary.AppendLine("Skipped");
+                    }
+                    else if (stepResult.PercentComplete >= 1f)
+                    {
+                        if (stepResult.Successful)
+                        {
+                            summary.AppendLine("Complete");
+                        }
+                        else
+                        {
+                            summary.Append("Failed - ");
+                            summary.AppendLine(stepResult.FailReason);
+                        }
+                    }
+                    else if (stepResult.Logs.Count > 0)
+                    {
+                        summary.AppendLine(stepResult.Logs[stepResult.Logs.Count - 1].Message);
+                    }
+                    else
+                    {
+                        summary.AppendLine("Waiting to start...");
+                    }
+                }
+            }
+            return summary.ToString();
         }
     }
 }

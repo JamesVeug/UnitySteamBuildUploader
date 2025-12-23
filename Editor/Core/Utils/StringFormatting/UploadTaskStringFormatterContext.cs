@@ -7,6 +7,9 @@
         public UploadTaskStringFormatterContext(IContextContainer container)
         {
             this._container = container;
+            AddCommand(TASK_PROFILE_NAME_KEY, () => _container.UploadName);
+            AddCommand(TASK_DESCRIPTION_KEY, () => _container.UploadDescription);
+            AddCommand(TASK_STATUS_KEY, () => _container.UploadStatus);
         }
 
         public override bool TryFormatKeyLocally(string key, out string value)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,18 +68,38 @@ namespace Wireframe
             CancellationTokenSource token)
         {
             UploadTaskReport.StepResult[] results = report.NewReports(Type, uploadConfig.Sources.Count);
+            List<UploadTaskReport.StepResult> activeResults =  new List<UploadTaskReport.StepResult>();
+            for (int i = 0; i < uploadConfig.Sources.Count; i++)
+            {
+                if(uploadConfig.Sources[i].Enabled){
+                    activeResults.Add(results[i]);}
+            }
+            m_stateResults.Add(new StateResult()
+            {
+                uploadConfig =  uploadConfig,
+                reports = activeResults.ToArray(),
+                labelGetter = (index) => uploadConfig.Sources[index].SourceType.DisplayName
+            });
+            
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {
                 UploadConfig.SourceData sourceData = uploadConfig.Sources[i];
                 UploadTaskReport.StepResult result = results[i];
                 if (!sourceData.Enabled)
                 {
-                    result.AddLog("Source skipped - not enabled");
+                    result.SetSkipped("Source skipped - not enabled");
                     continue;
                 }
 
                 if (token.IsCancellationRequested)
                 {
+                    for (int j = 0; j < results.Length; j++)
+                    {
+                        if (!results[j].IsComplete)
+                        {
+                            results[j].SetSkipped("Cancelled");
+                        }
+                    }
                     return false;
                 }
 

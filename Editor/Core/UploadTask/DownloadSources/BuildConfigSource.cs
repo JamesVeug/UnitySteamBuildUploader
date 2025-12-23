@@ -360,7 +360,7 @@ namespace Wireframe
                 foreach (UploadTask a in UploadTask.AllTasks)
                 {
                     if (a.IsComplete) continue;
-                    if (a.CurrentStep == AUploadTask_Step.StepType.Validation) continue;
+                    if (a.CurrentStepType == AUploadTask_Step.StepType.Validation) continue;
                     
                     foreach (UploadConfig b in a.UploadConfigs)
                     {

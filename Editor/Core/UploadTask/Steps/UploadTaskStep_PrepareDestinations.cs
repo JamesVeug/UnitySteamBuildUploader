@@ -78,13 +78,20 @@ namespace Wireframe
             UploadConfig uploadConfig = uploadTask.UploadConfigs[configIndex];
             string cachePath = uploadTask.CachedLocations[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);
+            m_stateResults.Add(new StateResult()
+            {
+                uploadConfig = uploadConfig,
+                reports = reports,
+                labelGetter = (index) => uploadConfig.Destinations[index].DestinationType.DisplayName
+            });
+            
             for (var i = 0; i < uploadConfig.Destinations.Count; i++)
             {
                 var destination = uploadConfig.Destinations[i];
                 var result = reports[i];
                 if (!destination.Enabled)
                 {
-                    result.AddLog("Skipping destination because it's disabled");
+                    result.SetSkipped("Skipping destination because it's disabled");
                     continue;
                 }
 

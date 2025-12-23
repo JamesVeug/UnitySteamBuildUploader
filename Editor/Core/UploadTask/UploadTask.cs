@@ -29,9 +29,11 @@ namespace Wireframe
         public UploadTaskReport Report => report;
         
         public bool IsComplete { get; private set; }
+        public bool HasStarted { get; private set; }
         public bool IsSuccessful { get; private set; }
         public float PercentComplete { get; private set; }
-        public AUploadTask_Step.StepType CurrentStep { get; private set; }
+        public AUploadTask_Step.StepType CurrentStepType { get; private set; }
+        public AUploadTask_Step CurrentStep { get; private set; }
         public AUploadTask_Step[] CurrentSteps => m_CurrentSteps;
         
         public UploadTaskStringFormatterContext Context => context;
@@ -50,7 +52,8 @@ namespace Wireframe
         private string guid;
         private AUploadTask_Step[] m_CurrentSteps;
 
-        public UploadTask(UploadProfile uploadProfile) : this(uploadProfile.ProfileName, uploadProfile.UploadConfigs)
+        public UploadTask(UploadProfile uploadProfile) : 
+            this(uploadProfile.ProfileName, uploadProfile.UploadConfigs, uploadProfile.PreUploadActions, uploadProfile.PostUploadActions)
         {
             
         }
@@ -103,8 +106,6 @@ namespace Wireframe
             postUploadActions = new List<UploadConfig.UploadActionData>();
             
             context = new UploadTaskStringFormatterContext(this);
-            context.AddCommand(Wireframe.Context.TASK_PROFILE_NAME_KEY, () => uploadName);
-            context.AddCommand(Wireframe.Context.TASK_DESCRIPTION_KEY, () => uploadDescription);
         }
 
         ~UploadTask()
@@ -139,7 +140,8 @@ namespace Wireframe
             IsComplete = false;
             PercentComplete = 0f;
             IsSuccessful = false;
-            CurrentStep = AUploadTask_Step.StepType.Validation;
+            HasStarted = true;
+            CurrentStepType = AUploadTask_Step.StepType.Validation;
             BuildUploaderProjectSettings.BumpUploadNumber();
 
             context.CacheCallbacks();
@@ -199,7 +201,7 @@ namespace Wireframe
             {
                 UploadTaskReport.StepResult result = report.NewReport(AUploadTask_Step.StepType.Validation);
                 result.SetFailed("Validation failed. See errors above.");
-                SetProgress(0, 1f, CurrentStep.ToString());
+                SetProgress(0, 1f, CurrentStepType.ToString());
                 return;
             }
             
@@ -209,7 +211,8 @@ namespace Wireframe
             for (int i = 0; i < steps.Length; i++)
             {
                 AUploadTask_Step step = steps[i];
-                CurrentStep = step.Type;
+                CurrentStep = step;
+                CurrentStepType = step.Type;
                 if (!allStepsSuccessful && step.RequiresEverythingBeforeToSucceed)
                 {
                     continue;
@@ -221,11 +224,11 @@ namespace Wireframe
                 while (!intraTask.IsCompleted)
                 {
                     float progress = report.GetProgress(step.Type, AUploadTask_Step.StepProcess.Intra);
-                    SetProgress(i, progress, CurrentStep.ToString());
+                    SetProgress(i, progress, CurrentStepType.ToString());
                     await Task.Yield();
                 }
                 bool stepSuccessful = intraTask.Result;
-                SetProgress(i, 1f, CurrentStep.ToString());
+                SetProgress(i, 1f, CurrentStepType.ToString());
                 
                 // Post-step logic mainly for logging
                 report.SetProcess(AUploadTask_Step.StepProcess.Post);
@@ -402,6 +405,8 @@ namespace Wireframe
             
             preUploadActions.Add(new UploadConfig.UploadActionData(action, whenToExecute));
         }
+        
+        
         
         public void AddPostUploadAction(UploadConfig.UploadActionData action)
         {

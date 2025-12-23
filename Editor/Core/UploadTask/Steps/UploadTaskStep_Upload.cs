@@ -71,21 +71,28 @@ namespace Wireframe
             List<UploadConfig.UploadActionData> actions,
             UploadTaskReport report)
         {
+            UploadConfig config = uploadTask.UploadConfigs[configIndex];
             int uploadID = ProgressUtils.Start(Type.ToString(), $"Uploading Config {configIndex + 1}");
 
             List<Task<bool>> uploadTasks = new List<Task<bool>>();
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, destinations.Count);
+            m_stateResults.Add(new StateResult()
+            {
+                uploadConfig = config,
+                reports = reports,
+                labelGetter = (index) => config.Destinations[index].DestinationType.DisplayName
+            });
+            
             for (var i = 0; i < destinations.Count; i++)
             {
-                var destinationData = destinations[i];
+                UploadConfig.DestinationData destinationData = destinations[i];
                 UploadTaskReport.StepResult result = reports[i];
                 if (!destinationData.Enabled)
                 {
-                    result.AddLog("Skipping upload because it's disabled");
+                    result.SetSkipped("Skipping upload because it's disabled");
                     continue;
                 }
 
-                UploadConfig config = uploadTask.UploadConfigs[configIndex];
                 Task<bool> task = UploadDestinationWrapper(destinationData.Destination, result, config);
                 uploadTasks.Add(task);
             }

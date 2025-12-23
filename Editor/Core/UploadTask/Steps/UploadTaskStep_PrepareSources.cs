@@ -78,6 +78,13 @@ namespace Wireframe
         {
             UploadConfig uploadConfig = uploadTask.UploadConfigs[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);
+            m_stateResults.Add(new StateResult()
+            {
+                uploadConfig = uploadConfig,
+                reports = reports,
+                labelGetter = (index) => uploadConfig.Sources[index].SourceType.DisplayName
+            });
+            
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {
                 var sourceData = uploadConfig.Sources[i];

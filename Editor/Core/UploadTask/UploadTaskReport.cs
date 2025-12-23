@@ -31,6 +31,8 @@ namespace Wireframe
             }
             
             public bool Successful { get; private set; } = true;
+            public bool IsSkipped { get; private set; } = false;
+            public bool IsComplete => PercentComplete >= 1f; 
             public float PercentComplete { get; private set; }
             public string FailReason { get; private set; } = "";
             public List<Log> Logs { get; private set; } = new List<Log>();
@@ -112,6 +114,16 @@ namespace Wireframe
                 {
                     string err = "[FAILED] " + reason;
                     Debug.LogError(err);
+                }
+            }
+
+            public void SetSkipped(string reason)
+            {
+                lock (m_lock)
+                {
+                    AddLog(reason);
+                    IsSkipped = true;
+                    SetPercentComplete(1f);
                 }
             }
             

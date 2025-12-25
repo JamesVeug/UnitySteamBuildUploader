@@ -223,13 +223,24 @@ namespace Wireframe
                 stepResult.AddLog($"Target: {options.target}");
                 stepResult.AddLog($"Build Options: {options.options}");
 
-                // Wait for a while because we can't build on the Player Loop thread
-                await Task.Yield();
+                // Ensure we are outside the player loop (e.g., OnGUI or Update) before building
+                var tcs = new TaskCompletionSource<BuildReport>();
+                EditorApplication.delayCall += () =>
+                {
+                    try
+                    {
+                        tcs.SetResult(MakeBuild(options, stepResult));
+                    }
+                    catch (Exception e)
+                    {
+                        tcs.SetException(e);
+                    }
+                };
                 
                 // Build the player
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 stepResult.AddLog("Starting build...");
-                report = MakeBuild(options, stepResult);
+                report = await tcs.Task;
                 stopwatch.Stop();
                 stepResult.AddLog($"Build completed in {stopwatch.ElapsedMilliseconds} ms");
             }

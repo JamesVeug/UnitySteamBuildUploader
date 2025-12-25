@@ -550,12 +550,15 @@ namespace Wireframe
                             {
                                 m_isDirty = true;
                                 Utils.CreateInstance(actionData.ActionType?.Type, out actionData.UploadAction);
-                                actionData.UploadAction.Context.SetParent(m_context);
+                                if (actionData.UploadAction != null)
+                                {
+                                    actionData.UploadAction.Context.SetParent(m_context);
+                                }
                             }
 
                             using (new GUILayout.VerticalScope())
                             {
-                                if (actionData.ActionType != null)
+                                if (actionData.ActionType != null && actionData.UploadAction != null)
                                 {
                                     float maxWidth = UploaderWindow.position.width - 400;
                                     if (actionData.Collapsed)

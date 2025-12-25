@@ -187,26 +187,29 @@ namespace Wireframe
                 });
                 
                 menu.AddSeparator(string.Empty);
-                
-                foreach (T channel in allOptions.OrderBy(a=>a.DisplayName))
-                {
-                    bool isSelected = selected.Contains(channel);
-                    menu.AddItem(new GUIContent(channel.DisplayName), isSelected, () =>
-                    {
-                        if (isSelected)
-                        {
-                            m_channels.Remove(channel);
-                        }
-                        else
-                        {
-                            m_channels.Add(channel);
-                            m_channels.Sort((a, b) => a.DisplayName.CompareTo(b.DisplayName));
-                        }
 
-                        callback(m_channels);
-                    });
+                if (allOptions != null)
+                {
+                    foreach (T channel in allOptions.OrderBy(a => a.DisplayName))
+                    {
+                        bool isSelected = selected.Contains(channel);
+                        menu.AddItem(new GUIContent(channel.DisplayName), isSelected, () =>
+                        {
+                            if (isSelected)
+                            {
+                                m_channels.Remove(channel);
+                            }
+                            else
+                            {
+                                m_channels.Add(channel);
+                                m_channels.Sort((a, b) => a.DisplayName.CompareTo(b.DisplayName));
+                            }
+
+                            callback(m_channels);
+                        });
+                    }
                 }
-                
+
                 Rect rect = buttonRect;
                 // rect.y += rect.height;
                 menu.DropDown(rect);

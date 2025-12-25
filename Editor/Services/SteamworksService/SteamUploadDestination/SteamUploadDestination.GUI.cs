@@ -127,7 +127,7 @@ namespace Wireframe
             {
                 isDirty |= SteamUIUtils.ConfigPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(segmentLength));
                 isDirty |= SteamUIUtils.BranchPopup.DrawPopup(m_app, ref m_destinationBranch, m_context, GUILayout.Width(segmentLength));
-                EditorUtils.DrawPopup(m_depots, m_app.Depots, "Choose Depots",
+                EditorUtils.DrawPopup(m_depots, m_app?.Depots, "Choose Depots",
                     (newDepots) =>
                     {
                         m_depots = newDepots;
@@ -191,9 +191,7 @@ namespace Wireframe
                 {
                     GUIContent label = new GUIContent("Depots:", "The Steam Depot to upload to. Depots are defined in your Steamworks partner account and represent a build target (for example Windows, Mac, Linux).");
                     GUILayout.Label(label, GUILayout.Width(120));
-                    
-                    var options = m_app != null ? m_app.Depots : new System.Collections.Generic.List<SteamDepot>();
-                    EditorUtils.DrawPopup(m_depots, options, "Choose Depots",
+                    EditorUtils.DrawPopup(m_depots, m_app?.Depots, "Choose Depots",
                         (newDepots) =>
                         {
                             m_depots = newDepots;

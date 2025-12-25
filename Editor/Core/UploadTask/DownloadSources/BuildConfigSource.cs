@@ -222,8 +222,10 @@ namespace Wireframe
                 stepResult.AddLog($"Target Group: {options.targetGroup}");
                 stepResult.AddLog($"Target: {options.target}");
                 stepResult.AddLog($"Build Options: {options.options}");
-                
 
+                // Wait for a while because we can't build on the Player Loop thread
+                await Task.Yield();
+                
                 // Build the player
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 stepResult.AddLog("Starting build...");

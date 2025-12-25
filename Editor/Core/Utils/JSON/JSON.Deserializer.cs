@@ -19,6 +19,10 @@ namespace Wireframe
             {
                 if (type == typeof(string))
                 {
+                    if (json.Length > 1 && json[0] == '"' && json[json.Length - 1] == '"')
+                    {
+                        json = json.Substring(1, json.Length - 2);
+                    }
                     json = json.Replace("\\r", "\r");
                     json = json.Replace("\\n", "\n");
                     json = json.Replace("\\\"", "\"");
@@ -118,7 +122,7 @@ namespace Wireframe
 
                     if (json[0] == '"' && json[json.Length - 1] == '"')
                     {
-                        return FromJSON(json.Substring(1, json.Length - 2), typeof(string));
+                        return FromJSON(json, typeof(string));
                     }
 
                     if (json == "null")

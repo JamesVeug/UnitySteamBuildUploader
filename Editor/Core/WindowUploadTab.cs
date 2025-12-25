@@ -540,12 +540,11 @@ namespace Wireframe
                             {
                                 actionData.Triggers = newTriggers;
                                 m_isDirty = true;
-                            });
+                            }, GUILayout.Width(200));
 
                         bool disabled = actionData.WhenToExecute == UploadConfig.UploadActionData.UploadCompleteStatus.Never;
                         using (new EditorGUI.DisabledScope(disabled))
                         {
-                            // GUILayout.Label("Action Type: ", GUILayout.Width(100));
                             if (UIHelpers.ActionsPopup.DrawPopup(ref actionData.ActionType, m_context, GUILayout.Width(200)))
                             {
                                 m_isDirty = true;
@@ -560,7 +559,7 @@ namespace Wireframe
                             {
                                 if (actionData.ActionType != null && actionData.UploadAction != null)
                                 {
-                                    float maxWidth = UploaderWindow.position.width - 400;
+                                    float maxWidth = UploaderWindow.position.width - (130 + 200 + 200 + 100); // Gross
                                     if (actionData.Collapsed)
                                     {
                                         using (new GUILayout.HorizontalScope())

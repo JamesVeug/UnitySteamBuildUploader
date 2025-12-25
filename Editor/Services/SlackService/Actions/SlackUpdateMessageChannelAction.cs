@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -74,7 +75,7 @@ namespace Wireframe
         public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult)
         {
             string text = m_context.FormatString(m_text);
-            string ts = m_context.FormatString(m_messageTimeStamp);
+            string ts = m_context.FormatString("{" + m_messageTimeStamp + "}");
             SlackSendMessageResponse response = await Slack.UpdateMessage(ts, text, m_channel.ChannelID, m_app.Token, m_attachments, stepResult);
             return response.Successful;
         }

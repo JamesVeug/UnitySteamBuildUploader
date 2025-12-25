@@ -137,16 +137,21 @@ namespace Wireframe
                     summary.Append("- ");
                     summary.Append(icon);
                     summary.Append(labelGetter);
-                    summary.Append(": ");   
                     if (stepResult.IsComplete)
                     {
                         if (!stepResult.Successful)
                         {
+                            summary.Append(": ");   
                             summary.AppendLine(stepResult.FailReason);
+                        }
+                        else
+                        {
+                            summary.AppendLine();
                         }
                     }
                     else if (stepResult.Logs.Count > 0)
                     {
+                        summary.Append(": ");   
                         summary.AppendLine(stepResult.Logs[stepResult.Logs.Count - 1].Message);
                         if (!string.IsNullOrEmpty(stepResult.FailReason))
                         {
@@ -155,6 +160,7 @@ namespace Wireframe
                     }
                     else
                     {
+                        summary.Append(": ");
                         summary.AppendLine("Waiting to start...");
                     }
                 }

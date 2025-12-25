@@ -5,6 +5,8 @@ namespace Wireframe
 {
     public partial class SlackUpdateMessageChannelAction
     {
+        private const string tsFormatTooltip = "When a message to Slack message is sent we receive the id or TS of the message to reference it. If a formatName is provided then that TS can be used elsewhere in the Upload Task. eg: editing it as a post action. eg: SlackMessageID (NOTE: Do not include curly braces)";
+        
         private bool m_showFormattedText = Preferences.DefaultShowFormattedTextToggle;
         private bool m_showMessageTimeStamp = Preferences.DefaultShowFormattedTextToggle;
         private ReorderableListOfSlackMessageAttachments m_attachmentList;
@@ -15,16 +17,11 @@ namespace Wireframe
             isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
             isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
 
-            float width = maxWidth - 375;
-            string truncated = Utils.TruncateText(m_text, width, "");
+            float width = maxWidth - (120 * 3);
             using (new EditorGUI.DisabledScope(true))
             {
-                var newText = GUILayout.TextArea(truncated, GUILayout.Width(width));
-                if (newText != m_text)
-                {
-                    m_text = newText;
-                    isDirty = true;
-                }
+                bool alwaysFormatted = true;
+                EditorUtils.FormatStringTextArea(ref m_text, ref alwaysFormatted, m_context, null, GUILayout.Width(width));
             }
         }
 
@@ -51,13 +48,8 @@ namespace Wireframe
                 }
             }
             
-            GUILayout.Label("Text:", GUILayout.Width(50));
-            if (EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, m_context))
-            {
-                isDirty = true;
-            }
-            
-            GUILayout.Label("Message ID Format:", GUILayout.Width(200));
+            var tsFormat = new GUIContent("Message ID Format:", tsFormatTooltip);
+            GUILayout.Label(tsFormat, GUILayout.Width(200));
             if (EditorUtils.FormatStringTextArea(ref m_messageTimeStamp, ref m_showMessageTimeStamp, m_context))
             {
                 isDirty = true;
@@ -70,6 +62,12 @@ namespace Wireframe
                 {
                     
                 });
+            }
+            
+            GUILayout.Label("Text:", GUILayout.Width(50));
+            if (EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, m_context))
+            {
+                isDirty = true;
             }
 
             if (m_attachmentList.OnGUI())

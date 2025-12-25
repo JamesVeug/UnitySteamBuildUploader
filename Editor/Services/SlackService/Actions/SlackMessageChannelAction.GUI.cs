@@ -15,16 +15,11 @@ namespace Wireframe
             isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
             isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
 
-            float width = maxWidth - 375;
-            string truncated = Utils.TruncateText(m_text, width, "");
+            float width = maxWidth - (120 * 3);
             using (new EditorGUI.DisabledScope(true))
             {
-                var newText = GUILayout.TextArea(truncated, GUILayout.Width(width));
-                if (newText != m_text)
-                {
-                    m_text = newText;
-                    isDirty = true;
-                }
+                bool alwaysFormatted = true;
+                EditorUtils.FormatStringTextArea(ref m_text, ref alwaysFormatted, m_context, null, GUILayout.Width(width));
             }
         }
 
@@ -50,7 +45,7 @@ namespace Wireframe
                 }
             }
             var tsFormat = new GUIContent("Message ID Format", tsFormatTooltip);
-            GUILayout.Label(tsFormat, GUILayout.Width(50));
+            GUILayout.Label(tsFormat, GUILayout.Width(200));
             isDirty |= ContextGUI.DrawKey(m_responseTSFormat, ref m_showFormattedTSFormat, m_context);
 
             

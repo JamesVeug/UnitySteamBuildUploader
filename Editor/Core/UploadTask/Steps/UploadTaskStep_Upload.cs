@@ -76,12 +76,12 @@ namespace Wireframe
 
             List<Task<bool>> uploadTasks = new List<Task<bool>>();
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, destinations.Count);
-            m_stateResults.Add(new StateResult()
+            m_stateResults.Add(new StateResult(config, reports, (index) =>
             {
-                uploadConfig = config,
-                reports = reports,
-                labelGetter = (index) => config.Destinations[index].DestinationType.DisplayName
-            });
+                string displayName = destinations[index].DestinationType.DisplayName;
+                string summary = destinations[index].Destination.Summary();
+                return $"[{displayName}] {summary}";
+            }));
             
             for (var i = 0; i < destinations.Count; i++)
             {
@@ -126,49 +126,8 @@ namespace Wireframe
                 await Task.Yield();
             }
             
-            await FireActions(actions, allSuccessful, report);
-            
-            
             ProgressUtils.Remove(uploadID);
             return allSuccessful;
-        }
-        
-        private async Task FireActions(List<UploadConfig.UploadActionData> actions, bool allSuccessful, UploadTaskReport report)
-        {
-            for (var i = 0; i < actions.Count; i++)
-            {
-                UploadConfig.UploadActionData actionData = actions[i];
-                UploadTaskReport.StepResult actionResult = report.NewReport(StepType.PostUploadActions);
-                actionResult.AddLog($"Executing post upload action: {i+1}");
-                
-                UploadConfig.UploadActionData.UploadCompleteStatus status = actionData.WhenToExecute;
-                if ((status == UploadConfig.UploadActionData.UploadCompleteStatus.IfSuccessful && !allSuccessful) ||
-                    (status == UploadConfig.UploadActionData.UploadCompleteStatus.IfFailed && allSuccessful))
-                {
-                    actionResult.AddLog($"Skipping post upload action {i+1} because it doesn't match the current status. Status: {status}. Successful: {allSuccessful}");
-                    continue;
-                }
-                
-                bool prepared = await actionData.UploadAction.Prepare(actionResult);
-                if (!prepared)
-                {
-                    actionResult.AddError($"Failed to prepare post upload action: {actionData.UploadAction.GetType().Name}");
-                    continue;
-                }
-
-                try
-                {
-                    await actionData.UploadAction.Execute(actionResult);
-                }
-                catch (Exception e)
-                {
-                    actionResult.AddException(e);
-                }
-                finally
-                {
-                    actionResult.SetPercentComplete(1f);
-                }
-            }
         }
 
         private async Task<bool> UploadDestinationWrapper(AUploadDestination destinationDataDestination, UploadTaskReport.StepResult result, UploadConfig config)
@@ -189,7 +148,8 @@ namespace Wireframe
             }
         }
 
-        public override async Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
+        public override async Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report,
+            bool allStepsSuccessful)
         {
             bool success = true;
             foreach (UploadConfig config in uploadTask.UploadConfigs)
@@ -206,6 +166,7 @@ namespace Wireframe
                     var result = reports[i];
                     if (!destination.Enabled)
                     {
+                        result.SetSkipped("Skipping upload because it's disabled");
                         continue;
                     }
 
@@ -220,8 +181,13 @@ namespace Wireframe
                         result.SetFailed("Post upload failed: " + e.Message);
                         success = false;
                     }
+                    finally
+                    {
+                        result.SetPercentComplete(1f);
+                    }
                 }
             }
+            
             return success;
         }
     }

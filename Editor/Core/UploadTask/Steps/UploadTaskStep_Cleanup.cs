@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,20 +13,12 @@ namespace Wireframe
     /// </summary>
     public class UploadTaskStep_Cleanup : AUploadTask_Step
     {
-        private class StateResult
-        {
-            public UploadConfig uploadConfig;
-            public UploadTaskReport.StepResult[] reports;
-        }
-        
         public UploadTaskStep_Cleanup(Context context) : base(context)
         {
             
         }
 
         public override StepType Type => StepType.Cleanup;
-        
-        private List<StateResult> StateResults = new List<StateResult>(); 
         public override bool RequiresEverythingBeforeToSucceed => false;
         
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
@@ -63,11 +56,7 @@ namespace Wireframe
             UploadTaskReport.StepResult[] configResults = report.NewReports(StepType.Cleanup, uploadTask.UploadConfigs.Count);
             for (int i = 0; i < uploadTask.UploadConfigs.Count; i++)
             {
-                StateResults.Add(new StateResult()
-                {
-                    uploadConfig = uploadTask.UploadConfigs[i],
-                    reports = new[]{configResults[i]}
-                });
+                m_stateResults.Add(new StateResult(uploadTask.UploadConfigs[i], configResults[i], (index) => "Config " + (index + 1)));
             }
             
             
@@ -89,12 +78,12 @@ namespace Wireframe
                 cleanupResult.SetPercentComplete(1f);
             }
             
-            // Cleanup post actions
+            // Cleanup actions
             ProgressUtils.Report(cleanupProgressId, 0.66f, "Cleaning up Upload configs");
-            UploadTaskReport.StepResult[] actionResults = report.NewReports(StepType.Cleanup, uploadTask.PostUploadActions.Count);
-            for (int i = 0; i < uploadTask.PostUploadActions.Count; i++)
+            UploadTaskReport.StepResult[] actionResults = report.NewReports(StepType.Cleanup, uploadTask.Actions.Count);
+            for (int i = 0; i < uploadTask.Actions.Count; i++)
             {
-                UploadConfig.UploadActionData actionData = uploadTask.PostUploadActions[i];
+                UploadConfig.UploadActionData actionData = uploadTask.Actions[i];
                 UploadTaskReport.StepResult cleanupResult = actionResults[i];
                 if (actionData.UploadAction == null)
                 {
@@ -104,12 +93,18 @@ namespace Wireframe
 
                 if (actionData.WhenToExecute == UploadConfig.UploadActionData.UploadCompleteStatus.Never)
                 {
-                    cleanupResult.SetSkipped("Skipping config cleanup because it's set to Never");
+                    cleanupResult.SetSkipped("Skipping config cleanup because it's Execute condition is set to Never");
+                    continue;
+                }
+
+                if (actionData.Triggers.Count(a=>a != UploadConfig.UploadActionData.UploadTrigger.Never) == 0)
+                {
+                    cleanupResult.SetSkipped("Skipping config cleanup because it has no valid Triggers");
                     continue;
                 }
 
                 await Task.Yield();
-                ProgressUtils.Report(cleanupProgressId, 0.66f, $"Cleaning up post action " + (i+1) + "/" + uploadTask.PostUploadActions.Count);
+                ProgressUtils.Report(cleanupProgressId, 0.66f, $"Cleaning up post action " + (i+1) + "/" + uploadTask.Actions.Count);
                 
                 await actionData.UploadAction.CleanUp(cleanupResult);
                 cleanupResult.SetPercentComplete(1f);
@@ -121,7 +116,8 @@ namespace Wireframe
             return true;
         }
 
-        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
+        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report,
+            bool allStepsSuccessful)
         {
             return Task.FromResult(true);
         }

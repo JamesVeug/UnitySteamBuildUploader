@@ -6,6 +6,7 @@ namespace Wireframe
     public partial class SlackUpdateMessageChannelAction
     {
         private bool m_showFormattedText = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showMessageTimeStamp = Preferences.DefaultShowFormattedTextToggle;
         private ReorderableListOfSlackMessageAttachments m_attachmentList;
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
@@ -31,19 +32,14 @@ namespace Wireframe
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label("App:", GUILayout.Width(120));
+                GUILayout.Label("App:", GUILayout.Width(60));
                 isDirty |= SlackUIUtils.AppPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(120));
-            }
-            
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Server:", GUILayout.Width(120));
+                
+                GUILayout.Label("Server:", GUILayout.Width(60));
                 isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
-            }
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Channel:", GUILayout.Width(120));
+                
+                GUILayout.Label("Channel:", GUILayout.Width(60));
+                
                 // Draw the channel popup
                 if (m_server == null)
                 {
@@ -57,6 +53,12 @@ namespace Wireframe
             
             GUILayout.Label("Text:", GUILayout.Width(50));
             if (EditorUtils.FormatStringTextArea(ref m_text, ref m_showFormattedText, m_context))
+            {
+                isDirty = true;
+            }
+            
+            GUILayout.Label("Message ID Format:", GUILayout.Width(200));
+            if (EditorUtils.FormatStringTextArea(ref m_messageTimeStamp, ref m_showMessageTimeStamp, m_context))
             {
                 isDirty = true;
             }

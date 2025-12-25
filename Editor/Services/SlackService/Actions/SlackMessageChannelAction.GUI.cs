@@ -32,19 +32,13 @@ namespace Wireframe
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label("App:", GUILayout.Width(120));
+                GUILayout.Label("App:", GUILayout.Width(60));
                 isDirty |= SlackUIUtils.AppPopup.DrawPopup(ref m_app, m_context, GUILayout.Width(120));
-            }
-            
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Server:", GUILayout.Width(120));
+                
+                GUILayout.Label("Server:", GUILayout.Width(60));
                 isDirty |= SlackUIUtils.ServerPopup.DrawPopup(ref m_server, m_context, GUILayout.Width(120));
-            }
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("Channel:", GUILayout.Width(120));
+                
+                GUILayout.Label("Channel:", GUILayout.Width(60));
                 // Draw the channel popup
                 if (m_server == null)
                 {
@@ -55,7 +49,7 @@ namespace Wireframe
                     isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
                 }
             }
-            var tsFormat = new GUIContent("TS Format", tsFormatTooltip);
+            var tsFormat = new GUIContent("Message ID Format", tsFormatTooltip);
             GUILayout.Label(tsFormat, GUILayout.Width(50));
             isDirty |= ContextGUI.DrawKey(m_responseTSFormat, ref m_showFormattedTSFormat, m_context);
 

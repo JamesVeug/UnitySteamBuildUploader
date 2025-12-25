@@ -22,7 +22,8 @@ namespace Wireframe
         }
 
         public override StepType Type => StepType.CacheSources;
-        
+        public override bool RequiresEverythingBeforeToSucceed => true;
+
         public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
             CancellationTokenSource token)
         {
@@ -89,12 +90,7 @@ namespace Wireframe
             string cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({task.GUID})", uploadConfig.GUID);
             bool pathAlreadyExists = Directory.Exists(cacheFolderPath);
 
-            StateResult stateResult = new StateResult()
-            {
-                uploadConfig = uploadConfig,
-                reports = reports,
-                labelGetter = (index) => uploadConfig.Sources[index].SourceType.DisplayName
-            };
+            StateResult stateResult = new StateResult(uploadConfig, reports, (index) => uploadConfig.Sources[index].SourceType.DisplayName);
             m_stateResults.Add(stateResult);
             int sourceIndex = 0;
             task.CachedLocations[configIndex] = cacheFolderPath;
@@ -226,7 +222,8 @@ namespace Wireframe
             }
         }
         
-        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
+        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report,
+            bool allStepsSuccessful)
         {
             ReportCachedFiles(uploadTask, report);
 

@@ -220,5 +220,11 @@ namespace Wireframe
             else
                 return Path.GetFullPath(Path.Combine(SteamSDK.SteamScriptPath, fileName));
         }
+
+        public override string Summary()
+        {
+            // Branch: Staging, Depots: Windows, Mac
+            return $"Branch: {m_uploadBranch.DisplayName} Depots: {string.Join(", ", m_depots.Select(a=>a.DisplayName))}";
+        }
     }
 }

@@ -93,5 +93,11 @@ namespace Wireframe
                 }
             }
         }
+
+        public override string Summary()
+        {
+            // https://jamesgamesbro.itch.io/last-message
+            return $"https://{m_user.Name}.itch.io/{m_game.Name}";
+        }
     }
 }

@@ -151,7 +151,7 @@ namespace Wireframe
                         {
                             UploadProfileSavedData data = UploadProfileSavedData.FromUploadProfile(m_currentUploadProfile);
                             string json = JSON.SerializeObject(data);
-                            UploadProfileSavedData deserializedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+                            UploadProfileSavedData deserializedData = UploadProfileSavedData.FromJSON(json);
                             UploadProfile duplicateProfile = deserializedData.ToUploadProfile();
                             duplicateProfile.GUID = Guid.NewGuid().ToString().Substring(0, 6);
                             duplicateProfile.ProfileName += " (Copy)";
@@ -353,8 +353,7 @@ namespace Wireframe
                 GUILayout.FlexibleSpace();
                 
                 // Actions
-                DrawActions("Pre Upload Action", m_currentUploadProfile.PreUploadActions);
-                DrawActions("Post Upload Action", m_currentUploadProfile.PostUploadActions);
+                DrawActions("Actions", m_currentUploadProfile.Actions);
                 
 
                 if (m_isDirty && Preferences.AutoSaveUploadConfigsAfterChanges)
@@ -447,7 +446,14 @@ namespace Wireframe
                                         "\n\nNOTE: You can not cancel this operation once started!",
                                         "Yes", "Cancel"))
                                 {
-                                    DownloadAndUpload();
+                                    try
+                                    {
+                                        DownloadAndUpload();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.LogException(ex);
+                                    }
                                 }
                             }
                         }
@@ -462,7 +468,7 @@ namespace Wireframe
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUILayout.Label(title + "s", m_subTitleStyle);
+                    GUILayout.Label(title, m_subTitleStyle);
                     GUILayout.FlexibleSpace();
 
                     if (GUILayout.Button("New " + title))
@@ -528,6 +534,13 @@ namespace Wireframe
                             actionData.WhenToExecute = status;
                             m_isDirty = true;
                         }
+                        
+                        EditorUtils.DrawEnumPopup(actionData.Triggers, "Choose Triggers",
+                            (newTriggers) =>
+                            {
+                                actionData.Triggers = newTriggers;
+                                m_isDirty = true;
+                            });
 
                         bool disabled = actionData.WhenToExecute == UploadConfig.UploadActionData.UploadCompleteStatus.Never;
                         using (new EditorGUI.DisabledScope(disabled))
@@ -626,7 +639,17 @@ namespace Wireframe
             uploadProfile.ProfileName = m_context.FormatString(uploadProfile.ProfileName);
             
             string description = m_context.FormatString(m_buildDescription);
-            UploadTask uploadTask = new UploadTask(uploadProfile);
+            UploadTask uploadTask;
+            try
+            {
+                uploadTask = new UploadTask(uploadProfile);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[BuildUploader] Failed to create upload task: {ex.Message}");
+                return;
+            }
+
             uploadTask.SetBuildDescription(description);
             UploadTask.AllTasks.Add(uploadTask);
             
@@ -746,11 +769,11 @@ namespace Wireframe
                 return false;
             }
             
-            for (int i = 0; i < m_currentUploadProfile.PostUploadActions.Count; i++)
+            for (int i = 0; i < m_currentUploadProfile.Actions.Count; i++)
             {
-                if (!m_currentUploadProfile.PostUploadActions[i].CanStartBuild(out string buildReason, m_context))
+                if (!m_currentUploadProfile.Actions[i].CanStartBuild(out string buildReason, m_context))
                 {
-                    reason = $"Post Upload Action {i+1}: {buildReason}";
+                    reason = $"Action {i+1}: {buildReason}";
                     return false;
                 }
             }
@@ -915,7 +938,7 @@ namespace Wireframe
         private void LoadMetaDataFromPath(UploadProfileMeta metaData)
         {
             string json = File.ReadAllText(metaData.FilePath);
-            UploadProfileSavedData savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+            UploadProfileSavedData savedData = UploadProfileSavedData.FromJSON(json);
             if (string.IsNullOrEmpty(savedData.GUID))
             {
                 savedData.GUID = metaData.GUID;
@@ -974,7 +997,7 @@ namespace Wireframe
                     {
                         UploadConfig.UploadActionData actionData = new UploadConfig.UploadActionData();
                         actionData.Deserialize(config.PostUploads[i]);
-                        defaultProfile.PostUploadActions.Add(actionData);
+                        defaultProfile.Actions.Add(actionData);
                     }
                     catch (Exception e)
                     {

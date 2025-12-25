@@ -74,7 +74,8 @@ namespace Wireframe
         public override async Task<bool> Execute(UploadTaskReport.StepResult stepResult)
         {
             string text = m_context.FormatString(m_text);
-            SlackSendMessageResponse response = await Slack.UpdateMessage(m_messageTimeStamp, text, m_channel.ChannelID, m_app.Token, m_attachments, stepResult);
+            string ts = m_context.FormatString(m_messageTimeStamp);
+            SlackSendMessageResponse response = await Slack.UpdateMessage(ts, text, m_channel.ChannelID, m_app.Token, m_attachments, stepResult);
             return response.Successful;
         }
 
@@ -119,6 +120,7 @@ namespace Wireframe
                 { "app", m_app?.Id ?? 0 },
                 { "serverId", m_server?.Id ?? 0 },
                 { "channelId", m_channel?.ChannelID ?? "" },
+                { "messageTimeStamp", m_messageTimeStamp },
                 { "text", m_text }
             };
             
@@ -192,6 +194,11 @@ namespace Wireframe
             else
             {
                 m_attachments = new List<SlackAttachment>(); // Default to empty list if not set
+            }
+
+            if (data.TryGetValue("messageTimeStamp", out object messageTimeStampObj) && messageTimeStampObj != null)
+            {
+                m_messageTimeStamp = messageTimeStampObj.ToString();
             }
         }
     }

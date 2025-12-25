@@ -27,19 +27,7 @@
                 }
             }
             
-            foreach (UploadConfig.UploadActionData action in _container.PreUploadActions)
-            {
-                if (action.WhenToExecute != UploadConfig.UploadActionData.UploadCompleteStatus.Never &&
-                    action.UploadAction != null)
-                {
-                    if (action.UploadAction.Context.TryFormatKeyLocally(key, out value))
-                    {
-                        return true;
-                    }
-                }
-            }
-            
-            foreach (UploadConfig.UploadActionData action in _container.PostUploadActions)
+            foreach (UploadConfig.UploadActionData action in _container.Actions)
             {
                 if (action.WhenToExecute != UploadConfig.UploadActionData.UploadCompleteStatus.Never &&
                     action.UploadAction != null)

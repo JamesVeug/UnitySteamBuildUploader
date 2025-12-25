@@ -186,6 +186,8 @@ namespace Wireframe
                     callback(m_channels);
                 });
                 
+                menu.AddSeparator(string.Empty);
+                
                 foreach (T channel in allOptions.OrderBy(a=>a.DisplayName))
                 {
                     bool isSelected = selected.Contains(channel);
@@ -199,6 +201,49 @@ namespace Wireframe
                         {
                             m_channels.Add(channel);
                             m_channels.Sort((a, b) => a.DisplayName.CompareTo(b.DisplayName));
+                        }
+
+                        callback(m_channels);
+                    });
+                }
+                
+                Rect rect = buttonRect;
+                // rect.y += rect.height;
+                menu.DropDown(rect);
+            }
+        }
+
+        public static void DrawEnumPopup<T>(List<T> selected, string emptySelection, Action<List<T>> callback, params GUILayoutOption[] options) where T : Enum
+        {
+            string buttonText = selected.Count == 0 ? emptySelection : string.Join(",", selected.Select(a=>a.ToString()));
+            GUIStyle style = new GUIStyle(EditorStyles.popup);
+            Rect buttonRect = GUILayoutUtility.GetRect(new GUIContent(buttonText), style, options);
+            if (GUI.Button(buttonRect, buttonText, style)) 
+            {
+                List<T> m_channels = new List<T>(selected);
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Clear"), selected.Count == 0, () =>
+                {
+                    m_channels.Clear();
+                    callback(m_channels);
+                });
+                
+                menu.AddSeparator(string.Empty);
+
+                var values = Enum.GetValues(typeof(T)).Cast<T>().ToArray();
+                foreach (T channel in values)
+                {
+                    bool isSelected = selected.Contains(channel);
+                    menu.AddItem(new GUIContent(channel.ToString()), isSelected, () =>
+                    {
+                        if (isSelected)
+                        {
+                            m_channels.Remove(channel);
+                        }
+                        else
+                        {
+                            m_channels.Add(channel);
+                            m_channels.Sort((a, b) => Array.IndexOf(values, a) - Array.IndexOf(values, b));
                         }
 
                         callback(m_channels);

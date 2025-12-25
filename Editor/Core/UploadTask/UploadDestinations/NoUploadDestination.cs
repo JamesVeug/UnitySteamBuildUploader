@@ -28,6 +28,11 @@ namespace Wireframe
 
         }
 
+        public override string Summary()
+        {
+            return string.Empty;
+        }
+
         public override Task<bool> Upload(UploadTaskReport.StepResult result)
         {
             return Task.FromResult(true);

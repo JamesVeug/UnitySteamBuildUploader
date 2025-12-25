@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,11 +16,29 @@ namespace Wireframe
     {
         protected class StateResult
         {
-            public UploadConfig uploadConfig;
-            public Func<int, string> labelGetter;
-            public UploadTaskReport.StepResult[] reports;
+            public UploadConfig uploadConfig { get; private set; }
+            public Func<int, string> labelGetter { get; private set; }
+            public UploadTaskReport.StepResult[] reports { get; private set; }
+
+            public StateResult(UploadConfig config, IEnumerable<UploadTaskReport.StepResult> reports, Func<int, string> labelGetter)
+            {
+                this.uploadConfig = config;
+                this.labelGetter = labelGetter;
+                this.reports = reports.ToArray();
+            }
+            
+            public StateResult(UploadConfig config, UploadTaskReport.StepResult report, Func<int, string> labelGetter)
+            {
+                this.uploadConfig = config;
+                this.labelGetter = labelGetter;
+                this.reports = new[]{report};
+            }
         }
 
+        /// <summary>
+        /// Step which the task is at while in the process of uploading
+        /// NOTE: Changing this at all can break report logs. TODO: Make it not
+        /// </summary>
         public enum StepType
         {
             Validation,
@@ -31,7 +50,7 @@ namespace Wireframe
             PrepareDestinations,
             Upload,
             PostUploadActions,
-            Cleanup
+            Cleanup,
         }
 
         public enum StepProcess
@@ -43,8 +62,9 @@ namespace Wireframe
         
         public abstract StepType Type { get; }
         public virtual bool RequiresEverythingBeforeToSucceed => true;
+        public virtual bool FireActions => true;
         public abstract Task<bool> Run(UploadTask uploadTask, UploadTaskReport report, CancellationTokenSource token);
-        public abstract Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report);
+        public abstract Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report, bool allStepsSuccessful);
         
         protected List<StateResult> m_stateResults = new List<StateResult>(); 
         protected bool m_completed;
@@ -105,30 +125,33 @@ namespace Wireframe
             {
                 for (var i = 0; i < stateResult.reports.Length; i++)
                 {
-                    string labelGetter = stateResult.labelGetter(i);
-                    summary.Append(labelGetter);
-                    summary.Append(": ");
-                    
                     UploadTaskReport.StepResult stepResult = stateResult.reports[i];
                     if (stepResult.IsSkipped)
                     {
-                        summary.AppendLine("Skipped");
+                        continue;
                     }
-                    else if (stepResult.PercentComplete >= 1f)
+                    
+                    string labelGetter = stateResult.labelGetter(i);
+                    string icon = !stepResult.IsComplete ? "⌛" : stepResult.Successful ? "✅" : "❌";
+                    
+                    summary.Append("- ");
+                    summary.Append(icon);
+                    summary.Append(labelGetter);
+                    summary.Append(": ");   
+                    if (stepResult.IsComplete)
                     {
-                        if (stepResult.Successful)
+                        if (!stepResult.Successful)
                         {
-                            summary.AppendLine("Complete");
-                        }
-                        else
-                        {
-                            summary.Append("Failed - ");
                             summary.AppendLine(stepResult.FailReason);
                         }
                     }
                     else if (stepResult.Logs.Count > 0)
                     {
                         summary.AppendLine(stepResult.Logs[stepResult.Logs.Count - 1].Message);
+                        if (!string.IsNullOrEmpty(stepResult.FailReason))
+                        {
+                            summary.AppendLine(stepResult.FailReason);
+                        }
                     }
                     else
                     {
@@ -136,6 +159,7 @@ namespace Wireframe
                     }
                 }
             }
+            
             return summary.ToString();
         }
     }

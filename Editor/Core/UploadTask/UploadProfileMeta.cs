@@ -30,7 +30,7 @@ namespace Wireframe
                     UploadProfileSavedData savedData;
                     try
                     {
-                        savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+                        savedData = UploadProfileSavedData.FromJSON(json);
                     }
                     catch (Exception e)
                     {

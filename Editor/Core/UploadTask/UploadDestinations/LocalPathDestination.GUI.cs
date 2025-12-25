@@ -50,6 +50,11 @@ namespace Wireframe
             }
         }
 
+        public override string Summary()
+        {
+            return FullPath();
+        }
+
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
             string displayedPath = FullPath();

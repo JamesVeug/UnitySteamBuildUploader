@@ -71,5 +71,10 @@ namespace Wireframe
                 }
             }
         }
+
+        public override string Summary()
+        {
+            return $"Product: {Product.DisplayName} Artifact: {Artifact.DisplayName}";
+        }
     }
 }

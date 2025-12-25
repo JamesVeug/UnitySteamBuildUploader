@@ -87,12 +87,7 @@ namespace Wireframe
                 if(uploadConfig.Modifiers[i].Enabled){
                     activeResults.Add(results[i]);}
             }
-            m_stateResults.Add(new StateResult()
-            {
-                uploadConfig = uploadConfig,
-                reports = activeResults.ToArray(),
-                labelGetter = (index) => uploadConfig.Modifiers[index].ModifierType.DisplayName
-            });
+            m_stateResults.Add(new StateResult(uploadConfig, activeResults, (index) => uploadConfig.Modifiers[index].ModifierType.DisplayName));
             
             for (var i = 0; i < uploadConfig.Modifiers.Count; i++)
             {
@@ -127,7 +122,8 @@ namespace Wireframe
             return true;
         }
         
-        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
+        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report,
+            bool allStepsSuccessful)
         {
             return Task.FromResult(true);
         }

@@ -78,12 +78,7 @@ namespace Wireframe
             UploadConfig uploadConfig = uploadTask.UploadConfigs[configIndex];
             string cachePath = uploadTask.CachedLocations[configIndex];
             UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);
-            m_stateResults.Add(new StateResult()
-            {
-                uploadConfig = uploadConfig,
-                reports = reports,
-                labelGetter = (index) => uploadConfig.Destinations[index].DestinationType.DisplayName
-            });
+            m_stateResults.Add(new StateResult(uploadConfig, reports, (index) => uploadConfig.Destinations[index].DestinationType.DisplayName));
             
             for (var i = 0; i < uploadConfig.Destinations.Count; i++)
             {
@@ -120,7 +115,8 @@ namespace Wireframe
             return true;
         }
 
-        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
+        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report,
+            bool allStepsSuccessful)
         {
             // Do nothing
             return Task.FromResult(true);

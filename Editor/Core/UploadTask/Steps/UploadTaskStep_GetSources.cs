@@ -74,12 +74,7 @@ namespace Wireframe
                 if(uploadConfig.Sources[i].Enabled){
                     activeResults.Add(results[i]);}
             }
-            m_stateResults.Add(new StateResult()
-            {
-                uploadConfig =  uploadConfig,
-                reports = activeResults.ToArray(),
-                labelGetter = (index) => uploadConfig.Sources[index].SourceType.DisplayName
-            });
+            m_stateResults.Add(new StateResult(uploadConfig, activeResults, (index) => uploadConfig.Sources[index].SourceType.DisplayName));
             
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {
@@ -126,7 +121,8 @@ namespace Wireframe
             return true;
         }
 
-        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
+        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report,
+            bool allStepsSuccessful)
         {
             List<UploadConfig> buildConfigs = uploadTask.UploadConfigs;
             for (var i = 0; i < buildConfigs.Count; i++)

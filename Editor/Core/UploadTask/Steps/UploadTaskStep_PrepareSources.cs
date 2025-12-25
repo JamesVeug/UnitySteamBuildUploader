@@ -77,13 +77,8 @@ namespace Wireframe
             CancellationTokenSource token)
         {
             UploadConfig uploadConfig = uploadTask.UploadConfigs[configIndex];
-            UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Destinations.Count);
-            m_stateResults.Add(new StateResult()
-            {
-                uploadConfig = uploadConfig,
-                reports = reports,
-                labelGetter = (index) => uploadConfig.Sources[index].SourceType.DisplayName
-            });
+            UploadTaskReport.StepResult[] reports = report.NewReports(Type, uploadConfig.Sources.Count);
+            m_stateResults.Add(new StateResult(uploadConfig, reports, (index) => uploadConfig.Sources[index].SourceType.DisplayName));
             
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {
@@ -120,7 +115,8 @@ namespace Wireframe
             return true;
         }
 
-        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report)
+        public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report,
+            bool allStepsSuccessful)
         {
             // Do nothing
             return Task.FromResult(true);

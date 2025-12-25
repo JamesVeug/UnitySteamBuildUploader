@@ -7,7 +7,7 @@ namespace Wireframe
     [Serializable]
     public class UploadProfileSavedData
     {
-        public const int CurrentVersion = 1; // Current version of the saved data
+        public const int CurrentVersion = 2; // Current version of the saved data
 
         // Used to migrate data between different versions of the BuildUploader package
         public int Version;
@@ -19,8 +19,7 @@ namespace Wireframe
         public string ProfileName;
         
         [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
-        [SerializeField] public List<Dictionary<string, object>> PreUploads = new List<Dictionary<string, object>>();
-        [SerializeField] public List<Dictionary<string, object>> PostUploads = new List<Dictionary<string, object>>();
+        [SerializeField] public List<Dictionary<string, object>> Actions = new List<Dictionary<string, object>>();
 
         public UploadProfile ToUploadProfile()
         {
@@ -32,8 +31,8 @@ namespace Wireframe
                 try
                 {
                     UploadConfig uploadConfig = new UploadConfig();
-                    var jObject = Data[i];
-                    uploadConfig.Deserialize(jObject);
+                    Dictionary<string, object> configData = Data[i];
+                    uploadConfig.Deserialize(configData);
                     loadedProfile.UploadConfigs.Add(uploadConfig);
                 }
                 catch (Exception e)
@@ -45,32 +44,17 @@ namespace Wireframe
                 }
             }
 
-            for (int i = 0; i < PreUploads.Count; i++)
+            for (int i = 0; i < Actions.Count; i++)
             {
                 try
                 {
                     UploadConfig.UploadActionData actionData = new UploadConfig.UploadActionData();
-                    actionData.Deserialize(PreUploads[i]);
-                    loadedProfile.PreUploadActions.Add(actionData);
+                    actionData.Deserialize(Actions[i]);
+                    loadedProfile.Actions.Add(actionData);
                 }
                 catch (Exception e)
                 {
                     Debug.LogError("Failed to load pre upload action: #" + (i + 1));
-                    Debug.LogException(e);
-                }
-            }
-
-            for (int i = 0; i < PostUploads.Count; i++)
-            {
-                try
-                {
-                    UploadConfig.UploadActionData actionData = new UploadConfig.UploadActionData();
-                    actionData.Deserialize(PostUploads[i]);
-                    loadedProfile.PostUploadActions.Add(actionData);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Failed to load post upload action: #" + (i + 1));
                     Debug.LogException(e);
                 }
             }
@@ -88,15 +72,38 @@ namespace Wireframe
             {
                 data.Data.Add(profile.UploadConfigs[i].Serialize());
             }
-            for (int i = 0; i < profile.PreUploadActions.Count; i++)
+            for (int i = 0; i < profile.Actions.Count; i++)
             {
-                data.PreUploads.Add(profile.PreUploadActions[i].Serialize());
-            }
-            for (int i = 0; i < profile.PostUploadActions.Count; i++)
-            {
-                data.PostUploads.Add(profile.PostUploadActions[i].Serialize());
+                data.Actions.Add(profile.Actions[i].Serialize());
             }
 
+            return data;
+        }
+
+        public static UploadProfileSavedData FromJSON(string json)
+        {
+            OnlyVersion jsonVersion = JSON.DeserializeObject<OnlyVersion>(json);
+            if (jsonVersion.Version == CurrentVersion)
+            {
+                return JSON.DeserializeObject<UploadProfileSavedData>(json);
+            }
+            
+            // Migrate the data to the current version
+            UploadProfileSavedData data = new UploadProfileSavedData();
+            data.Version = CurrentVersion;
+            switch (jsonVersion.Version)
+            {
+                case 1:
+                    UploadProfileSavedData_V1 v1 = JSON.DeserializeObject<UploadProfileSavedData_V1>(json);
+                    data.GUID = v1.GUID;
+                    data.ProfileName = v1.ProfileName;
+                    data.Data = v1.Data;
+                    data.Actions = v1.PostUploads;
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported version: " + jsonVersion.Version);
+            }
+            
             return data;
         }
     }
@@ -106,5 +113,11 @@ namespace Wireframe
     {
         [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         [SerializeField] public List<Dictionary<string, object>> PostUploads = new List<Dictionary<string, object>>();
+    }
+    
+    [Serializable]
+    internal class OnlyVersion
+    {
+        public int Version;
     }
 }

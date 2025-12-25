@@ -13,8 +13,7 @@ namespace Wireframe
         public string ProfileName;
         
         public List<UploadConfig> UploadConfigs = new List<UploadConfig>();
-        public List<UploadConfig.UploadActionData> PreUploadActions = new List<UploadConfig.UploadActionData>();
-        public List<UploadConfig.UploadActionData> PostUploadActions = new List<UploadConfig.UploadActionData>();
+        public List<UploadConfig.UploadActionData> Actions = new List<UploadConfig.UploadActionData>();
         
         public static UploadProfile FromPath(string fullPath)
         {
@@ -24,7 +23,7 @@ namespace Wireframe
             }
 
             string json = File.ReadAllText(fullPath);
-            UploadProfileSavedData savedData = JSON.DeserializeObject<UploadProfileSavedData>(json);
+            UploadProfileSavedData savedData = UploadProfileSavedData.FromJSON(json);
             return savedData.ToUploadProfile();
         }
         

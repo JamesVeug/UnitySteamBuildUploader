@@ -24,6 +24,8 @@ namespace Wireframe
         {
             return new Context();
         }
+        
+        public abstract string Summary();
 
         /// <summary>
         /// Prepare the action to ensure it's ready to execute

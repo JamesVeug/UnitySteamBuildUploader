@@ -100,5 +100,10 @@ namespace Wireframe
                 isDirty |= SetNewPath(newPath);
             }
         }
+
+        public override string Summary()
+        {
+            return "Copying " + GetFullPath();
+        }
     }
 }

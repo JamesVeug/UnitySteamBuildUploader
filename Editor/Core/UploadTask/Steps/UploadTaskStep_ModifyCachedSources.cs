@@ -87,8 +87,14 @@ namespace Wireframe
                 if(uploadConfig.Modifiers[i].Enabled){
                     activeResults.Add(results[i]);}
             }
-            m_stateResults.Add(new StateResult(uploadConfig, activeResults, (index) => uploadConfig.Modifiers[index].ModifierType.DisplayName));
-            
+
+            m_stateResults.Add(new StateResult(uploadConfig, activeResults, (index) =>
+            {
+                string displayName = uploadConfig.Modifiers[index].ModifierType.DisplayName;
+                string summary = uploadConfig.Modifiers[index].Modifier.Summary();
+                return $"[{displayName}] {summary}";
+            }));
+
             for (var i = 0; i < uploadConfig.Modifiers.Count; i++)
             {
                 UploadConfig.ModifierData modifer = uploadConfig.Modifiers[i];

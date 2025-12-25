@@ -50,5 +50,10 @@ namespace Wireframe
                 }
             }
         }
+
+        public override string Summary()
+        {
+            return $"Compressing '{m_targetPathToCompress}' to '{m_compressionType}'";
+        }
     }
 }

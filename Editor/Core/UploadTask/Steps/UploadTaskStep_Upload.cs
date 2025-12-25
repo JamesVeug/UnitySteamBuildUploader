@@ -31,10 +31,10 @@ namespace Wireframe
                 {
                     continue;
                 }
+                
                 List<UploadConfig.DestinationData> destinations = buildConfigs[i].Destinations.Where(a=>a.Enabled).ToList();
-                List<UploadConfig.UploadActionData> actions = buildConfigs[i].PostActions.Where(a=>a.WhenToExecute != UploadConfig.UploadActionData.UploadCompleteStatus.Never).ToList();
 
-                Task<bool> upload = Upload(uploadTask, i, destinations, actions, report);
+                Task<bool> upload = Upload(uploadTask, i, destinations, report);
                 uploads.Add(new Tuple<List<UploadConfig.DestinationData>, Task<bool>>(destinations, upload));
             }
             
@@ -68,7 +68,6 @@ namespace Wireframe
 
         private async Task<bool> Upload(UploadTask uploadTask, int configIndex,
             List<UploadConfig.DestinationData> destinations, 
-            List<UploadConfig.UploadActionData> actions,
             UploadTaskReport report)
         {
             UploadConfig config = uploadTask.UploadConfigs[configIndex];

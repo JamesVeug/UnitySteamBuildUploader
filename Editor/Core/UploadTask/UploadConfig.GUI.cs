@@ -99,7 +99,10 @@ namespace Wireframe
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(source.SourceType?.Type, out source.Source);
-                                source.Source.Context.SetParent(m_context);
+                                if (source.Source != null)
+                                {
+                                    source.Source.Context.SetParent(m_context);
+                                }
                             }
 
                             // Source
@@ -177,7 +180,10 @@ namespace Wireframe
                             {
                                 isDirty = true;
                                 Utils.CreateInstance(destinationData.DestinationType?.Type, out destinationData.Destination);
-                                destinationData.Destination.Context.SetParent(m_context);
+                                if (destinationData.Destination != null)
+                                {
+                                    destinationData.Destination.Context.SetParent(m_context);
+                                }
                             }
 
                             // Destination
@@ -433,7 +439,10 @@ namespace Wireframe
                         {
                             isDirty = true;
                             Utils.CreateInstance(modifiers.ModifierType?.Type, out modifiers.Modifier);
-                            modifiers.Modifier.Context.SetParent(m_context);
+                            if (modifiers.Modifier != null)
+                            {
+                                modifiers.Modifier.Context.SetParent(m_context);
+                            }
                         }
                     }
                             

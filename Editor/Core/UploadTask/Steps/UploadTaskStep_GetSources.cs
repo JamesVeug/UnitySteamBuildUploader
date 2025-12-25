@@ -74,7 +74,12 @@ namespace Wireframe
                 if(uploadConfig.Sources[i].Enabled){
                     activeResults.Add(results[i]);}
             }
-            m_stateResults.Add(new StateResult(uploadConfig, activeResults, (index) => uploadConfig.Sources[index].SourceType.DisplayName));
+            m_stateResults.Add(new StateResult(uploadConfig, activeResults, (index) =>
+            {
+                string displayName = uploadConfig.Sources[index].SourceType.DisplayName;
+                string summary = uploadConfig.Sources[index].Source.Summary();
+                return $"[{displayName}] {summary}";
+            }));
             
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {

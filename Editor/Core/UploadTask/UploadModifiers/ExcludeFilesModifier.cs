@@ -37,5 +37,10 @@ namespace Wireframe
             string[] files = Directory.GetFiles(cachedDirectory, regex.Regex, searchOption);
             return files;
         }
+
+        public override string Summary()
+        {
+            return "Removing files"; // NOTE: Will only show when ModifyBuildAtPath is executing
+        }
     }
 }

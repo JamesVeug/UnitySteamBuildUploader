@@ -39,7 +39,7 @@ namespace Wireframe
                 isDirty = true;
             }
         }
-        
+
         public override void OnGUIExpanded(ref bool isDirty)
         {
             using (new GUILayout.HorizontalScope())
@@ -126,6 +126,27 @@ namespace Wireframe
                     ApplyBuildConfig(CreateSourceBuildConfig(), null);
                 }
             }
+        }
+
+        public override string Summary()
+        {
+            string displayName = m_BuildConfig.DisplayName;
+            
+            BuildTarget target;
+            BuildUtils.Architecture architecture;
+            if (m_BuildConfig.SwitchTargetPlatform)
+            {
+                target = m_BuildConfig.Target;
+                architecture = m_BuildConfig.TargetArchitecture;
+            }
+            else
+            {
+                target = BuildUtils.CurrentTargetPlatform();
+                architecture = BuildUtils.CurrentTargetArchitecture();
+            }
+
+            // Release Build (Windows x64)
+            return $"{displayName} ({target} {architecture})";
         }
     }
 }

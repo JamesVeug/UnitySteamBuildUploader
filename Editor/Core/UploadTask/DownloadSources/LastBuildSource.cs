@@ -14,36 +14,8 @@ namespace Wireframe
     /// </summary>
     [Wiki(nameof(LastBuildSource), "sources", "Chooses the directory of the last build made using the Build Uploader")]
     [UploadSource("LastBuild", "Last Build Directory")]
-    public class LastBuildSource : AUploadSource
+    public partial class LastBuildSource : AUploadSource
     {
-        public override void OnGUIExpanded(ref bool isDirty)
-        {
-            EditorGUILayout.LabelField("Build Name:", LastBuildUtil.LastBuildName);
-            
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                EditorGUILayout.LabelField("Directory:", LastBuildUtil.LastBuildDirectory);
-                if (GUILayout.Button("Show", GUILayout.Width(100)))
-                {
-                    if (!string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
-                    {
-                        EditorUtility.RevealInFinder(LastBuildUtil.LastBuildDirectory);
-                    }
-                    else
-                    {
-                        EditorUtility.DisplayDialog("Error",
-                            "No last build directory found. Please build your project first.", "OK");
-                    }
-                }
-            }
-        }
-
-        public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
-        {
-            EditorGUILayout.LabelField(LastBuildUtil.LastBuildName, GUILayout.Width(100));
-            EditorGUILayout.LabelField(LastBuildUtil.LastBuildDirectory, GUILayout.MaxWidth(maxWidth - 100));
-        }
-
         public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             CancellationTokenSource token)
         {

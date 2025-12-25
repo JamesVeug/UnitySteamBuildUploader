@@ -69,5 +69,10 @@ namespace Wireframe
                 isDirty = true;
             }
         }
+
+        public override string Summary()
+        {
+            return sourceTarget?.DisplayName;
+        }
     }
 }

@@ -25,6 +25,14 @@ namespace Wireframe
             
             return context;
         }
+        
+        /// <summary>
+        /// Returns a short summary of the different things for this that can be changed
+        /// eg: FileSource: Copying 'C:/MyFiles/ThatImportantFile.json'
+        /// eg: BuildConfig: Release Build (Windows64)
+        /// Used for {taskStatus}
+        /// </summary>
+        public abstract string Summary();
 
         /// <summary>
         /// Preparation step before any sources are started.

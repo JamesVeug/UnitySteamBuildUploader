@@ -25,6 +25,12 @@ namespace Wireframe
             return new Context();
         }
         
+        /// <summary>
+        /// Returns a short summary of the different things for this that can be changed
+        /// eg: LocalPathDestination: 'C:/MyBuilds/MyNewBuildFolder'
+        /// eg: SteamWorks: Branch: alpha, Depots: Windows
+        /// Used for {taskStatus}
+        /// </summary>
         public abstract string Summary();
 
         /// <summary>

@@ -117,5 +117,10 @@ namespace Wireframe
 
             return false;
         }
+
+        public override string Summary()
+        {
+            return m_url;
+        }
     }
 }

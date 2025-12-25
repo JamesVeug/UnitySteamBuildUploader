@@ -50,5 +50,10 @@ namespace Wireframe
                 }
             }
         }
+
+        public override string Summary()
+        {
+            return $"Decompressing '{m_targetPathToCompress}'";
+        }
     }
 }

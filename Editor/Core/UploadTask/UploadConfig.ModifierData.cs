@@ -58,10 +58,6 @@ namespace Wireframe
                         Debug.LogError($"Modifier type `{modifierType}` not found");
                     }
                 }
-                else
-                {
-                    Debug.LogError($"Modifier type not found: `null`");
-                }
             }
         }
     }

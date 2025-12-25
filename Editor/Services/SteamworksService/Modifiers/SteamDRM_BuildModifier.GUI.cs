@@ -27,5 +27,10 @@ namespace Wireframe
                 }
             }
         }
+
+        public override string Summary()
+        {
+            return "Sending to Steam to DRM Wrap";
+        }
     }
 }

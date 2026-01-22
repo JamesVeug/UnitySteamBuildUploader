@@ -123,7 +123,7 @@ namespace Wireframe
             return false;
         }
 
-		[MenuItem("Tools/Build Uploader/Reload Build Configs")]
+		[MenuItem("Window/Build Uploader/Other/Reload Build Configs")]
         private static void LoadFile()
         {
             data = new List<BuildConfig>();

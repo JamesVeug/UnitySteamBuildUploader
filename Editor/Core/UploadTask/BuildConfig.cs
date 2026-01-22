@@ -7,8 +7,19 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public partial class BuildConfig
+    public partial class BuildConfig : IBuildConfig
     {
+        public string GetBuildName => BuildName;
+        public string GetGUID => GUID;
+        public List<string> GetSceneGUIDs => SceneGUIDs;
+        public BuildTargetGroup GetTargetPlatform => TargetPlatform;
+        public int GetTargetPlatformSubTarget => TargetPlatformSubTarget;
+        public BuildTarget GetTarget => Target;
+        public BuildUtils.Architecture GetTargetArchitecture => TargetArchitecture;
+        public bool GetSwitchTargetPlatform => SwitchTargetPlatform;
+        public ScriptingImplementation GetScriptingBackend => ScriptingBackend;
+        public string GetProductName => ProductName;
+
         public string GUID;
         public string BuildName;
         public string ProductName;

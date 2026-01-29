@@ -53,7 +53,7 @@ namespace Wireframe
         
         public static bool AutoGenerateMenuItems
         {
-            get => EditorPrefs.GetBool("BuildUploader_AutoGenerateMenuItems", true);
+            get => EditorPrefs.GetBool("BuildUploader_AutoGenerateMenuItems", false);
             set => EditorPrefs.SetBool("BuildUploader_AutoGenerateMenuItems", value);
         }
         

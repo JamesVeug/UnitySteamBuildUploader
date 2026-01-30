@@ -42,6 +42,18 @@ namespace Wireframe
             
             BuildUploaderProjectSettings settings = BuildUploaderProjectSettings.Instance;
 
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUIContent label = new GUIContent("Auto Generated Files Path", "Assets folder path for any Auto generated files. Example: Quick Upload Menu Items");
+                GUILayout.Label(label, GUILayout.MaxWidth(150));
+                if (CustomFolderPathTextField.OnGUI("Auto Generated Files Path", ref settings.AutoGenerateMenuItemPath, Application.dataPath))
+                {
+                    BuildUploaderProjectSettings.Save();
+                }
+            }
+
+            GUILayout.Label("", EditorStyles.boldLabel);
+            
             GUILayout.Label("Build Meta Data", EditorStyles.boldLabel);
             using (new EditorGUILayout.HorizontalScope())
             {

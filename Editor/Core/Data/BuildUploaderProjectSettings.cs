@@ -28,6 +28,7 @@ namespace Wireframe
         public bool IncludeBuildMetaDataInStreamingDataFolder = true;
         public int LastBuildNumber;
         public int TotalUploadTasksStarted;
+        public string AutoGenerateMenuItemPath = "ThirdParty/BuildUploader";
 
         public BuildUploaderProjectSettings()
         {

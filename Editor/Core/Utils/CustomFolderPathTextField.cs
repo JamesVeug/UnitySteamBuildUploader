@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -43,6 +44,44 @@ namespace Wireframe
                     if (GUILayout.Button("Show", GUILayout.Width(50)))
                     {
                         EditorUtility.RevealInFinder(ctx.FormatString(unformattedPath));
+                    }
+                }
+            }
+            
+            return isDirty;
+        }
+
+        public static bool OnGUI(string title, ref string typedPath, string subPathString = null)
+        {
+            bool error = Utils.PathContainsInvalidCharacters(typedPath);
+            
+            string fullPath = string.IsNullOrEmpty(subPathString) ?  typedPath : Path.Combine(subPathString, typedPath);
+            bool exists = !error && Utils.PathExists(fullPath);
+            bool isDirty = false;
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (TextFieldStyleScope scope = new TextFieldStyleScope(!exists, error))
+                {
+                    string newFormatString = GUILayout.TextField(typedPath, scope.style);
+                    if (newFormatString != typedPath)
+                    {
+                        typedPath = newFormatString;
+                        isDirty = true;
+                    }
+
+                    if (GUILayout.Button("...", GUILayout.Width(20)))
+                    {
+                        string newPath = EditorUtility.OpenFolderPanel(title, typedPath, "");
+                        if (!string.IsNullOrEmpty(newPath))
+                        {
+                            typedPath = newPath; // This is an unformatted path
+                            isDirty = true;
+                        }
+                    }
+
+                    if (GUILayout.Button("Show", GUILayout.Width(50)))
+                    {
+                        EditorUtility.RevealInFinder(typedPath);
                     }
                 }
             }

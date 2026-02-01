@@ -236,7 +236,17 @@ namespace Wireframe
                 
                 // Post-step logic mainly for logging
                 m_report.SetProcess(AUploadTask_Step.StepProcess.Post);
-                bool postStepSuccessful = await step.PostRunResult(this, m_report, stepSuccessful && IsSuccessful);
+                bool postStepSuccessful = false;
+                try
+                {
+                    postStepSuccessful = await step.PostRunResult(this, m_report, stepSuccessful && IsSuccessful);
+                }
+                catch (Exception ex)
+                {
+                    UploadTaskReport.StepResult result = m_report.NewReport(step.Type);
+                    result.AddException(ex);
+                }
+
                 if (!stepSuccessful || !postStepSuccessful || token.IsCancellationRequested)
                 {
                     IsSuccessful = false;

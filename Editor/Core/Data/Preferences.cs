@@ -80,5 +80,11 @@ namespace Wireframe
             get => ProjectEditorPrefs.GetString("BuildUploader_CacheFolderPath", DefaultCacheFolder);
             set => ProjectEditorPrefs.SetString("BuildUploader_CacheFolderPath", value);
         }
+        
+        public static bool UseLocalDestinationIfAvailable
+        {
+            get => ProjectEditorPrefs.GetBool("BuildUploader_UseLocalDestinationIfAvailable", true);
+            set => ProjectEditorPrefs.SetBool("BuildUploader_UseLocalDestinationIfAvailable", value);
+        }
     }
 }

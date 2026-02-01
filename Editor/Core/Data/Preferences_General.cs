@@ -94,6 +94,21 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
+                    new GUIContent("Save contents to LocalDestination", 
+                        "If enabled and an upload config has a LocalDestination with no compression, Upload Tasks will save all source contents to the first LocalDestination instead of a temporary location. This will speed up uploading - especially for projects with many files."), 
+                    GUILayout.Width(200));
+
+                bool useLocalDestination = Preferences.UseLocalDestinationIfAvailable;
+                bool newUseLocalDestination = EditorGUILayout.Toggle(useLocalDestination);
+                if (newUseLocalDestination != Preferences.UseLocalDestinationIfAvailable)
+                {
+                    Preferences.UseLocalDestinationIfAvailable = newUseLocalDestination;
+                }
+            }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
                     new GUIContent("Auto save upload configs", 
                         "If enabled, after every change made to upload configs in the upload tab they will be saved. If disabled then requires pressing the save button to retain your changes."), 
                     GUILayout.Width(200));

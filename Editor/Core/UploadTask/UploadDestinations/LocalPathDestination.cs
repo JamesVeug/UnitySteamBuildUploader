@@ -13,6 +13,8 @@ namespace Wireframe
     [UploadDestination("Local Path")]
     public partial class LocalPathDestination : AUploadDestination
     {
+        public bool IsZippingContents => m_zipContent;
+        
         [Wiki("Directory", "The absolute path of the folder to copy the files to. eg: C:/MyBuilds/TodaysBuild" +
                            "\n\nSee docs for formatting options like {version} and {time} to use in the path.")]
         private string m_localPath = "";
@@ -43,7 +45,7 @@ namespace Wireframe
             m_zippedFilesName = zippedFileName;
         }
 
-        private string FullPath()
+        public string FullPath()
         {
             string path = m_context.FormatString(m_localPath);
             if (m_zipContent)
@@ -68,6 +70,12 @@ namespace Wireframe
         public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
             string fullPath = FullPath();
+            if (m_taskContentsFolder == fullPath && Preferences.UseLocalDestinationIfAvailable)
+            {
+                result.AddLog($"Skipping coping LocalDestination because 'Save contents to LocalDestination if valid' is on and its the same path that we got.");
+                return true;
+            }
+            
             string directory = m_zipContent ? Path.GetDirectoryName(fullPath) : fullPath;
 
             // Delete existing content

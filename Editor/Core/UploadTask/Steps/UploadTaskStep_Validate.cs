@@ -38,8 +38,17 @@ namespace Wireframe
                 }
                 
                 // Create Cached location
-                string sanitisedName = InternalEditorUtility.RemoveInvalidCharsFromFileName(uploadTask.UploadName, false);
-                string cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({uploadTask.GUID})", config.GUID);
+                string cacheFolderPath = "";
+                if (Preferences.UseLocalDestinationIfAvailable && GetFirstLocalDestination(config, out LocalPathDestination destination))
+                {
+                    cacheFolderPath = destination.FullPath();
+                }
+                else
+                {
+                    string sanitisedName = InternalEditorUtility.RemoveInvalidCharsFromFileName(uploadTask.UploadName, false);
+                    cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({uploadTask.GUID})", config.GUID);
+                }
+                
                 bool pathAlreadyExists = Directory.Exists(cacheFolderPath);
                 if (pathAlreadyExists)
                 {
@@ -103,6 +112,24 @@ namespace Wireframe
             }
 
             return Task.FromResult(valid);
+        }
+
+        private bool GetFirstLocalDestination(UploadConfig config, out LocalPathDestination destination)
+        {
+            foreach (UploadConfig.DestinationData destinationData in config.Destinations)
+            {
+                if (destinationData.Destination is LocalPathDestination localPathDestination)
+                {
+                    if (!localPathDestination.IsZippingContents)
+                    {
+                        destination = destinationData.Destination as LocalPathDestination;
+                        return true;
+                    }
+                }
+            }
+            
+            destination = null;
+            return false;
         }
 
         public override Task<bool> PostRunResult(UploadTask uploadTask, UploadTaskReport report, bool allStepsSuccessful)

@@ -16,7 +16,7 @@ namespace Wireframe
     /// 
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
-    public abstract partial class ABuildSource<T> : AUploadSource where T : IBuildConfig
+    public abstract partial class ABuildSource<T> : AUploadSource, IBuildSource where T : IBuildConfig
     {
         public T BuildConfig => m_BuildConfig;
 
@@ -47,8 +47,10 @@ namespace Wireframe
             m_CleanBuild = cleanBuild;
         }
 
-        public override Task<bool> Prepare(UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
+        public override Task<bool> Prepare(string taskContentsFolder, UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
         {
+            base.Prepare(taskContentsFolder, stepResult, token);
+            
             // Create a new config since we make different changes at different times and this keeps it consistent
             m_buildConfigToApply = GetBuildConfigToApply();
 
@@ -56,8 +58,10 @@ namespace Wireframe
         }
 
         public abstract T GetBuildConfigToApply();
+        public abstract bool CompareBuildConfig(IBuildSource other);
 
-        public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
+        public override async Task<bool> GetSource(bool doNotCache, UploadConfig uploadConfig,
+            UploadTaskReport.StepResult stepResult,
             CancellationTokenSource token)
         {
             // Start build
@@ -84,7 +88,7 @@ namespace Wireframe
                 m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings();
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
-                m_filePath = GetBuiltDirectory();
+                m_filePath = GetBuiltDirectory(doNotCache, stepResult);
                 if (string.IsNullOrEmpty(m_filePath))
                 {
                     stepResult.SetFailed("Could not get built directory. Possible invalid build config or platform. Check you have the modules installed for the selected platform.");
@@ -263,8 +267,14 @@ namespace Wireframe
             
         }
 
-        protected string GetBuiltDirectory()
+        protected string GetBuiltDirectory(bool doNotCache, UploadTaskReport.StepResult stepResult = null)
         {
+            if (doNotCache)
+            {
+                stepResult?.AddLog($"Building directly to task contents folder because DotNotCache is on: '{m_taskContentsFolder}'");
+                return m_taskContentsFolder;
+            }
+            
             BuildPlatform platform = BuildUtils.GetBuildPlatform(ResultingTargetGroup(), ResultingTarget(), ResultingTargetPlatformSubTarget());
             if (platform == null)
             {
@@ -338,15 +348,15 @@ namespace Wireframe
                         foreach (UploadConfig.SourceData s in b.Sources)
                         {
                             if (!s.Enabled) continue;
-                            if (!s.Source.GetType().IsSubclassOf(typeof(ABuildSource<>))) continue;
-                            // TODO: omg abstraction pain
-                            // if (otherSource == this) continue;
-                            //
-                            // if (otherSource.BuildConfig == m_BuildConfig)
-                            // {
-                            //     errors.Add($"BuildConfig '{m_BuildConfig.DisplayName}' is already used in another active Upload Task.");
-                            //     goto exitLoop;
-                            // }
+                            if (!(s.SourceType.Type != GetType())) continue;
+                            if (s.Source == this) continue;
+                            if (!(s.Source is IBuildSource otherBuildSource)) continue;
+                            
+                            if (otherBuildSource.CompareBuildConfig(this))
+                            {
+                                errors.Add($"Build '{m_BuildConfig.GetBuildName}' is already used in another active Upload Task.");
+                                goto exitLoop;
+                            }
                         }
                     }
                 }
@@ -560,5 +570,6 @@ namespace Wireframe
             
             return "";
         }
+
     }
 }

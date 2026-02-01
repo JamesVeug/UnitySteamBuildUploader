@@ -330,7 +330,7 @@ namespace Wireframe
                 {
                     using (new EditorGUI.DisabledScope(!source.Enabled))
                     {
-                        source.Source.OnGUIExpanded(ref isDirty);
+                        source.Source.OnGUIExpanded(ref isDirty, source);
 
                         using (new GUILayout.HorizontalScope())
                         {
@@ -340,6 +340,18 @@ namespace Wireframe
                             if (EditorUtils.FormatStringTextField(ref source.SubFolder, ref source.ShowFormattedExportFolder, m_context))
                             {
                                 isDirty = true;
+                            }
+                        }
+
+                        if (source.Source.CanCacheContents)
+                        {
+                            using (new GUILayout.HorizontalScope())
+                            {
+                                GUIContent doNotCacheLabel = new GUIContent("Do Not Cache: ",
+                                    "If enabled, all files will be saved directly to the folder for the upload task and not cached for future reference. This will speed up uploading i nsome cases at the cost of having to re-get the source contents every upload." +
+                                    "\nExample: If using BuildConfigSource it will make a full new build every upload");
+                                GUILayout.Label(doNotCacheLabel, GUILayout.Width(120));
+                                isDirty |= CustomToggle.DrawToggle(ref source.DoNotCache, GUILayout.Width(20));
                             }
                         }
 

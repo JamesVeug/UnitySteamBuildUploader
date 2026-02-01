@@ -54,7 +54,7 @@ namespace Wireframe
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
-            string filePath = m_context.FormatString(m_cachedFolderPath);
+            string filePath = m_context.FormatString(m_taskContentsFolder);
             string user = m_context.FormatString(m_user.Name);
             string game = m_context.FormatString(m_game.Name);
             string version = m_context.FormatString(m_descriptionFormat);

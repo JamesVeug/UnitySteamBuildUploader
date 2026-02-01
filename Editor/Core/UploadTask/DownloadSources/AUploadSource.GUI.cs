@@ -7,8 +7,9 @@
         /// Executed when the Upload Config is collapsed
         /// </summary>
         /// <param name="isDirty">Set to true when something is changed to save the config</param>
+        /// <param name="data">The data containing this source</param>
         /// <param name="maxWidth">How wide the UI can be</param>
-        public abstract void OnGUIExpanded(ref bool isDirty);
+        public abstract void OnGUIExpanded(ref bool isDirty, UploadConfig.SourceData data);
 
         /// <summary>
         /// Draw the full GUI of the source so everything can be modified

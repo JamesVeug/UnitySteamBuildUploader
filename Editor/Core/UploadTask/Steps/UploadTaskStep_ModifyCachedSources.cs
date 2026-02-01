@@ -107,7 +107,8 @@ namespace Wireframe
                 
                 try
                 {
-                    bool success = await modifer.Modifier.ModifyBuildAtPath(task.CachedLocations[configIndex], uploadConfig, configIndex, stepResult);
+                    string taskContentsFolder = task.CachedLocations[configIndex];
+                    bool success = await modifer.Modifier.ModifyBuildAtPath(taskContentsFolder, uploadConfig, configIndex, stepResult);
                     if (!success)
                     {
                         return false;

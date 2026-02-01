@@ -6,7 +6,7 @@ namespace Wireframe
 {
     public partial class UnityCloudSource
     {
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, UploadConfig.SourceData data)
         {
             using (new EditorGUILayout.HorizontalScope())
             {

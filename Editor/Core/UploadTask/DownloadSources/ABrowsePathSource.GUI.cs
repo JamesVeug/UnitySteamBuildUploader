@@ -28,7 +28,7 @@ namespace Wireframe
             m_pathInputFieldDoesNotExistStyle.normal.textColor = Color.red;
         }
 
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, UploadConfig.SourceData data)
         {
             Setup();
 

@@ -12,7 +12,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(BuildConfigSource), "sources", "Chooses a BuildConfig to start a new build when uploading")]
-    [UploadSource("BuildConfig", "Build Config")]
+    [UploadSource("BuildConfig", "Build Config", true)]
     public partial class BuildConfigSource : ABuildSource<BuildConfig>
     {
         [Wiki("Override Target Platform", "If enabled, the target platform and architecture specified below will be used instead of the one in the BuildConfig")]
@@ -193,6 +193,14 @@ namespace Wireframe
                 return m_TargetPlatform;
             
             return base.ResultingTargetGroup();
+        }
+
+        public override bool CompareBuildConfig(IBuildSource other)
+        {
+            if(other is BuildConfigSource otherSource)
+                return otherSource.m_BuildConfig == m_BuildConfig;
+            
+            return false;
         }
     }
 }

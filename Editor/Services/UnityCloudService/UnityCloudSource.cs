@@ -14,7 +14,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(UnityCloudSource), "sources", "Downloads a zipped build from Unity Cloud")]
-    [UploadSource("UnityCloud", "Choose Unity Cloud Build...")]
+    [UploadSource("UnityCloud", "Choose Unity Cloud Build...", true)]
     public partial class UnityCloudSource : AUploadSource
     {
         [Wiki("Target", "Which Build Target to select a build from off Unity Cloud. eg: Windows/Mac")]
@@ -39,12 +39,12 @@ namespace Wireframe
             sourceBuild = build;
         }
 
-        public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
-            CancellationTokenSource token)
+        public override async Task<bool> GetSource(bool doNotCache, UploadConfig uploadConfig,
+            UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
         {
             // Preparing
             string buildName = sourceBuild.platform + "-" + sourceBuild.buildtargetid + "-" + sourceBuild.build;
-            string directoryPath = Path.Combine(Preferences.CacheFolderPath, "UnityCloudBuilds");
+            string directoryPath = doNotCache ? m_taskContentsFolder : Path.Combine(Preferences.CacheFolderPath, "UnityCloudBuilds");
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);

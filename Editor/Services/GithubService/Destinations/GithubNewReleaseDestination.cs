@@ -69,7 +69,7 @@ namespace Wireframe
 
         public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
-            string filePath = m_context.FormatString(m_cachedFolderPath);
+            string filePath = m_context.FormatString(m_taskContentsFolder);
             
             List<string> files = new List<string>();
             if (m_zipContents)

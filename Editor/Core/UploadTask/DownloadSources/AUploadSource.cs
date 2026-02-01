@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,8 +11,12 @@ namespace Wireframe
     /// </summary>
     public abstract partial class AUploadSource
     {
+        public bool CanCacheContents => GetType().GetCustomAttribute<UploadSourceAttribute>()?.CanCacheContents ?? false;
+
         public Context Context => m_context;
+        
         protected Context m_context;
+        protected string m_taskContentsFolder;
 
         public AUploadSource() : base()
         {
@@ -41,21 +46,23 @@ namespace Wireframe
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
         /// <param name="token">Check this if the task has been told to stop mid-execution</param>
         /// <returns></returns>
-        public virtual Task<bool> Prepare(UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
+        public virtual Task<bool> Prepare(string taskContentsFolder, UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
         {
+            m_taskContentsFolder = taskContentsFolder;
             return Task.FromResult(true);
         }
 
         /// <summary>
-        /// Retrieves all the content that is needed for this source to be included in the upload.
-        /// When all sources have been retrieved SourceFilePath() will be invoked to get the content that will be copied.
+        /// Retrieves all the content needed for this source to be included in the upload.
+        /// When all sources have been retrieved, SourceFilePath() will be invoked to get the content that will be copied.
         /// </summary>
+        /// <param name="doNotCache">When true save to a temporary location before it gets copied over to the upload task cache</param>
         /// <param name="uploadConfig">Which config this source is owned by</param>
         /// <param name="stepResult">Information in the current upload step. Add logs to this or stop with SetFailed</param>
         /// <param name="token">Check this if the task has been told to stop mid-execution</param>
         /// <returns></returns>
-        public abstract Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult, CancellationTokenSource token);
-        
+        public abstract Task<bool> GetSource(bool doNotCache, UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
+            CancellationTokenSource token);
         /// <summary>
         /// Invoked after all sources are successful and will copy them to a cached folder location ready for upload.
         /// Return the path to the file or folder that is required to be included in your upload

@@ -40,7 +40,7 @@ namespace Wireframe
             }
         }
 
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, UploadConfig.SourceData data)
         {
             using (new GUILayout.HorizontalScope())
             {
@@ -106,7 +106,7 @@ namespace Wireframe
                     isDirty = true;
                 }
                 
-                string path = GetBuiltDirectory();
+                string path = GetBuiltDirectory(data.DoNotCache);
                 using (new EditorGUI.DisabledScope(!System.IO.Directory.Exists(path)))
                 {
                     if (GUILayout.Button("Open Build Folder", GUILayout.Width(120)))
@@ -115,7 +115,7 @@ namespace Wireframe
                     }
                 }
             }
-
+            
             if (GUILayout.Button("Apply to Editor", GUILayout.Width(120)))
             {
                 if (EditorUtility.DisplayDialog("Apply to Editor",

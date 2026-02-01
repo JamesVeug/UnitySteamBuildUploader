@@ -85,15 +85,9 @@ namespace Wireframe
                 .Select(a => a.Modifier)
                 .ToArray();
 
-            // Files export to /BuildUploader/CachedBuilds/ConfigGUID/*.*
-            string sanitisedName = InternalEditorUtility.RemoveInvalidCharsFromFileName(task.UploadName, false);
-            string cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({task.GUID})", uploadConfig.GUID);
-            bool pathAlreadyExists = Directory.Exists(cacheFolderPath);
-
+            
             StateResult stateResult = new StateResult(uploadConfig, reports, (index) => uploadConfig.Sources[index].SourceType.DisplayName);
             m_stateResults.Add(stateResult);
-            int sourceIndex = 0;
-            task.CachedLocations[configIndex] = cacheFolderPath;
             for (var i = 0; i < uploadConfig.Sources.Count; i++)
             {
                 var sourceData = uploadConfig.Sources[i];
@@ -105,18 +99,14 @@ namespace Wireframe
                     continue;
                 }
 
-                // BuildUploader/CachedBuilds/GUID/
-                if (sourceIndex++ == 0)
+                if (sourceData.Source.CanCacheContents && sourceData.DoNotCache)
                 {
-                    if (pathAlreadyExists)
-                    {
-                        result.AddWarning(
-                            $"Cached folder already exists: {cacheFolderPath}.\nLikely it wasn't cleaned up properly in an older build.\nDeleting now to avoid accidentally uploading the same build!");
-                        Directory.Delete(cacheFolderPath, true);
-                    }
+                    result.AddLog("Skipping cacheSources because the source already put the contents there during the GetSources step.");
+                    result.SetPercentComplete(1f);
+                    continue;
                 }
 
-                string subCacheFolder = cacheFolderPath;
+                string subCacheFolder = task.CachedLocations[configIndex];
                 if (!string.IsNullOrEmpty(sourceData.SubFolder))
                 {
                     subCacheFolder = Path.Combine(subCacheFolder, uploadConfig.Context.FormatString(sourceData.SubFolder));

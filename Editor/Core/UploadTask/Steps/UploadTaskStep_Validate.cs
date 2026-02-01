@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEditorInternal;
 
 namespace Wireframe
 {
@@ -36,6 +36,21 @@ namespace Wireframe
                 {
                     continue;
                 }
+                
+                // Create Cached location
+                string sanitisedName = InternalEditorUtility.RemoveInvalidCharsFromFileName(uploadTask.UploadName, false);
+                string cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({uploadTask.GUID})", config.GUID);
+                bool pathAlreadyExists = Directory.Exists(cacheFolderPath);
+                if (pathAlreadyExists)
+                {
+                    result.AddWarning($"Cached folder already exists: {cacheFolderPath}." +
+                                      $"\nLikely it wasn't cleaned up properly in an older build." +
+                                      $"\nDeleting now to avoid accidentally uploading the same build!");
+                    Directory.Delete(cacheFolderPath, true);
+                }
+
+                Directory.CreateDirectory(cacheFolderPath);
+                uploadTask.CachedLocations[i] = cacheFolderPath;
                 
                 List<string> errors = config.GetAllErrors();
                 if (errors.Count > 0)

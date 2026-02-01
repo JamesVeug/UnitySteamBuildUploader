@@ -2,8 +2,6 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
 
 namespace Wireframe
 {
@@ -13,10 +11,11 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(LastBuildSource), "sources", "Chooses the directory of the last build made using the Build Uploader")]
-    [UploadSource("LastBuild", "Last Build Directory")]
+    [UploadSource("LastBuild", "Last Build Directory", false)]
     public partial class LastBuildSource : AUploadSource
     {
-        public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
+        public override async Task<bool> GetSource(bool doNotCache, UploadConfig uploadConfig,
+            UploadTaskReport.StepResult stepResult,
             CancellationTokenSource token)
         {
             // Wait for our turn if we need to

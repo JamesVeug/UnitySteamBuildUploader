@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,11 +91,13 @@ namespace Wireframe
                     continue;
                 }
 
+                string cacheFolder = uploadTask.CachedLocations[configIndex];
+                string taskContentsFolder = string.IsNullOrEmpty(sourceData.SubFolder) ? cacheFolder : Path.Combine(cacheFolder, sourceData.SubFolder);
                 
                 AUploadSource source = sourceData.Source;
                 try
                 {
-                    bool success = await source.Prepare(result, token);
+                    bool success = await source.Prepare(taskContentsFolder, result, token);
                     if (!success)
                     {
                         return false;

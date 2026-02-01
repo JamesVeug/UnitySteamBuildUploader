@@ -39,7 +39,7 @@ namespace Wireframe
             
             result.AddLog("Starting Epic Games upload...");
             return await EpicGames.Upload(result, m_context,
-                m_cachedFolderPath,
+                m_taskContentsFolder,
                 Organization.OrganizationID,
                 Product.ProductID,
                 Artifact.ArtifactID,

@@ -10,7 +10,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(BuildProfileSource), "sources", "Chooses a BuildProfile to start a new build when uploading")]
-    [UploadSource("BuildProfile", "Build Profile")]
+    [UploadSource("BuildProfile", "Build Profile", true)]
     public partial class BuildProfileSource : ABuildSource<BuildProfileWrapper>
     {
         public BuildProfileSource()
@@ -48,6 +48,14 @@ namespace Wireframe
             {
                 Debug.LogWarning("BuildProfileWrapper GUID not found in serialized data.");
             }
+        }
+
+        public override bool CompareBuildConfig(IBuildSource other)
+        {
+            if(other is BuildProfileSource otherSource)
+                return otherSource.m_BuildConfig == m_BuildConfig;
+            
+            return false;
         }
     }
 }

@@ -105,7 +105,7 @@ namespace Wireframe
 
                 try
                 {
-                    bool success = await sourceData.Source.GetSource(uploadConfig, result, token);
+                    bool success = await sourceData.Source.GetSource(sourceData.DoNotCache, uploadConfig, result, token);
                     if (!success)
                     {
                         return false;

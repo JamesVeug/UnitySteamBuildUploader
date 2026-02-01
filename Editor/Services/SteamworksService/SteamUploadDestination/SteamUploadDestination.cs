@@ -92,9 +92,9 @@ namespace Wireframe
         }
 
         public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
-            string cachedFolderPath, UploadTaskReport.StepResult result)
+            string taskContentsFolder, UploadTaskReport.StepResult result)
         {
-            await base.Prepare(taskGUID, configIndex, destinationIndex, cachedFolderPath, result);
+            await base.Prepare(taskGUID, configIndex, destinationIndex, taskContentsFolder, result);
 
             if (m_app == null)
             {
@@ -125,7 +125,7 @@ namespace Wireframe
                 m_uploadDepots = m_depots.Select(a=>new SteamDepot(a)).ToList();
                 
                 var depots = m_uploadDepots.Select(a=>a.Depot).ToList();
-                string appFiles = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, depots, m_uploadBranch.name, buildDescription, m_cachedFolderPath, result, suffix);
+                string appFiles = await SteamSDK.Instance.CreateAppFiles(m_uploadApp.App, depots, m_uploadBranch.name, buildDescription, m_taskContentsFolder, result, suffix);
                 if (string.IsNullOrEmpty(appFiles))
                 {
                     // NOTE: SetFailed called in CreateAppFiles

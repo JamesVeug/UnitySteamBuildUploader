@@ -61,17 +61,9 @@ namespace Wireframe
             return File.Exists(path) || Directory.Exists(path);
         }
 
-        public override Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
+        public override Task<bool> GetSource(bool doNotCache, UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
             CancellationTokenSource token)
         {
-            // Decide where we want to download to
-            string directoryPath = Preferences.CacheFolderPath;
-            if (!Directory.Exists(directoryPath))
-            {
-                stepResult.AddLog("Creating cache directory: " + directoryPath);
-                Directory.CreateDirectory(directoryPath);
-            }
-
             // Make copy to avoid sharing conflicts
             // If it's a directory, copy the whole thing to a folder with the same name
             // If it's a file, copy it to the directory

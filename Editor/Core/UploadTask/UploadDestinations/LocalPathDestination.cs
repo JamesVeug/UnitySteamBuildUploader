@@ -93,15 +93,15 @@ namespace Wireframe
             if (m_zipContent)
             {
                 result.AddLog($"Zipping context to: {fullPath}");
-                if (!await ZipUtils.Zip(m_cachedFolderPath, fullPath, result))
+                if (!await ZipUtils.Zip(m_taskContentsFolder, fullPath, result))
                 {
                     return false;
                 }
             }
-            else if (Utils.IsPathADirectory(m_cachedFolderPath))
+            else if (Utils.IsPathADirectory(m_taskContentsFolder))
             {
                 result.AddLog($"Copying directory to: {fullPath}");
-                if (!await Utils.CopyDirectoryAsync(m_cachedFolderPath, fullPath, m_duplicateFileHandling, result))
+                if (!await Utils.CopyDirectoryAsync(m_taskContentsFolder, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;
                 }
@@ -109,7 +109,7 @@ namespace Wireframe
             else
             {
                 result.AddLog($"Copying file to: {fullPath}");
-                if (!await Utils.CopyFileAsync(m_cachedFolderPath, fullPath, m_duplicateFileHandling, result))
+                if (!await Utils.CopyFileAsync(m_taskContentsFolder, fullPath, m_duplicateFileHandling, result))
                 {
                     return false;
                 }
@@ -144,9 +144,10 @@ namespace Wireframe
         {
             base.TryGetWarnings(warnings, ctx);
 
-            if (!Utils.PathExists(FullPath()))
+            string fullPath = FullPath();
+            if (!Utils.PathExists(fullPath))
             {
-                warnings.Add("Path does not exist but may be created during upload.");
+                warnings.Add("Path does not exist but may be created during upload: " + fullPath);
             }
         }
 

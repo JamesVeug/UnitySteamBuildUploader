@@ -5,7 +5,7 @@ namespace Wireframe
 {
     public partial class LastBuildSource
     {
-        public override void OnGUIExpanded(ref bool isDirty)
+        public override void OnGUIExpanded(ref bool isDirty, UploadConfig.SourceData data)
         {
             EditorGUILayout.LabelField("Build Name:", LastBuildUtil.LastBuildName);
 

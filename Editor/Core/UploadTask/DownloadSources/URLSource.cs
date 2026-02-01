@@ -17,7 +17,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(URLSource), "sources", "Specify a url to download content from.")]
-    [UploadSource("URL", "Download from URL...")]
+    [UploadSource("URL", "Download from URL...", true)]
     public partial class URLSource : AUploadSource
     {
         [Wiki("URL", "The URL to download from: eg: https://github.com/JamesVeug/UnitySteamBuildUploader/raw/refs/heads/main/LargeIcon.png")]
@@ -62,11 +62,13 @@ namespace Wireframe
             m_headers.Add(new Tuple<string, string>(key, value));
         }
 
-        public override async Task<bool> GetSource(UploadConfig uploadConfig, UploadTaskReport.StepResult stepResult,
+        public override async Task<bool> GetSource(bool doNotCache, UploadConfig uploadConfig,
+            UploadTaskReport.StepResult stepResult,
             CancellationTokenSource token)
         {
             // Preparing
-            string directoryPath = Path.Combine(Preferences.CacheFolderPath, "URLBuilds");
+            string directoryPath = doNotCache ? m_taskContentsFolder : Path.Combine(Preferences.CacheFolderPath, "URLBuilds");
+            
             if (!Directory.Exists(directoryPath))
             {
                 stepResult.AddLog("Creating directory: " + directoryPath);

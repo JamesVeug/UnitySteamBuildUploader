@@ -45,7 +45,7 @@ namespace Wireframe
             PreUploadActions,
             PrepareSources,
             GetSources,
-            CacheSources,
+            CacheSources, // TODO: Rename to CopySources
             ModifyCacheSources,
             PrepareDestinations,
             Upload,

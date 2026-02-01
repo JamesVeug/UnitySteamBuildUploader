@@ -61,7 +61,7 @@ namespace Wireframe
         public enum WhenToExclude
         {
             DoNotCopyFromSource,
-            DeleteFromCache,
+            DeleteFromCache, // TODO: Rename to DeleteFromTaskContent because source, task and destinations all have cache.
         }
         
         protected abstract string ListHeader { get; }

@@ -138,7 +138,7 @@ namespace Wireframe
 
             foreach (Command command in m_localCommands)
             {
-                if (command.Key == key && command.Key.Length > 2 && command.Formatter != null)
+                if (command.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && command.Key.Length > 2 && command.Formatter != null)
                 {
                     value = command.Formatter();
                     return true;

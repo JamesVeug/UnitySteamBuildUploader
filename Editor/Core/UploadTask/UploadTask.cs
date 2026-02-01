@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Wireframe
@@ -210,7 +212,19 @@ namespace Wireframe
                 
                 // Perform the Step (GetSources, CacheSources, etc.)
                 m_report.SetProcess(AUploadTask_Step.StepProcess.Intra);
-                Task<bool> intraTask = step.Run(this, m_report, token);
+                Task<bool> intraTask;
+                try
+                {
+                    intraTask = step.Run(this, m_report, token);
+                }
+                catch (Exception ex)
+                {
+                    UploadTaskReport.StepResult result = m_report.NewReport(step.Type);
+                    result.SetFailed($"Failed to complete step {step.Type}. An exception occured!\n\n{ex}");
+                    result.AddException(ex);
+                    intraTask = Task.FromResult(false);
+                }
+
                 while (!intraTask.IsCompleted)
                 {
                     float progress = m_report.GetProgress(step.Type, AUploadTask_Step.StepProcess.Intra);

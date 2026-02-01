@@ -7,12 +7,21 @@
         protected override Context CreateContext()
         {
             Context context = base.CreateContext();
-            context.AddCommand(Context.PRODUCT_NAME_KEY, () => BuildConfigContext.GetProductName);
+            context.AddCommand(Context.PRODUCT_NAME_KEY, () => BuildConfigContext?.GetProductName);
             context.AddCommand(Context.BUILD_TARGET_KEY, () => ResultingPlatform()?.DisplayName ?? "<Unknown Platform>");
             context.AddCommand(Context.BUILD_ARCHITECTURE_KEY, () => ResultingArchitecture().ToString());
             context.AddCommand(Context.BUILD_TARGET_GROUP_KEY, () => ResultingTargetGroup().ToString());
-            context.AddCommand(Context.SCRIPTING_BACKEND_KEY, () => BuildUtils.ScriptingBackendDisplayName(BuildConfigContext.GetScriptingBackend));
-            context.AddCommand(Context.BUILD_NAME_KEY, () => BuildConfigContext.GetBuildName);
+            context.AddCommand(Context.BUILD_NAME_KEY, () => BuildConfigContext?.GetBuildName);
+            context.AddCommand(Context.SCRIPTING_BACKEND_KEY, () =>
+            {
+                T buildConfig = BuildConfigContext;
+                if (buildConfig != null)
+                {
+                    return BuildUtils.ScriptingBackendDisplayName(buildConfig.GetScriptingBackend);
+                }
+
+                return null;
+            });
             context.AddCommand(Context.BUILD_NUMBER_KEY, () =>
             {
                 if (m_buildMetaData == null)

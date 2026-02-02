@@ -239,7 +239,7 @@ namespace Wireframe
 
         public int Id => id;
         public string DisplayName => profile.name;
-        private BuildProfile Profile => profile;
+        public BuildProfile Profile => profile;
 
         private int id;
         private BuildProfile profile;
@@ -302,6 +302,28 @@ namespace Wireframe
                 stepResult?.AddException(e);
                 return false;
             }
+        }
+
+        public string GetProductExtension()
+        {
+            bool isAndroidBundle = false;
+            if (GetTarget == BuildTarget.Android)
+            {
+                if (platformBuildProfileInfo != null)
+                {
+                    object platformSettings = platformBuildProfileInfo.GetValue(Profile);
+                    if (platformSettings != null)
+                    {
+                        Type platformSettingsType = platformSettings.GetType();
+                        PropertyInfo buildAppBundleProp = platformSettingsType.GetProperty("buildAppBundle");
+                        if (buildAppBundleProp != null)
+                        {
+                            isAndroidBundle = (bool)buildAppBundleProp.GetValue(platformSettings);
+                        }
+                    }
+                }
+            }
+            return BuildUtils.GetPlatformExtension(GetTargetPlatform, GetTarget, isAndroidBundle);
         }
     }
     

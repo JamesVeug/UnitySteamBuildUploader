@@ -165,15 +165,17 @@ namespace Wireframe
 #endif
 
                 string productName = m_buildConfigToApply.GetFormattedProductName(m_context);
+                string extension = m_buildConfigToApply.GetProductExtension();
+                    
                 BuildPlayerOptions options = new BuildPlayerOptions
                 {
                     scenes = EditorBuildSettings.scenes
                         .Where(scene => scene.enabled)
                         .Select(scene => scene.path)
                         .ToArray(),
-                    locationPathName = Path.Combine(m_filePath, productName),
-                    targetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget),
-                    target = EditorUserBuildSettings.activeBuildTarget,
+                    locationPathName = Path.Combine(m_filePath, productName + extension),
+                    targetGroup = m_buildConfigToApply.GetTargetPlatform,
+                    target = m_buildConfigToApply.GetTarget,
                     options = buildOptions,
                 };
             
@@ -218,6 +220,15 @@ namespace Wireframe
                 report = await tcs.Task;
                 stopwatch.Stop();
                 stepResult.AddLog($"Build completed in {stopwatch.ElapsedMilliseconds} ms");
+                if (report.summary.result == BuildResult.Succeeded)
+                {
+                    LastBuildUtil.SetLastBuild(m_filePath, m_context.FormatString(Context.BUILD_NAME_KEY));
+                    if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
+                    {
+                        stepResult.AddLog("Saving build meta data to StreamingAssets folder");
+                        BuildUploaderProjectSettings.SaveToStreamingAssets(m_buildMetaData, options, report.summary.outputPath);
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -316,20 +327,9 @@ namespace Wireframe
             return true;
         }
 
-        private BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult)
+        protected virtual BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult)
         {
             BuildReport report = BuildPipeline.BuildPlayer(options);
-
-            if (report.summary.result == BuildResult.Succeeded)
-            {
-                LastBuildUtil.SetLastBuild(m_filePath, m_context.FormatString(Context.BUILD_NAME_KEY));
-                if (BuildUploaderProjectSettings.Instance.IncludeBuildMetaDataInStreamingDataFolder)
-                {
-                    stepResult.AddLog("Saving build meta data to StreamingAssets folder");
-                    BuildUploaderProjectSettings.SaveToStreamingAssets(m_buildMetaData, options, report.summary.outputPath);
-                }
-            }
-            
             return report;
         }
 

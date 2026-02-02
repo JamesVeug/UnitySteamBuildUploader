@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
 using Debug = UnityEngine.Debug;
 
 namespace Wireframe
@@ -28,7 +30,23 @@ namespace Wireframe
         {
             return m_BuildConfig; // TODO: Clone it to avoid people changing the profiles during a task
         }
-        
+
+        public override bool ApplyBuildConfig(BuildProfileWrapper config, UploadTaskReport.StepResult stepResult)
+        {
+            // ignore
+            return true;
+        }
+
+        protected override BuildReport MakeBuild(BuildPlayerOptions options, UploadTaskReport.StepResult stepResult)
+        {
+            BuildPlayerWithProfileOptions profileOptions = new BuildPlayerWithProfileOptions();
+            profileOptions.buildProfile = m_BuildConfig.Profile;
+            profileOptions.locationPathName = options.locationPathName;
+            profileOptions.options = options.options;
+            BuildReport report = BuildPipeline.BuildPlayer(options);
+            return report;
+        }
+
         public override void SerializeBuildConfig(Dictionary<string, object> data)
         {
             data["BuildProfile"] = m_BuildConfig != null ? m_BuildConfig.GetGUID : "";

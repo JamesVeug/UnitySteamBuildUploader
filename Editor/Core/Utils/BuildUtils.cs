@@ -531,5 +531,38 @@ namespace Wireframe
             Debug.LogError("Could not find EditorUserBuildSettings.GetCompressionType method via reflection.");
             return Compression.Default;
         }
+
+        public static string GetPlatformExtension(BuildTargetGroup targetGroup, BuildTarget target, bool androidBundle)
+        {
+            if (targetGroup == BuildTargetGroup.Standalone)
+            {
+                if (target == BuildTarget.StandaloneWindows)
+                {
+                    return ".exe";
+                }
+                else if (target == BuildTarget.StandaloneOSX)
+                {
+                    return ".app";
+                }
+                else if (target == BuildTarget.StandaloneLinux64)
+                {
+                    return ".x86_64";
+                }
+            }
+            else if (targetGroup == BuildTargetGroup.Android)
+            {
+                if (androidBundle)
+                {
+                    return ".aab";
+                }
+                else
+                {
+                    return ".apk";
+                }
+            }
+            
+            
+            return "";
+        }
     }
 }

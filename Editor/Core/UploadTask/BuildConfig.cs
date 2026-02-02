@@ -411,6 +411,11 @@ namespace Wireframe
             }
         }
 
+        public string GetProductExtension()
+        {
+            return BuildUtils.GetPlatformExtension(TargetPlatform, Target, false); // Android not supported atm
+        }
+
         public BuildOptions GetBuildOptions()
         {
             BuildOptions buildOptions = BuildOptions.None;
@@ -491,19 +496,7 @@ namespace Wireframe
 
         public string GetFormattedProductName(Context ctx)
         {
-            string formatted = ctx.FormatString(ProductName);
-            if (TargetPlatform == BuildTargetGroup.Standalone)
-            {
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                return $"{formatted}.exe"; // For Windows, the executable is a .exe file
-#elif UNITY_MAC
-                return $"{formatted}.app"; // For macOS, the executable is a .app bundle
-#else
-                return $"{formatted}"; // Default for other platforms
-#endif
-            }
-
-            return formatted;
+            return ctx.FormatString(ProductName);
         }
         
         /// <summary>

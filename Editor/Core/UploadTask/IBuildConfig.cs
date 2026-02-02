@@ -15,6 +15,7 @@ namespace Wireframe
         public BuildUtils.Architecture GetTargetArchitecture { get; }
         public bool GetSwitchTargetPlatform { get; }
         public ScriptingImplementation GetScriptingBackend { get; }
+        public string GetProductExtension();
         public BuildOptions GetBuildOptions();
         public string GetFormattedProductName(Context ctx);
         public bool ApplySettings(bool switchPlatform, Context context, UploadTaskReport.StepResult stepResult = null);

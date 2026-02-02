@@ -186,7 +186,7 @@ namespace Wireframe
 
                 // Ensure we are outside the player loop (e.g., OnGUI or Update) before building
                 var tcs = new TaskCompletionSource<BuildReport>();
-                EditorApplication.delayCall += () =>
+                if (Application.isBatchMode)
                 {
                     try
                     {
@@ -196,8 +196,22 @@ namespace Wireframe
                     {
                         tcs.SetException(e);
                     }
-                };
-                
+                }
+                else
+                {
+                    EditorApplication.delayCall += () =>
+                    {
+                        try
+                        {
+                            tcs.SetResult(MakeBuild(options, stepResult));
+                        }
+                        catch (Exception e)
+                        {
+                            tcs.SetException(e);
+                        }
+                    };
+                }
+
                 // Build the player
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 stepResult.AddLog("Starting build...");

@@ -10,7 +10,7 @@ namespace Wireframe
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
     [Wiki(nameof(BuildProfileSource), "sources", "Chooses a BuildProfile to start a new build when uploading")]
-    [UploadSource("BuildProfile", "Build Profile", true)]
+    [UploadSource("BuildProfile", "Build Profile", false)]
     public partial class BuildProfileSource : ABuildSource<BuildProfileWrapper>
     {
         public BuildProfileSource()

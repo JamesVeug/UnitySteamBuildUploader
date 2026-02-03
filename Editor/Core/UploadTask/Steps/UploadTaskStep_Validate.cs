@@ -47,6 +47,7 @@ namespace Wireframe
                 {
                     string sanitisedName = InternalEditorUtility.RemoveInvalidCharsFromFileName(uploadTask.UploadName, false);
                     cacheFolderPath = Path.Combine(Preferences.CacheFolderPath, "UploadTasks", $"{sanitisedName} ({uploadTask.GUID})", config.GUID);
+                    uploadTask.CachedLocationNeedsCleaning[i] = true;
                 }
                 
                 bool pathAlreadyExists = Directory.Exists(cacheFolderPath);

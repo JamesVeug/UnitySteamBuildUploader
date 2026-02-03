@@ -27,6 +27,7 @@ namespace Wireframe
         public string UploadDescription => m_uploadDescription;
         public string UploadName => m_uploadName;
         public string[] CachedLocations => m_cachedLocations;
+        public bool[] CachedLocationNeedsCleaning => m_cachedLocationNeedsCleaning;
         public UploadTaskReport Report => m_report;
         
         public bool IsComplete { get; private set; }
@@ -44,6 +45,7 @@ namespace Wireframe
         private List<UploadConfig.UploadActionData> m_actions;
         private UploadTaskStringFormatterContext m_context;
         private string[] m_cachedLocations;
+        private bool[] m_cachedLocationNeedsCleaning;
         private int m_progressId;
         private int m_totalSteps;
         
@@ -123,6 +125,7 @@ namespace Wireframe
             m_progressId = ProgressUtils.Start("Build Uploader Window", "Setting up...");
             m_report = new UploadTaskReport(m_guid, UploadName, invokeDebugLogs);
             m_cachedLocations = new string[m_uploadConfigs.Count];
+            m_cachedLocationNeedsCleaning = new bool[m_uploadConfigs.Count];
             IsComplete = false;
             PercentComplete = 0f;
             IsSuccessful = false;

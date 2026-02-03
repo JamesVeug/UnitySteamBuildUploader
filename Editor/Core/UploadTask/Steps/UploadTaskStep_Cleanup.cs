@@ -32,23 +32,27 @@ namespace Wireframe
             if (Preferences.DeleteCacheAfterUpload)
             {
                 // Delete cache
-                if (uploadTask.CachedLocations.Length > 0)
+                for (int i = 0; i < uploadTask.CachedLocations.Length; i++)
                 {
-                    string parentFolder = Path.GetDirectoryName(uploadTask.CachedLocations[0]);
-                    if (!string.IsNullOrEmpty(parentFolder) && Directory.Exists(parentFolder))
+                    if (!uploadTask.CachedLocationNeedsCleaning[i])
                     {
-                        beginCleanupResult.AddLog("Deleting cached files in parent folder: " + parentFolder);
-                        Directory.Delete(parentFolder, true);
+                        continue;
                     }
-                    else
+
+                    string directory = uploadTask.CachedLocations[i];
+                    if (string.IsNullOrEmpty(directory))
                     {
-                        beginCleanupResult.AddLog("Parent folder does not exist to cleanup: " + parentFolder);
+                        continue;
                     }
+
+                    beginCleanupResult.AddLog("Deleting task contents: " + directory);
+                    Directory.Delete(directory, true);
+                    uploadTask.CachedLocationNeedsCleaning[i] = false;
                 }
             }
             else
             {
-                beginCleanupResult.AddLog("Skipping deleting cache. Re-enable in preferences.");
+                beginCleanupResult.AddLog("Skipping deleting task contents. Re-enable in preferences using 'Delete cache after uploading'");
             }
 
             // Cleanup configs

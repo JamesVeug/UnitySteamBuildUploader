@@ -1,30 +1,32 @@
 using System;
 using UnityEngine;
-using Wireframe;
 
-public class BatchModeUtil : MonoBehaviour
+namespace Wireframe
 {
-    public static void Execute()
+    public static class BatchModeUtil
     {
-        string[] arguments = Environment.GetCommandLineArgs();
-
-        for (int i = 0; i < arguments.Length; i++)
+        /// <summary>
+        /// Executes upload tasks and uses the command line arguments as potential IDs 
+        /// </summary>
+        public static void Execute()
         {
-            Debug.Log("Starting task!");
+            string[] arguments = Environment.GetCommandLineArgs();
 
-            UploadProfile profile = UploadProfile.FromGUID(arguments[i]);
-
-            if(profile == null)
+            for (int i = 0; i < arguments.Length; i++)
             {
-                Debug.Log($"No profile found with ID : {arguments[i]}");
-                continue;
+                UploadProfile profile = UploadProfile.FromGUID(arguments[i]);
+
+                if (profile == null)
+                {
+                    Debug.Log($"No profile found with ID : {arguments[i]}");
+                    continue;
+                }
+
+                UploadTask task = new(profile);
+                Debug.Log($"Starting task {arguments[i]}!");
+                task.StartAndBlock(true);
+                Debug.Log($"Finished task {arguments[i]}!");
             }
-
-            UploadTask task = new(profile);
-
-            task.StartBlock(true);
-
-            Debug.Log("Started task!");
         }
     }
 }

@@ -61,5 +61,45 @@ namespace Wireframe
                 return false;
             }
         }
+
+        public void SetContextAndCacheCallbacks(Context context)
+        {
+            m_context.SetParent(context);
+
+            foreach (SourceData sourceData in m_buildSources)
+            {
+                if (sourceData.Enabled && sourceData.Source != null)
+                {
+                    sourceData.Source.PrepareContextForCaching();
+                    sourceData.Source.Context.CacheCallbacks();
+                }
+            }
+
+            foreach (ModifierData modifierData in m_modifiers)
+            {
+                if (modifierData.Enabled && modifierData.Modifier != null)
+                {
+                    modifierData.Modifier.Context.CacheCallbacks();
+                }
+            }
+
+            foreach (DestinationData destinationData in m_buildDestinations)
+            {
+                if (destinationData.Enabled && destinationData.Destination != null)
+                {
+                    destinationData.Destination.Context.CacheCallbacks();
+                }
+            }
+
+            foreach (UploadActionData actionData in m_postActions)
+            {
+                if (actionData.WhenToExecute != UploadActionData.UploadCompleteStatus.Never && actionData.UploadAction != null)
+                {
+                    actionData.UploadAction.Context.CacheCallbacks();
+                }
+            }
+            
+            m_context.CacheCallbacks();
+        }
     }
 }

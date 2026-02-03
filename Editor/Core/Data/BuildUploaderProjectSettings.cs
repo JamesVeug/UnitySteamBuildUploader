@@ -149,5 +149,17 @@ namespace Wireframe
             
             return metaData;
         }
+
+        public static BuildMetaData CreateFromContext(Context context)
+        {
+            BuildMetaData metaData = new BuildMetaData();
+            context.FormatKey(Context.BUILD_NUMBER_KEY, out string buildNumberStr);
+            metaData.BuildNumber = int.Parse(buildNumberStr);
+            
+            context.FormatKey(Context.UPLOAD_NUMBER_KEY, out string uploadNumberStr);
+            metaData.UploadNumber = int.Parse(uploadNumberStr);
+            
+            return metaData;
+        }
     }
 }

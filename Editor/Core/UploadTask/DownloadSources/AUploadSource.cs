@@ -110,5 +110,14 @@ namespace Wireframe
         /// Load your data from a Dictionary or List to restore it between sessions
         /// </summary>
         public abstract void Deserialize(Dictionary<string, object> data);
+
+        /// <summary>
+        /// When starting an Upload Task we cache all fields so they can be shared everywhere
+        /// So bump any versions we need before we do so
+        /// </summary>
+        public virtual void PrepareContextForCaching()
+        {
+            
+        }
     }
 }

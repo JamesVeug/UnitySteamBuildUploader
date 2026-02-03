@@ -63,7 +63,7 @@ namespace Wireframe
         
         static Context()
         {
-            FormatToCommand = new Dictionary<string, Command>();
+            FormatToCommand = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
             AddS(PRODUCT_NAME_KEY, ()=> PlayerSettings.productName, "The name of your product as specified in Player Settings.");
             AddS(BUNDLE_VERSION_KEY, ()=> PlayerSettings.bundleVersion, "The version of your project for android/ios as specified in Player Settings.");
             AddS(COMPANY_NAME_KEY, ()=> PlayerSettings.companyName, "The name of your company as specified in Player Settings.");
@@ -75,11 +75,11 @@ namespace Wireframe
             AddS(PERSISTENT_DATA_PATH_KEY, ()=> Application.persistentDataPath, "The path of the Persistent Data folder");
             AddS(CACHE_FOLDER_KEY, ()=> Preferences.CacheFolderPath, "The path where all files and builds are stored when build uploader is working.");
             AddS(UNITY_VERSION_KEY, ()=> Application.unityVersion, "The version of Unity you are using.");
-            AddS(DATE_KEY, ()=> System.DateTime.Now.ToString("yyyy-MM-dd"), "The current local date in the format YYYY-MM-DD.");
-            AddS(TIME_KEY, ()=> System.DateTime.Now.ToString("HH-mm-ss"), "The current local time in the format HH-MM-SS.");
-            AddS(DATE_TIME_KEY, ()=> System.DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"), "The current local date and time in the format YYYY-MM-DD HH-MM-SS.");
+            AddS(DATE_KEY, ()=> DateTime.Now.ToString("yyyy-MM-dd"), "The current local date in the format YYYY-MM-DD.");
+            AddS(TIME_KEY, ()=> DateTime.Now.ToString("HH-mm-ss"), "The current local time in the format HH-MM-SS.");
+            AddS(DATE_TIME_KEY, ()=> DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"), "The current local date and time in the format YYYY-MM-DD HH-MM-SS.");
             AddS(MACHINE_NAME_KEY, ()=> Environment.MachineName, "The name of the machine running the build.");
-            AddS(UPLOAD_NUMBER_KEY, ()=> (BuildUploaderProjectSettings.Instance.TotalUploadTasksStarted + 1).ToString(), "A unique number of the upload task that's getting sources and uploading them.");
+            AddS(UPLOAD_NUMBER_KEY, ()=> (BuildUploaderProjectSettings.Instance.TotalUploadTasksStarted + 1).ToString(), "A unique number of the upload task that's getting sources and uploading them.", true);
             
             // Task
             AddS(TASK_PROFILE_NAME_KEY, null, "The name of the upload profile or task specified when creating the task.");
@@ -89,7 +89,7 @@ namespace Wireframe
 
             // Sources
             AddS(BUILD_NAME_KEY, null, "The name of the build as specified in a build config.");
-            AddS(BUILD_NUMBER_KEY, null, "A unique number of the build that is produced.");
+            AddS(BUILD_NUMBER_KEY, null, "A unique number of the build that is produced.", true);
 
             // Destinations
             AddS(DESTINATION_LOCAL_PATH_KEY, null, "The path which files will be copied to using the LocalPath destination.");
@@ -117,9 +117,9 @@ namespace Wireframe
             AddS(VERSION_REVISION_SEM_KEY, ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Revision)), "The revision segment of the version of your project as specified in Player Settings but with only numbers. eg: 1 from a1.2.3-beta1");
         }
 
-        private static void AddS(string key, Func<string> formatter, string tooltip)
+        private static void AddS(string key, Func<string> formatter, string tooltip, bool canBeCached = false)
         {
-            Command command = new Command(key, formatter, tooltip);
+            Command command = new Command(key, formatter, tooltip, canBeCached);
             FormatToCommand[key] = command;
         }
     }

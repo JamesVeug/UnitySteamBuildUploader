@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Wireframe
 {
@@ -33,8 +34,6 @@ namespace Wireframe
         
         // Lock to 1 build at a time regardless of how many tasks/configs are running
         internal static T m_editorSettingsBeforeUpload;
-        internal static SemaphoreSlim m_lock = new SemaphoreSlim(1);
-        internal static int m_totalBuildsInProgress;
 
         public ABuildSource()
         {
@@ -45,6 +44,12 @@ namespace Wireframe
         {
             m_BuildConfig = buildConfig;
             m_CleanBuild = cleanBuild;
+        }
+
+        public override void PrepareContextForCaching()
+        {
+            base.PrepareContextForCaching();
+            BuildUploaderProjectSettings.BumpBuildNumber();
         }
 
         public override Task<bool> Prepare(string taskContentsFolder, UploadTaskReport.StepResult stepResult, CancellationTokenSource token)
@@ -73,10 +78,10 @@ namespace Wireframe
             }
             
             // Ensure only 1 build happens at a time to avoid applying settings over each other
-            await m_lock.WaitAsync();
+            await BuildUtils.WaitForTurnToBuild();
             if (token.IsCancellationRequested)
             {
-                m_lock.Release();
+                BuildUtils.ReleaseBuildLock();
                 stepResult.AddLog("Build cancelled by user.");
                 return false;
             }
@@ -84,18 +89,17 @@ namespace Wireframe
             BuildReport report = null;
             try
             {
-                BuildUploaderProjectSettings.BumpBuildNumber();
-                m_buildMetaData = BuildUploaderProjectSettings.CreateFromProjectSettings();
+                m_buildMetaData = BuildUploaderProjectSettings.CreateFromContext(m_context);
                 stepResult.AddLog("Build Number: " + m_buildMetaData.BuildNumber);
 
-                m_filePath = GetBuiltDirectory(doNotCache, stepResult);
+                m_filePath = GetBuiltDirectory(stepResult);
                 if (string.IsNullOrEmpty(m_filePath))
                 {
                     stepResult.SetFailed("Could not get built directory. Possible invalid build config or platform. Check you have the modules installed for the selected platform.");
                     token.Cancel();
                     return false;
                 }
-                
+
                 if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
@@ -131,11 +135,11 @@ namespace Wireframe
                 {
                     Directory.CreateDirectory(m_filePath);
                 }
-                
+
                 // Cache current editor settings to restore later
-                m_totalBuildsInProgress++;
+                BuildUtils.ChangeRunningBuilds(true);
                 m_appliedSettings = true;
-                
+
                 // Cache stuff to restore later
                 PreApplyBuildConfig();
 
@@ -145,14 +149,18 @@ namespace Wireframe
                     return false;
                 }
 
-                await Task.Yield();
-                
                 // Wait for us to stop compiling
-                while (EditorApplication.isCompiling)
+                if (!Application.isBatchMode)
                 {
                     await Task.Yield();
+                    
+                    stepResult.AddLog("Waiting for compilation to finish...");
+                    while (EditorApplication.isCompiling)
+                    {
+                        await Task.Yield();
+                    }
                 }
-                
+
 
                 // Get all enabled scenes in build settings
                 BuildOptions buildOptions = m_buildConfigToApply.GetBuildOptions();
@@ -166,13 +174,11 @@ namespace Wireframe
 
                 string productName = m_buildConfigToApply.GetFormattedProductName(m_context);
                 string extension = m_buildConfigToApply.GetProductExtension();
-                    
+
+                List<string> sceneGUIDs = m_buildConfigToApply.GetSceneGUIDs;
                 BuildPlayerOptions options = new BuildPlayerOptions
                 {
-                    scenes = EditorBuildSettings.scenes
-                        .Where(scene => scene.enabled)
-                        .Select(scene => scene.path)
-                        .ToArray(),
+                    scenes = sceneGUIDs.Select(SceneUIUtils.GetPathFromGUID).Where(a=>!string.IsNullOrEmpty(a)).ToArray(),
                     locationPathName = Path.Combine(m_filePath, productName + extension),
                     targetGroup = m_buildConfigToApply.GetTargetPlatform,
                     target = m_buildConfigToApply.GetTarget,
@@ -239,7 +245,7 @@ namespace Wireframe
             }
             finally
             {
-                m_lock.Release();
+                BuildUtils.ReleaseBuildLock();
                 stepResult.SetPercentComplete(1f);
             }
 
@@ -292,26 +298,10 @@ namespace Wireframe
             
         }
 
-        protected string GetBuiltDirectory(bool doNotCache, UploadTaskReport.StepResult stepResult = null)
+        protected string GetBuiltDirectory(UploadTaskReport.StepResult stepResult = null)
         {
-            if (doNotCache)
-            {
-                stepResult?.AddLog($"Building directly to task contents folder because DotNotCache is on: '{m_taskContentsFolder}'");
-                return m_taskContentsFolder;
-            }
-            
-            BuildPlatform platform = BuildUtils.GetBuildPlatform(ResultingTargetGroup(), ResultingTarget(), ResultingTargetPlatformSubTarget());
-            if (platform == null)
-            {
-                return "";
-            }
-            
-            string buildName = ResultingBuildName();
-            string guid = ResultingGUID();
-            string buildPath = string.Format("{0} ({1})", buildName, guid); // Development (1234)
-            string targetName = platform.DisplayName;
-            string platformPath = string.Format("{0} {1}", targetName, ResultingArchitecture()); // StandaloneWindows64 x64
-            return Path.Combine(Preferences.CacheFolderPath, "BuildConfigBuilds", buildPath, platformPath);
+            stepResult?.AddLog($"Building to {m_taskContentsFolder}");
+            return m_taskContentsFolder;
         }
 
         public virtual bool ApplyBuildConfig(T config, UploadTaskReport.StepResult stepResult)
@@ -480,13 +470,13 @@ namespace Wireframe
             }
 
             // Wait in case anything else is trying to apply settings or make a build
-            await m_lock.WaitAsync();
+            await BuildUtils.WaitForTurnToBuild();
             
             try
             {
                 m_appliedSettings = false;
-                m_totalBuildsInProgress--;
-                if (m_totalBuildsInProgress > 0)
+                int remaining = BuildUtils.ChangeRunningBuilds(false);
+                if (remaining > 0)
                 {
                     // Another build or task is active and hasn't been cleaned up yet
                     stepResult.AddLog("Another build is still in progress so not restoring settings yet.");
@@ -515,7 +505,7 @@ namespace Wireframe
             }
             finally
             {
-                m_lock.Release();
+                BuildUtils.ReleaseBuildLock();
             }
         }
 

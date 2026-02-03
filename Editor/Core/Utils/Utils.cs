@@ -376,8 +376,6 @@ namespace Wireframe
                         case LogType.Exception:
                             summarizedErrors.AppendLine(message.content);
                             break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
                     }
                 }
             }

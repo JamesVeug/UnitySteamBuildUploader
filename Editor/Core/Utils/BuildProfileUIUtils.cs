@@ -8,6 +8,22 @@ namespace Wireframe
 {
     internal static class BuildProfileUIUtils
     {
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void ListenForNewBuildProfiles()
+        {
+            MethodInfo method = typeof(BuildProfile).GetMethod("AddOnBuildProfileCreated", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            if (method != null)
+            {
+                Action<BuildProfile> callback = OnBuildProfileCreated;
+                method.Invoke(null, new object[] { callback });
+            }
+        }
+
+        private static void OnBuildProfileCreated(BuildProfile profile)
+        {
+            LoadAll();
+        }
+        
         public class BuildProfilePopup : CustomDropdown<BuildProfileWrapper>
         {
             public override string FirstEntryText => "Choose Build Profile";
@@ -44,6 +60,7 @@ namespace Wireframe
                 BuildProfileWrapper wrapper = new BuildProfileWrapper(profile, i + 1);
                 data.Add(wrapper);
             }
+            BuildProfilesPopup.Refresh();
         }
 
         public static void Clear()

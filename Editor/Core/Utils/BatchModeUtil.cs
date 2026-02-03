@@ -16,7 +16,7 @@ namespace Wireframe
 
             for (int i = 0; i < arguments.Length; i++)
             {
-                if (!checkForProfile && arguments[i] != "-uploadProfile")
+                if (!checkForProfile && arguments[i] == "-uploadProfile")
                 {
                     checkForProfile = true;
                     continue;

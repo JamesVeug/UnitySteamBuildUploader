@@ -560,7 +560,7 @@ namespace Wireframe
         {
             if (targetGroup == BuildTargetGroup.Standalone)
             {
-                if (target == BuildTarget.StandaloneWindows)
+                if (target == BuildTarget.StandaloneWindows || target == BuildTarget.StandaloneWindows64)
                 {
                     return ".exe";
                 }

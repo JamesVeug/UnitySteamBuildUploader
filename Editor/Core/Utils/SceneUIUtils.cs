@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 
 namespace Wireframe
@@ -70,6 +71,24 @@ namespace Wireframe
                 GetScenes();
             }
             return scenePaths;
+        }
+
+        public static string GetPathFromGUID(string guid)
+        {
+            if (data == null)
+            {
+                GetScenes();
+            }
+
+            for (int i = 0; i < sceneGUIDS.Length; i++)
+            {
+                if (sceneGUIDS[i] == guid)
+                {
+                    return scenePaths[i];
+                }
+            }
+            
+            return null;
         }
 
         private static void LoadFile()

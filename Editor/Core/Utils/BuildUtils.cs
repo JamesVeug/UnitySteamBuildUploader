@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -41,6 +43,28 @@ namespace Wireframe
             Lz4HC = 3,
         }
             
+        internal static SemaphoreSlim m_lock = new SemaphoreSlim(1);
+        internal static int m_totalBuildsInProgress;
+
+        public static Task WaitForTurnToBuild()
+        {
+            return m_lock.WaitAsync();
+        }
+        
+        public static void ReleaseBuildLock()
+        {
+            m_lock.Release();
+        }
+        
+        public static int ChangeRunningBuilds(bool increment)
+        {
+            if (increment)
+                m_totalBuildsInProgress++;
+            else
+                m_totalBuildsInProgress--;
+            return m_totalBuildsInProgress;
+        }
+        
         public static int GetIntValue(this Architecture architecture)
         {
 #if UNITY_2021_1_OR_NEWER
@@ -536,7 +560,7 @@ namespace Wireframe
         {
             if (targetGroup == BuildTargetGroup.Standalone)
             {
-                if (target == BuildTarget.StandaloneWindows)
+                if (target == BuildTarget.StandaloneWindows || target == BuildTarget.StandaloneWindows64)
                 {
                     return ".exe";
                 }

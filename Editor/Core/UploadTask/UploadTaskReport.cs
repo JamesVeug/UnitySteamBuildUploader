@@ -414,7 +414,7 @@ namespace Wireframe
                 }
                 else if (line.StartsWith("Duration", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (TimeSpan.TryParse(line.Substring("Duration:".Length).Trim(), out TimeSpan duration))
+                    if (TimeSpan.TryParse(line.Substring("Duration:".Length).Trim(), out TimeSpan duration) && duration.Seconds > 0)
                     {
                         report.EndTime = report.StartTime + duration;
                     }

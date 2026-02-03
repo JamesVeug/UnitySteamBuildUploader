@@ -106,7 +106,7 @@ namespace Wireframe
                     isDirty = true;
                 }
                 
-                string path = GetBuiltDirectory(data.DoNotCache);
+                string path = GetBuiltDirectory();
                 using (new EditorGUI.DisabledScope(!System.IO.Directory.Exists(path)))
                 {
                     if (GUILayout.Button("Open Build Folder", GUILayout.Width(120)))

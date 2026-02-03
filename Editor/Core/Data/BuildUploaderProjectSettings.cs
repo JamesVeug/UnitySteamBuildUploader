@@ -89,13 +89,11 @@ namespace Wireframe
                     }
                     else
                     {
-                        Debug.LogError(
-                            $"Failed to find index.html for WebGL build to include build meta data in path '{buildPath}'.");
+                        Debug.LogError($"Failed to find index.html for WebGL build to include build meta data in path '{buildPath}'.");
                         return;
                     }
                 }
-                // TODO: More platforms
-                else
+                else if(options.targetGroup == BuildTargetGroup.Standalone)
                 {
                     // Standalone.
                     string[] resourceFolders = Directory.GetDirectories(buildPath, "Resources", SearchOption.AllDirectories);
@@ -105,10 +103,14 @@ namespace Wireframe
                     }
                     else
                     {
-                        Debug.LogError(
-                            $"Failed to find StreamingAssets folder to include build meta data in path '{buildPath}'.");
+                        Debug.LogError($"Failed to find StreamingAssets folder to include build meta data in path '{buildPath}'.");
                         return;
                     }
+                }
+                else
+                {
+                    // TODO: More platforms
+                    Debug.LogWarning($"Unsupported build target group '{options.targetGroup}' for build meta data inclusion.");
                 }
             }
             else
@@ -146,6 +148,18 @@ namespace Wireframe
             BuildMetaData metaData = new BuildMetaData();
             metaData.BuildNumber = settings.LastBuildNumber;
             metaData.UploadNumber = settings.TotalUploadTasksStarted;
+            
+            return metaData;
+        }
+
+        public static BuildMetaData CreateFromContext(Context context)
+        {
+            BuildMetaData metaData = new BuildMetaData();
+            context.FormatKey(Context.BUILD_NUMBER_KEY, out string buildNumberStr);
+            metaData.BuildNumber = int.Parse(buildNumberStr);
+            
+            context.FormatKey(Context.UPLOAD_NUMBER_KEY, out string uploadNumberStr);
+            metaData.UploadNumber = int.Parse(uploadNumberStr);
             
             return metaData;
         }

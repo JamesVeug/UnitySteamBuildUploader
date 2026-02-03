@@ -19,7 +19,7 @@ namespace Wireframe
             CancellationTokenSource token)
         {
             // Wait for our turn if we need to
-            await BuildConfigSource.m_lock.WaitAsync();
+            await BuildUtils.WaitForTurnToBuild();
 
             try
             {
@@ -37,7 +37,7 @@ namespace Wireframe
             }
             finally
             {
-                BuildConfigSource.m_lock.Release();
+                BuildUtils.ReleaseBuildLock();
             }
 
             return true;

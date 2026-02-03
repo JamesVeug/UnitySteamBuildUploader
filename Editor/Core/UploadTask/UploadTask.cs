@@ -139,12 +139,12 @@ namespace Wireframe
             CurrentStepType = AUploadTask_Step.StepType.Validation;
             BuildUploaderProjectSettings.BumpUploadNumber();
 
-            m_context.CacheCallbacks();
             for (var i = 0; i < m_uploadConfigs.Count; i++)
             {
-                m_uploadConfigs[i].Context.SetParent(m_context);
-                m_uploadConfigs[i].Context.CacheCallbacks();
+                m_uploadConfigs[i].SetContextAndCacheCallbacks(m_context);
             }
+            m_context.CacheCallbacks();
+            
             for (var i = 0; i < m_actions.Count; i++)
             {
                 if (m_actions[i].UploadAction != null)

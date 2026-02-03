@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace Wireframe
 {
     public partial class Context
     {
-        private class DoNotCacheAttribute : Attribute { }
-        
         public List<Command> LocalCommands => m_localCommands;
         
         private Context m_parent;
         private List<Command> m_localCommands = new List<Command>(); // List because the keys can be dynamic
-        private Dictionary<string, string> m_cachedValues = new Dictionary<string, string>();
+        private Dictionary<string, string> m_cachedValues = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         public Context(Context parent = null)
         {
@@ -101,30 +98,42 @@ namespace Wireframe
         internal void CacheCallbacks()
         {
             // Use reflection to get all fields of type Func<string> and invoke them to cache their values in a dictionary
-            // Yes this is really gross but in time a better solution will be made
-            var fields = typeof(Context).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            foreach (var field in fields)
+            // Yes, this is really gross, but in time a better solution will be made
+            foreach (KeyValuePair<string, Command> command in FormatToCommand)
             {
-                if (Attribute.IsDefined(field, typeof(DoNotCacheAttribute)))
+                var func = command.Value.Formatter;
+                if (command.Value.CanBeCached && func != null)
                 {
-                    continue;
+                    string value = func();
+                    m_cachedValues[command.Key] = value;
                 }
-                    
-                if (field.PropertyType == typeof(Func<string>))
+            }
+
+            foreach (Command localCommand in m_localCommands)
+            {
+                var func = localCommand.Formatter;
+                if (localCommand.CanBeCached && func != null && !m_cachedValues.ContainsKey(localCommand.Key))
                 {
-                    var func = (Func<string>)field.GetValue(this);
-                    if (func != null)
-                    {
-                        string value = func();
-                        m_cachedValues[field.Name] = value;
-                    }
+                    string value = func();
+                    m_cachedValues[localCommand.Key] = value;
                 }
             }
         }
 
-        public Command AddCommand(string key, Func<string> formatter, string tooltip = null)
+        public Command AddCommand(string key, Func<string> formatter, string tooltip = "", bool canBeCached = false)
         {
-            Command command = new Command(key, formatter, tooltip);
+            if (FormatToCommand.TryGetValue(key, out Command staticCommand))
+            {
+                if (string.IsNullOrEmpty(tooltip))
+                {
+                    tooltip = staticCommand.Tooltip;
+                }
+                
+                canBeCached = staticCommand.CanBeCached;
+            }
+
+            
+            Command command = new Command(key, formatter, tooltip, canBeCached);
             m_localCommands.Add(command);
             return command;
         }

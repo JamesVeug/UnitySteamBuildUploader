@@ -7,6 +7,8 @@ namespace Wireframe
     {
         /// <summary>
         /// Executes upload tasks and uses the command line arguments to detect IDs
+        /// Example on how to execute this command with a CLI:
+        /// "PATH/TO/UNITY/Unity.exe" -batchmode -quit -projectPath "PATH/TO/PROJECT" -executeMethod Wireframe.BatchModeUtil.Execute -uploadProfile "UPLOAD_PROFILE_ID"
         /// </summary>
         public static void Execute()
         {
@@ -16,7 +18,7 @@ namespace Wireframe
 
             for (int i = 0; i < arguments.Length; i++)
             {
-                if (!checkForProfile && arguments[i] == "-uploadProfile")
+                if (!checkForProfile && arguments[i].Equals("-uploadProfile", StringComparison.OrdinalIgnoreCase))
                 {
                     checkForProfile = true;
                     continue;

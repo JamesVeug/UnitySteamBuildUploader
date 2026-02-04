@@ -44,6 +44,11 @@ namespace Wireframe
                     {
                         continue;
                     }
+                    
+                    if (!Directory.Exists(directory))
+                    {
+                        continue;
+                    }
 
                     beginCleanupResult.AddLog("Deleting task contents: " + directory);
                     Directory.Delete(directory, true);
@@ -75,7 +80,6 @@ namespace Wireframe
                     continue;
                 }
                 
-                await Task.Yield();
                 ProgressUtils.Report(cleanupProgressId, 0.33f, $"Cleaning up configs " + (i+1) + "/" + uploadTask.UploadConfigs.Count);
                 
                 await config.CleanUp(activeConfigIndex++, config, cleanupResult);
@@ -107,7 +111,6 @@ namespace Wireframe
                     continue;
                 }
 
-                await Task.Yield();
                 ProgressUtils.Report(cleanupProgressId, 0.66f, $"Cleaning up post action " + (i+1) + "/" + uploadTask.Actions.Count);
                 
                 await actionData.UploadAction.CleanUp(cleanupResult);

@@ -132,6 +132,10 @@ namespace Wireframe
                     {
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent(dropdownText + "Save"), false, Save);
+                        menu.AddItem(new GUIContent("Copy GUID"), false, () =>
+                        {
+                            EditorGUIUtility.systemCopyBuffer = m_currentUploadProfile.GUID;
+                        });
                         
                         menu.AddItem(new GUIContent("Rename"), false, () =>
                         {

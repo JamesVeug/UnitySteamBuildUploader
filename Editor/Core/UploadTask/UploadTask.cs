@@ -105,7 +105,7 @@ namespace Wireframe
         }
 
         /// <summary>
-        /// Start the upload task synchronously.
+        /// Start the upload task asynchronously.
         /// Listen to OnComplete to get the report when the upload is done.
         /// </summary>
         /// <param name="invokeDebugLogs">When a log,warning,error occurs during the upload should this log to Unity Console? logs can be found in the report at the end.</param>
@@ -113,9 +113,18 @@ namespace Wireframe
         {
             _ = StartAsync(invokeDebugLogs);
         }
-        
+
         /// <summary>
         /// Start the upload task synchronously.
+        /// </summary>
+        /// <param name="invokeDebugLogs">When a log,warning,error occurs during the upload should this log to Unity Console? logs can be found in the report at the end.</param>
+        public void StartAndBlock(bool invokeDebugLogs = true)
+        {
+            StartAsync(invokeDebugLogs).GetAwaiter().GetResult();
+        }
+        
+        /// <summary>
+        /// Start the upload task asynchronously.
         /// Listen to OnComplete to get the report when the upload is done. 
         /// </summary>
         /// <param name="invokeDebugLogs">When a log,warning,error occurs during the upload should this log to Unity Console? logs can be found in the report at the end.</param>

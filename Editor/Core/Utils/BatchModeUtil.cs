@@ -47,7 +47,7 @@ namespace Wireframe
                 }
 
                 startedATask = true;
-                UploadTask task = new(profile);
+                UploadTask task = new UploadTask(profile);
                 task.OnComplete += (report) =>
                 {
                     Debug.Log($"Finished task with guid {report.GUID}!");

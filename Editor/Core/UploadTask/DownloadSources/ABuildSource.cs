@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Wireframe
 {

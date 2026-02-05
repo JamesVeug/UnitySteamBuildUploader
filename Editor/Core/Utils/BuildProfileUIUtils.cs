@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_6000_0_OR_NEWER
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -72,3 +73,4 @@ namespace Wireframe
         private static BuildProfilePopup m_buildProfilePopup;
     }
 }
+#endif

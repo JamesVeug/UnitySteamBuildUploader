@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_6000_0_OR_NEWER
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -77,3 +78,4 @@ namespace Wireframe
         }
     }
 }
+#endif

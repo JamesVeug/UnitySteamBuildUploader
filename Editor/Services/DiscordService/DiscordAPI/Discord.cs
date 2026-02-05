@@ -51,7 +51,11 @@ namespace Wireframe
                     www.SetRequestHeader("Authorization", token);
                 }
 
-                await www.SendWebRequest();
+                www.SendWebRequest();
+                while (!www.isDone)
+                {
+                    await Task.Yield();
+                }
                 
                 if (www.isHttpError || www.isNetworkError)
                 {

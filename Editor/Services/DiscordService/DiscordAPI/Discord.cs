@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 
 // TODO: Move requests to a wrapper
 #pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace Wireframe
 {

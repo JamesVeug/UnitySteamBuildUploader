@@ -22,8 +22,8 @@
   - Unity 2020 and 2019
     - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
 - Advanced GUI and non-GUI support (CI/CD)
-- Create multiple builds
-  - Windows, Mac, Linux, Webgl
+- Create multiple builds using Build Configs or Unity's Build Profiles.
+  - Windows, Mac, Linux, Webgl (Others loosely supported via Unity's Build Profiles)
 - Services
   - Steamworks
     - Uploading a build to any branch or depots

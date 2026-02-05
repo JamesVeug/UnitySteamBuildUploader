@@ -1,3 +1,35 @@
+# 3.2.0
+
+## Highlights
+- Greatly reduced time to build and copy to a local destination
+- Better Batch script support - https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/Starting-a-BuildTask-without-UI
+- Can now make builds using Unity's internal Build Profile system
+
+## What's new
+- Added support to make builds using Unity's build in Build Profiles (Unity 6.0 and up)
+- Added DoNotCache to all sources to sleep up getting sources (on by default)
+- Added 'Save contents to LocalDestination' to preferences to save directly to a LocalDestination if available to speed up tasks. (On by default)
+- Actions can now specify at what point during the upload they trigger. 
+- New string formats
+  - {taskStatus} - Get a small message describing the status of the Upload Task
+
+## What's changed
+- Auto-Generate Menu Items is now set to false by default
+- Auto-Generate Menu Items now save to the `Assets/ThirdParty/BuildUploader` instead of the Packages folder (Changable in ProjectSettings)
+- Builds are no longer cached before being copied to the destination
+- Improved support for triggering uploads without Unity open
+
+## What's fixed
+- Fixed an edgecase where string formatting is case sensitive
+- Fixed some edgecases where errors happen and silently kill upload tasks
+- Fixed some Slack text formatting issues
+- Fixed some JSON errors when strings contain double quotes
+- Potentially fixed error when starting uploading using UI.
+- Cleaned up some warnings that appear when compiling code
+- Fixed some MenuItems showing until Tools instead of Window->BuildUploader
+- Fixed readme icon
+
+
 # 3.1.1
 
 ## What's new

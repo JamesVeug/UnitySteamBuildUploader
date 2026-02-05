@@ -55,8 +55,7 @@ namespace Wireframe
                     return Profile.GetInstanceID().ToString();
                 }
                 
-                GUID platformGuid = (GUID)guidInfo.GetValue(Profile);
-                return platformGuid.ToString();
+                return guidInfo.GetValue(Profile).ToString();
             }
         }
         

@@ -13,7 +13,11 @@ namespace Wireframe
         private static readonly Type buildProfileType = typeof(BuildProfile);
         private static readonly Type playerSettingsType = typeof(PlayerSettings);
         private static readonly FieldInfo m_PlayerSettingsYamlInfo = buildProfileType.GetField("m_PlayerSettingsYaml", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+#if UNITY_6000_3_OR_NEWER
         private static readonly PropertyInfo guidInfo = buildProfileType.GetProperty("platformGuid", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+#else
+        private static readonly PropertyInfo guidInfo = buildProfileType.GetProperty("platformId", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+#endif
         private static readonly PropertyInfo buildTargetInfo = buildProfileType.GetProperty("buildTarget", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         private static readonly PropertyInfo subtargetInfo = buildProfileType.GetProperty("subtarget", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         private static readonly PropertyInfo playerSettingsInfo = buildProfileType.GetProperty("playerSettings", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);

@@ -26,26 +26,28 @@ namespace Wireframe
                 isDirty |= BuildProfileUIUtils.BuildProfilesPopup.DrawPopup(ref m_BuildConfig, m_context);
             }
             
-            using (new EditorGUI.DisabledScope(true))
-            {
-                EditorGUI.indentLevel++;
-                using (new EditorGUILayout.HorizontalScope())
+            if(m_BuildConfig != null){
+                using (new EditorGUI.DisabledScope(true))
                 {
-                    GUIContent label = new GUIContent("Target Platform:", "The platform to build for. Cannot be changed at this time.");
-                    EditorGUILayout.LabelField(label, GUILayout.Width(150));
-
-                    BuildUtils.DrawPlatformPopup(m_BuildConfig.GetTargetPlatform, m_BuildConfig.GetTargetPlatformSubTarget, m_BuildConfig.GetTarget);
-                }
-
-                if (m_BuildConfig.GetTargetPlatform == BuildTargetGroup.Standalone){
+                    EditorGUI.indentLevel++;
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        GUIContent label = new GUIContent("Target Architecture:", "The Architecture version to build for. Cannot be changed at this time.");
+                        GUIContent label = new GUIContent("Target Platform:", "The platform to build for. Cannot be changed at this time.");
                         EditorGUILayout.LabelField(label, GUILayout.Width(150));
-                        BuildUtils.DrawArchitecturePopup(m_BuildConfig.GetTargetPlatform, m_BuildConfig.GetTarget, m_BuildConfig.GetTargetArchitecture);
+
+                        BuildUtils.DrawPlatformPopup(m_BuildConfig.GetTargetPlatform, m_BuildConfig.GetTargetPlatformSubTarget, m_BuildConfig.GetTarget);
                     }
+
+                    if (m_BuildConfig.GetTargetPlatform == BuildTargetGroup.Standalone){
+                        using (new EditorGUILayout.HorizontalScope())
+                        {
+                            GUIContent label = new GUIContent("Target Architecture:", "The Architecture version to build for. Cannot be changed at this time.");
+                            EditorGUILayout.LabelField(label, GUILayout.Width(150));
+                            BuildUtils.DrawArchitecturePopup(m_BuildConfig.GetTargetPlatform, m_BuildConfig.GetTarget, m_BuildConfig.GetTargetArchitecture);
+                        }
+                    }
+                    EditorGUI.indentLevel--;
                 }
-                EditorGUI.indentLevel--;
             }
             
             using (new GUILayout.HorizontalScope())

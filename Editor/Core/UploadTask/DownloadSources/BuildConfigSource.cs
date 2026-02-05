@@ -86,12 +86,15 @@ namespace Wireframe
 
         public override void DeserializeBuildConfig(Dictionary<string, object> data)
         {
-            if (data.TryGetValue("BuildConfig", out var buildConfigGuidObj) && buildConfigGuidObj is string buildConfigGuid)
+            if (data.TryGetValue("BuildConfig", out var buildConfigGuidObj) && buildConfigGuidObj is string guid)
             {
-                m_BuildConfig = BuildConfigsUIUtils.GetBuildConfigs().FirstOrDefault(a=>a.GUID == buildConfigGuid);
-                if (m_BuildConfig == null)
+                if (!string.IsNullOrEmpty(guid))
                 {
-                    Debug.LogWarning($"BuildConfig with GUID {buildConfigGuid} not found.");
+                    m_BuildConfig = BuildConfigsUIUtils.GetBuildConfigs().FirstOrDefault(a => a.GUID == guid);
+                    if (m_BuildConfig == null)
+                    {
+                        Debug.LogWarning($"BuildConfig with GUID {guid} not found.");
+                    }
                 }
             }
             else

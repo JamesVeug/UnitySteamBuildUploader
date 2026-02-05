@@ -55,12 +55,15 @@ namespace Wireframe
 
         public override void DeserializeBuildConfig(Dictionary<string, object> data)
         {
-            if (data.TryGetValue("BuildProfile", out var BuildProfileWrapperGuidObj) && BuildProfileWrapperGuidObj is string BuildProfileWrapperGuid)
+            if (data.TryGetValue("BuildProfile", out var BuildProfileWrapperGuidObj) && BuildProfileWrapperGuidObj is string guid)
             {
-                m_BuildConfig = BuildProfileUIUtils.GetBuildProfiles().FirstOrDefault(a=>a.GetGUID == BuildProfileWrapperGuid);
-                if (m_BuildConfig == null)
+                if (!string.IsNullOrEmpty(guid))
                 {
-                    Debug.LogWarning($"BuildProfileWrapper with GUID {BuildProfileWrapperGuid} not found.");
+                    m_BuildConfig = BuildProfileUIUtils.GetBuildProfiles().FirstOrDefault(a => a.GetGUID == guid);
+                    if (m_BuildConfig == null)
+                    {
+                        Debug.LogWarning($"BuildProfileWrapper with GUID {guid} not found.");
+                    }
                 }
             }
             else

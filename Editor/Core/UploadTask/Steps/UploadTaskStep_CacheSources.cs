@@ -99,7 +99,7 @@ namespace Wireframe
                     continue;
                 }
 
-                if (sourceData.Source.CanCacheContents && !sourceData.DoNotCache)
+                if (!sourceData.Source.CanCacheContents || sourceData.DoNotCache)
                 {
                     result.AddLog("Skipping cacheSources because the source already put the contents there during the GetSources step.");
                     result.SetPercentComplete(1f);

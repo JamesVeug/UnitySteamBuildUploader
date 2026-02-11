@@ -117,21 +117,24 @@ namespace Wireframe
                         }
                     }
 
-                    List<string> sourceErrors = GetSourceErrors();
-                    if (sourceErrors.Count > 0)
+                    if (Enabled)
                     {
-                        foreach (string error in sourceErrors)
+                        List<string> sourceErrors = GetSourceErrors();
+                        if (sourceErrors.Count > 0)
                         {
-                            DrawError(error);
+                            foreach (string error in sourceErrors)
+                            {
+                                DrawError(error);
+                            }
                         }
-                    }
-                    
-                    List<string> sourceWarnings = GetSourceWarnings();
-                    if (sourceWarnings.Count > 0)
-                    {
-                        foreach (string warning in sourceWarnings)
+
+                        List<string> sourceWarnings = GetSourceWarnings();
+                        if (sourceWarnings.Count > 0)
                         {
-                            DrawWarning(warning);
+                            foreach (string warning in sourceWarnings)
+                            {
+                                DrawWarning(warning);
+                            }
                         }
                     }
                 }
@@ -144,22 +147,25 @@ namespace Wireframe
                         string progressText = "->";
                         GUILayout.Label(progressText, m_titleStyle, GUILayout.Width(splitWidth));
                     }
-                    
-                    List<string> modifierErrors = GetModifierErrors();
-                    if (modifierErrors.Count > 0)
+
+                    if (Enabled)
                     {
-                        foreach (string error in modifierErrors)
+                        List<string> modifierErrors = GetModifierErrors();
+                        if (modifierErrors.Count > 0)
                         {
-                            DrawError(error);
+                            foreach (string error in modifierErrors)
+                            {
+                                DrawError(error);
+                            }
                         }
-                    }
-                    
-                    List<string> modifierWarnings = GetModifierWarnings();
-                    if (modifierWarnings.Count > 0)
-                    {
-                        foreach (string warning in modifierWarnings)
+
+                        List<string> modifierWarnings = GetModifierWarnings();
+                        if (modifierWarnings.Count > 0)
                         {
-                            DrawWarning(warning);
+                            foreach (string warning in modifierWarnings)
+                            {
+                                DrawWarning(warning);
+                            }
                         }
                     }
                 }
@@ -198,22 +204,25 @@ namespace Wireframe
                             }
                         }
                     }
-                    
-                    List<string> destinationErrors = GetDestinationErrors();
-                    if (destinationErrors.Count > 0)
+
+                    if (Enabled)
                     {
-                        foreach (string error in destinationErrors)
+                        List<string> destinationErrors = GetDestinationErrors();
+                        if (destinationErrors.Count > 0)
                         {
-                            DrawError(error);
+                            foreach (string error in destinationErrors)
+                            {
+                                DrawError(error);
+                            }
                         }
-                    }
-                    
-                    List<string> destinationWarnings = GetDestinationWarnings();
-                    if (destinationWarnings.Count > 0)
-                    {
-                        foreach (string warning in destinationWarnings)
+
+                        List<string> destinationWarnings = GetDestinationWarnings();
+                        if (destinationWarnings.Count > 0)
                         {
-                            DrawWarning(warning);
+                            foreach (string warning in destinationWarnings)
+                            {
+                                DrawWarning(warning);
+                            }
                         }
                     }
                 }

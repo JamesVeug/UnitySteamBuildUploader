@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Wireframe
 {
@@ -34,7 +36,17 @@ namespace Wireframe
                 SearchOption.AllDirectories : 
                 SearchOption.TopDirectoryOnly;
             
-            string[] files = Directory.GetFiles(cachedDirectory, regex.Regex, searchOption);
+            string[] paths = Directory.GetFiles(cachedDirectory, "*.*", searchOption);
+            List<string> filteredPaths = new List<string>(paths.Length);
+            foreach (string path in paths)
+            {
+                if (Regex.IsMatch(path, regex.Regex))
+                {
+                    filteredPaths.Add(path);
+                }
+            }
+            
+            string[] files = filteredPaths.ToArray();
             return files;
         }
 

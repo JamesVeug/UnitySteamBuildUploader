@@ -94,6 +94,13 @@ namespace Wireframe
                         
                         menu.AddSeparator("");
                         
+                        menu.AddItem(new GUIContent("Show Upload Task Report Folder"), false, ()=>
+                        {
+                            EditorUtility.RevealInFinder(WindowUploadTab.UploadReportSaveDirectory);
+                        });
+                        
+                        menu.AddSeparator("");
+                        
                         menu.AddItem(new GUIContent("Delete All Complete Reports"), false, () =>
                         {
                             if (EditorUtility.DisplayDialog("Delete all Task Reports",

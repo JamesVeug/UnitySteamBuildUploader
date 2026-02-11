@@ -10,12 +10,32 @@ namespace Wireframe
     {
         protected override string ListHeader => "Exclude Files";
         
-        public ExcludeFilesModifier() : base()
+        public ExcludeFilesModifier() 
+            : base()
         {
             
         }
         
-        public ExcludeFilesModifier(params Selection[] fileRegexes) : base(fileRegexes)
+        public ExcludeFilesModifier(WhenToExclude whenToExclude)
+            : base(whenToExclude)
+        {
+            
+        }
+        
+        public ExcludeFilesModifier(WhenToExclude whenToExclude, params Selection[] fileRegexes)
+            : base(whenToExclude, fileRegexes)
+        {
+            
+        }
+        
+        public ExcludeFilesModifier(params Selection[] fileRegexes)
+            : base(fileRegexes)
+        {
+            
+        }
+        
+        public ExcludeFilesModifier(WhenToExclude whenToExclude, params string[] fileRegexes)
+            : base(whenToExclude, fileRegexes)
         {
             
         }
@@ -25,7 +45,8 @@ namespace Wireframe
             
         }
         
-        public ExcludeFilesModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false) : base(fileRegex, recursive, searchAllDirectories)
+        public ExcludeFilesModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false, WhenToExclude whenToExclude = WhenToExclude.DoNotCopyFromSource)
+            : base(fileRegex, recursive, searchAllDirectories, whenToExclude)
         {
             
         }

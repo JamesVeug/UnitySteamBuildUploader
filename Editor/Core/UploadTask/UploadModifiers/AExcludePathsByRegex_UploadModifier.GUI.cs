@@ -5,6 +5,13 @@ namespace Wireframe
 {
     public abstract partial class AExcludePathsByRegex_UploadModifier
     {
+        private ReorderableListOfExcludeFileByRegexSelection m_reorderableList = new ReorderableListOfExcludeFileByRegexSelection();
+
+        private void Initialize()
+        {
+            m_reorderableList.Initialize(m_fileRegexes, ListHeader, m_fileRegexes.Count <= 2);
+        }
+        
         protected internal override void OnGUIExpanded(ref bool isDirty, Context ctx)
         {
             using (new GUILayout.HorizontalScope())

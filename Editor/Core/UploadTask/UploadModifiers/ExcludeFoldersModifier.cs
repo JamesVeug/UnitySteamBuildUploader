@@ -9,13 +9,33 @@ namespace Wireframe
     public class ExcludeFoldersModifier : AExcludePathsByRegex_UploadModifier
     {
         protected override string ListHeader => "Exclude Folders";
-
-        public ExcludeFoldersModifier() : base()
+        
+        public ExcludeFoldersModifier() 
+            : base()
         {
             
         }
 
-        public ExcludeFoldersModifier(params Selection[] fileRegexes) : base(fileRegexes)
+        public ExcludeFoldersModifier(WhenToExclude whenToExclude)
+            : base(whenToExclude)
+        {
+            
+        }
+        
+        public ExcludeFoldersModifier(WhenToExclude whenToExclude, params Selection[] fileRegexes)
+            : base(whenToExclude, fileRegexes)
+        {
+            
+        }
+        
+        public ExcludeFoldersModifier(params Selection[] fileRegexes)
+            : base(fileRegexes)
+        {
+            
+        }
+        
+        public ExcludeFoldersModifier(WhenToExclude whenToExclude, params string[] fileRegexes)
+            : base(whenToExclude, fileRegexes)
         {
             
         }
@@ -25,7 +45,8 @@ namespace Wireframe
             
         }
         
-        public ExcludeFoldersModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false) : base(fileRegex, recursive, searchAllDirectories)
+        public ExcludeFoldersModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false, WhenToExclude whenToExclude = WhenToExclude.DoNotCopyFromSource)
+            : base(fileRegex, recursive, searchAllDirectories, whenToExclude)
         {
             
         }

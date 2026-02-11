@@ -71,17 +71,33 @@ namespace Wireframe
         
         [Wiki("Regexes", "A list of regex to select which files/folders that will be excluded/deleted before being uploaded.")]
         private List<Selection> m_fileRegexes = new List<Selection>();
-        
-        private ReorderableListOfExcludeFileByRegexSelection m_reorderableList = new ReorderableListOfExcludeFileByRegexSelection();
 
-        public AExcludePathsByRegex_UploadModifier()
+        public AExcludePathsByRegex_UploadModifier(WhenToExclude whenToExclude = WhenToExclude.DoNotCopyFromSource)
         {
+            m_WhenToExclude = whenToExclude;
+            Initialize();
+        }
+
+        public AExcludePathsByRegex_UploadModifier(WhenToExclude whenToExclude, params Selection[] fileRegexes)
+        {
+            m_WhenToExclude = whenToExclude;
+            m_fileRegexes.AddRange(fileRegexes);
             Initialize();
         }
 
         public AExcludePathsByRegex_UploadModifier(params Selection[] fileRegexes)
         {
             m_fileRegexes.AddRange(fileRegexes);
+            Initialize();
+        }
+        
+        public AExcludePathsByRegex_UploadModifier(WhenToExclude whenToExclude, params string[] fileRegexes)
+        {
+            m_WhenToExclude = whenToExclude;
+            foreach (var fileRegex in fileRegexes)
+            {
+                m_fileRegexes.Add(new Selection(fileRegex));
+            }
             Initialize();
         }
         
@@ -94,15 +110,11 @@ namespace Wireframe
             Initialize();
         }
         
-        public AExcludePathsByRegex_UploadModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false)
+        public AExcludePathsByRegex_UploadModifier(string fileRegex, bool recursive = false, bool searchAllDirectories = false, WhenToExclude whenToExclude = WhenToExclude.DoNotCopyFromSource)
         {
+            m_WhenToExclude = whenToExclude;
             m_fileRegexes.Add(new Selection(fileRegex, true, recursive, searchAllDirectories));
             Initialize();
-        }
-
-        private void Initialize()
-        {
-            m_reorderableList.Initialize(m_fileRegexes, ListHeader, m_fileRegexes.Count <= 2);
         }
 
         public override void TryGetErrors(UploadConfig config, List<string> errors)

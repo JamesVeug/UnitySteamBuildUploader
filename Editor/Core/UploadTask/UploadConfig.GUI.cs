@@ -34,11 +34,11 @@ namespace Wireframe
             AddDefaultModifiers();
         }
 
-        private void AddDefaultModifiers()
+        public void AddDefaultModifiers()
         {
             // All Unity builds include a X_BurstDebugInformation_DoNotShip folder
             // This isn't needed so add it as a default modifier
-            ExcludeFoldersModifier regexBuildModifier = new ExcludeFoldersModifier();
+            ExcludeFoldersModifier regexBuildModifier = new ExcludeFoldersModifier(AExcludePathsByRegex_UploadModifier.WhenToExclude.DeleteFromCache);
             regexBuildModifier.Add(".*DoNotShip", true, false);
             regexBuildModifier.Add(".*ButDontShipItWithYourGame", true, false);
             AddModifier(new ModifierData(regexBuildModifier, true));
@@ -472,12 +472,6 @@ namespace Wireframe
                     if (CustomSettingsIcon.OnGUI())
                     {
                         GenericMenu menu = new GenericMenu();
-
-                        menu.AddItem(new GUIContent("Add Default Modifiers"), false, () =>
-                        {
-                            AddDefaultModifiers();
-                            m_deferredIsDirty = true;
-                        });
                                 
                         menu.AddSeparator("");
                                 

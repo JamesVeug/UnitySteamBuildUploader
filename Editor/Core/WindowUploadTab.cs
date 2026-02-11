@@ -301,6 +301,12 @@ namespace Wireframe
                                 });
                                 m_isDirty = true;
                             });
+
+                            menu.AddItem(new GUIContent("Add Default Modifiers"), false, () =>
+                            {
+                                uploadConfig.AddDefaultModifiers();
+                                m_isDirty = true;
+                            });
                             
                             menu.AddItem(new GUIContent("Add Destination"), false, () =>
                             {

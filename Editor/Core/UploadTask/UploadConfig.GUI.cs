@@ -348,7 +348,7 @@ namespace Wireframe
                             using (new GUILayout.HorizontalScope())
                             {
                                 GUIContent doNotCacheLabel = new GUIContent("Do Not Cache: ",
-                                    "If enabled, all files will be saved directly to the folder for the upload task and not cached for future reference. This will speed up uploading i nsome cases at the cost of having to re-get the source contents every upload." +
+                                    "If enabled, all files will be saved directly to the folder for the upload task and not cached for future reference. This will speed up uploading in some cases at the cost of having to re-get the source contents every upload." +
                                     "\nExample: If using BuildConfigSource it will make a full new build every upload");
                                 GUILayout.Label(doNotCacheLabel, GUILayout.Width(120));
                                 isDirty |= CustomToggle.DrawToggle(ref source.DoNotCache, GUILayout.Width(20));

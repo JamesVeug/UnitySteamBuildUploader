@@ -107,7 +107,7 @@ namespace Wireframe
         public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult)
         {
             base.CleanUp(configIndex, stepResult);
-            if (File.Exists(downloadedFilePath))
+            if (File.Exists(downloadedFilePath) && !Utils.ComparePaths(m_taskContentsFolder, downloadedFilePath))
             {
                 try
                 {

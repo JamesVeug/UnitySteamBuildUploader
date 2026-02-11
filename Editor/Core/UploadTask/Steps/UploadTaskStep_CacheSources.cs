@@ -99,14 +99,16 @@ namespace Wireframe
                     continue;
                 }
 
-                if (!sourceData.Source.CanCacheContents || sourceData.DoNotCache)
+                string subCacheFolder = task.CachedLocations[configIndex];
+                string sourcePath = sourceData.Source.SourceFilePath();
+                string directory = Utils.GetDirectoryOrFileDirectory(sourcePath);
+                if (Utils.ComparePaths(directory, subCacheFolder))
                 {
                     result.AddLog("Skipping cacheSources because the source already put the contents there during the GetSources step.");
                     result.SetPercentComplete(1f);
                     continue;
                 }
 
-                string subCacheFolder = task.CachedLocations[configIndex];
                 if (!string.IsNullOrEmpty(sourceData.SubFolder))
                 {
                     subCacheFolder = Path.Combine(subCacheFolder, uploadConfig.Context.FormatString(sourceData.SubFolder));
@@ -128,7 +130,7 @@ namespace Wireframe
                 catch (Exception e)
                 {
                     result.AddException(e);
-                    result.SetFailed("Failed to cache source: " + sourceData.Source.SourceFilePath() + ".\n\n" + e.Message);
+                    result.SetFailed("Failed to cache source: " + sourcePath + ".\n\n" + e.Message);
                     return false;
                 }
                 finally

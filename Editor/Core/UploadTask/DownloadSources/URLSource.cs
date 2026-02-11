@@ -123,6 +123,7 @@ namespace Wireframe
 
             // Record where the game is saved to
             m_sourcePath = fullFilePath;
+
             stepResult.AddLog("Retrieved URL Build: " + m_sourcePath);
             return true;
         }
@@ -130,7 +131,7 @@ namespace Wireframe
         public override Task CleanUp(int configIndex, UploadTaskReport.StepResult stepResult)
         {
             base.CleanUp(configIndex, stepResult);
-            if (File.Exists(m_sourcePath))
+            if (File.Exists(m_sourcePath) && !Utils.CompareDirectories(m_sourcePath, m_taskContentsFolder))
             {
                 stepResult.AddLog("Deleting cached file: " + m_sourcePath);
                 File.Delete(m_sourcePath);

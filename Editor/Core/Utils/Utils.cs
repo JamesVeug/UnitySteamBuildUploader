@@ -70,6 +70,29 @@ namespace Wireframe
         public static Texture2D CrossIcon => TryGetIcon(IsDarkMode ? "crossIcon.png" : "crossIconLight.png");
         public static Texture2D CrossIconSmall => TryGetIcon(IsDarkMode ? "crossIconSmall.png" : "crossIconSmallLight.png");
         public static Texture2D LinkIcon => TryGetIcon("linkIcon.png");
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/2281531/how-can-i-compare-directory-paths-in-c
+        /// </summary>
+        public static bool ComparePaths(string path1, string path2)
+        {
+            return String.Compare(
+                Path.GetFullPath(path1).TrimEnd('\\'),
+                Path.GetFullPath(path2).TrimEnd('\\'),
+                StringComparison.InvariantCultureIgnoreCase) == 0;
+        }
+        
+        public static bool CompareDirectories(string path1, string path2)
+        {
+            string directory1 = IsPathADirectory(path1) ? path1 : Path.GetDirectoryName(path1);
+            string directory2 = IsPathADirectory(path2) ? path2 : Path.GetDirectoryName(path2);
+            return ComparePaths(directory1, directory2);
+        }
+
+        public static string GetDirectoryOrFileDirectory(string path)
+        {
+            return IsPathADirectory(path) ? path : Path.GetDirectoryName(path);
+        }
         
         public static bool IsPathADirectory(string path)
         {
@@ -98,11 +121,10 @@ namespace Wireframe
                     switch (dupeFileHandling)
                     {
                         case FileExistHandling.Error:
-                            result?.AddError("File already exists: " + destination);
                             result?.SetFailed("File already exists: " + destination);
                             return false;
                         case FileExistHandling.Skip:
-                            result?.AddLog("Skipping duplicate file since it already exists: " + destination);
+                            result?.SetSkipped("Skipping duplicate file since it already exists: " + destination);
                             return true;
                     }
                 }

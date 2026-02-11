@@ -70,7 +70,7 @@ namespace Wireframe
         public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
             string fullPath = FullPath();
-            if (m_taskContentsFolder == fullPath && Preferences.UseLocalDestinationIfAvailable)
+            if (Preferences.UseLocalDestinationIfAvailable && Utils.ComparePaths(m_taskContentsFolder, fullPath))
             {
                 result.AddLog($"Skipping coping LocalDestination because 'Save contents to LocalDestination if valid' is on and its the same path that we got.");
                 return true;

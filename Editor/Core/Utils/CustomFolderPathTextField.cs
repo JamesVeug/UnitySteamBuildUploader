@@ -24,7 +24,7 @@ namespace Wireframe
             bool isDirty = false;
             using (new EditorGUILayout.HorizontalScope())
             {
-                using (ButtonStyleScope scope = new ButtonStyleScope(!exists, error))
+                using (TextFieldStyleScope scope = new TextFieldStyleScope(!exists, error))
                 {
                     if (EditorUtils.FormatStringTextField(ref unformattedPath, ref showFormatted, ctx, scope.style))
                     {

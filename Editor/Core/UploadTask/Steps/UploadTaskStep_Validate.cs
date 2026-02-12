@@ -67,7 +67,7 @@ namespace Wireframe
                 {
                     foreach (string error in errors)
                     {
-                        result.AddError(error);
+                        result.SetFailed(error);
                         valid = false;
                     }
                 }
@@ -98,7 +98,7 @@ namespace Wireframe
                 UploadTaskReport.StepResult result = reports[i];
                 if (action.UploadAction == null)
                 {
-                    result.AddError($"No pre upload action specified at index {i}");
+                    result.SetFailed($"No pre upload action specified at index {i}");
                     valid = false;
                     continue;
                 }
@@ -107,7 +107,7 @@ namespace Wireframe
                 action.UploadAction.TryGetErrors(errors);
                 foreach (string error in errors)
                 {
-                    result.AddError(error);
+                    result.SetFailed(error);
                     valid = false;
                 }
             }

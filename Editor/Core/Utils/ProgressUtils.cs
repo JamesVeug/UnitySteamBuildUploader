@@ -11,7 +11,7 @@ namespace Wireframe
 #if UNITY_2020_2_OR_NEWER
             return Progress.Exists(progressId);
 #else
-        return false;
+            return false;
 #endif
         }
 
@@ -27,7 +27,7 @@ namespace Wireframe
 #if UNITY_2020_2_OR_NEWER
             return Progress.Start(title, desc);
 #else
-        return -1;
+            return -1;
 #endif
         }
 

@@ -11,7 +11,7 @@ namespace Wireframe
         public class ModifierData
         {
             [Wiki("Enabled", "When on, this modifier will modify the content of the files for a build.")]
-            public bool Enabled;
+            public bool Enabled = true;
             public AUploadModifer Modifier;
             public UIHelpers.BuildModifiersPopup.ModifierData ModifierType;
 

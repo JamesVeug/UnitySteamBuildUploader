@@ -1,3 +1,19 @@
+# 3.2.1
+
+## What's new
+- Added 'Show Upload Task Report Folder' context menu option to open the folder where the upload reports are saved
+
+## What's Fixed
+- Fixed some source edge cases resulting in unexpected empty folders
+- Fixed Exclude Folder&File modifiers from not working when set to DeleteFromCache
+- Fixed some text fields looking like a button and not an input text field
+- Fixed some errors/warnings showing on Upload Configs that are disabled 
+
+## What's Changed
+- Moved Add Default Modifiers menu context option to Upload Config's menu context. 
+- Can now specify WhenToExclude in constructors for ExcludeFilesModifier and ExcludeFoldersModifier 
+
+
 # 3.2.0
 
 ## Highlights
@@ -7,7 +23,7 @@
 
 ## What's new
 - Added support to make builds using Unity's build in Build Profiles (Unity 6.0 and up)
-- Added DoNotCache to all sources to sleep up getting sources (on by default)
+- Added DoNotCache to all sources to speed up getting sources (on by default)
 - Added 'Save contents to LocalDestination' to preferences to save directly to a LocalDestination if available to speed up tasks. (On by default)
 - Actions can now specify at what point during the upload they trigger. 
 - New string formats

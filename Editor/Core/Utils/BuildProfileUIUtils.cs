@@ -52,18 +52,7 @@ namespace Wireframe
         {
             data = new List<BuildProfileWrapper>();
 
-            List<BuildProfile> profiles = null;
-            
-#if UNITY_6000_3_OR_NEWER
-            Type type = Type.GetType("UnityEditor.Build.Profile.BuildProfileModuleUtil, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
-            MethodInfo getProfiles = type.GetMethod("GetAllBuildProfiles", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            profiles = (List<BuildProfile>)getProfiles.Invoke(null, null);
-#else
-            Type type = Type.GetType("UnityEditor.Build.Profile.Handlers.BuildProfileDataSource, UnityEditor.BuildProfileModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
-            MethodInfo getProfiles = type.GetMethod("FindAllBuildProfiles", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            profiles = (List<BuildProfile>)getProfiles.Invoke(null, null);
-#endif
-
+            List<BuildProfile> profiles = BuildUtils.GetAllCustomBuildProfiles();
             for (var i = 0; i < profiles.Count; i++)
             {
                 var profile = profiles[i];

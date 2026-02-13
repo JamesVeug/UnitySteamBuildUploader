@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Build.Profile;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -588,5 +589,25 @@ namespace Wireframe
             
             return "";
         }
+
+#if UNITY_6000_0_OR_NEWER
+        public static List<BuildProfile> GetAllCustomBuildProfiles()
+        {
+            // Default: BuildProfileContext.instance.classicPlatformProfiles
+            List<BuildProfile> profiles = null;
+            
+#if UNITY_6000_3_OR_NEWER
+            Type type = Type.GetType("UnityEditor.Build.Profile.BuildProfileModuleUtil, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
+            MethodInfo getProfiles = type.GetMethod("GetAllBuildProfiles", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            profiles = (List<BuildProfile>)getProfiles.Invoke(null, null);
+#else
+            Type type = Type.GetType("UnityEditor.Build.Profile.Handlers.BuildProfileDataSource, UnityEditor.BuildProfileModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
+            MethodInfo getProfiles = type.GetMethod("FindAllBuildProfiles", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            profiles = (List<BuildProfile>)getProfiles.Invoke(null, null);
+#endif
+            
+            return profiles;
+        }
+#endif
     }
 }

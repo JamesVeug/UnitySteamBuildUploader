@@ -23,8 +23,8 @@ namespace Wireframe
         public string GUID;
         public string BuildName;
         public string ProductName;
-        public List<string> SceneGUIDs;
-        public List<string> ExtraScriptingDefines;
+        public List<string> SceneGUIDs = new List<string>();
+        public List<string> ExtraScriptingDefines = new List<string>();
         
         // Options
         public bool IsDevelopmentBuild;
@@ -39,7 +39,7 @@ namespace Wireframe
         public int TargetPlatformSubTarget;
         public BuildTarget Target;
         public BuildUtils.Architecture TargetArchitecture;
-        public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes;
+        public Dictionary<LogType, StackTraceLogType> StackTraceLogTypes = new Dictionary<LogType, StackTraceLogType>();
         public ManagedStrippingLevel StrippingLevel = ManagedStrippingLevel.Disabled;
         public ScriptingImplementation ScriptingBackend = ScriptingImplementation.Mono2x;
         public BuildUtils.Compression CompressionMethod = BuildUtils.Compression.Default;
@@ -457,11 +457,19 @@ namespace Wireframe
             PlayerSettings.SetManagedStrippingLevel(TargetPlatform, StrippingLevel);
             PlayerSettings.SetScriptingBackend(TargetPlatform, ScriptingBackend);
 #endif
-            PlayerSettings.SetStackTraceLogType(LogType.Error, StackTraceLogTypes[LogType.Error]);
-            PlayerSettings.SetStackTraceLogType(LogType.Assert, StackTraceLogTypes[LogType.Assert]);
-            PlayerSettings.SetStackTraceLogType(LogType.Warning, StackTraceLogTypes[LogType.Warning]);
-            PlayerSettings.SetStackTraceLogType(LogType.Log, StackTraceLogTypes[LogType.Log]);
-            PlayerSettings.SetStackTraceLogType(LogType.Exception, StackTraceLogTypes[LogType.Exception]);
+            void ApplyLogType(LogType type, Dictionary<LogType, StackTraceLogType> dict)
+            {
+                if (dict.TryGetValue(type, out StackTraceLogType logType))
+                {
+                    PlayerSettings.SetStackTraceLogType(type, logType);
+                }
+            }
+            
+            ApplyLogType(LogType.Error, StackTraceLogTypes);
+            ApplyLogType(LogType.Assert, StackTraceLogTypes);
+            ApplyLogType(LogType.Warning, StackTraceLogTypes);
+            ApplyLogType(LogType.Log, StackTraceLogTypes);
+            ApplyLogType(LogType.Exception, StackTraceLogTypes);
             
             EditorUserBuildSettings.development = IsDevelopmentBuild;
             EditorUserBuildSettings.connectProfiler = ConnectProfiler;

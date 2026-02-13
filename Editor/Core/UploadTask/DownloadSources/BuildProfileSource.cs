@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build.Profile;
 using UnityEditor.Build.Reporting;
 using Debug = UnityEngine.Debug;
 
@@ -19,6 +20,12 @@ namespace Wireframe
         public BuildProfileSource()
         {
             // Required for reflection
+        }
+        
+        public BuildProfileSource(BuildProfile buildProfile, bool cleanBuild = false)
+        {
+            m_BuildConfig = new BuildProfileWrapper(buildProfile, 0);
+            m_CleanBuild = cleanBuild;
         }
         
         public BuildProfileSource(BuildProfileWrapper BuildProfileWrapper, bool cleanBuild = false)

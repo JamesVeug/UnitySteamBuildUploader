@@ -249,7 +249,7 @@ namespace Wireframe
         private BuildProfile profile;
         private PlayerSettings tempCachedPlayerSettings;
 
-        public BuildProfileWrapper(BuildProfile profile, int id)
+        public BuildProfileWrapper(BuildProfile profile, int id = -1)
         {
             this.profile = profile;
             this.id = id;

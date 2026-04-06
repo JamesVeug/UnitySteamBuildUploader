@@ -52,7 +52,7 @@ namespace Wireframe
                 if (guidInfo == null)
                 {
                     Debug.LogError("Unable to find BuildProfile platform guid!");
-                    return Profile.GetInstanceID().ToString();
+                    return Profile.GetHashCode().ToString();
                 }
                 
                 return guidInfo.GetValue(Profile).ToString();

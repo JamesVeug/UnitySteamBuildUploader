@@ -84,7 +84,7 @@ namespace Wireframe
             args += $" -AppArgs=\"{ctx.FormatString(appArgs)}\"";
 
             ProcessUtils.ProcessResult uploadResult = await ProcessUtils.RunTask(result, exePath, args);
-            if (!uploadResult.Successful)
+            if (!uploadResult.IsSuccessful)
             {
                 if (uploadResult.Output.Contains("BuildVersion string should only contain"))
                 {

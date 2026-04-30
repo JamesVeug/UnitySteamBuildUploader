@@ -8,43 +8,63 @@ namespace Wireframe
     {
         public readonly struct ProcessResult
         {
-            public readonly bool Successful;
+            public readonly bool IsSuccessful;
             public readonly string Output;
             public readonly string Errors;
             
-            public ProcessResult(bool successful, string output, string errors)
+            private ProcessResult(bool isSuccessful, string output, string errors)
             {
-                Successful = successful;
+                IsSuccessful = isSuccessful;
                 Output = output;
                 Errors = errors;
             }
+            
+            public static ProcessResult Successful(string text)
+            {
+                return new ProcessResult(true, text, "");
+            }
+            
+            public static ProcessResult Failed(string reason)
+            {
+                return new ProcessResult(false, "", reason);
+            }
         }
         
-        public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result,string path, string args)
+        public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result, string path, string args, params string[] hideText)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo()
-            {
-                FileName = path,
-                Arguments = args,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
+#if UNITY_EDITOR_LINUX
+            string fileName = "/bin/bash";
+            string arguments = "-c \" chmod +x " + path + " " + args;
+#else
+            string fileName = path;
+            string arguments = args;
+#endif
+            
             try
             {
-                using (Process process = Process.Start(startInfo))
+                using (Process process = new Process())
                 {
+                    process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.FileName = fileName;
+                    process.StartInfo.Arguments = arguments;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.EnableRaisingEvents = true;
 
-                    if (process == null)
+                    if (!process.Start())
                     {
-                        result.AddError("Failed to start process (process is null).");
-                        return new ProcessResult(false, "", "Failed to start process (process is null).");
+                        string reason = "Could not start process. FileName or arguments are incorrect or the file is busy. Exit: " + process.ExitCode;
+                        result.SetFailed(reason);
+                        return ProcessResult.Failed(reason);
                     }
 
                     string output = await process.StandardOutput.ReadToEndAsync();
+                    output = HideText(output, hideText);
+                    
                     string errors = await process.StandardError.ReadToEndAsync();
+                    errors = HideText(errors, hideText);
 
                     process.WaitForExit();
 
@@ -54,14 +74,29 @@ namespace Wireframe
                         result.AddError(errors);
                     }
 
-                    return new ProcessResult(process.ExitCode == 0, output, errors);
+                    return ProcessResult.Successful(output);
                 }
             }
             catch (Exception ex)
             {
                 result.AddException(ex);
-                return new ProcessResult(false, "", ex.Message);
+                return ProcessResult.Failed(ex.Message);
             }
+        }
+
+        private static string HideText(string text, string[] toHide)
+        {
+            if (toHide == null || toHide.Length == 0)
+            {
+                return text;
+            }
+
+            foreach (string hide in toHide)
+            {
+                text = text.Replace(hide, "****");
+            }
+            
+            return text;
         }
     }
 }

@@ -595,8 +595,10 @@ namespace Wireframe
         {
             // Default: BuildProfileContext.instance.classicPlatformProfiles
             List<BuildProfile> profiles = null;
-            
-#if UNITY_6000_3_OR_NEWER
+
+#if UNITY_6000_5_OR_NEWER
+            profiles = new List<BuildProfile>(BuildProfile.GetAllBuildProfiles());
+#elif UNITY_6000_3_OR_NEWER
             Type type = Type.GetType("UnityEditor.Build.Profile.BuildProfileModuleUtil, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
             MethodInfo getProfiles = type.GetMethod("GetAllBuildProfiles", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             profiles = (List<BuildProfile>)getProfiles.Invoke(null, null);

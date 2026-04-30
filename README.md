@@ -2,7 +2,7 @@
 
 <h1 align="center">Build Uploader</h1>
 
-<p align="center">Unity Editor Tool For Making And Uploading Builds To Online Services.</p>
+<p align="center">Unity Editor Tool For Making Builds, Uploading Them To Online Services And Notifying Chat Apps</p>
 
 <p align="center">Steamworks | Itch.io | Epic Games | Github | Discord | Slack</p>
 
@@ -17,7 +17,7 @@
 ## Key Points 💡
 - Windows, Mac, Linux support
 - Unity Supported (Light and Dark)
-  - Unity 6000.x
+  - Unity 6000.1-5
   - Unity 202x
   - Unity 2020 and 2019
     - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
@@ -79,8 +79,9 @@ If you find a bug or want to suggest a change, [create an issue on github](https
 Include:
 - What the problem is
 - What you expected to happen
-- What version of Build Uploader you're using
-- Are you using Mac or Windows
+- What version of Build Uploader you are using
+- What version of Unity you are using
+- Are you using Windows/Linux/Mac
 
 
 ## How to Contribute 🔨
@@ -97,7 +98,7 @@ Include:
 A lot of effort has been put into this package for others to freely use. Any kind of support is greatly appreciated and encourages further work!
 
 - ⭐ Star the [Github repository](https://github.com/JamesVeug/UnitySteamBuildUploader)
-- ✍️ Purchase and review on the  [Asset Store](https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907)
+- ✍️ Review on the [Asset Store](https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907)
 - ☕ Buy me a coffee: [buymeacoffee](https://buymeacoffee.com/jamesgamesnz)
 - 💬 Report bug reports or suggestions improvements: [Github Issues](https://github.com/JamesVeug/UnitySteamBuildUploader/issues)
 - 🔗 Share the package with your friends and colleagues
@@ -106,3 +107,9 @@ A lot of effort has been put into this package for others to freely use. Any kin
 Creative Commons - CC0 1.0 Universal
 
 Use this package however you want - commercially or non-commercially.
+
+
+## Created with AI
+AI has assisted by providing code suggestions.
+
+All suggestions have been reviewed and rewritten by a Senior Unity Developer to fit the package's requirements.

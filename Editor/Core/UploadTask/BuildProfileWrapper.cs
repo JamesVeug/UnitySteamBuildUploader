@@ -49,13 +49,13 @@ namespace Wireframe
         {
             get
             {
-                if (guidInfo == null)
+                if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(Profile, out string guid, out _))
                 {
-                    Debug.LogError("Unable to find BuildProfile platform guid!");
-                    return Profile.GetHashCode().ToString();
+                    return guid;
                 }
                 
-                return guidInfo.GetValue(Profile).ToString();
+                // Workaround
+                return Profile.name;
             }
         }
         
@@ -113,8 +113,9 @@ namespace Wireframe
                     Debug.LogError("Unable to find development property in platformSettings!");
                     return false;
                 }
-                
-                return (bool)developmentProperty.GetValue(platformSettings);
+
+                bool value = (bool)developmentProperty.GetValue(platformSettings);
+                return value;
             }
         }
         

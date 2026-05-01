@@ -270,18 +270,12 @@ namespace Wireframe
         {
             cancelling = true;
 
-            UnityWebRequest request = UnityCloudAPI.CancelBuild(build.buildtargetid, build.build);
-            UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
-            while (!webRequest.isDone)
+            RequestWrapper request = UnityCloudAPI.CancelBuild(build.buildtargetid, build.build);
+            RequestResult response = await request.SendAsync(null);
+            if (!response.IsSuccessful)
             {
-                await Task.Delay(10);
-            }
-
-            if (request.isHttpError || request.isNetworkError)
-            {
-                string downloadHandlerText = request.downloadHandler?.text;
-                string message = string.Format("Could not cancel build {0} with UnityCloud:\nError: {1}", build.build,
-                    downloadHandlerText);
+                string downloadHandlerText = response.Data;
+                string message = $"Could not cancel build {build.build} with UnityCloud:\nError: {downloadHandlerText}";
                 Debug.LogError(message);
                 EditorUtility.DisplayDialog("Cancelled Build Failed", message, "OK");
                 return;

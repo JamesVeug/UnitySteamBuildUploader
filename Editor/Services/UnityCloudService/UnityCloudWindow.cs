@@ -237,18 +237,12 @@ namespace Wireframe
 
         private async Task StartTargetBuildCoroutine(string buildTargetID)
         {
-            UnityWebRequest request = UnityCloudAPI.StartBuild(buildTargetID);
-            UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
-            while (!webRequest.isDone)
+            RequestWrapper request = UnityCloudAPI.StartBuild(buildTargetID);
+            var response = await request.SendAsync(null);
+            string downloadHandlerText = response.Data;
+            if (!response.IsSuccessful)
             {
-                await Task.Delay(10);
-            }
-
-            string downloadHandlerText = request.downloadHandler.text;
-            if (request.isHttpError || request.isNetworkError)
-            {
-                string message = string.Format("Could not start build target '{0}' with UnityCloud:\nError: {1}",
-                    buildTargetID, downloadHandlerText);
+                string message = $"Could not start build target '{buildTargetID}' with UnityCloud:\nError: {downloadHandlerText}";
                 Debug.LogError(message);
                 EditorUtility.DisplayDialog("Start new Build Failed", message, "OK");
                 return;

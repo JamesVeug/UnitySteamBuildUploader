@@ -36,13 +36,9 @@ namespace Wireframe
                 messageData["embeds"] = embeds;
             }
 
-            using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+            using (RequestWrapper www = RequestWrapper.Post(url))
             {
-                byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(JSON.SerializeObject(messageData));
-                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                www.downloadHandler = new DownloadHandlerBuffer();
-
-                www.SetRequestHeader("Content-Type", "application/json");
+                www.SetJSONData(messageData);
                 if (isBot)
                 {
                     www.SetRequestHeader("Authorization", $"Bot {token}");
@@ -52,29 +48,22 @@ namespace Wireframe
                     www.SetRequestHeader("Authorization", token);
                 }
 
-                www.SendWebRequest();
-                while (!www.isDone)
+                RequestResult response = await www.SendAsync(result, true);
+                if (!response.IsSuccessful)
                 {
-                    await Task.Yield();
-                }
-                
-                if (www.isHttpError || www.isNetworkError)
-                {
-                    string downloadHandlerText = www.downloadHandler.text;
-                    result?.AddError($"Failed to send message to channel: {www.responseCode} - {downloadHandlerText}");
-                    result?.SetFailed(result.Logs[result.Logs.Count - 1].Message);
+                    result?.SetFailed("Failed to send discord message");
                     return false;
                 }
 
-                result?.AddLog("Message sent.");
+                result?.AddLog("Discord Message sent");
                 return true;
             }
         }
 
-        public static void GetMe(string token, bool isBot)
+        public static async Task<bool> GetMe(string token, bool isBot)
         {
             string url = "https://discord.com/api/v10/users/@me";
-            UnityWebRequest request = UnityWebRequest.Get(url);
+            RequestWrapper request = RequestWrapper.Get(url);
             if (isBot)
             {
                 request.SetRequestHeader("Authorization", $"Bot {token}");
@@ -84,23 +73,23 @@ namespace Wireframe
                 request.SetRequestHeader("Authorization", token);
             }
             
-            request.SendWebRequest().completed += _ =>
+            var response = await request.SendAsync(null);
+            if (response.IsSuccessful)
             {
-                if (request.isHttpError || request.isNetworkError)
-                {
-                    Debug.Log("Response: " + request.downloadHandler.text);
-                }
-                else
-                {
-                    Debug.LogError("Error: " + request.error);
-                }
-            };
+                Debug.Log("Response: " + response.Data);
+                return true;
+            }
+            else
+            {
+                Debug.LogError("Error: " + response.Data);
+                return false;
+            }
         }
 
-        public static void GetServers(string token, bool isBot)
+        public static async Task<bool> GetServers(string token, bool isBot)
         {
             string url = $"https://discord.com/api/v10/@me/guids";
-            UnityWebRequest request = UnityWebRequest.Get(url);
+            RequestWrapper request = RequestWrapper.Get(url);
             if (isBot)
             {
                 request.SetRequestHeader("Authorization", $"Bot {token}");
@@ -110,17 +99,17 @@ namespace Wireframe
                 request.SetRequestHeader("Authorization", token);
             }
             
-            request.SendWebRequest().completed += _ =>
+            var response = await request.SendAsync(null);
+            if (response.IsSuccessful)
             {
-                if (request.isHttpError || request.isNetworkError)
-                {
-                    Debug.Log("Response: " + request.downloadHandler.text);
-                }
-                else
-                {
-                    Debug.LogError("Error: " + request.error);
-                }
-            };
+                Debug.Log("Response: " + response.Data);
+                return true;
+            }
+            else
+            {
+                Debug.LogError("Error: " + response.Data);
+                return false;
+            }
         }
     }
 }

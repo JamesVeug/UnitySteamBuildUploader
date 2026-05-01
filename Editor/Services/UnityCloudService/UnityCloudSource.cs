@@ -68,28 +68,26 @@ namespace Wireframe
 
                 stepResult.AddLog("Downloading from: " + downloadUrl);
 
-                UnityWebRequest request = UnityWebRequest.Get(downloadUrl);
-                UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
-
-                // Wait for it to be downloaded?
-                while (!webRequest.isDone)
+                using (RequestWrapper request = RequestWrapper.Get(downloadUrl))
                 {
-                    stepResult.SetPercentComplete(webRequest.progress);
-                    stepResult.AddLog("Downloading UnityCloud Build: " + webRequest.progress * 100 + "%");
-                    await Task.Yield();
-                }
+                    var response = await request.SendAsync(stepResult, true);
+                    if (!response.IsSuccessful)
+                    {
+                        stepResult.SetFailed("Failed to download UnityCloudBuild");
+                        return false;
+                    }
 
-                // Save
-
-
-                try
-                {
-                    await IOUtils.WriteAllBytesAsync(downloadedFilePath, request.downloadHandler.data);
-                }
-                catch (Exception e)
-                {
-                    stepResult.SetFailed("Failed to save downloaded file: " + downloadedFilePath + "\n" + e.Message);
-                    return false;
+                    try
+                    {
+                        // Save as a file
+                        await IOUtils.WriteAllBytesAsync(downloadedFilePath, response.Bytes);
+                    }
+                    catch (Exception e)
+                    {
+                        stepResult.SetFailed("Failed to save downloaded file: " + downloadedFilePath + "\n" +
+                                             e.Message);
+                        return false;
+                    }
                 }
             }
             else

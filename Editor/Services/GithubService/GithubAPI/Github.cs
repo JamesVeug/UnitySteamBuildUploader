@@ -68,35 +68,24 @@ namespace Wireframe
             };
             
             string jsonPayload = JSON.SerializeObject(payload);
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
             
-            using(UnityWebRequest www = new UnityWebRequest(url, "POST"))
+            using(RequestWrapper www = RequestWrapper.Post(url))
             {
-                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                www.downloadHandler = new DownloadHandlerBuffer();
-                
+                www.SetJSONData(jsonPayload);
                 www.SetRequestHeader("Accept", "application/vnd.github+json");
                 www.SetRequestHeader("Authorization", $"Bearer {token}");
                 www.SetRequestHeader("X-GitHub-Api-Version", "2022-11-28");
                 www.SetRequestHeader("User-Agent", "Unity-GitHub-Client");
-                www.SetRequestHeader("Content-Type", "application/json");
                 
-                var operation = www.SendWebRequest();
-                while (!operation.isDone)
+                RequestResult response = await www.SendAsync(result, true);
+                if (!response.IsSuccessful)
                 {
-                    await Task.Yield();
-                }
-                
-                if (www.isHttpError || www.isNetworkError)
-                {
-                    string downloadHandlerText = www.downloadHandler.text;
-                    result.AddError($"Failed to create release: {www.responseCode} - {downloadHandlerText}");
-                    result.SetFailed(result.Logs[result.Logs.Count - 1].Message);
+                    result.SetFailed("Failed to create release: " + response.Data);
                     return false;
                 }
 
                 result.AddLog("Release created successfully.");
-                string jsonResponse = www.downloadHandler.text;
+                string jsonResponse = response.Data;
                 var release = JSON.DeserializeObject<Dictionary<string, object>>(jsonResponse);
                 string uploadUrl = release["upload_url"].ToString().Split('{')[0];
                 if (assets != null)
@@ -146,31 +135,20 @@ namespace Wireframe
                 }
 
                 string url = $"{uploadUrl}?name={assetName}";
-
-                using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+                using (RequestWrapper www = RequestWrapper.Post(url))
                 {
-                    www.uploadHandler = new UploadHandlerRaw(fileContent);
-                    www.downloadHandler = new DownloadHandlerBuffer();
-
+                    www.SetOctetStreamData(fileContent);
                     www.SetRequestHeader("Accept", "application/vnd.github+json");
                     www.SetRequestHeader("Authorization", $"Bearer {token}");
-                    www.SetRequestHeader("Content-Type", "application/octet-stream");
 
-                    var operation = www.SendWebRequest();
-                    while (!operation.isDone)
+                    RequestResult response = await www.SendAsync(result);
+                    if (!response.IsSuccessful)
                     {
-                        await Task.Yield();
-                    }
-
-                    result.AddLog("Upload asset result: " + www.responseCode + " - " + www.downloadHandler.text);
-                    if (www.isHttpError || www.isNetworkError)
-                    {
-                        result.AddError($"Failed to upload file: {www.responseCode} - {www.downloadHandler.text}");
-                        result.SetFailed(result.Logs[result.Logs.Count - 1].Message);
+                        result.SetFailed("Failed to upload release asset: " + assetName);
                         return false;
                     }
 
-                    result.AddLog("File uploaded successfully.");
+                    result.AddLog("Asset " + assetName + " uploaded successfully.");
                     return true;
                 }
             }

@@ -68,30 +68,19 @@ namespace Wireframe
                 messageData["attachments"] = attachmentsList;
             }
 
-            using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+            using (RequestWrapper www = RequestWrapper.Post(url))
             {
-                byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(JSON.SerializeObject(messageData));
-                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                www.downloadHandler = new DownloadHandlerBuffer();
-
-                www.SetRequestHeader("Content-Type", "application/json");
+                www.SetJSONData(messageData);
                 www.SetRequestHeader("Authorization", $"Bearer {token}");
 
-                www.SendWebRequest();
-                while (!www.isDone)
+                RequestResult response = await www.SendAsync(result, true);
+                if (!response.IsSuccessful)
                 {
-                    await Task.Yield();
-                }
-                
-                if (www.isHttpError || www.isNetworkError)
-                {
-                    string downloadHandlerText = www.downloadHandler.text;
-                    result?.AddError($"Failed to send message to channel: {www.responseCode} - {downloadHandlerText}");
-                    result?.SetFailed(result.Logs[result.Logs.Count - 1].Message);
+                    result?.SetFailed("Failed to send slack message");
                     return new SlackSendMessageResponse(false);
                 }
 
-                string handlerText = www.downloadHandler.text;
+                string handlerText = response.Data;
                 result?.AddLog(handlerText);
                 
                 // {
@@ -202,30 +191,19 @@ namespace Wireframe
                 messageData["attachments"] = attachmentsList;
             }
 
-            using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+            using (RequestWrapper www = RequestWrapper.Post(url))
             {
-                byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(JSON.SerializeObject(messageData));
-                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                www.downloadHandler = new DownloadHandlerBuffer();
-
-                www.SetRequestHeader("Content-Type", "application/json");
+                www.SetJSONData(messageData);
                 www.SetRequestHeader("Authorization", $"Bearer {token}");
 
-                www.SendWebRequest();
-                while (!www.isDone)
+                RequestResult response = await www.SendAsync(result);
+                if (!response.IsSuccessful)
                 {
-                    await Task.Yield();
-                }
-                
-                if (www.isHttpError || www.isNetworkError)
-                {
-                    string downloadHandlerText = www.downloadHandler.text;
-                    result?.AddError($"Failed to send message to channel: {www.responseCode} - {downloadHandlerText}");
-                    result?.SetFailed(result.Logs[result.Logs.Count - 1].Message);
+                    result?.SetFailed("Failed to update slack message");
                     return new SlackSendMessageResponse(false);
                 }
 
-                string handlerText = www.downloadHandler.text;
+                string handlerText = response.Data;
                 result?.AddLog(handlerText);
                 
                 // {

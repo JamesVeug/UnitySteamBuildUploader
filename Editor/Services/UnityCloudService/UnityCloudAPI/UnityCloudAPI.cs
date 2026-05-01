@@ -88,15 +88,10 @@ namespace Wireframe
             List<UnityCloudTarget> allTargets = new List<UnityCloudTarget>();
 
             // Send request
-            UnityWebRequest www = GetAllTargets();
-            UnityWebRequestAsyncOperation webRequest = www.SendWebRequest();
-
-            // Wait request
-            while (webRequest.isDone == false)
-                await Task.Delay(10);
-
-            string downloadHandlerText = www.downloadHandler.text;
-            if (www.isHttpError || www.isNetworkError)
+            RequestWrapper www = GetAllTargets();
+            RequestResult response = await www.SendAsync(null);
+            string downloadHandlerText = response.Data;
+            if (!response.IsSuccessful)
             {
                 string message;
                 int delay;
@@ -177,21 +172,21 @@ namespace Wireframe
                 targets.Add((CloudBuildTargets[i], new List<UnityCloudBuild>()));
             }
 
-            List<UnityWebRequestAsyncOperation> requests = new List<UnityWebRequestAsyncOperation>();
+            List<Task<RequestResult>> requests = new List<Task<RequestResult>>();
 
             // Send all requests
             for (int i = 0; i < targets.Count; i++)
             {
                 UnityCloudTarget target = targets[i].Item1;
-                UnityWebRequest www = GetAllBuilds(target, false);
+                RequestWrapper www = GetAllBuilds(target, false);
                 //Debug.Log("Fetching builds for: " + target.Name);
-                requests.Add(www.SendWebRequest());
+                requests.Add(www.SendAsync(null));
             }
 
             // Wait for all requests to finish
             for (int i = 0; i < requests.Count; i++)
             {
-                while (!requests[i].isDone)
+                while (!requests[i].IsCompleted)
                 {
                     await Task.Delay(10);
                 }
@@ -202,12 +197,10 @@ namespace Wireframe
             for (int i = 0; i < requests.Count; i++)
             {
                 List<UnityCloudBuild> builds = targets[i].Item2;
-                UnityWebRequest www = requests[i].webRequest;
-                while (www.isDone == false)
-                    await Task.Delay(10);
+                RequestResult response = requests[i].Result;
 
-                string downloadHandlerText = www.downloadHandler.text;
-                if (www.isHttpError || www.isNetworkError)
+                string downloadHandlerText = response.Data;
+                if (!response.IsSuccessful)
                 {
                     Debug.LogError(
                         "Could not sync builds with UnityCloud. Have you filled in the settings tab?:\nError: " +
@@ -256,21 +249,21 @@ namespace Wireframe
             IsSyncing = false;
         }
 
-        private static UnityWebRequest GetAllTargets()
+        private static RequestWrapper GetAllTargets()
         {
             // org = "myorg"
             // api_key = "Basic xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             // project id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             string url = "https://build-api.cloud.unity3d.com/api/v1/orgs/{0}/projects/{1}/buildtargets";
             string parsed = string.Format(url, UnityCloud.Instance.Organization, UnityCloud.Instance.Project);
-            UnityWebRequest www = UnityWebRequest.Get(parsed);
+            RequestWrapper www = RequestWrapper.Get(parsed);
             www.SetRequestHeader("Content-Type", "application/json");
             www.SetRequestHeader("Authorization", "Basic " + UnityCloud.Instance.Secret);
 
             return www;
         }
 
-        private static UnityWebRequest GetAllBuilds(UnityCloudTarget target, bool onlySuccessful = true)
+        private static RequestWrapper GetAllBuilds(UnityCloudTarget target, bool onlySuccessful = true)
         {
             // org = "myorg"
             // api_key = "Basic xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -284,7 +277,7 @@ namespace Wireframe
 
             string parsed = string.Format(url, UnityCloud.Instance.Organization, UnityCloud.Instance.Project,
                 target.buildtargetid);
-            UnityWebRequest www = UnityWebRequest.Get(parsed);
+            RequestWrapper www = RequestWrapper.Get(parsed);
             www.SetRequestHeader("Content-Type", "application/json");
             www.SetRequestHeader("Authorization", "Basic " + UnityCloud.Instance.Secret);
 
@@ -295,15 +288,15 @@ namespace Wireframe
         {
             List<UnityCloudBuild.Artifact> artifacts = build.GetAllArtifacts();
 
-            List<UnityWebRequestAsyncOperation> operations = new List<UnityWebRequestAsyncOperation>();
+            List<Task<RequestResult>> operations = new List<Task<RequestResult>>();
             List<string> directories = new List<string>();
             for (int i = 0; i < artifacts.Count; i++)
             {
                 for (int j = 0; j < artifacts[i].files.Count; j++)
                 {
                     UnityCloudBuild.ArtifactBuild artifactBuild = artifacts[i].files[j];
-                    UnityWebRequest request = UnityWebRequest.Get(artifactBuild.href);
-                    operations.Add(request.SendWebRequest());
+                    RequestWrapper request = RequestWrapper.Get(artifactBuild.href);
+                    operations.Add(request.SendAsync(null));
 
                     // directory/game-windows-development-71.zip
                     string buildTarget = build.buildtargetid + "-" + build.build;
@@ -315,7 +308,7 @@ namespace Wireframe
 
             for (int i = 0; i < operations.Count; i++)
             {
-                while (!operations[i].isDone)
+                while (!operations[i].IsCompleted)
                 {
                     await Task.Delay(10);
                 }
@@ -325,14 +318,14 @@ namespace Wireframe
                 Debug.Log("Saving to " + path);
                 
 #if UNITY_2021_2_OR_NEWER
-                await File.WriteAllBytesAsync(path, operations[i].webRequest.downloadHandler.data);
+                await File.WriteAllBytesAsync(path, operations[i].Result.Bytes);
 #else
-                File.WriteAllBytes(path, operations[i].webRequest.downloadHandler.data);
+                File.WriteAllBytes(path, operations[i].Result.Bytes);
 #endif
             }
         }
 
-        public static UnityWebRequest StartBuild(string buildTargetID)
+        public static RequestWrapper StartBuild(string buildTargetID)
         {
             // org = "myorg"
             // api_key = "Basic xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -343,30 +336,24 @@ namespace Wireframe
             data["clean"] = false;
             data["delay"] = 0;
 
-            string urlParsed = string.Format(url, UnityCloud.Instance.Organization, UnityCloud.Instance.Project,
-                buildTargetID);
-            string payload = JSON.SerializeObject(data);
+            string urlParsed = string.Format(url, UnityCloud.Instance.Organization, UnityCloud.Instance.Project, buildTargetID);
 
-            UnityWebRequest www = new UnityWebRequest(urlParsed, "POST");
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(payload);
-            www.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-            www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "application/json");
+            RequestWrapper www = RequestWrapper.Post(urlParsed);
             www.SetRequestHeader("Authorization", "Basic " + UnityCloud.Instance.Secret);
+            www.SetJSONData(data);
 
             return www;
         }
 
-        public static UnityWebRequest CancelBuild(string buildTargetID, int buildNumber)
+        public static RequestWrapper CancelBuild(string buildTargetID, int buildNumber)
         {
             // org = "myorg"
             // api_key = "Basic xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             // project id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             string url = "https://build-api.cloud.unity3d.com/api/v1/orgs/{0}/projects/{1}/buildtargets/{2}/builds/{3}";
 
-            string urlParsed = string.Format(url, UnityCloud.Instance.Organization, UnityCloud.Instance.Project,
-                buildTargetID, buildNumber);
-            UnityWebRequest www = UnityWebRequest.Delete(urlParsed);
+            string urlParsed = string.Format(url, UnityCloud.Instance.Organization, UnityCloud.Instance.Project, buildTargetID, buildNumber);
+            RequestWrapper www = RequestWrapper.Delete(urlParsed);
             www.SetRequestHeader("Content-Type", "application/json");
             www.SetRequestHeader("Authorization", "Basic " + UnityCloud.Instance.Secret);
 

@@ -83,38 +83,20 @@ namespace Wireframe
             {
                 stepResult.AddLog("Downloading from URL: " + url);
 
-                UnityWebRequest request = new UnityWebRequest(url, m_method.ToString());
-                foreach (Tuple<string,string> header in m_headers)
-                {
-                    request.SetRequestHeader(header.Item1, header.Item2);
-                }
-                
-                request.downloadHandler = new DownloadHandlerBuffer();
+                RequestWrapper request = new RequestWrapper(url, m_method.ToString());
+                request.SetHeaders(m_headers);
 
-                
-                UnityWebRequestAsyncOperation webRequest = request.SendWebRequest();
-
-                // Wait for it to be downloaded?
-                while (!webRequest.isDone)
+                RequestResult result = await request.SendAsync(stepResult, true);
+                if (!result.IsSuccessful)
                 {
-                    stepResult.SetPercentComplete(webRequest.progress);
-                    await Task.Yield();
-                }
-                
-                if (request.isHttpError || request.isNetworkError)
-                {
-                    string message = $"Could not download build from url {url}:\nError: {request.error}";
-                    stepResult.AddError(message);
+                    string message = $"Could not download data from url";
+                    stepResult.SetFailed(message);
                     return false;
                 }
 
                 // Save
                 stepResult.AddLog("Saving content to: " + fullFilePath);
-#if UNITY_2021_2_OR_NEWER
-                await File.WriteAllBytesAsync(fullFilePath, request.downloadHandler.data);
-#else
-                File.WriteAllBytes(fullFilePath, request.downloadHandler.data);
-#endif
+                await IOUtils.WriteAllBytesAsync(fullFilePath, result.Bytes);
             }
             else
             {

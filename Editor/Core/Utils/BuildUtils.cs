@@ -5,9 +5,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.Build.Profile;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+
+#if UNITY_6000_0_OR_NEWER
+using UnityEditor.Build.Profile;
+#endif
 
 #if UNITY_2021_1_OR_NEWER
 using UnityEditor.Build;

@@ -118,7 +118,7 @@ namespace Wireframe
 #if UNITY_2022_3_OR_NEWER
             return www.result == UnityWebRequest.Result.Success;
 #else
-            return !(www.isHttpError || www.isNetworkError)
+            return !(www.isHttpError || www.isNetworkError);
 #endif
         }
         

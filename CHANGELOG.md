@@ -1,3 +1,18 @@
+# 3.2.2
+
+## What's Fixed
+- Fixed validation failing showing as successful
+- Fixed new modifiers starting disabled when using default constructor
+- Fixed new build configs having null values
+- Fixed syntax errors for Unity 2019 and 6000.5
+- Fixed unable to get build profiles for Unity 6000.5
+- First pass fix for Linux unable to upload to steam
+- Fixed Build Profiles always choosing first in the list on start and when uploading
+
+## What's Changed
+- All requests will log to their urls and response codes to task reports to help understand what the tool is doing
+
+
 # 3.2.1
 
 ## What's new

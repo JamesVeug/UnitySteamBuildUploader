@@ -99,6 +99,19 @@ namespace Wireframe
                     Debug.LogException(e);
                 }
             }
+
+            public void AddException(Exception e, params string[] hideText)
+            {
+                lock (m_lock)
+                {
+                    Logs.Add(new Log(Log.LogType.Exception, e.Message.HideText(hideText) + "\n" + e.StackTrace.HideText(hideText)));
+                }
+
+                if (m_report.m_invokeDebugLogs)
+                {
+                    Debug.LogException(e);
+                }
+            }
             
             public void SetFailed(string reason)
             {

@@ -46,7 +46,22 @@ namespace Wireframe
         public const string EPIC_GAMES_ORGANIZATION_NAME_KEY = "{epicgamesOrganizationName}";
         public const string EPIC_GAMES_PRODUCT_NAME_KEY = "{epicgamesProductName}";
         public const string EPIC_GAMES_ARTIFACT_NAME_KEY = "{epicgamesArtifactName}";
-        
+        public const string APPLE_APP_NAME_KEY = "{appleAppName}";
+        public const string APPLE_BUNDLE_ID_KEY = "{appleBundleId}";
+        public const string APPLE_BUILD_ID_KEY = "{appleBuildId}";
+        public const string APPLE_BUILD_VERSION_KEY = "{appleBuildVersion}";
+        public const string APPLE_BUILD_NUMBER_KEY = "{appleBuildNumber}";
+        public const string GOOGLE_DRIVE_APP_NAME_KEY = "{googleDriveAppName}";
+        public const string GOOGLE_DRIVE_FOLDER_NAME_KEY = "{googleDriveFolderName}";
+        public const string GOOGLE_CHAT_SPACE_NAME_KEY = "{googleChatSpaceName}";
+        public const string GOOGLE_PLAY_PACKAGE_NAME_KEY = "{googlePlayPackageName}";
+        public const string GOOGLE_PLAY_TRACK_KEY = "{googlePlayTrack}";
+        public const string GOOGLE_PLAY_VERSION_CODE_KEY = "{googlePlayVersionCode}";
+        public const string GOOGLE_PLAY_EDIT_ID_KEY = "{googlePlayEditId}";
+        public const string DROPBOX_APP_NAME_KEY = "{dropboxAppName}";
+        public const string DROPBOX_FOLDER_NAME_KEY = "{dropboxFolderName}";
+        public const string DROPBOX_SHARE_LINK_KEY = "{dropboxShareLink}";
+
         // Version
         public const string VERSION_KEY = "{version}";
         public const string VERSION_MAJOR_KEY = "{versionMajor}";
@@ -102,6 +117,21 @@ namespace Wireframe
             AddS(EPIC_GAMES_ORGANIZATION_NAME_KEY, null, "The name of the organization that owns the product on Epic Games that will receive the files.");
             AddS(EPIC_GAMES_PRODUCT_NAME_KEY, null, "The name of the product that is being uploaded to on Epic Games.");
             AddS(EPIC_GAMES_ARTIFACT_NAME_KEY, null, "The name of the artifact that is being uploaded to on Epic Games.");
+            AddS(APPLE_APP_NAME_KEY, null, "The name of the App Store Connect app receiving the upload.");
+            AddS(APPLE_BUNDLE_ID_KEY, null, "The Bundle ID of the App Store Connect app receiving the upload.");
+            AddS(APPLE_BUILD_ID_KEY, null, "The App Store Connect Build resource ID returned after a TestFlight upload completes.");
+            AddS(APPLE_BUILD_VERSION_KEY, null, "The CFBundleShortVersionString (marketing version) of the most recent Apple upload.");
+            AddS(APPLE_BUILD_NUMBER_KEY, null, "The CFBundleVersion (build number) of the most recent Apple upload.");
+            AddS(GOOGLE_DRIVE_APP_NAME_KEY, null, "The name of the Google App used to authenticate with Google Drive.");
+            AddS(GOOGLE_DRIVE_FOLDER_NAME_KEY, null, "The name of the Google Drive folder receiving the upload.");
+            AddS(GOOGLE_CHAT_SPACE_NAME_KEY, null, "The name of the Google Chat space receiving the message.");
+            AddS(GOOGLE_PLAY_PACKAGE_NAME_KEY, null, "The application package name (e.g. com.example.MyGame) of the most recent Google Play upload.");
+            AddS(GOOGLE_PLAY_TRACK_KEY, null, "The release track (internal/alpha/beta/production) of the most recent Google Play upload.");
+            AddS(GOOGLE_PLAY_VERSION_CODE_KEY, null, "The versionCode returned by Google Play after a successful binary upload.");
+            AddS(GOOGLE_PLAY_EDIT_ID_KEY, null, "The Play Console edit id used by the most recent Google Play upload (already committed).");
+            AddS(DROPBOX_APP_NAME_KEY, null, "The name of the Dropbox App used to authenticate the upload.");
+            AddS(DROPBOX_FOLDER_NAME_KEY, null, "The name of the Dropbox folder receiving the upload.");
+            AddS(DROPBOX_SHARE_LINK_KEY, null, "The public shared link created for the most recent Dropbox upload (if enabled).");
 
             // Versions
             AddS(VERSION_KEY, ()=> Application.version, "The version of your project as specified in Player Settings.");

@@ -100,6 +100,12 @@ namespace Wireframe
             return requestWrapper;
         }
 
+        public static RequestWrapper Put(string url)
+        {
+            RequestWrapper requestWrapper = new RequestWrapper(url, "PUT");
+            return requestWrapper;
+        }
+
         public void SetRequestHeader(string key, string value)
         {
             www.SetRequestHeader(key, value);

@@ -18,10 +18,10 @@ namespace Wireframe
             float padding = 5f;
 
             Rect r = new Rect(rect.x, rect.y, labelWidth, rect.height);
-            GUI.Label(r, "Name");
+            GUI.Label(r, new GUIContent("Name", "Friendly name for this API key (e.g. Release CI Key). UI only — not sent to Apple."));
             r.x += r.width;
             r.width = 120;
-            string newName = GUI.TextField(r, element.Name);
+            string newName = EditorUtils.PlaceholderTextField(r, element.Name, "e.g. Release CI Key");
             if (newName != element.Name)
             {
                 element.Name = newName;
@@ -30,10 +30,10 @@ namespace Wireframe
             r.x += r.width + padding;
 
             r.width = labelWidth;
-            GUI.Label(r, "Issuer");
+            GUI.Label(r, new GUIContent("Issuer", "App Store Connect Issuer ID (a UUID). Edit -> Users and Access -> Integrations -> App Store Connect API."));
             r.x += r.width;
-            r.width = Mathf.Max(100, rect.x + rect.width - r.x - labelWidth - 100 - padding * 2);
-            string newIssuer = GUI.TextField(r, element.IssuerID);
+            r.width = Mathf.Max(100, rect.x + rect.width - r.x - labelWidth - 200 - padding * 2);
+            string newIssuer = EditorUtils.PlaceholderTextField(r, element.IssuerID, "e.g. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
             if (newIssuer != element.IssuerID)
             {
                 element.IssuerID = newIssuer;
@@ -42,10 +42,10 @@ namespace Wireframe
             r.x += r.width + padding;
 
             r.width = labelWidth;
-            GUI.Label(r, "Key ID");
+            GUI.Label(r, new GUIContent("Key ID", "The 10-character Key ID shown next to the generated key in App Store Connect. Also the {KeyID} in AuthKey_{KeyID}.p8."));
             r.x += r.width;
             r.width = rect.x + rect.width - r.x;
-            string newKey = GUI.TextField(r, element.KeyID);
+            string newKey = EditorUtils.PlaceholderTextField(r, element.KeyID, "e.g. 2X9R4HXF34");
             if (newKey != element.KeyID)
             {
                 element.KeyID = newKey;

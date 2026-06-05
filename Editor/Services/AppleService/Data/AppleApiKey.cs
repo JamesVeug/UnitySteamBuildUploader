@@ -9,9 +9,8 @@ namespace Wireframe
         /// An App Store Connect API Key.
         ///
         /// IssuerID and KeyID are identifying (non-secret) and are stored in the JSON config.
-        /// The .p8 private key file path is per-machine and stored in EditorPrefs to avoid
-        /// committing secrets. The file itself is not copied; we read it on demand at
-        /// upload/JWT-signing time so users can rotate keys without touching this asset.
+        /// The .p8 private key file path is per-machine. The file itself is not copied.
+        /// We read it on demand at upload/JWT-signing time so users can rotate keys without touching this asset.
         /// </summary>
         [Serializable]
         public class AppleApiKey : DropdownElement

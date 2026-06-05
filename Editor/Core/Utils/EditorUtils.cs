@@ -9,6 +9,37 @@ namespace Wireframe
 {
     public static class EditorUtils
     {
+        /// <summary>
+        /// Rect-based text field that paints greyed-out example text when the field is empty
+        /// and not currently focused, so the user can see what to type. Mirrors GUI.TextField's
+        /// signature/return so it can drop into rect-based ReorderableList rows.
+        /// </summary>
+        public static string PlaceholderTextField(Rect rect, string text, string placeholder)
+        {
+            int controlId = GUIUtility.GetControlID(FocusType.Keyboard, rect);
+            string controlName = "PlaceholderTextField" + controlId;
+            GUI.SetNextControlName(controlName);
+            string newText = GUI.TextField(rect, text);
+
+            if (string.IsNullOrEmpty(text) &&
+                !string.IsNullOrEmpty(placeholder) &&
+                GUI.GetNameOfFocusedControl() != controlName)
+            {
+                GUIStyle style = new GUIStyle(EditorStyles.label)
+                {
+                    fontStyle = FontStyle.Italic,
+                    normal = { textColor = new Color(0.5f, 0.5f, 0.5f, 0.75f) }
+                };
+
+                Rect labelRect = rect;
+                labelRect.x += 2;
+                labelRect.width -= 2;
+                GUI.Label(labelRect, placeholder, style);
+            }
+
+            return newText;
+        }
+
         public static string GetFormatStringTextFieldTooltip(Context ctx)
         {
             StringBuilder tooltipBuilder = new StringBuilder();

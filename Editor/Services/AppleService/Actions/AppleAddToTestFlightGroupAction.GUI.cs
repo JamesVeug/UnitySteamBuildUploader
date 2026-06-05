@@ -36,7 +36,7 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUIContent label = new GUIContent("Build ID Format:",
-                    "Resolves to the App Store Connect Build resource ID. Default {appleBuildId} is populated by an upstream Apple TestFlight upload.");
+                    "Resolves to the App Store Connect Build resource ID. Default {appleBuildId} is populated when uploading a build to TestFlight.");
                 GUILayout.Label(label, GUILayout.Width(120));
                 isDirty |= EditorUtils.FormatStringTextArea(ref m_buildIdFormat, ref m_showFormattedBuildId, m_context);
             }

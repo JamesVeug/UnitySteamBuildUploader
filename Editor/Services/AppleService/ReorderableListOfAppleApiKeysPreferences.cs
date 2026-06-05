@@ -22,10 +22,10 @@ namespace Wireframe
 
             // Name
             Rect r = new Rect(containerRect.x, containerRect.y, labelWidth, containerRect.height);
-            GUI.Label(r, "Name");
+            GUI.Label(r, new GUIContent("Name", "Friendly name for this API key (e.g. Release CI Key). UI only — not sent to Apple."));
             r.x += r.width;
             r.width = 100;
-            string newName = GUI.TextField(r, element.Name);
+            string newName = EditorUtils.PlaceholderTextField(r, element.Name, "e.g. Release CI Key");
             if (newName != element.Name)
             {
                 element.Name = newName;
@@ -35,10 +35,10 @@ namespace Wireframe
 
             // Issuer ID
             r.width = labelWidth;
-            GUI.Label(r, "Issuer");
+            GUI.Label(r, new GUIContent("Issuer", "App Store Connect Issuer ID (a UUID). Edit -> Users and Access -> Integrations -> App Store Connect API."));
             r.x += r.width;
             r.width = 120;
-            string newIssuer = GUI.TextField(r, element.IssuerID);
+            string newIssuer = EditorUtils.PlaceholderTextField(r, element.IssuerID, "e.g. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
             if (newIssuer != element.IssuerID)
             {
                 element.IssuerID = newIssuer;
@@ -48,10 +48,10 @@ namespace Wireframe
 
             // Key ID
             r.width = labelWidth;
-            GUI.Label(r, "Key ID");
+            GUI.Label(r, new GUIContent("Key ID", "The 10-character Key ID shown next to the generated key in App Store Connect. Also the {KeyID} in AuthKey_{KeyID}.p8."));
             r.x += r.width;
             r.width = 80;
-            string newKey = GUI.TextField(r, element.KeyID);
+            string newKey = EditorUtils.PlaceholderTextField(r, element.KeyID, "e.g. 119R4HXF34");
             if (newKey != element.KeyID)
             {
                 element.KeyID = newKey;
@@ -61,14 +61,14 @@ namespace Wireframe
 
             // .p8 path + Browse — fills the rest of the row
             r.width = labelWidth;
-            GUI.Label(r, ".p8");
+            GUI.Label(r, new GUIContent(".p8 File", "Local path to the AuthKey_{KeyID}.p8 private key file downloaded from App Store Connect. Stored per-machine."));
             r.x += r.width;
 
             float browseWidth = 60;
             float pathWidth = Mathf.Max(80, containerRect.x + containerRect.width - r.x - browseWidth - padding);
             r.width = pathWidth;
             string currentPath = element.PrivateKeyPath;
-            string newPath = GUI.TextField(r, currentPath);
+            string newPath = EditorUtils.PlaceholderTextField(r, currentPath, "e.g. /Users/me/keys/AuthKey_XXXXXXXXXX.p8");
             if (newPath != currentPath)
             {
                 element.PrivateKeyPath = newPath;

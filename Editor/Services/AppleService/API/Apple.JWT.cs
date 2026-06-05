@@ -9,7 +9,7 @@ namespace Wireframe
     /// <summary>
     /// JWT generation for the App Store Connect API.
     ///
-    /// App Store Connect requires ES256 (ECDSA with curve P-256 + SHA-256) JWTs.
+    /// App Store Connect
     /// Reference: https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api
     /// </summary>
     public static partial class Apple

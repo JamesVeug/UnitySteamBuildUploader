@@ -9,7 +9,6 @@ namespace Wireframe
     /// App Store Connect REST API client.
     ///
     /// Authenticates with a JWT signed by an App Store Connect API Key (see Apple.JWT.cs).
-    /// All HTTP goes through RequestWrapper per project convention.
     ///
     /// The binary IPA upload itself does NOT live here — Apple's REST API does not expose
     /// public binary upload. See Apple.Altool.cs for the xcrun altool subprocess wrapper.
@@ -53,9 +52,6 @@ namespace Wireframe
         /// Polls App Store Connect for the Build resource matching the supplied version
         /// and build number. Apple's processing pipeline can take several minutes between
         /// altool completing and the build appearing in the REST API.
-        ///
-        /// Returns a successful response with the Build ID once found, or a failed
-        /// response if the timeout elapses.
         /// </summary>
         public static async Task<AppleFindBuildResponse> FindBuildByVersion(
             AppleConfig.AppleApiKey apiKey,
@@ -133,7 +129,7 @@ namespace Wireframe
                 return new AppleSimpleResponse(false);
             }
 
-            string url = ApiBaseUrl + "/v1/betaGroups/" + Uri.EscapeDataString(betaGroupId) + "/relationships/builds";
+            string url = $"{ApiBaseUrl}/v1/betaGroups/{Uri.EscapeDataString(betaGroupId)}/relationships/builds";
 
             var body = new Dictionary<string, object>
             {
@@ -171,30 +167,33 @@ namespace Wireframe
         /// Extracts the "id" of the first object in a JSON:API "data" array. App Store
         /// Connect responses use a wrapping envelope:
         /// { "data": [ { "id": "...", "type": "builds", "attributes": {...} } ] }
-        ///
-        /// Uses a string scan rather than full deserialization because the project's JSON
-        /// helper does not handle JSON:API's polymorphic shapes cleanly.
         /// </summary>
         private static string ExtractFirstDataId(string json)
         {
             if (string.IsNullOrEmpty(json)) return null;
 
-            int dataIndex = json.IndexOf("\"data\"", StringComparison.Ordinal);
-            if (dataIndex < 0) return null;
+            Dictionary<string, object> responseDict = JSON.DeserializeObject<Dictionary<string, object>>(json);
+            if (responseDict == null || !responseDict.TryGetValue("data", out object dataObj))
+            {
+                return null;
+            }
 
-            int idIndex = json.IndexOf("\"id\"", dataIndex, StringComparison.Ordinal);
-            if (idIndex < 0) return null;
+            if (dataObj is not List<object> data || data.Count <= 0)
+            {
+                return null;
+            }
 
-            int colon = json.IndexOf(':', idIndex);
-            if (colon < 0) return null;
+            if (data[0] is not Dictionary<string, object> first)
+            {
+                return null;
+            }
+            
+            if (first.TryGetValue("id", out object idObj) && idObj != null)
+            {
+                return idObj.ToString();
+            }
 
-            int firstQuote = json.IndexOf('"', colon + 1);
-            if (firstQuote < 0) return null;
-
-            int secondQuote = json.IndexOf('"', firstQuote + 1);
-            if (secondQuote < 0) return null;
-
-            return json.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
+            return null;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Wireframe
     ///
     /// Reference:
     ///   altool --help (Xcode 14+)
-    ///   https://help.apple.com/asc/appsuploader/
+    ///   https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/
     /// </summary>
     public static partial class Apple
     {
@@ -167,13 +167,13 @@ namespace Wireframe
             ApplePlatform platform,
             AppleConfig.AppleApiKey apiKey)
         {
-            // xcrun altool --upload-app -t <platform> -f <ipa> --apiKey <id> --apiIssuer <issuer> --output-format json
+            // xcrun altool --upload-app -t <platform> -f <ipa> --api-key <id> --api-issuer <issuer> --output-format json
             string altoolType = PlatformToAltoolType(platform);
             return $"altool --upload-app " +
                    $"-t {altoolType} " +
                    $"-f \"{ipaPath}\" " +
-                   $"--apiKey {apiKey.KeyID} " +
-                   $"--apiIssuer {apiKey.IssuerID} " +
+                   $"--api-key {apiKey.KeyID} " +
+                   $"--api-issuer {apiKey.IssuerID} " +
                    $"--output-format json";
         }
     }

@@ -15,8 +15,7 @@ namespace Wireframe
             switch (ServiceVersion)
             {
                 case 0:
-                    // First version — nothing to migrate. Reserved hook for future
-                    // changes to EditorPrefs / config key names.
+                    // First version — nothing to migrate
                     break;
             }
 

@@ -95,9 +95,7 @@ namespace Wireframe
             int progressId = ProgressUtils.Start("Apple TestFlight", $"Uploading {Path.GetFileName(ipaPath)} via altool...");
             try
             {
-                AppleAltoolUploadResponse uploadResponse = await Apple.UploadIPA(
-                    ipaPath, m_app.Platform, m_apiKey, result);
-
+                AppleAltoolUploadResponse uploadResponse = await Apple.UploadIPA(ipaPath, m_app.Platform, m_apiKey, result);
                 if (!uploadResponse.Successful)
                 {
                     return false;
@@ -120,9 +118,8 @@ namespace Wireframe
                 // altool succeeded but we couldn't recover the build ID. Treat as partial:
                 // the upload is in flight on Apple's side but later actions that depend on
                 // {appleBuildId} cannot run.
-                result.SetFailed(
-                    "altool upload succeeded but the build did not appear in App Store Connect within the timeout. " +
-                    "Downstream actions that reference {appleBuildId} will not run. Increase 'Find Build Timeout' if this recurs.");
+                result.SetFailed("altool upload succeeded but the build did not appear in App Store Connect within the timeout. " +
+                    "Downstream actions that reference {appleBuildId} will not run.");
                 return false;
             }
             finally
@@ -136,8 +133,8 @@ namespace Wireframe
             // Two valid shapes for the source:
             //   1. m_taskContentsFolder is the .ipa itself
             //   2. m_taskContentsFolder is a directory containing the .ipa
-            if (File.Exists(m_taskContentsFolder) &&
-                m_taskContentsFolder.EndsWith(".ipa", System.StringComparison.OrdinalIgnoreCase))
+            if (File.Exists(m_taskContentsFolder)
+                && m_taskContentsFolder.EndsWith(".ipa", System.StringComparison.OrdinalIgnoreCase))
             {
                 return m_taskContentsFolder;
             }

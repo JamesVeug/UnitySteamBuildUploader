@@ -29,7 +29,7 @@ namespace Wireframe
 
         [Wiki("Build ID Format",
             "Format string that resolves to the App Store Connect Build resource ID. " +
-            "Defaults to {appleBuildId} which is populated by an upstream Apple TestFlight upload step.", 4)]
+            "Defaults to {appleBuildId} which is populated when uploading a build to TestFlight.", 4)]
         private string m_buildIdFormat = Context.APPLE_BUILD_ID_KEY;
 
         public AppleAddToTestFlightGroupAction() : base()
@@ -43,8 +43,7 @@ namespace Wireframe
             string buildId = m_context.FormatString(m_buildIdFormat);
             if (string.IsNullOrEmpty(buildId) || buildId == "???")
             {
-                stepResult.SetFailed(
-                    "Build ID format did not resolve to a value. Make sure an Apple TestFlight upload step ran successfully earlier in the pipeline.");
+                stepResult.SetFailed("Build ID format did not resolve to a value. Make sure an Apple TestFlight upload step ran successfully earlier in the pipeline.");
                 return false;
             }
 
@@ -58,9 +57,7 @@ namespace Wireframe
                     continue;
                 }
 
-                AppleSimpleResponse response = await Apple.AddBuildToBetaGroup(
-                    m_apiKey, group.BetaGroupID, buildId, stepResult);
-
+                AppleSimpleResponse response = await Apple.AddBuildToBetaGroup(m_apiKey, group.BetaGroupID, buildId, stepResult);
                 if (!response.Successful)
                 {
                     allSucceeded = false;

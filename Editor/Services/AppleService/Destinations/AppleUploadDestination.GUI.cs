@@ -7,7 +7,6 @@ namespace Wireframe
     {
         private bool m_showFormattedBuildVersion = Preferences.DefaultShowFormattedTextToggle;
         private bool m_showFormattedBuildNumber = Preferences.DefaultShowFormattedTextToggle;
-        private bool m_showFormattedIpaFileName = Preferences.DefaultShowFormattedTextToggle;
 
         protected internal override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {

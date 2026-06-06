@@ -5,13 +5,6 @@ namespace Wireframe
 {
     public partial class DropboxConfig
     {
-        /// <summary>
-        /// A labelled Dropbox access token used to authenticate against the Dropbox API
-        /// (used by the Dropbox upload destination).
-        ///
-        /// The token itself is stored in EditorPrefs - it must never be written to the
-        /// serialized JSON config so it does not leak through source control.
-        /// </summary>
         [Serializable]
         public class DropboxApp : DropdownElement
         {

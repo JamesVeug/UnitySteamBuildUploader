@@ -10,11 +10,11 @@ namespace Wireframe
     ///
     /// NOTE: This class's name path is saved in the JSON file so avoid renaming.
     /// </summary>
-    [Wiki(nameof(DropboxDestination), "destinations", "Upload the build to a folder on Dropbox.")]
+    [Wiki(nameof(DropboxDestination), "destinations", "Upload to a folder on Dropbox.")]
     [UploadDestination("Dropbox")]
     public partial class DropboxDestination : AUploadDestination
     {
-        [Wiki("App", "Which Dropbox App's access token will be used to authenticate the upload.", 1)]
+        [Wiki("App", "Which Dropbox App to upload to.", 1)]
         private DropboxConfig.DropboxApp m_app;
 
         [Wiki("Folder", "Which Dropbox folder to upload to. Leave unset to upload to the root.", 2)]
@@ -96,8 +96,7 @@ namespace Wireframe
                     }
 
                     // Upload each top-level file individually. Sub-folders are ignored
-                    // (matches GoogleDriveDestination behaviour). Use a Zip Modifier
-                    // earlier in the pipeline to flatten sub-folders.
+                    // Use a Zip Modifier earlier in the pipeline to flatten sub-folders.
                     string[] files = Directory.GetFiles(contentPath, "*.*", SearchOption.TopDirectoryOnly);
                     if (files.Length == 0)
                     {
@@ -188,11 +187,11 @@ namespace Wireframe
 
             if (m_app == null)
             {
-                errors.Add("Dropbox App is not set. Please select a Dropbox App.");
+                errors.Add("Dropbox App is not set. Select a Dropbox App.");
             }
             else if (string.IsNullOrEmpty(m_app.Token))
             {
-                errors.Add($"Dropbox App {m_app.Name} does not have an access token set. Please set it in Preferences.");
+                errors.Add($"Dropbox App {m_app.Name} does not have an access token set. Set it in Preferences.");
             }
 
             if (string.IsNullOrEmpty(m_fileNameFormat))

@@ -3,7 +3,7 @@ namespace Wireframe
     internal partial class DropboxService : AService
     {
         public override string ServiceName => "Dropbox";
-        public override string[] SearchKeywords => new string[] { "Dropbox", "Upload", "Cloud", "Storage" };
+        public override string[] SearchKeywords => new string[] { "dropbox", "upload", "cloud", "storage" };
 
         public DropboxService()
         {
@@ -30,8 +30,7 @@ namespace Wireframe
                 return false;
             }
 
-            return config.apps.Count > 0
-                   || config.folders.Count > 0;
+            return config.apps.Count > 0 || config.folders.Count > 0;
         }
     }
 }

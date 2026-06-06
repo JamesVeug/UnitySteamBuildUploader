@@ -30,7 +30,7 @@ namespace Wireframe
 
         void OnGUI()
         {
-            GUILayout.Label("Please enter text:");
+            GUILayout.Label("Enter text:");
             GUI.SetNextControlName("InputText");
             inputText = EditorGUILayout.TextField(inputText);
             if (shouldFocusTextField)

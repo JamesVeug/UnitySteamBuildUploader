@@ -102,31 +102,31 @@ namespace Wireframe
 
             if (!Slack.Enabled)
             {
-                errors.Add("Slack is not enabled. Please enable it in the settings.");
+                errors.Add("Slack is not enabled. Enable it in the settings.");
             }
             
             if (m_app == null)
             {
-                errors.Add("Slack App is not set. Please select a Slack App.");
+                errors.Add("Slack App is not set. Select a Slack App.");
             }
             else if (string.IsNullOrEmpty(m_app.Token))
             {
-                errors.Add($"Slack App {m_app.Name} does not have a token set. Please set the token in the Preferences!");
+                errors.Add($"Slack App {m_app.Name} does not have a token set. Set the token in the Preferences!");
             }
             
             if (m_server == null)
             {
-                errors.Add("Server is not set. Please select a Slack Server.");
+                errors.Add("Server is not set. Select a Slack Server.");
             }
             
             if (m_channel == null)
             {
-                errors.Add("Channel is not set. Please set the Channel ID.");
+                errors.Add("Channel is not set. Set the Channel ID.");
             }
             
             if (string.IsNullOrEmpty(m_text))
             {
-                errors.Add("Text is not set. Please set the text to send.");
+                errors.Add("Text is not set. Set the text to send.");
             }
         }
 

@@ -303,7 +303,7 @@ namespace Wireframe
             }
             catch (Exception e)
             {
-                stepResult?.SetFailed("Failed to apply Build Profile. Please check the console for more details.");
+                stepResult?.SetFailed("Failed to apply Build Profile. Check the console for more details.");
                 stepResult?.AddException(e);
                 return false;
             }

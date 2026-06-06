@@ -91,17 +91,17 @@ namespace Wireframe
 
             if (!NintendoSDK.Enabled)
             {
-                errors.Add("Nintendo is not enabled. Please enable it in the Preferences.");
+                errors.Add("Nintendo is not enabled. Enable it in the Preferences.");
             }
 
             if (string.IsNullOrEmpty(NintendoSDK.NotificationWebhook))
             {
-                errors.Add("Nintendo notification webhook URL is not set. Please set it in Preferences.");
+                errors.Add("Nintendo notification webhook URL is not set. Set it in Preferences.");
             }
 
             if (m_app == null)
             {
-                errors.Add("Nintendo Title is not set. Please select a Title.");
+                errors.Add("Nintendo Title is not set. Select a Title.");
             }
             else if (string.IsNullOrEmpty(m_app.TitleID))
             {
@@ -110,7 +110,7 @@ namespace Wireframe
 
             if (string.IsNullOrEmpty(m_text))
             {
-                errors.Add("Text is not set. Please set the notification text.");
+                errors.Add("Text is not set. Set the notification text.");
             }
         }
 

@@ -153,11 +153,11 @@ namespace Wireframe
 
             if (m_app == null)
             {
-                errors.Add("Google App is not set. Please select a Google App.");
+                errors.Add("Google App is not set. Select a Google App.");
             }
             else if (string.IsNullOrEmpty(m_app.Token))
             {
-                errors.Add($"Google App {m_app.Name} does not have an OAuth2 access token set. Please set it in Preferences.");
+                errors.Add($"Google App {m_app.Name} does not have an OAuth2 access token set. Set it in Preferences.");
             }
 
             if (string.IsNullOrEmpty(m_fileNameFormat))

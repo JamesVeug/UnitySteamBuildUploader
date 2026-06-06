@@ -296,17 +296,17 @@ namespace Wireframe
         {
             if (string.IsNullOrEmpty(UnityCloud.Instance.Organization))
             {
-                GUILayout.Label("No Organization set in settings. Please set this in Edit->Preferences->Build Uploader");
+                GUILayout.Label("No Organization set in settings. Set this in Edit->Preferences->Build Uploader");
                 return false;
             }
             else if (string.IsNullOrEmpty(UnityCloud.Instance.Project))
             {
-                GUILayout.Label("No Project set in settings. Please set this in Edit->Preferences->Build Uploader");
+                GUILayout.Label("No Project set in settings. Set this in Edit->Preferences->Build Uploader");
                 return false;
             }
             else if (string.IsNullOrEmpty(UnityCloud.Instance.Secret))
             {
-                GUILayout.Label("No Secret set in settings. Please set this in Edit->Preferences->Build Uploader");
+                GUILayout.Label("No Secret set in settings. Set this in Edit->Preferences->Build Uploader");
                 return false;
             }
 

@@ -69,21 +69,21 @@ namespace Wireframe
 
             if (!Google.Enabled)
             {
-                errors.Add("Google is not enabled. Please enable it in the settings.");
+                errors.Add("Google is not enabled. Enable it in the settings.");
             }
 
             if (m_space == null)
             {
-                errors.Add("Google Chat Space is not set. Please select a Space.");
+                errors.Add("Google Chat Space is not set. Select a Space.");
             }
             else if (string.IsNullOrEmpty(m_space.WebhookURL))
             {
-                errors.Add($"Google Chat Space {m_space.Name} does not have a Webhook URL set. Please set it in Preferences.");
+                errors.Add($"Google Chat Space {m_space.Name} does not have a Webhook URL set. Set it in Preferences.");
             }
 
             if (string.IsNullOrEmpty(m_text))
             {
-                errors.Add("Text is not set. Please set the text to send.");
+                errors.Add("Text is not set. Set the text to send.");
             }
         }
 

@@ -25,7 +25,7 @@ namespace Wireframe
             {
                 if (string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
                 {
-                    stepResult.AddError("No last build directory found. Please build your project first.");
+                    stepResult.AddError("No last build directory found. Build your project first.");
                     return false;
                 }
 
@@ -54,7 +54,7 @@ namespace Wireframe
             
             if (string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
             {
-                errors.Add("No last build directory found. Please build your project first.");
+                errors.Add("No last build directory found. Build your project first.");
             }
             else if (!Directory.Exists(LastBuildUtil.LastBuildDirectory))
             {

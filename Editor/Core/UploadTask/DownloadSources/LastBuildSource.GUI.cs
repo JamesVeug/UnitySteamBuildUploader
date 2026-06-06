@@ -21,7 +21,7 @@ namespace Wireframe
                     else
                     {
                         EditorUtility.DisplayDialog("Error",
-                            "No last build directory found. Please build your project first.", "OK");
+                            "No last build directory found. Build your project first.", "OK");
                     }
                 }
             }

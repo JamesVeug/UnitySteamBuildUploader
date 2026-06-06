@@ -313,14 +313,14 @@ namespace Wireframe
                 if (!switched)
                 {
                     stepResult?.AddError($"Failed to switch build target to {Target}");
-                    stepResult?.SetFailed("Failed to switch build target. Please check the console for more details.");
+                    stepResult?.SetFailed("Failed to switch build target. Check the console for more details.");
                     return false;
                 }
 
                 if (EditorUserBuildSettings.activeBuildTarget != Target)
                 {
                     stepResult?.AddError($"Failed to switch build target to {Target}. Current target is {EditorUserBuildSettings.activeBuildTarget}");
-                    stepResult?.SetFailed("Failed to switch build target. Please check the console for more details.");
+                    stepResult?.SetFailed("Failed to switch build target. Check the console for more details.");
                     return false;
                 }
 

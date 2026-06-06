@@ -71,7 +71,7 @@ namespace Wireframe
             // Start build
             if (m_buildConfigToApply == null)
             {
-                stepResult.SetFailed("No Build selected. Please select one to use.");
+                stepResult.SetFailed("No Build selected. Select one to use.");
                 token.Cancel();
                 return false;
             }
@@ -117,7 +117,7 @@ namespace Wireframe
                     catch (Exception e)
                     {
                         stepResult.AddError($"Failed to clear build directory: {e.Message}");
-                        stepResult.SetFailed("Failed to clear build directory. Please check the console for more details.");
+                        stepResult.SetFailed("Failed to clear build directory. Check the console for more details.");
                         token.Cancel();
                         return false;
                     }
@@ -308,7 +308,7 @@ namespace Wireframe
             stepResult?.AddLog($"Applying settings");
             if (!config.ApplySettings(config.GetSwitchTargetPlatform, m_context, stepResult))
             {
-                stepResult?.SetFailed("Failed to apply build settings. Please check the console for more details.");
+                stepResult?.SetFailed("Failed to apply build settings. Check the console for more details.");
                 return false;
             }
             

@@ -158,7 +158,7 @@ namespace Wireframe
                 }
                 else if (files.Length > 1)
                 {
-                    result.SetFailed("Multiple App files found with name: '" + m_appFileName + "'. Please specify a unique App File name.");
+                    result.SetFailed("Multiple App files found with name: '" + m_appFileName + "'. Specify a unique App File name.");
                     return false;
                 }
                 
@@ -195,7 +195,7 @@ namespace Wireframe
                     }
                     else if (depotFiles.Length > 1)
                     {
-                        result.SetFailed("Multiple Depot files found with name: '" + depots.Value + "'. Please specify a unique Depot File name.");
+                        result.SetFailed("Multiple Depot files found with name: '" + depots.Value + "'. Specify a unique Depot File name.");
                         return false;
                     }
                     
@@ -453,7 +453,7 @@ namespace Wireframe
                     }
                     else if(appFiles.Length > 1)
                     {
-                        errors.Add("Multiple App Files found with name: '" + m_appFileName + "'. Please specify a unique App File name.");
+                        errors.Add("Multiple App Files found with name: '" + m_appFileName + "'. Specify a unique App File name.");
                     }
                 }
             }

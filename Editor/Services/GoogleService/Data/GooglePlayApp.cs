@@ -20,8 +20,6 @@ namespace Wireframe
             public string DisplayName => Name;
 
             public string Name;
-
-            /// <summary>Application package name (e.g. com.example.MyGame). Required for every Play API call.</summary>
             public string PackageName;
 
             private int m_id;
@@ -40,17 +38,5 @@ namespace Wireframe
                 PackageName = packageName;
             }
         }
-    }
-
-    /// <summary>
-    /// Tracks defined by the Google Play Developer API for releases.
-    /// https://developers.google.com/android-publisher/tracks
-    /// </summary>
-    public enum GooglePlayTrack
-    {
-        Internal = 0,
-        Alpha = 1,
-        Beta = 2,
-        Production = 3,
     }
 }

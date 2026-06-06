@@ -5,13 +5,6 @@ namespace Wireframe
 {
     public partial class GoogleConfig
     {
-        /// <summary>
-        /// A labelled OAuth2 access token used to authenticate against Google APIs
-        /// (currently used by the Google Drive destination).
-        ///
-        /// The token itself is stored in EditorPrefs - it must never be written to
-        /// the serialized JSON config so it does not leak through source control.
-        /// </summary>
         [Serializable]
         public class GoogleApp : DropdownElement
         {

@@ -6,10 +6,7 @@ namespace Wireframe
     public partial class GoogleConfig
     {
         /// <summary>
-        /// A named Google Chat space targeted via an incoming webhook URL.
-        ///
-        /// The webhook URL is treated as a secret (it contains the auth key) so it is
-        /// stored in EditorPrefs rather than the serialized JSON config.
+        /// A named Google Chat space
         /// </summary>
         [Serializable]
         public class GoogleChatSpace : DropdownElement

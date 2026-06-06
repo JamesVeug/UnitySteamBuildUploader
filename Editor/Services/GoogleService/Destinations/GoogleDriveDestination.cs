@@ -91,8 +91,7 @@ namespace Wireframe
                     }
 
                     // Upload each top-level file individually. Sub-folders are ignored
-                    // (matches GithubNewReleaseDestination behaviour). Use a Zip
-                    // Modifier earlier in the pipeline to flatten sub-folders.
+                    // Use a Zip Modifier earlier in the pipeline to flatten sub-folders.
                     string[] files = Directory.GetFiles(contentPath, "*.*", SearchOption.TopDirectoryOnly);
                     if (files.Length == 0)
                     {

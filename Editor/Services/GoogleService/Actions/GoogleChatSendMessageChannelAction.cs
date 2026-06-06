@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Wireframe
 {
     /// <summary>
-    /// Send a message to a Google Chat space via an incoming webhook.
+    /// Send a message to a Google Chat space via a webhook.
     ///
     /// NOTE: This class's name path is saved in the JSON file so avoid renaming.
     /// </summary>

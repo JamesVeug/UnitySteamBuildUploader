@@ -145,7 +145,7 @@ namespace Wireframe
             using (RequestWrapper www = RequestWrapper.Post(url))
             {
                 // SetOctetStreamData sets both body and content-type; for APKs we override
-                // the content-type to the Android package mime so Play recognises the
+                // the content-type to the Android package mime so Play recognizes the
                 // payload kind.
                 www.SetOctetStreamData(fileContent);
                 if (!isBundle)

@@ -1,10 +1,7 @@
 namespace Wireframe
 {
     /// <summary>
-    /// Outcome of an end-to-end Google Play upload (create edit → upload binary →
-    /// assign to track → commit edit). VersionCode is populated by the binary upload
-    /// step; PackageName and Track mirror the destination's inputs so downstream
-    /// actions can surface them via {googlePlay…} format keys.
+    /// Outcome of an end-to-end Google Play upload (create edit → upload binary → assign to track → commit edit)
     /// </summary>
     public readonly struct GooglePlayUploadResponse
     {

@@ -9,7 +9,7 @@ namespace Wireframe
     /// text field plus a Browse button. Paths are passed through the action's
     /// <see cref="Context"/> so tokens like <c>{sourceFile}</c> resolve at send time.
     /// </summary>
-    public class ReorderableListOfEMailAttachments : InternalReorderableList<string>
+    public class ReorderableListOfEmailAttachments : InternalReorderableList<string>
     {
         private const float BrowseButtonWidth = 70f;
         private const float Padding = 4f;

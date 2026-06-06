@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
-	public class EMailWrapper
+	public class EmailWrapper
 	{
 		public struct Result
 		{

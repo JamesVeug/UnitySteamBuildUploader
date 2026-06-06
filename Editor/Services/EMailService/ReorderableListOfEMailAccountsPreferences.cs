@@ -5,20 +5,20 @@ using UnityEngine;
 namespace Wireframe
 {
     /// <summary>
-    /// Preferences-scope reorderable list of <see cref="EMailConfig.EMailAccount"/>.
+    /// Preferences-scope reorderable list of <see cref="EmailConfig.EmailAccount"/>.
     /// Exposes Name, the SMTP username and the per-machine password. The
     /// team-shared SMTP server and From identity are edited in Project Settings
-    /// via <see cref="ReorderableListOfEMailAccountsProjectSettings"/>. This
+    /// via <see cref="ReorderableListOfEmailAccountsProjectSettings"/>. This
     /// mirrors the Slack pattern where Preferences exposes the secret
     /// (App.Token) and ProjectSettings exposes the shared identity.
     /// </summary>
-    public class ReorderableListOfEMailAccountsPreferences : InternalReorderableList<EMailConfig.EMailAccount>
+    public class ReorderableListOfEmailAccountsPreferences : InternalReorderableList<EmailConfig.EmailAccount>
     {
         private bool showPassword;
 
         protected override void DrawItem(Rect containerRect, int index, bool isActive, bool isFocused)
         {
-            EMailConfig.EMailAccount element = list[index];
+            EmailConfig.EmailAccount element = list[index];
 
             const float nameLabelWidth = 50f;
             const float nameWidth = 110f;
@@ -82,12 +82,12 @@ namespace Wireframe
             showPassword = GUI.Toggle(cursor, showPassword, showPassword ? "Hide" : "Show", GUI.skin.button);
         }
 
-        protected override EMailConfig.EMailAccount CreateItem(int index)
+        protected override EmailConfig.EmailAccount CreateItem(int index)
         {
-            return new EMailConfig.EMailAccount(index, "MyAccount");
+            return new EmailConfig.EmailAccount(index, "MyAccount");
         }
 
-        protected override int CompareTo(EMailConfig.EMailAccount a, EMailConfig.EMailAccount b)
+        protected override int CompareTo(EmailConfig.EmailAccount a, EmailConfig.EmailAccount b)
         {
             return String.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
         }

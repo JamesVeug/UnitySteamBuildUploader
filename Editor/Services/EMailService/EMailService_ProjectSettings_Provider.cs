@@ -4,28 +4,28 @@ using UnityEditor;
 
 namespace Wireframe
 {
-    public class EMailService_ProjectSettings_Provider : SettingsProvider
+    public class EmailService_ProjectSettings_Provider : SettingsProvider
     {
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
         {
             var provider =
-                new EMailService_ProjectSettings_Provider("Project/Build Uploader/Services/EMail", SettingsScope.Project)
+                new EmailService_ProjectSettings_Provider("Project/Build Uploader/Services/Email", SettingsScope.Project)
                 {
-                    label = "EMail",
-                    keywords = InternalUtils.AllServices().FirstOrDefault(a => a is EMailService).SearchKeywords
+                    label = "Email",
+                    keywords = InternalUtils.AllServices().FirstOrDefault(a => a is EmailService).SearchKeywords
                 };
             return provider;
         }
 
-        private EMailService_ProjectSettings_Provider(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords)
+        private EmailService_ProjectSettings_Provider(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords)
         {
         }
 
         public override void OnGUI(string searchContext)
         {
             base.OnGUI(searchContext);
-            InternalUtils.AllServices().FirstOrDefault(a => a is EMailService)?.ProjectSettingsGUI();
+            InternalUtils.AllServices().FirstOrDefault(a => a is EmailService)?.ProjectSettingsGUI();
         }
     }
 }

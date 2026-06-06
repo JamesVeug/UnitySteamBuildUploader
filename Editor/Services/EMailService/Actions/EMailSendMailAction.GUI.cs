@@ -3,19 +3,19 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    public partial class EMailSendMailAction
+    public partial class EmailSendMailAction
     {
         private bool m_showFormattedTo = Preferences.DefaultShowFormattedTextToggle;
         private bool m_showFormattedSubject = Preferences.DefaultShowFormattedTextToggle;
         private bool m_showFormattedBody = Preferences.DefaultShowFormattedTextToggle;
 
-        private ReorderableListOfEMailRecipients m_ccList;
-        private ReorderableListOfEMailRecipients m_bccList;
-        private ReorderableListOfEMailAttachments m_attachmentList;
+        private ReorderableListOfEmailRecipients m_ccList;
+        private ReorderableListOfEmailRecipients m_bccList;
+        private ReorderableListOfEmailAttachments m_attachmentList;
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
-            isDirty |= EMailUIUtils.AccountPopup.DrawPopup(ref m_account, m_context, GUILayout.Width(120));
+            isDirty |= EmailUIUtils.AccountPopup.DrawPopup(ref m_account, m_context, GUILayout.Width(120));
 
             float remaining = Mathf.Max(60f, (maxWidth - 120f - 20f) / 3f);
             using (new EditorGUI.DisabledScope(true))
@@ -32,7 +32,7 @@ namespace Wireframe
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Account:", GUILayout.Width(60));
-                isDirty |= EMailUIUtils.AccountPopup.DrawPopup(ref m_account, m_context, GUILayout.Width(160));
+                isDirty |= EmailUIUtils.AccountPopup.DrawPopup(ref m_account, m_context, GUILayout.Width(160));
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -61,7 +61,7 @@ namespace Wireframe
 
             if (m_ccList == null)
             {
-                m_ccList = new ReorderableListOfEMailRecipients();
+                m_ccList = new ReorderableListOfEmailRecipients();
                 m_ccList.Initialize(m_ccEmails, "CC", m_ccEmails.Count > 0);
             }
             if (m_ccList.OnGUI())
@@ -71,7 +71,7 @@ namespace Wireframe
 
             if (m_bccList == null)
             {
-                m_bccList = new ReorderableListOfEMailRecipients();
+                m_bccList = new ReorderableListOfEmailRecipients();
                 m_bccList.Initialize(m_bccEmails, "BCC", m_bccEmails.Count > 0);
             }
             if (m_bccList.OnGUI())
@@ -81,7 +81,7 @@ namespace Wireframe
 
             if (m_attachmentList == null)
             {
-                m_attachmentList = new ReorderableListOfEMailAttachments();
+                m_attachmentList = new ReorderableListOfEmailAttachments();
                 m_attachmentList.Initialize(m_attachments, "Attachments", m_attachments.Count > 0);
             }
             if (m_attachmentList.OnGUI())

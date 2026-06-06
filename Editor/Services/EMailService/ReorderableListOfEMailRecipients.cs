@@ -5,9 +5,9 @@ namespace Wireframe
 {
     /// <summary>
     /// Reorderable list of email addresses. Used for the CC and BCC fields of
-    /// <see cref="EMailSendMailAction"/>.
+    /// <see cref="EmailSendMailAction"/>.
     /// </summary>
-    public class ReorderableListOfEMailRecipients : InternalReorderableList<string>
+    public class ReorderableListOfEmailRecipients : InternalReorderableList<string>
     {
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {

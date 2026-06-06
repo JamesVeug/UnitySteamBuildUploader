@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal partial class EMailService
+    internal partial class EmailService
     {
-        private static ReorderableListOfEMailAccountsProjectSettings _reorderableListOfEMailAccountsProjectSettings;
+        private static ReorderableListOfEmailAccountsProjectSettings _reorderableListOfEmailAccountsProjectSettings;
 
         public override bool HasProjectSettingsGUI => true;
 
@@ -13,7 +13,7 @@ namespace Wireframe
         {
             using (new GUILayout.VerticalScope("box"))
             {
-                EMailConfig config = EMailUIUtils.GetConfig();
+                EmailConfig config = EmailUIUtils.GetConfig();
 
                 GUILayout.Label("Accounts", EditorStyles.boldLabel);
                 using (new EditorGUILayout.HorizontalScope())
@@ -21,24 +21,24 @@ namespace Wireframe
                     GUILayout.Label("Server, Port and From identity are shared with the team via JSON.");
                 }
 
-                if (_reorderableListOfEMailAccountsProjectSettings == null)
+                if (_reorderableListOfEmailAccountsProjectSettings == null)
                 {
-                    _reorderableListOfEMailAccountsProjectSettings = new ReorderableListOfEMailAccountsProjectSettings();
-                    _reorderableListOfEMailAccountsProjectSettings.Initialize(config.accounts, "Accounts",
+                    _reorderableListOfEmailAccountsProjectSettings = new ReorderableListOfEmailAccountsProjectSettings();
+                    _reorderableListOfEmailAccountsProjectSettings.Initialize(config.accounts, "Accounts",
                         true, (_) =>
                         {
-                            EMailUIUtils.AccountPopup.Refresh();
-                            EMailUIUtils.Save();
+                            EmailUIUtils.AccountPopup.Refresh();
+                            EmailUIUtils.Save();
                         });
                 }
 
-                if (_reorderableListOfEMailAccountsProjectSettings.OnGUI())
+                if (_reorderableListOfEmailAccountsProjectSettings.OnGUI())
                 {
-                    EMailUIUtils.AccountPopup.Refresh();
-                    EMailUIUtils.Save();
+                    EmailUIUtils.AccountPopup.Refresh();
+                    EmailUIUtils.Save();
                 }
 
-                GUILayout.Label("Username and Password are entered per-machine under Preferences -> Build Uploader -> Services -> EMail.",
+                GUILayout.Label("Username and Password are entered per-machine under Preferences -> Build Uploader -> Services -> Email.",
                     EditorStyles.wordWrappedLabel);
             }
         }

@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal static partial class EMailUIUtils
+    internal static partial class EmailUIUtils
     {
-        private static readonly string FilePath = Application.dataPath + "/../BuildUploader/EMailConfig.json";
+        private static readonly string FilePath = Application.dataPath + "/../BuildUploader/EmailConfig.json";
 
-        private static EMailConfig data;
+        private static EmailConfig data;
 
-        public static EMailConfig GetConfig(bool createIfMissing = true)
+        public static EmailConfig GetConfig(bool createIfMissing = true)
         {
             if (data == null && createIfMissing)
             {
@@ -20,8 +20,8 @@ namespace Wireframe
                 }
                 else
                 {
-                    Debug.Log("EMailConfig does not exist. Creating new file");
-                    data = new EMailConfig();
+                    Debug.Log("EmailConfig does not exist. Creating new file");
+                    data = new EmailConfig();
                     data.Initialize();
                     Save();
                 }
@@ -33,11 +33,11 @@ namespace Wireframe
         private static void LoadFile(string path)
         {
             string json = File.ReadAllText(path);
-            data = JsonUtility.FromJson<EMailConfig>(json);
+            data = JsonUtility.FromJson<EmailConfig>(json);
             if (data == null)
             {
                 Debug.Log("Config has bad json so creating new config");
-                data = new EMailConfig();
+                data = new EmailConfig();
                 data.Initialize();
                 Save();
             }
@@ -45,7 +45,7 @@ namespace Wireframe
             {
                 if (data.accounts == null)
                 {
-                    data.accounts = new List<EMailConfig.EMailAccount>(2);
+                    data.accounts = new List<EmailConfig.EmailAccount>(2);
                 }
 
                 for (var i = 0; i < data.accounts.Count; i++)
@@ -76,18 +76,18 @@ namespace Wireframe
             }
         }
 
-        public class EMailAccountPopup : CustomDropdown<EMailConfig.EMailAccount>
+        public class EmailAccountPopup : CustomDropdown<EmailConfig.EmailAccount>
         {
             public override string FirstEntryText => "Choose Account";
 
-            protected override List<EMailConfig.EMailAccount> FetchAllData()
+            protected override List<EmailConfig.EmailAccount> FetchAllData()
             {
                 GetConfig();
                 return data.accounts;
             }
         }
 
-        public static EMailAccountPopup AccountPopup => m_accountPopup ?? (m_accountPopup = new EMailAccountPopup());
-        private static EMailAccountPopup m_accountPopup;
+        public static EmailAccountPopup AccountPopup => m_accountPopup ?? (m_accountPopup = new EmailAccountPopup());
+        private static EmailAccountPopup m_accountPopup;
     }
 }

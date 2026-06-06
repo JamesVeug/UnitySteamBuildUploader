@@ -5,14 +5,14 @@ using UnityEngine;
 namespace Wireframe
 {
     [Serializable]
-    public partial class EMailConfig
+    public partial class EmailConfig
     {
         [SerializeField]
-        public List<EMailAccount> accounts;
+        public List<EmailAccount> accounts;
 
         public void Initialize()
         {
-            accounts = new List<EMailAccount>(2);
+            accounts = new List<EmailAccount>(2);
         }
     }
 }

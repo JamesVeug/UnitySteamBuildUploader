@@ -2,7 +2,7 @@ using System;
 
 namespace Wireframe
 {
-    public partial class EMailConfig
+    public partial class EmailConfig
     {
         /// <summary>
         /// A single SMTP account that can be used to send an email.
@@ -21,7 +21,7 @@ namespace Wireframe
         /// sibling services (Slack, Discord) behave with their per-name tokens.
         /// </summary>
         [Serializable]
-        public class EMailAccount : DropdownElement
+        public class EmailAccount : DropdownElement
         {
             public int Id
             {
@@ -39,21 +39,21 @@ namespace Wireframe
 
             private int m_id;
 
-            private string CredentialEmailKey => ProjectEditorPrefs.ProjectID + "EMailAccountUsername_" + Name;
+            private string CredentialEmailKey => ProjectEditorPrefs.ProjectID + "EmailAccountUsername_" + Name;
             public string CredentialEmail
             {
                 get => EncodedEditorPrefs.GetString(CredentialEmailKey, "");
                 set => EncodedEditorPrefs.SetString(CredentialEmailKey, value);
             }
 
-            private string CredentialPasswordKey => ProjectEditorPrefs.ProjectID + "EMailAccountPassword_" + Name;
+            private string CredentialPasswordKey => ProjectEditorPrefs.ProjectID + "EmailAccountPassword_" + Name;
             public string CredentialPassword
             {
                 get => EncodedEditorPrefs.GetString(CredentialPasswordKey, "");
                 set => EncodedEditorPrefs.SetString(CredentialPasswordKey, value);
             }
 
-            public EMailAccount()
+            public EmailAccount()
             {
                 m_id = 0;
                 Name = "Template";
@@ -63,7 +63,7 @@ namespace Wireframe
                 FromDisplayName = "";
             }
 
-            public EMailAccount(int id, string displayName)
+            public EmailAccount(int id, string displayName)
             {
                 m_id = id;
                 Name = displayName;

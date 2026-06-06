@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Wireframe
 {
-    internal partial class EMailService
+    internal partial class EmailService
     {
-        private static ReorderableListOfEMailAccountsPreferences _reorderableListOfEMailAccountsPreferences;
+        private static ReorderableListOfEmailAccountsPreferences _reorderableListOfEmailAccountsPreferences;
 
         public override void PreferencesGUI()
         {
@@ -20,31 +20,31 @@ namespace Wireframe
 
             using (new EditorGUILayout.VerticalScope("box"))
             {
-                EMail.Enabled = GUILayout.Toggle(EMail.Enabled, "Enabled");
-                if (!EMail.Enabled)
+                Email.Enabled = GUILayout.Toggle(Email.Enabled, "Enabled");
+                if (!Email.Enabled)
                 {
                     return;
                 }
 
-                EMailConfig config = EMailUIUtils.GetConfig();
-                if (_reorderableListOfEMailAccountsPreferences == null)
+                EmailConfig config = EmailUIUtils.GetConfig();
+                if (_reorderableListOfEmailAccountsPreferences == null)
                 {
-                    _reorderableListOfEMailAccountsPreferences = new ReorderableListOfEMailAccountsPreferences();
-                    _reorderableListOfEMailAccountsPreferences.Initialize(config.accounts, "Accounts",
+                    _reorderableListOfEmailAccountsPreferences = new ReorderableListOfEmailAccountsPreferences();
+                    _reorderableListOfEmailAccountsPreferences.Initialize(config.accounts, "Accounts",
                         true, (_) =>
                         {
-                            EMailUIUtils.AccountPopup.Refresh();
-                            EMailUIUtils.Save();
+                            EmailUIUtils.AccountPopup.Refresh();
+                            EmailUIUtils.Save();
                         });
                 }
 
-                if (_reorderableListOfEMailAccountsPreferences.OnGUI())
+                if (_reorderableListOfEmailAccountsPreferences.OnGUI())
                 {
-                    EMailUIUtils.AccountPopup.Refresh();
-                    EMailUIUtils.Save();
+                    EmailUIUtils.AccountPopup.Refresh();
+                    EmailUIUtils.Save();
                 }
 
-                GUILayout.Label("Server, Port and From identity are configured under Project Settings -> Build Uploader -> Services -> EMail.",
+                GUILayout.Label("Server, Port and From identity are configured under Project Settings -> Build Uploader -> Services -> Email.",
                     EditorStyles.wordWrappedLabel);
             }
         }

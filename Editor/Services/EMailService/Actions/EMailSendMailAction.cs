@@ -6,17 +6,17 @@ namespace Wireframe
 {
     /// <summary>
     /// Send an email via SMTP using an account configured under
-    /// Edit -> Preferences -> Build Uploader -> Services -> EMail
-    /// and Project Settings -> Build Uploader -> Services -> EMail.
+    /// Edit -> Preferences -> Build Uploader -> Services -> Email
+    /// and Project Settings -> Build Uploader -> Services -> Email.
     ///
     /// NOTE: This class's namespace path is saved in the JSON file so avoid renaming.
     /// </summary>
-    [Wiki(nameof(EMailSendMailAction), "actions", "Send an email via SMTP using one of the accounts configured under Build Uploader -> Services -> EMail.")]
-    [UploadAction("EMail Send Mail")]
-    public partial class EMailSendMailAction : AUploadAction
+    [Wiki(nameof(EmailSendMailAction), "actions", "Send an email via SMTP using one of the accounts configured under Build Uploader -> Services -> Email.")]
+    [UploadAction("Email Send Mail")]
+    public partial class EmailSendMailAction : AUploadAction
     {
         [Wiki("Account", "Which configured SMTP account will be sending the email.", 1)]
-        private EMailConfig.EMailAccount m_account;
+        private EmailConfig.EmailAccount m_account;
 
         [Wiki("To", "Recipient email address. Supports string formatting.", 2)]
         private string m_to = "";
@@ -36,12 +36,12 @@ namespace Wireframe
         [Wiki("Attachments", "Optional list of file paths to attach to the email. Each path supports string formatting so tokens like {sourceFile} resolve at send time.", 7)]
         private List<string> m_attachments = new List<string>();
 
-        public EMailSendMailAction() : base()
+        public EmailSendMailAction() : base()
         {
             // Required for reflection
         }
 
-        public void SetAccount(EMailConfig.EMailAccount account)
+        public void SetAccount(EmailConfig.EmailAccount account)
         {
             m_account = account;
         }
@@ -86,7 +86,7 @@ namespace Wireframe
             List<string> bccEmails = FormatList(m_bccEmails);
             List<string> attachments = FormatList(m_attachments);
 
-            return await EMail.SendEmail(m_account, to, subject, body, ccEmails, bccEmails, attachments, stepResult);
+            return await Email.SendEmail(m_account, to, subject, body, ccEmails, bccEmails, attachments, stepResult);
         }
 
         private List<string> FormatList(List<string> raw)
@@ -115,35 +115,35 @@ namespace Wireframe
         {
             base.TryGetErrors(errors);
 
-            if (!EMail.Enabled)
+            if (!Email.Enabled)
             {
-                errors.Add("EMail is not enabled. Please enable it in the Preferences.");
+                errors.Add("Email is not enabled. Please enable it in the Preferences.");
             }
 
             if (m_account == null)
             {
-                errors.Add("EMail Account is not set. Please select an Account.");
+                errors.Add("Email Account is not set. Please select an Account.");
             }
             else
             {
                 if (string.IsNullOrEmpty(m_account.Host))
                 {
-                    errors.Add($"EMail Account '{m_account.Name}' has no SMTP Host configured. Set it under Project Settings -> Build Uploader -> Services -> EMail.");
+                    errors.Add($"Email Account '{m_account.Name}' has no SMTP Host configured. Set it under Project Settings -> Build Uploader -> Services -> Email.");
                 }
 
                 if (string.IsNullOrEmpty(m_account.FromEmail))
                 {
-                    errors.Add($"EMail Account '{m_account.Name}' has no From Email configured. Set it under Project Settings -> Build Uploader -> Services -> EMail.");
+                    errors.Add($"Email Account '{m_account.Name}' has no From Email configured. Set it under Project Settings -> Build Uploader -> Services -> Email.");
                 }
 
                 if (string.IsNullOrEmpty(m_account.CredentialEmail))
                 {
-                    errors.Add($"EMail Account '{m_account.Name}' has no Username set. Set it under Preferences -> Build Uploader -> Services -> EMail.");
+                    errors.Add($"Email Account '{m_account.Name}' has no Username set. Set it under Preferences -> Build Uploader -> Services -> Email.");
                 }
 
                 if (string.IsNullOrEmpty(m_account.CredentialPassword))
                 {
-                    errors.Add($"EMail Account '{m_account.Name}' has no Password set. Set it under Preferences -> Build Uploader -> Services -> EMail.");
+                    errors.Add($"Email Account '{m_account.Name}' has no Password set. Set it under Preferences -> Build Uploader -> Services -> Email.");
                 }
             }
 
@@ -174,7 +174,7 @@ namespace Wireframe
 
         public override void Deserialize(Dictionary<string, object> data)
         {
-            EMailConfig.EMailAccount[] accounts = EMailUIUtils.AccountPopup.Values;
+            EmailConfig.EmailAccount[] accounts = EmailUIUtils.AccountPopup.Values;
             if (data.TryGetValue("account", out object accountId) && accountId != null)
             {
                 m_account = accounts.FirstOrDefault(a => a.Id == (long)accountId);

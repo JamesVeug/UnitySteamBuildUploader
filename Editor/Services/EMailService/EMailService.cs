@@ -1,27 +1,27 @@
 namespace Wireframe
 {
-    internal partial class EMailService : AService
+    internal partial class EmailService : AService
     {
-        public override string ServiceName => "EMail";
-        public override string[] SearchKeywords => new string[]{"EMail", "Email", "Mail", "SMTP", "Send Mail", "Messaging"};
+        public override string ServiceName => "Email";
+        public override string[] SearchKeywords => new string[]{"Email", "Email", "Mail", "SMTP", "Send Mail", "Messaging"};
 
-        public EMailService()
+        public EmailService()
         {
             // Needed for reflection
         }
 
         public override bool IsReadyToStartBuild(out string reason)
         {
-            if (!EMail.Enabled)
+            if (!Email.Enabled)
             {
-                reason = "EMail is not enabled in Preferences";
+                reason = "Email is not enabled in Preferences";
                 return false;
             }
 
-            EMailConfig config = EMailUIUtils.GetConfig(false);
+            EmailConfig config = EmailUIUtils.GetConfig(false);
             if (config == null || config.accounts == null || config.accounts.Count == 0)
             {
-                reason = "EMail has no accounts configured. Add one in Project Settings -> Build Uploader -> Services -> EMail.";
+                reason = "Email has no accounts configured. Add one in Project Settings -> Build Uploader -> Services -> Email.";
                 return false;
             }
 
@@ -31,7 +31,7 @@ namespace Wireframe
 
         public override bool IsProjectSettingsSetup()
         {
-            EMailConfig config = EMailUIUtils.GetConfig(false);
+            EmailConfig config = EmailUIUtils.GetConfig(false);
             if (config == null)
             {
                 return false;

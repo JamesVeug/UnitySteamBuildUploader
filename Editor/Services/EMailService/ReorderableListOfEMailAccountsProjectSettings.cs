@@ -5,17 +5,17 @@ using UnityEngine;
 namespace Wireframe
 {
     /// <summary>
-    /// Project Settings reorderable list of <see cref="EMailConfig.EMailAccount"/>.
+    /// Project Settings reorderable list of <see cref="EmailConfig.EmailAccount"/>.
     /// Exposes the team-shared SMTP server details, From identity and the
     /// authentication username. The password is intentionally not editable
     /// here — that lives in Preferences so it never leaks via screen shares
     /// or source control.
     /// </summary>
-    public class ReorderableListOfEMailAccountsProjectSettings : InternalReorderableList<EMailConfig.EMailAccount>
+    public class ReorderableListOfEmailAccountsProjectSettings : InternalReorderableList<EmailConfig.EmailAccount>
     {
         protected override void DrawItem(Rect containerRect, int index, bool isActive, bool isFocused)
         {
-            EMailConfig.EMailAccount element = list[index];
+            EmailConfig.EmailAccount element = list[index];
 
             const float nameLabelWidth = 50f;
             const float nameWidth = 110f;
@@ -101,12 +101,12 @@ namespace Wireframe
             }
         }
 
-        protected override EMailConfig.EMailAccount CreateItem(int index)
+        protected override EmailConfig.EmailAccount CreateItem(int index)
         {
-            return new EMailConfig.EMailAccount(index, "MyAccount");
+            return new EmailConfig.EmailAccount(index, "MyAccount");
         }
 
-        protected override int CompareTo(EMailConfig.EMailAccount a, EMailConfig.EMailAccount b)
+        protected override int CompareTo(EmailConfig.EmailAccount a, EmailConfig.EmailAccount b)
         {
             return string.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
         }

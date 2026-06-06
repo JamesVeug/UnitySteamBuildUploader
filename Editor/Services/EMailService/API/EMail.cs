@@ -4,16 +4,16 @@ using System.Threading.Tasks;
 namespace Wireframe
 {
     /// <summary>
-    /// Thin static wrapper around <see cref="EMailWrapper"/> that pulls the SMTP
+    /// Thin static wrapper around <see cref="EmailWrapper"/> that pulls the SMTP
     /// server, From identity and credentials from a selected
-    /// <see cref="EMailConfig.EMailAccount"/>. Accounts are managed under
-    /// Edit -> Preferences -> Build Uploader -> Services -> EMail (credentials)
-    /// and Project Settings -> Build Uploader -> Services -> EMail (server / from).
+    /// <see cref="EmailConfig.EmailAccount"/>. Accounts are managed under
+    /// Edit -> Preferences -> Build Uploader -> Services -> Email (credentials)
+    /// and Project Settings -> Build Uploader -> Services -> Email (server / from).
     ///
     /// The <see cref="Enabled"/> flag is stored in <see cref="ProjectEditorPrefs"/>
     /// so it stays scoped to this project on this machine.
     /// </summary>
-    public static partial class EMail
+    public static partial class Email
     {
         public static bool Enabled
         {
@@ -27,7 +27,7 @@ namespace Wireframe
         /// <paramref name="result"/> on failure.
         /// </summary>
         public static async Task<bool> SendEmail(
-            EMailConfig.EMailAccount account,
+            EmailConfig.EmailAccount account,
             string toEmail,
             string subject,
             string body,
@@ -42,7 +42,7 @@ namespace Wireframe
                 return false;
             }
 
-            EMailWrapper mail = new EMailWrapper
+            EmailWrapper mail = new EmailWrapper
             {
                 Host = account.Host,
                 Port = account.Port,
@@ -70,7 +70,7 @@ namespace Wireframe
                 mail.AttachmentFiles.AddRange(attachmentFiles);
             }
 
-            EMailWrapper.Result response = await mail.SendEmail();
+            EmailWrapper.Result response = await mail.SendEmail();
             if (!response.Successful)
             {
                 result?.SetFailed($"Failed to send email: {response.Response}");

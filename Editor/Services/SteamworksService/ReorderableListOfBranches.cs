@@ -12,9 +12,13 @@ namespace Wireframe
             {
                 SteamBranch element = list[index];
 
+                float labelWidth = 55;
                 float width = Mathf.Min(100, rect.width / 2);
-                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
-                string n = GUI.TextField(rect1, element.name);
+                Rect rect1 = new Rect(rect.x, rect.y, labelWidth, rect.height);
+                GUI.Label(rect1, new GUIContent("Branch", "Steam branch (beta) to set this build live on. Leave empty to upload without setting live.\nNOTE: 'default' is not allowed by the SteamSDK. That requires manually switching on the dashboard"));
+                rect1.x += rect1.width;
+                rect1.width = width;
+                string n = EditorUtils.PlaceholderTextField(rect1, element.name, "e.g. beta (leave empty to not set live)");
                 if (n != element.name)
                 {
                     element.name = n;
@@ -34,7 +38,7 @@ namespace Wireframe
                     GUI.color = color;
                     
                     rect1.x += 15;
-                    rect1.width = rect.width - width - 15;
+                    rect1.width = rect.width - width - 15 - labelWidth;
                     GUI.Label(rect1, "Uploading to the 'default' branch is not allowed by SteamSDK. Upload to none or an empty branch name then use the dashboard to assign to default.");
                 }
             }

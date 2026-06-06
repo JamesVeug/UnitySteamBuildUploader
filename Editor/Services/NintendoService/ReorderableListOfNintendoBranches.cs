@@ -12,9 +12,13 @@ namespace Wireframe
             {
                 NintendoBranch element = list[index];
 
+                float labelWidth = 55;
                 float width = Mathf.Min(150, rect.width / 2);
-                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
-                string n = GUI.TextField(rect1, element.name);
+                Rect rect1 = new Rect(rect.x, rect.y, labelWidth, rect.height);
+                GUI.Label(rect1, new GUIContent("Branch", "Name of the branch to publish this build to."));
+                rect1.x += rect1.width;
+                rect1.width = width;
+                string n = EditorUtils.PlaceholderTextField(rect1, element.name, "e.g. master");
                 if (n != element.name)
                 {
                     element.name = n;

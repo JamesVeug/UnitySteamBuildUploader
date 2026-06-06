@@ -18,11 +18,11 @@ namespace Wireframe
                 float labelWidth = 50;
                 float textWidth = 200;
                 Rect rect0 = new Rect(containerRect.x, containerRect.y, labelWidth, containerRect.height);
-                GUI.Label(rect0, "Name");
+                GUI.Label(rect0, new GUIContent("Name", "Display name for this Discord bot/app. UI only — not sent to Discord."));
                 rect0.x += rect0.width;
 
                 rect0.width = textWidth;
-                string n = GUI.TextField(rect0, element.Name);
+                string n = EditorUtils.PlaceholderTextField(rect0, element.Name, "e.g. Release Bot");
                 rect0.x += rect0.width;
                 if (n != element.Name)
                 {
@@ -32,14 +32,14 @@ namespace Wireframe
 
                 // Token
                 rect0.width = labelWidth;
-                GUI.Label(rect0, "Token");
+                GUI.Label(rect0, new GUIContent("Token", "Discord bot token from the Developer Portal."));
                 rect0.x += rect0.width;
-                
+
                 rect0.width = containerRect.width - (textWidth * 2) - labelWidth * 2 - 20; // Adjust width for padding and toggle
                 string dt = element.Token;
                 if (showToken)
                 {
-                    string t = GUI.TextField(rect0, dt);
+                    string t = EditorUtils.PlaceholderTextField(rect0, dt, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                     if (t != dt)
                     {
                         element.Token = t;

@@ -11,9 +11,13 @@ namespace Wireframe
             {
                 DropboxConfig.DropboxFolder element = list[index];
 
+                float labelWidth = 50;
                 float width = Mathf.Min(200, rect.width / 2);
-                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
-                string n = GUI.TextField(rect1, element.Name);
+                Rect rect1 = new Rect(rect.x, rect.y, labelWidth, rect.height);
+                GUI.Label(rect1, new GUIContent("Name", "Display name for this folder. UI only — not sent to Dropbox."));
+                rect1.x += rect1.width;
+                rect1.width = width;
+                string n = EditorUtils.PlaceholderTextField(rect1, element.Name, "e.g. Nightly Builds");
                 if (n != element.Name)
                 {
                     element.Name = n;
@@ -27,8 +31,11 @@ namespace Wireframe
                 rect1.x += rect1.width;
 
                 // Path
+                rect1.width = 40;
+                GUI.Label(rect1, new GUIContent("Path", "Destination folder path in Dropbox. Created if it does not exist."));
+                rect1.x += rect1.width;
                 rect1.width = 250;
-                string newPath = GUI.TextField(rect1, element.Path);
+                string newPath = EditorUtils.PlaceholderTextField(rect1, element.Path, "e.g. /Builds/Android");
                 if (newPath != element.Path)
                 {
                     element.Path = newPath;

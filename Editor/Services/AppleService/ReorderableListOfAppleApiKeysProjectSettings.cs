@@ -18,7 +18,7 @@ namespace Wireframe
             float padding = 5f;
 
             Rect r = new Rect(rect.x, rect.y, labelWidth, rect.height);
-            GUI.Label(r, new GUIContent("Name", "Friendly name for this API key (e.g. Release CI Key). UI only — not sent to Apple."));
+            GUI.Label(r, new GUIContent("Name", "Display name for this API key (e.g. Release CI Key). UI only — not sent to Apple."));
             r.x += r.width;
             r.width = 120;
             string newName = EditorUtils.PlaceholderTextField(r, element.Name, "e.g. Release CI Key");

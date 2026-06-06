@@ -22,7 +22,7 @@ namespace Wireframe
 
             // Name
             Rect r = new Rect(containerRect.x, containerRect.y, labelWidth, containerRect.height);
-            GUI.Label(r, new GUIContent("Name", "Friendly name for this API key (e.g. Release CI Key). UI only — not sent to Apple."));
+            GUI.Label(r, new GUIContent("Name", "Display name for this API key (e.g. Release CI Key). UI only — not sent to Apple."));
             r.x += r.width;
             r.width = 100;
             string newName = EditorUtils.PlaceholderTextField(r, element.Name, "e.g. Release CI Key");

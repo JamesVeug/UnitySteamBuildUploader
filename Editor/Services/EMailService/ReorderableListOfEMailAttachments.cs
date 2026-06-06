@@ -18,10 +18,14 @@ namespace Wireframe
         {
             string element = list[index] ?? "";
 
-            Rect textRect = new Rect(rect.x, rect.y, rect.width - BrowseButtonWidth - Padding, rect.height);
+            const float labelWidth = 40f;
+            Rect labelRect = new Rect(rect.x, rect.y, labelWidth, rect.height);
+            GUI.Label(labelRect, new GUIContent("File", "Path to a file to attach."));
+
+            Rect textRect = new Rect(rect.x + labelWidth, rect.y, rect.width - labelWidth - BrowseButtonWidth - Padding, rect.height);
             Rect buttonRect = new Rect(textRect.xMax + Padding, rect.y, BrowseButtonWidth, rect.height);
 
-            string newValue = GUI.TextField(textRect, element);
+            string newValue = EditorUtils.PlaceholderTextField(textRect, element, "e.g. {sourceFile} or C:/Builds/game.zip");
             if (newValue != element)
             {
                 list[index] = newValue;

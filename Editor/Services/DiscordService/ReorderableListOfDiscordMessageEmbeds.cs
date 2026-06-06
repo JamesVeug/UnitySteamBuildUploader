@@ -13,22 +13,24 @@ namespace Wireframe
                 DiscordMessageChannelAction.Embed element = list[index];
 
                 // Title
+                float labelWidth = 40;
                 float width = Mathf.Min(100, rect.width / 2);
-                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
-                string n = GUI.TextField(rect1, element.title);
+                Rect rect1 = new Rect(rect.x, rect.y, labelWidth, rect.height);
+                GUI.Label(rect1, new GUIContent("Title", "Embed title. Supports format tokens like {version}."));
+                rect1.x += rect1.width;
+                rect1.width = width;
+                string n = EditorUtils.PlaceholderTextField(rect1, element.title, "e.g. v{version}");
                 if (n != element.title)
                 {
                     element.title = n;
                     dirty = true;
                 }
                 
-                // Padding
-                rect1.x += rect1.width;
-                rect1.width = 10;
-                GUI.Label(rect1, "");
-                rect1.x += rect1.width;
-                
                 // Description
+                rect1.x += rect1.width;
+                rect1.width = 40;
+                GUI.Label(rect1, new GUIContent("Desc", "Embed description / body text. Supports format tokens."));
+                rect1.x += rect1.width;
                 rect1.width = 200;
                 string d = GUI.TextArea(rect1, element.description);
                 if (d != element.description)
@@ -39,6 +41,9 @@ namespace Wireframe
                 
                 
                 
+                rect1.x += rect1.width;
+                rect1.width = 40;
+                GUI.Label(rect1, new GUIContent("Color", "Embed side-bar color as a hex value, e.g. #009000."));
                 rect1.x += rect1.width;
                 rect1.width = 70;
 

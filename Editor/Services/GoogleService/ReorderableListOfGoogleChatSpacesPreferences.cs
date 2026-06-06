@@ -18,11 +18,11 @@ namespace Wireframe
                 float labelWidth = 70;
                 float textWidth = 100;
                 Rect rect0 = new Rect(containerRect.x, containerRect.y, labelWidth, containerRect.height);
-                GUI.Label(rect0, "Name");
+                GUI.Label(rect0, new GUIContent("Name", "Display name for this Google Chat space. UI only — not sent to Google."));
                 rect0.x += rect0.width;
 
                 rect0.width = textWidth;
-                string n = GUI.TextField(rect0, element.Name);
+                string n = EditorUtils.PlaceholderTextField(rect0, element.Name, "e.g. Build Notifications");
                 rect0.x += rect0.width;
                 if (n != element.Name)
                 {
@@ -32,14 +32,14 @@ namespace Wireframe
 
                 // Webhook
                 rect0.width = labelWidth;
-                GUI.Label(rect0, "Webhook");
+                GUI.Label(rect0, new GUIContent("Webhook", "Incoming webhook URL for this space. Google Chat -> Space -> Apps & integrations -> Webhooks."));
                 rect0.x += rect0.width;
 
                 rect0.width = containerRect.width - (textWidth) - labelWidth * 3 - 20;
                 string dw = element.WebhookURL;
                 if (showWebhook)
                 {
-                    string t = GUI.TextField(rect0, dw);
+                    string t = EditorUtils.PlaceholderTextField(rect0, dw, "https://chat.googleapis.com/v1/spaces/xxx/messages?key=xxx&token=xxx");
                     if (t != dw)
                     {
                         element.WebhookURL = t;

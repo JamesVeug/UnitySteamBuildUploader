@@ -12,7 +12,12 @@ namespace Wireframe
         protected override void DrawItem(Rect rect, int index, bool isActive, bool isFocused)
         {
             string element = list[index] ?? "";
-            string newValue = GUI.TextField(rect, element);
+
+            const float labelWidth = 50f;
+            Rect labelRect = new Rect(rect.x, rect.y, labelWidth, rect.height);
+            GUI.Label(labelRect, new GUIContent("Email", "Recipient email address for this CC/BCC entry."));
+            Rect fieldRect = new Rect(rect.x + labelWidth, rect.y, rect.width - labelWidth, rect.height);
+            string newValue = EditorUtils.PlaceholderTextField(fieldRect, element, "e.g. teammate@studio.com");
             if (newValue != element)
             {
                 list[index] = newValue;

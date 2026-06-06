@@ -30,11 +30,11 @@ namespace Wireframe
 
             Rect cursor = new Rect(containerRect.x, containerRect.y, nameLabelWidth, containerRect.height);
 
-            GUI.Label(cursor, "Name");
+            GUI.Label(cursor, new GUIContent("Name", "Display name for this email account. UI only — not sent."));
             cursor.x += cursor.width;
 
             cursor.width = nameWidth;
-            string newName = GUI.TextField(cursor, element.Name);
+            string newName = EditorUtils.PlaceholderTextField(cursor, element.Name, "e.g. Release Mailer");
             if (newName != element.Name)
             {
                 element.Name = newName;
@@ -47,7 +47,7 @@ namespace Wireframe
             cursor.x += cursor.width;
 
             cursor.width = usernameWidth;
-            string newUsername = GUI.TextField(cursor, element.CredentialEmail ?? "");
+            string newUsername = EditorUtils.PlaceholderTextField(cursor, element.CredentialEmail ?? "", "e.g. you@gmail.com");
             if (newUsername != element.CredentialEmail)
             {
                 element.CredentialEmail = newUsername;
@@ -65,7 +65,7 @@ namespace Wireframe
             string newPassword;
             if (showPassword)
             {
-                newPassword = GUI.TextField(cursor, currentPassword);
+                newPassword = EditorUtils.PlaceholderTextField(cursor, currentPassword, "xxxxxxxxxxxxxxxx");
             }
             else
             {

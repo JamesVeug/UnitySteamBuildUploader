@@ -11,9 +11,13 @@ namespace Wireframe
             {
                 ItchioChannel element = list[index];
 
+                float labelWidth = 60;
                 float width = Mathf.Min(100, rect.width / 2);
-                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
-                string n = GUI.TextField(rect1, element.Name);
+                Rect rect1 = new Rect(rect.x, rect.y, labelWidth, rect.height);
+                GUI.Label(rect1, new GUIContent("Channel", "itch.io channel name. Platform tags like 'windows' or 'osx' set the channel's platform."));
+                rect1.x += rect1.width;
+                rect1.width = width;
+                string n = EditorUtils.PlaceholderTextField(rect1, element.Name, "e.g. windows-beta");
                 if (n != element.Name)
                 {
                     element.Name = n.Trim();

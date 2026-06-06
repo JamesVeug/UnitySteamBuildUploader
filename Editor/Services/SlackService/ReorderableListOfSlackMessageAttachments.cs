@@ -13,11 +13,12 @@ namespace Wireframe
             {
                 SlackAttachment element = list[index];
 
-                // Title
-                float width = Mathf.Min(100, rect.width / 2);
-                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
-                
-                // Description
+                // Message
+                float labelWidth = 60;
+                Rect rect1 = new Rect(rect.x, rect.y, labelWidth, rect.height);
+                GUI.Label(rect1, new GUIContent("Message", "Attachment text shown in Slack. Supports format tokens and Slack markup."));
+                rect1.x += rect1.width;
+
                 rect1.width = 200;
                 string d = GUI.TextArea(rect1, element.text);
                 if (d != element.text)

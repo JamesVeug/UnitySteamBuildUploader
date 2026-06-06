@@ -11,9 +11,13 @@ namespace Wireframe
             {
                 DiscordConfig.DiscordApp element = list[index];
 
+                float labelWidth = 50;
                 float width = Mathf.Min(100, rect.width / 2);
-                Rect rect1 = new Rect(rect.x, rect.y, width, rect.height);
-                string n = GUI.TextField(rect1, element.Name);
+                Rect rect1 = new Rect(rect.x, rect.y, labelWidth, rect.height);
+                GUI.Label(rect1, new GUIContent("Name", "Display name for this Discord bot/app. UI only — not sent to Discord."));
+                rect1.x += rect1.width;
+                rect1.width = width;
+                string n = EditorUtils.PlaceholderTextField(rect1, element.Name, "e.g. Release Bot");
                 if (n != element.Name)
                 {
                     element.Name = n;
@@ -28,7 +32,7 @@ namespace Wireframe
                 
                 // Is Bot Toggle
                 rect1.width = 75;
-                element.IsBot = GUI.Toggle(rect1, element.IsBot, "Is Bot");
+                element.IsBot = GUI.Toggle(rect1, element.IsBot, new GUIContent("Is Bot", "Tick if this app authenticates as a bot account rather than a webhook/user."));
                 rect1.x += rect1.width;
             }
         }

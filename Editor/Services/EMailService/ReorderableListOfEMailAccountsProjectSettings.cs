@@ -29,11 +29,11 @@ namespace Wireframe
 
             Rect cursor = new Rect(containerRect.x, containerRect.y, nameLabelWidth, containerRect.height);
 
-            GUI.Label(cursor, "Name");
+            GUI.Label(cursor, new GUIContent("Name", "Display name for this email account. UI only — not sent."));
             cursor.x += cursor.width;
 
             cursor.width = nameWidth;
-            string newName = GUI.TextField(cursor, element.Name);
+            string newName = EditorUtils.PlaceholderTextField(cursor, element.Name, "e.g. Release Mailer");
             if (newName != element.Name)
             {
                 element.Name = newName;
@@ -42,11 +42,11 @@ namespace Wireframe
             cursor.x += cursor.width + padding;
 
             cursor.width = hostLabelWidth;
-            GUI.Label(cursor, "Host");
+            GUI.Label(cursor, new GUIContent("Host", "SMTP server hostname. For Gmail this is smtp.gmail.com."));
             cursor.x += cursor.width;
 
             cursor.width = hostWidth;
-            string newHost = GUI.TextField(cursor, element.Host ?? "");
+            string newHost = EditorUtils.PlaceholderTextField(cursor, element.Host ?? "", "e.g. smtp.gmail.com");
             if (newHost != element.Host)
             {
                 element.Host = newHost;
@@ -55,7 +55,7 @@ namespace Wireframe
             cursor.x += cursor.width + padding;
 
             cursor.width = portLabelWidth;
-            GUI.Label(cursor, "Port");
+            GUI.Label(cursor, new GUIContent("Port", "SMTP port. Commonly 587 (TLS) or 465 (SSL)."));
             cursor.x += cursor.width;
 
             cursor.width = portWidth;
@@ -68,7 +68,7 @@ namespace Wireframe
             cursor.x += cursor.width + padding;
 
             cursor.width = fromLabelWidth;
-            GUI.Label(cursor, "From Email");
+            GUI.Label(cursor, new GUIContent("From Email", "Address the email is sent from. Often the same as the username."));
             cursor.x += cursor.width;
 
             // Split the rest of the row between FromEmail and FromDisplayName,
@@ -80,7 +80,7 @@ namespace Wireframe
             float fromNameWidth = fieldsAvailable - fromEmailWidth;
 
             cursor.width = fromEmailWidth;
-            string newFromEmail = GUI.TextField(cursor, element.FromEmail ?? "");
+            string newFromEmail = EditorUtils.PlaceholderTextField(cursor, element.FromEmail ?? "", "e.g. builds@studio.com");
             if (newFromEmail != element.FromEmail)
             {
                 element.FromEmail = newFromEmail;
@@ -89,11 +89,11 @@ namespace Wireframe
             cursor.x += cursor.width + padding;
 
             cursor.width = fromNameLabelWidth;
-            GUI.Label(cursor, "Display Name");
+            GUI.Label(cursor, new GUIContent("Display Name", "Display sender name recipients see instead of the raw address."));
             cursor.x += cursor.width;
 
             cursor.width = fromNameWidth;
-            string newFromName = GUI.TextField(cursor, element.FromDisplayName ?? "");
+            string newFromName = EditorUtils.PlaceholderTextField(cursor, element.FromDisplayName ?? "", "e.g. Build Bot");
             if (newFromName != element.FromDisplayName)
             {
                 element.FromDisplayName = newFromName;

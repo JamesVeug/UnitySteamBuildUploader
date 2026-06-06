@@ -6,19 +6,6 @@ namespace Wireframe
     {
         /// <summary>
         /// A single SMTP account that can be used to send an email.
-        ///
-        /// Team-shared fields (server, From details) live in the JSON config so
-        /// they can be checked into source control with the project. The
-        /// per-machine credentials (<see cref="CredentialEmail"/> and
-        /// <see cref="CredentialPassword"/>) are stored via
-        /// <see cref="EncodedEditorPrefs"/> using a project-prefixed key derived
-        /// from the account <see cref="Name"/>. That keeps them scoped to this
-        /// project on this machine and out of any JSON file that might be
-        /// committed.
-        ///
-        /// NOTE: Renaming an account orphans its stored credentials. The user
-        /// will need to re-enter them under the new name. This matches how
-        /// sibling services (Slack, Discord) behave with their per-name tokens.
         /// </summary>
         [Serializable]
         public class EmailAccount : DropdownElement

@@ -117,12 +117,12 @@ namespace Wireframe
 
             if (!Email.Enabled)
             {
-                errors.Add("Email is not enabled. Please enable it in the Preferences.");
+                errors.Add("Email is not enabled. Enable it in the Preferences.");
             }
 
             if (m_account == null)
             {
-                errors.Add("Email Account is not set. Please select an Account.");
+                errors.Add("Email Account is not set. Select an Account.");
             }
             else
             {
@@ -149,12 +149,12 @@ namespace Wireframe
 
             if (string.IsNullOrEmpty(m_to))
             {
-                errors.Add("To is not set. Please set a recipient email address.");
+                errors.Add("To is not set. Set a recipient email address.");
             }
 
             if (string.IsNullOrEmpty(m_subject))
             {
-                errors.Add("Subject is not set. Please set a subject for the email.");
+                errors.Add("Subject is not set. Set a subject for the email.");
             }
         }
 

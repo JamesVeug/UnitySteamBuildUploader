@@ -3,7 +3,7 @@ namespace Wireframe
     internal partial class EmailService : AService
     {
         public override string ServiceName => "Email";
-        public override string[] SearchKeywords => new string[]{"Email", "Email", "Mail", "SMTP", "Send Mail", "Messaging"};
+        public override string[] SearchKeywords => new string[]{"email", "mail", "smtp", "send mail", "messaging"};
 
         public EmailService()
         {

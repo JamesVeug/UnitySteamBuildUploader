@@ -33,7 +33,7 @@ namespace Wireframe
         private static void LoadFile(string path)
         {
             string json = File.ReadAllText(path);
-            data = JsonUtility.FromJson<EmailConfig>(json);
+            data = JSON.DeserializeObject<EmailConfig>(json);
             if (data == null)
             {
                 Debug.Log("Config has bad json so creating new config");
@@ -65,7 +65,7 @@ namespace Wireframe
                     Directory.CreateDirectory(directory);
                 }
 
-                string json = JsonUtility.ToJson(data, true);
+                string json = JSON.SerializeObject(data);
                 if (!File.Exists(FilePath))
                 {
                     var stream = File.Create(FilePath);

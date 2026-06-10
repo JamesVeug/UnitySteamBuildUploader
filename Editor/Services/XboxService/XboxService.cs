@@ -1,5 +1,6 @@
 namespace Wireframe
 {
+    [Experimental]
     internal partial class XboxService : AService
     {
         public override string ServiceName => "Xbox";

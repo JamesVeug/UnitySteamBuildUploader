@@ -1,5 +1,6 @@
 namespace Wireframe
 {
+    [Experimental]
     internal partial class AppleService : AService
     {
         public override string ServiceName => "Apple";

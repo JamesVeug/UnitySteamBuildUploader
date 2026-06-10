@@ -9,6 +9,7 @@ namespace Wireframe
 
         public override void PreferencesGUI()
         {
+            base.PreferencesGUI();
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Apps are created on the developer dashboard.");

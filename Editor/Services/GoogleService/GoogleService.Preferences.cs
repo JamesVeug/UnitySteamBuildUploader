@@ -10,6 +10,7 @@ namespace Wireframe
 
         public override void PreferencesGUI()
         {
+            base.PreferencesGUI();
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Apps are created in Google Cloud Console. Tokens here are OAuth2 access tokens used by Google Drive.");

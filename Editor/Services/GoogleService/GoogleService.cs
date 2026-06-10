@@ -1,5 +1,6 @@
 namespace Wireframe
 {
+    [Experimental]
     internal partial class GoogleService : AService
     {
         public override string ServiceName => "Google";

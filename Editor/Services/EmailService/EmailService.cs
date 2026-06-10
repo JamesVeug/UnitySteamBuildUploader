@@ -1,5 +1,6 @@
 namespace Wireframe
 {
+    [Experimental]
     internal partial class EmailService : AService
     {
         public override string ServiceName => "Email";

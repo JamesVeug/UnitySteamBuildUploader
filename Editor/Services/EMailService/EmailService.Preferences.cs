@@ -9,6 +9,7 @@ namespace Wireframe
 
         public override void PreferencesGUI()
         {
+            base.PreferencesGUI();
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Sets per-machine SMTP credentials for each account. For Gmail use an App Password.");

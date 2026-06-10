@@ -9,6 +9,7 @@ namespace Wireframe
 
         public override void PreferencesGUI()
         {
+            base.PreferencesGUI();
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("API Keys are created on the App Store Connect dashboard.");

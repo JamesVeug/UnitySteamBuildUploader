@@ -51,7 +51,7 @@
 
         public override void ProjectSettingsGUI()
         {
-            // None
+            base.ProjectSettingsGUI();
         }
     }
 }

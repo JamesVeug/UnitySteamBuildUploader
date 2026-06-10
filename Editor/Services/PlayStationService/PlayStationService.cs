@@ -1,8 +1,6 @@
 namespace Wireframe
 {
-    /// <summary>
-    /// Used by reflection
-    /// </summary>
+    [Experimental]
     internal partial class PlayStationService : AService
     {
         public override string ServiceName => "PlayStation";

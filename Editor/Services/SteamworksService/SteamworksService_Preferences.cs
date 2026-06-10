@@ -13,6 +13,7 @@ namespace Wireframe
         
         public override void PreferencesGUI()
         {
+            base.PreferencesGUI();
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 bool newEnabled = GUILayout.Toggle(SteamSDK.Enabled, "Enabled");

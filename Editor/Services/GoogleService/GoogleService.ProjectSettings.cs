@@ -14,6 +14,7 @@ namespace Wireframe
 
         public override void ProjectSettingsGUI()
         {
+            base.ProjectSettingsGUI();
             using (new GUILayout.VerticalScope("box"))
             {
                 GoogleConfig config = GoogleUIUtils.GetConfig();

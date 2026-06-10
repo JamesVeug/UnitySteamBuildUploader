@@ -61,10 +61,10 @@ namespace Wireframe
                     }
 
                     string output = await process.StandardOutput.ReadToEndAsync();
-                    output = HideText(output, hideText);
+                    output = output.HideText(hideText);
                     
                     string errors = await process.StandardError.ReadToEndAsync();
-                    errors = HideText(errors, hideText);
+                    errors = errors.HideText(hideText);
 
                     process.WaitForExit();
 
@@ -79,24 +79,9 @@ namespace Wireframe
             }
             catch (Exception ex)
             {
-                result.AddException(ex);
-                return ProcessResult.Failed(ex.Message);
+                result.AddException(ex, hideText);
+                return ProcessResult.Failed(ex.Message.HideText(hideText));
             }
-        }
-
-        private static string HideText(string text, string[] toHide)
-        {
-            if (toHide == null || toHide.Length == 0)
-            {
-                return text;
-            }
-
-            foreach (string hide in toHide)
-            {
-                text = text.Replace(hide, "****");
-            }
-            
-            return text;
         }
     }
 }

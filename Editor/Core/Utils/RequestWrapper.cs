@@ -100,6 +100,12 @@ namespace Wireframe
             return requestWrapper;
         }
 
+        public static RequestWrapper Patch(string url)
+        {
+            RequestWrapper requestWrapper = new RequestWrapper(url, "PATCH");
+            return requestWrapper;
+        }
+
         public static RequestWrapper Put(string url)
         {
             RequestWrapper requestWrapper = new RequestWrapper(url, "PUT");
@@ -145,6 +151,13 @@ namespace Wireframe
         {
             www.uploadHandler = new UploadHandlerRaw(data);
             www.SetRequestHeader("Content-Type", "application/octet-stream");
+        }
+
+        public void SetFormData(string formBody)
+        {
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(formBody);
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         }
     }
 }

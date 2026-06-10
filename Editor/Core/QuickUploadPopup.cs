@@ -18,10 +18,14 @@ namespace Wireframe
         {
             QuickUploadPopup window = GetWindow<QuickUploadPopup>(true, "Quick Upload", true);
             window.titleContent = new GUIContent("Quick Upload");
+            
+            int width = 300;
+            int height = 300;
+            Vector2 center = EditorGUIUtility.GetMainWindowPosition().center;
             window.position = new Rect(
-                (Screen.currentResolution.width - 300) / 2f,
-                (Screen.currentResolution.height - 100) / 2f,
-                300, 300
+                center.x - width/2f,
+                center.y - height/2f,
+                width, height
             );
             window.m_inputText = Preferences.DefaultDescriptionFormat;
             window.m_showFormattedDescription = Preferences.DefaultShowFormattedTextToggle;

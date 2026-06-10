@@ -4,10 +4,6 @@ namespace Wireframe
 {
     public partial class GoogleConfig
     {
-        /// <summary>
-        /// A Google Play Console application targeted by the Play Developer API.
-        /// PackageName is the unique application id (e.g. com.example.MyGame).
-        /// </summary>
         [Serializable]
         public class GooglePlayApp : DropdownElement
         {

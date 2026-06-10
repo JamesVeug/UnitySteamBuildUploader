@@ -11,6 +11,8 @@ namespace Wireframe
             Context context = base.CreateContext();
             context.AddCommand(Context.GOOGLE_DRIVE_APP_NAME_KEY, GetAppName);
             context.AddCommand(Context.GOOGLE_DRIVE_FOLDER_NAME_KEY, GetFolderName);
+            context.AddCommand(Context.GOOGLE_DRIVE_FOLDER_FILE_ID_KEY, GetFileID);
+            context.AddCommand(Context.GOOGLE_DRIVE_FOLDER_WEB_VIEW_URL_KEY, GetWebViewLink);
             return context;
         }
 
@@ -21,7 +23,17 @@ namespace Wireframe
 
         private string GetFolderName()
         {
-            return m_folder != null ? m_folder.DisplayName : "My Drive";
+            return m_folder != null ? m_folder.DisplayName : "My Folder";
+        }
+
+        private string GetFileID()
+        {
+            return m_recordedFileId;
+        }
+
+        private string GetWebViewLink()
+        {
+            return m_recordedWebViewLink;
         }
     }
 }

@@ -4,11 +4,6 @@ namespace Wireframe
 {
     public partial class GoogleConfig
     {
-        /// <summary>
-        /// A named Google Drive destination folder. FolderId is the value found in the
-        /// Drive folder URL (https://drive.google.com/drive/folders/&lt;FolderId&gt;).
-        /// An empty FolderId uploads to the root of "My Drive".
-        /// </summary>
         [Serializable]
         public class GoogleDriveFolder : DropdownElement
         {

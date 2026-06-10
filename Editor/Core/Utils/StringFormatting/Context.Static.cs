@@ -53,6 +53,8 @@ namespace Wireframe
         public const string APPLE_BUILD_NUMBER_KEY = "{appleBuildNumber}";
         public const string GOOGLE_DRIVE_APP_NAME_KEY = "{googleDriveAppName}";
         public const string GOOGLE_DRIVE_FOLDER_NAME_KEY = "{googleDriveFolderName}";
+        public const string GOOGLE_DRIVE_FOLDER_FILE_ID_KEY = "{googleDriveFileID}";
+        public const string GOOGLE_DRIVE_FOLDER_WEB_VIEW_URL_KEY = "{googleDriveWebViewURL}";
         public const string GOOGLE_CHAT_SPACE_NAME_KEY = "{googleChatSpaceName}";
         public const string GOOGLE_PLAY_PACKAGE_NAME_KEY = "{googlePlayPackageName}";
         public const string GOOGLE_PLAY_TRACK_KEY = "{googlePlayTrack}";
@@ -124,6 +126,8 @@ namespace Wireframe
             AddS(APPLE_BUILD_NUMBER_KEY, null, "The CFBundleVersion (build number) of the most recent Apple upload.");
             AddS(GOOGLE_DRIVE_APP_NAME_KEY, null, "The name of the Google App used to authenticate with Google Drive.");
             AddS(GOOGLE_DRIVE_FOLDER_NAME_KEY, null, "The name of the Google Drive folder receiving the upload.");
+            AddS(GOOGLE_DRIVE_FOLDER_FILE_ID_KEY, null, "ID of the last file that was uploaded.");
+            AddS(GOOGLE_DRIVE_FOLDER_WEB_VIEW_URL_KEY, null, "A URL to the last file that was uploaded.");
             AddS(GOOGLE_CHAT_SPACE_NAME_KEY, null, "The name of the Google Chat space receiving the message.");
             AddS(GOOGLE_PLAY_PACKAGE_NAME_KEY, null, "The application package name (e.g. com.example.MyGame) of the most recent Google Play upload.");
             AddS(GOOGLE_PLAY_TRACK_KEY, null, "The release track (internal/alpha/beta/production) of the most recent Google Play upload.");

@@ -3,7 +3,7 @@ namespace Wireframe
     internal partial class GoogleService : AService
     {
         public override string ServiceName => "Google";
-        public override string[] SearchKeywords => new string[]{"Google", "Drive", "Chat", "Messaging", "Cloud"};
+        public override string[] SearchKeywords => new string[]{"google", "drive", "chat", "messaging", "cloud"};
 
         public GoogleService()
         {

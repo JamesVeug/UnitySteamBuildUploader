@@ -51,6 +51,7 @@ namespace Wireframe
                     GoogleUIUtils.AppPopup.Refresh();
                     GoogleUIUtils.DriveFolderPopup.Refresh();
                     GoogleUIUtils.ChatSpacePopup.Refresh();
+                    GoogleUIUtils.PlayAppPopup.Refresh();
                     GoogleUIUtils.Save();
                 }
 
@@ -71,14 +72,20 @@ namespace Wireframe
                     _reorderableListOfGoogleChatSpacesPreferences.Initialize(config.chatSpaces, "Chat Spaces",
                         true, (_) =>
                         {
+                            GoogleUIUtils.AppPopup.Refresh();
+                            GoogleUIUtils.DriveFolderPopup.Refresh();
                             GoogleUIUtils.ChatSpacePopup.Refresh();
+                            GoogleUIUtils.PlayAppPopup.Refresh();
                             GoogleUIUtils.Save();
                         });
                 }
 
                 if (_reorderableListOfGoogleChatSpacesPreferences.OnGUI())
                 {
+                    GoogleUIUtils.AppPopup.Refresh();
+                    GoogleUIUtils.DriveFolderPopup.Refresh();
                     GoogleUIUtils.ChatSpacePopup.Refresh();
+                    GoogleUIUtils.PlayAppPopup.Refresh();
                     GoogleUIUtils.Save();
                 }
             }

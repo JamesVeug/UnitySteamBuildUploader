@@ -13,26 +13,26 @@ namespace Wireframe
     ///
     /// NOTE: This class's name path is saved in the JSON file so avoid renaming.
     /// </summary>
-    [Wiki(nameof(GooglePlayDestination), "destinations", "Upload an Android bundle/APK to Google Play and roll it out to a track.")]
+    [Wiki(nameof(GooglePlayDestination), "destinations", "Upload an Android bundle/APK to Google Play with track rolling optional.")]
     [UploadDestination("Google Play")]
     public partial class GooglePlayDestination : AUploadDestination
     {
-        [Wiki("App", "Which Google App's OAuth2 access token will authenticate the upload (must include the androidpublisher scope).", 1)]
+        [Wiki("App", "Which Google App to use to upload to to (must include the androidpublisher scope).", 1)]
         private GoogleConfig.GoogleApp m_app;
 
-        [Wiki("Play App", "Which Google Play application to publish to (selects the package name).", 2)]
+        [Wiki("Play App", "Which Google Play application to publish to.", 2)]
         private GoogleConfig.GooglePlayApp m_playApp;
 
-        [Wiki("Track", "Which release track receives the upload. Maps directly to internal/alpha/beta/production on Google Play.", 3)]
+        [Wiki("Track", "Which release track receives the upload.", 3)]
         private GooglePlayTrack m_track = GooglePlayTrack.Internal;
 
         [Wiki("Release Status", "Status of the release on the track. 'completed' rolls out immediately; 'draft' stages it for manual rollout.", 4)]
         private string m_releaseStatusFormat = "completed";
 
-        [Wiki("Release Name", "Optional release name shown in the Play Console. Supports {keys}.", 5)]
+        [Wiki("Release Name", "Optional release name shown in the Play Console. Supports string formatting like {version}.", 5)]
         private string m_releaseNameFormat = "{taskProfileName} {version}";
 
-        [Wiki("Release Notes", "Optional release notes (en-US). Supports {keys}.", 6)]
+        [Wiki("Release Notes", "Optional release notes (en-US). Supports string formatting like {version}.", 6)]
         private string m_releaseNotesFormat = Context.TASK_DESCRIPTION_KEY;
 
         [Wiki("Binary File Name", "When the source is a folder, the file name to upload. eg: 'game.aab'. Leave empty to auto-detect a single .aab or .apk in the source folder.", 7)]
@@ -103,7 +103,7 @@ namespace Wireframe
             string releaseName = m_context.FormatString(m_releaseNameFormat);
             string releaseNotes = m_context.FormatString(m_releaseNotesFormat);
 
-            int progressId = ProgressUtils.Start("Google Play", $"Publishing {Path.GetFileName(binaryPath)} to {track}...");
+            int progressId = ProgressUtils.Start("Google Play", $"Publishing {packageName} to {track}...");
             try
             {
                 GooglePlayUploadResponse response = await GooglePlay.PublishBinary(

@@ -5,9 +5,6 @@ namespace Wireframe
 {
     public partial class GoogleConfig
     {
-        /// <summary>
-        /// A named Google Chat space
-        /// </summary>
         [Serializable]
         public class GoogleChatSpace : DropdownElement
         {

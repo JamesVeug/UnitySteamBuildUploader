@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 namespace Wireframe
 {
     /// <summary>
-    /// Upload the build to a folder on Google Drive using OAuth2.
+    /// Upload the build to a folder on Google Drive
     ///
     /// NOTE: This class's name path is saved in the JSON file so avoid renaming.
     /// </summary>
-    [Wiki(nameof(GoogleDriveDestination), "destinations", "Upload the build to a folder on Google Drive.")]
+    [Wiki(nameof(GoogleDriveDestination), "destinations", "Upload a build to Google Drive.")]
     [UploadDestination("Google Drive")]
     public partial class GoogleDriveDestination : AUploadDestination
     {
-        [Wiki("App", "Which Google App's OAuth2 access token will be used to authenticate the upload.", 1)]
+        [Wiki("App", "Which Google App to use to upload.", 1)]
         private GoogleConfig.GoogleApp m_app;
 
         [Wiki("Folder", "Which Google Drive folder to upload to. Leave unset to upload to the root of My Drive.", 2)]
         private GoogleConfig.GoogleDriveFolder m_folder;
 
-        [Wiki("File Name", "Name the uploaded file will appear as on Drive. Supports {keys} like {version}, {buildTarget} and {time}.", 3)]
+        [Wiki("File Name", "Name the uploaded file will appear as on Drive. Supports string formatting like {version}, {buildTarget} and {time}.", 3)]
         private string m_fileNameFormat = "{taskProfileName}_{version}_{buildTarget}";
 
         [Wiki("Zip Contents", "When uploading a folder: if true, the folder is zipped and uploaded as a single file. If false, each top-level file is uploaded individually.", 4)]

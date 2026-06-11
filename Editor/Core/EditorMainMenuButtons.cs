@@ -13,7 +13,7 @@ namespace MainMenuButtons
 		static IEnumerable<MainToolbarElement> CreateUploadButtonsDropdown()
 		{
 			yield return new MainToolbarDropdown(
-				new MainToolbarContent("Upload", Utils.WindowIcon, "Pick a profile to begin uploading"),
+				new MainToolbarContent(Utils.WindowIcon, "Build Uploader\nPick a profile to open a menu to start uploading"),
 				rect =>
 				{
 					var menu = new GenericMenu();

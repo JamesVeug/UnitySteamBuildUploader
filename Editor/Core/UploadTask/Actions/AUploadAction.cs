@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -58,7 +59,10 @@ namespace Wireframe
         /// <param name="warnings">Add to this list any warnings you need</param>
         public virtual void TryGetWarnings(List<string> warnings)
         {
-            
+            if (GetType().GetCustomAttribute(typeof(ExperimentalAttribute)) != null)
+            {
+                warnings.Add($"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues");
+            }
         }
 
         /// <summary>

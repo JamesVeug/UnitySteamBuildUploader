@@ -11,6 +11,7 @@ namespace Wireframe
     ///
     /// NOTE: This class's namespace path is saved in the JSON file so avoid renaming.
     /// </summary>
+    [Experimental]
     [Wiki(nameof(EmailSendMailAction), "actions", "Send an email via SMTP using one of the accounts configured under Build Uploader -> Services -> Email.")]
     [UploadAction("Email Send Mail")]
     public partial class EmailSendMailAction : AUploadAction

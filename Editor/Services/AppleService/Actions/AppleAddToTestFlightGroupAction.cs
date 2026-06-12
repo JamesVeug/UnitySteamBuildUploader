@@ -13,6 +13,7 @@ namespace Wireframe
     ///
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [Experimental]
     [Wiki(nameof(AppleAddToTestFlightGroupAction), "actions",
         "Add an uploaded Apple build to one or more TestFlight beta groups.")]
     [UploadAction("Apple Add To TestFlight Group")]

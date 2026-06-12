@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Wireframe
 {
+    [Experimental]
     [Wiki("XboxUploadDestination", "destinations", "Upload a game package to Microsoft Partner Center via the Store Submission API.")]
     [UploadDestination("Xbox")]
     public partial class XboxUploadDestination : AUploadDestination

@@ -13,6 +13,7 @@ namespace Wireframe
     /// Apple's REST API does not expose a public binary upload endpoint, so the binary
     /// step is intentionally a subprocess. macOS only.
     /// </summary>
+    [Experimental]
     [Wiki("Apple", "destinations", "Upload an .ipa to App Store Connect / TestFlight via xcrun altool.")]
     [UploadDestination("Apple TestFlight")]
     public partial class AppleUploadDestination : AUploadDestination

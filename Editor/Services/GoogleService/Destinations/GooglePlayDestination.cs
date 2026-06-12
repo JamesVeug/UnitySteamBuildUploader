@@ -13,6 +13,7 @@ namespace Wireframe
     ///
     /// NOTE: This class's name path is saved in the JSON file so avoid renaming.
     /// </summary>
+    [Experimental]
     [Wiki(nameof(GooglePlayDestination), "destinations", "Upload an Android bundle/APK to Google Play with track rolling optional.")]
     [UploadDestination("Google Play")]
     public partial class GooglePlayDestination : AUploadDestination

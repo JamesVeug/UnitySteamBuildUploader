@@ -10,6 +10,7 @@ namespace Wireframe
     ///
     /// NOTE: This class's name path is saved in the JSON file so avoid renaming.
     /// </summary>
+    [Experimental]
     [Wiki(nameof(GoogleDriveDestination), "destinations", "Upload a build to Google Drive.")]
     [UploadDestination("Google Drive")]
     public partial class GoogleDriveDestination : AUploadDestination

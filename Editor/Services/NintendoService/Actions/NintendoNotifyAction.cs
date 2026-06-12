@@ -9,6 +9,7 @@ namespace Wireframe
     ///
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [Experimental]
     [Wiki(nameof(NintendoNotifyAction), "actions", "Sends a notification about a Nintendo build upload to the team's internal webhook.")]
     [UploadAction("Nintendo Notify")]
     public partial class NintendoNotifyAction : AUploadAction

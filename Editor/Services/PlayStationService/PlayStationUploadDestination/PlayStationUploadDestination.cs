@@ -10,6 +10,7 @@ namespace Wireframe
     ///
     /// NOTE: This classes name path is saved in the JSON file so avoid renaming
     /// </summary>
+    [Experimental]
     [Wiki("PlayStation", "destinations", "Uploads files to PlayStation Partners via the local PlayStation SDK publishing tool")]
     [UploadDestination("PlayStation")]
     public partial class PlayStationUploadDestination : AUploadDestination

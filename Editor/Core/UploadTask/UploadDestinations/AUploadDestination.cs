@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Wireframe
@@ -95,7 +96,10 @@ namespace Wireframe
         /// <param name="ctx">Context for formatting strings such as {version}</param>
         public virtual void TryGetWarnings(List<string> warnings, Context ctx)
         {
-            
+            if (GetType().GetCustomAttribute(typeof(ExperimentalAttribute)) != null)
+            {
+                warnings.Add($"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues");
+            }
         }
 
         /// <summary>

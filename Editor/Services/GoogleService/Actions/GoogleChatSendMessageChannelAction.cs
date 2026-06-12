@@ -9,6 +9,7 @@ namespace Wireframe
     ///
     /// NOTE: This class's name path is saved in the JSON file so avoid renaming.
     /// </summary>
+    [Experimental]
     [Wiki(nameof(GoogleChatSendMessageChannelAction), "actions", "Send a message to a Google Chat space using an incoming webhook.")]
     [UploadAction("Google Chat Send Message")]
     public partial class GoogleChatSendMessageChannelAction : AUploadAction

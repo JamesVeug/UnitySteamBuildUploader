@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -86,32 +87,34 @@ namespace Wireframe
             return response.Successful;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!NintendoSDK.Enabled)
+
+            NintendoService service = InternalUtils.GetService<NintendoService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
             {
-                errors.Add("Nintendo is not enabled. Enable it in the Preferences.");
+                errors.Add(serviceReason);
             }
 
             if (string.IsNullOrEmpty(NintendoSDK.NotificationWebhook))
             {
-                errors.Add("Nintendo notification webhook URL is not set. Set it in Preferences.");
+                errors.Add(service.PreferencesLink("Nintendo notification webhook URL is not set.", ""));
             }
 
             if (m_app == null)
             {
-                errors.Add("Nintendo Title is not set. Select a Title.");
+                errors.Add(new GUIContent("Nintendo App is not set."));
             }
             else if (string.IsNullOrEmpty(m_app.TitleID))
             {
-                errors.Add($"Nintendo Title '{m_app.Name}' does not have a Title ID set.");
+                errors.Add(service.ProjectSettingsLink($"Nintendo App '{m_app.Name}' does not have a Title ID set.", ""));
             }
 
             if (string.IsNullOrEmpty(m_text))
             {
-                errors.Add("Text is not set. Set the notification text.");
+                errors.Add(new GUIContent("Text is not set."));
             }
         }
 

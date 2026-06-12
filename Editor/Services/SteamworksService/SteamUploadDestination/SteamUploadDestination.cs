@@ -419,62 +419,63 @@ namespace Wireframe
             }
         }
 
-        public override void TryGetWarnings(List<string> warnings, Context ctx)
+        public override void TryGetWarnings(List<GUIContent> warnings, Context ctx)
         {
             base.TryGetWarnings(warnings, ctx);
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
-            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out string serviceReason))
+
+            SteamworksService service = InternalUtils.GetService<SteamworksService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
             {
                 errors.Add(serviceReason);
             }
-            
+
             if (m_app == null)
             {
-                errors.Add("No App selected");
+                errors.Add(new GUIContent("No App selected"));
             }
-            
+
             if(!m_createAppFile)
             {
                 if (string.IsNullOrEmpty(m_appFileName))
                 {
-                    errors.Add("No App File name specified. Either create a new App File or specify an existing App File name.");
+                    errors.Add(new GUIContent("No App File name specified. Either create a new App File or specify an existing App File name."));
                 }
                 else
                 {
                     string[] appFiles = GetVDFFile(m_appFileName);
                     if (appFiles.Length == 0)
                     {
-                        errors.Add("App File '" + m_appFileName + "' not found in path '" + SteamSDK.SteamScriptPath + "'!");
+                        errors.Add(new GUIContent($"App File '{m_appFileName}' not found in path '{SteamSDK.SteamScriptPath}'!"));
                     }
                     else if(appFiles.Length > 1)
                     {
-                        errors.Add("Multiple App Files found with name: '" + m_appFileName + "'. Specify a unique App File name.");
+                        errors.Add(new GUIContent($"Multiple App Files found with name: '{m_appFileName}'. Specify a unique App File name."));
                     }
                 }
             }
 
             if (m_depots == null || m_depots.Count == 0)
             {
-                errors.Add("No Depot selected");
+                errors.Add(new GUIContent("No Depot selected"));
             }
 
             if (m_destinationBranch == null)
             {
-                errors.Add("No Branch selected");
+                errors.Add(new GUIContent("No Branch selected"));
             }
             else if (m_destinationBranch.name == "default")
             {
-                errors.Add("Uploading to the 'default' branch is not allowed by the SteamSDK.\nUse none or an empty branch name instead and use the Steamworks dashboard to assign to default.");
+                errors.Add(new GUIContent("Uploading to the 'default' branch is not allowed by the SteamSDK.\nUse none or an empty branch name instead and use the Steamworks dashboard to assign to default."));
             }
 
             if (string.IsNullOrEmpty(m_descriptionFormat))
             {
-                errors.Add("No build description specified.");
+                errors.Add(new GUIContent("No build description specified."));
             }
         }
     }

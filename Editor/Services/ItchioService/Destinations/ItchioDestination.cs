@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -67,33 +68,42 @@ namespace Wireframe
             return success;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
-            if (!InternalUtils.GetService<ItchioService>().IsReadyToStartBuild(out string serviceReason))
+
+            ItchioService service = InternalUtils.GetService<ItchioService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
             {
                 errors.Add(serviceReason);
             }
-            
-            if (m_user == null || string.IsNullOrEmpty(m_user.Name))
+
+            if (m_user == null)
             {
-                errors.Add("User not specified");
+                errors.Add(new GUIContent("User not specified"));
+            }
+            else if (m_user == null || string.IsNullOrEmpty(m_user.Name))
+            {
+                errors.Add(service.ProjectSettingsLink("User is not set", ""));
             }
 
-            if (m_game == null || string.IsNullOrEmpty(m_game.Name))
+            if (m_game == null)
             {
-                errors.Add("Game not specified");
+                errors.Add(new GUIContent("Game not specified"));
             }
-            
+            else if (string.IsNullOrEmpty(m_game.Name))
+            {
+                errors.Add(service.ProjectSettingsLink("Game name is not set", ""));
+            }
+
             if (m_channels.Count == 0)
             {
-                errors.Add("No channels specified");
+                errors.Add(service.ProjectSettingsLink("No channels specified", ""));
             }
 
             if (string.IsNullOrEmpty(m_descriptionFormat))
             {
-                errors.Add("Description format is empty");
+                errors.Add(new GUIContent("Description format is empty"));
             }
         }
 

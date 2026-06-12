@@ -132,37 +132,38 @@ namespace Wireframe
             return await Discord.SendMessageToChannel(m_channel.ChannelID, text, m_app.Token, m_app.IsBot, embeds, stepResult);
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!Discord.Enabled)
+            DiscordService service = InternalUtils.GetService<DiscordService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
-                errors.Add("Discord is not enabled. Enable it in the settings.");
+                errors.Add(reason);
             }
-            
+
             if (m_app == null)
             {
-                errors.Add("Discord App is not set. Select a Discord App.");
+                errors.Add(new GUIContent("Discord App is not set."));
             }
             else if (string.IsNullOrEmpty(m_app.Token))
             {
-                errors.Add($"Discord App {m_app.Name} does not have a token set. Set the token in the Preferences!");
+                errors.Add(service.PreferencesLink($"Discord App {m_app.Name} does not have a token set.", ""));
             }
-            
+
             if (m_server == null)
             {
-                errors.Add("Server is not set. Select a Discord Server.");
+                errors.Add(new GUIContent("Server is not set."));
             }
-            
+
             if (m_channel == null)
             {
-                errors.Add("Channel is not set. Set the Channel ID.");
+                errors.Add(new GUIContent("Channel is not set."));
             }
-            
+
             if (string.IsNullOrEmpty(m_text))
             {
-                errors.Add("Text is not set. Set the text to send.");
+                errors.Add(new GUIContent("Text is not set."));
             }
         }
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -163,53 +164,49 @@ namespace Wireframe
             return ipas[0];
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!Apple.Enabled)
+            AppleService service = InternalUtils.GetService<AppleService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
-                errors.Add("Apple is not enabled. Enable it in Preferences -> Build Uploader -> Services -> Apple.");
-            }
-
-            if (!Apple.IsRunningOnMac)
-            {
-                errors.Add("Apple uploads require macOS (xcrun altool ships with Xcode). The Unity Editor is not currently running on macOS.");
+                errors.Add(reason);
             }
 
             if (m_apiKey == null)
             {
-                errors.Add("API Key is not set.");
+                errors.Add(new GUIContent("API Key is not set."));
             }
             else
             {
-                if (string.IsNullOrEmpty(m_apiKey.IssuerID)) 
-                    errors.Add($"API Key '{m_apiKey.Name}' is missing Issuer ID.");
-                
-                if (string.IsNullOrEmpty(m_apiKey.KeyID))   
-                    errors.Add($"API Key '{m_apiKey.Name}' is missing Key ID.");
-                
+                if (string.IsNullOrEmpty(m_apiKey.IssuerID))
+                    errors.Add(AppleService.Instance.PreferencesLink($"API Key '{m_apiKey.Name}' is missing Issuer ID.", ""));
+
+                if (string.IsNullOrEmpty(m_apiKey.KeyID))
+                    errors.Add(AppleService.Instance.PreferencesLink($"API Key '{m_apiKey.Name}' is missing Key ID.", ""));
+
                 if (string.IsNullOrEmpty(m_apiKey.PrivateKeyPath))
-                    errors.Add($"API Key '{m_apiKey.Name}' has no .p8 file path. Set it in Preferences.");
+                    errors.Add(AppleService.Instance.PreferencesLink($"API Key '{m_apiKey.Name}' has no .p8 file path.", ""));
             }
 
             if (m_app == null)
             {
-                errors.Add("App is not set.");
+                errors.Add(new GUIContent("App is not set."));
             }
             else if (string.IsNullOrEmpty(m_app.AppStoreConnectID))
             {
-                errors.Add($"App '{m_app.Name}' is missing its App Store Connect ID. Set it in Project Settings.");
+                errors.Add(AppleService.Instance.ProjectSettingsLink($"App '{m_app.Name}' is missing its App Store Connect ID.", ""));
             }
 
-            if (string.IsNullOrEmpty(m_buildVersionFormat)) 
-                errors.Add("Build Version format is empty.");
-            
-            if (string.IsNullOrEmpty(m_buildNumberFormat))  
-                errors.Add("Build Number format is empty.");
-            
-            if (m_findBuildTimeoutSeconds <= 0)             
-                errors.Add("Find Build Timeout must be greater than zero.");
+            if (string.IsNullOrEmpty(m_buildVersionFormat))
+                errors.Add(new GUIContent("Build Version format is empty."));
+
+            if (string.IsNullOrEmpty(m_buildNumberFormat))
+                errors.Add(new GUIContent("Build Number format is empty."));
+
+            if (m_findBuildTimeoutSeconds <= 0)
+                errors.Add(new GUIContent("Find Build Timeout must be greater than zero."));
         }
 
         public override Dictionary<string, object> Serialize()

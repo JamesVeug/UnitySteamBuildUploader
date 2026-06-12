@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -117,7 +118,7 @@ namespace Wireframe
             Initialize();
         }
 
-        public override void TryGetErrors(UploadConfig config, List<string> errors)
+        public override void TryGetErrors(UploadConfig config, List<GUIContent> errors)
         {
             base.TryGetErrors(config, errors);
             for (var i = 0; i < m_fileRegexes.Count; i++)
@@ -125,7 +126,7 @@ namespace Wireframe
                 var selection = m_fileRegexes[i];
                 if (string.IsNullOrEmpty(selection.Regex))
                 {
-                    errors.Add($"Regex at index {i+1} is empty");
+                    errors.Add(new GUIContent($"Regex at index {i+1} is empty"));
                 }
                 else
                 {
@@ -135,7 +136,7 @@ namespace Wireframe
                     }
                     catch (Exception e)
                     {
-                        errors.Add("Bad Regex: " + e.Message);
+                        errors.Add(new GUIContent("Bad Regex: " + e.Message));
                     }
                 }
             }

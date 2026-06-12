@@ -167,11 +167,11 @@ namespace Wireframe
                     return false;
                 }
                 
-                List<string> errors = new List<string>();
+                List<GUIContent> errors = new List<GUIContent>();
                 UploadAction.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
-                    reason = string.Join(", ", errors);
+                    reason = string.Join(", ", errors.ConvertAll(e => e.text));
                     return false;
                 }
                 

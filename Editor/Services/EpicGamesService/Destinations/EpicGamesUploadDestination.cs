@@ -80,52 +80,53 @@ namespace Wireframe
             return "";
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
-            if (string.IsNullOrEmpty(EpicGames.SDKPath))
+            EpicGamesService service = InternalUtils.GetService<EpicGamesService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
-                errors.Add("SDK Path not set in Preferences");
+                errors.Add(reason);
             }
-            
+
             if (Organization == null)
             {
-                errors.Add("Organization is not set");
+                errors.Add(new GUIContent("Organization is not set"));
             }
 
             if (Product == null)
             {
-                errors.Add("Product is not set");
+                errors.Add(new GUIContent("Product is not set"));
             }
 
             if (Artifact == null)
             {
-                errors.Add("Artifact is not set");
+                errors.Add(new GUIContent("Artifact is not set"));
             }
 
             if (string.IsNullOrEmpty(AppLaunch))
             {
-                errors.Add("App Launch is not set");
+                errors.Add(new GUIContent("App Launch is not set"));
             }
 
             if (string.IsNullOrEmpty(BuildVersion))
             {
-                errors.Add("Build Version not set");
+                errors.Add(new GUIContent("Build Version not set"));
             }
             else if (!ValidateBuildVersion())
             {
-                errors.Add("Invalid Build Version: Should only contain characters from the following sets a-z, A-Z, 0-9, or .+-_");
+                errors.Add(new GUIContent("Invalid Build Version: Should only contain characters from the following sets a-z, A-Z, 0-9, or .+-_"));
             }
-            
+
             if (Utils.PathContainsInvalidCharacters(GetCloudDir()))
             {
-                errors.Add("Cloud Directory contains invalid characters: '" + GetCloudDir() + "'");
+                errors.Add(new GUIContent("Cloud Directory contains invalid characters: '" + GetCloudDir() + "'"));
             }
 
             if (Product != null && Organization != null)
             {
                 if (string.IsNullOrEmpty(GetSecret()))
                 {
-                    errors.Add("Client Secret is not set");
+                    errors.Add(new GUIContent("Client Secret is not set"));
                 }
             }
         }

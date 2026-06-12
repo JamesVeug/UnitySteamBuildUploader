@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -54,7 +55,7 @@ namespace Wireframe
         /// </summary>
         /// <param name="config">Config that we are checking for errors</param>
         /// <param name="errors">Add errors to this to prevent the user from uploading</param>
-        public virtual void TryGetErrors(UploadConfig config, List<string> errors)
+        public virtual void TryGetErrors(UploadConfig config, List<GUIContent> errors)
         {
             
         }
@@ -65,7 +66,7 @@ namespace Wireframe
         /// </summary>
         /// <param name="source">The source to check for errors</param>
         /// <param name="errors">Add errors to this to prevent the user from uploading</param>
-        public virtual void TryGetErrors(AUploadSource source, List<string> errors)
+        public virtual void TryGetErrors(AUploadSource source, List<GUIContent> errors)
         {
             
         }
@@ -76,32 +77,32 @@ namespace Wireframe
         /// </summary>
         /// <param name="destination">The destination to check for errors</param>
         /// <param name="errors">Add errors to this to prevent the user from uploading</param>
-        public virtual void TryGetErrors(AUploadDestination destination, List<string> errors)
+        public virtual void TryGetErrors(AUploadDestination destination, List<GUIContent> errors)
         {
             
         }
-        
+
         /// <summary>
         /// Get warnings to alert the user about this modifier that won't prevent uploading
         /// Example: A path does not exist but we'll still create it
         /// </summary>
         /// <param name="config">The config to check for potential warnings</param>
         /// <param name="warnings">Add warnings to this to alert the user</param>
-        public virtual void TryGetWarnings(UploadConfig config, List<string> warnings)
+        public virtual void TryGetWarnings(UploadConfig config, List<GUIContent> warnings)
         {
             if (GetType().GetCustomAttribute(typeof(ExperimentalAttribute)) != null)
             {
-                warnings.Add($"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues");
+                warnings.Add(new GUIContent("Experimental", $"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues"));
             }
         }
-        
+
         /// <summary>
         /// Get warnings according to the provided source about potential issues that won't prevent uploading
         /// Example: This source type is not recommended with this modifier
         /// </summary>
         /// <param name="source">The source to check warnings</param>
         /// <param name="warnings">Add warnings to this to alert the user</param>
-        public virtual void TryGetWarnings(AUploadSource source, List<string> warnings)
+        public virtual void TryGetWarnings(AUploadSource source, List<GUIContent> warnings)
         {
             
         }
@@ -112,7 +113,7 @@ namespace Wireframe
         /// </summary>
         /// <param name="destination"></param>
         /// <param name="warnings">Add warnings to this to alert the user</param>
-        public virtual void TryGetWarnings(AUploadDestination destination, List<string> warnings)
+        public virtual void TryGetWarnings(AUploadDestination destination, List<GUIContent> warnings)
         {
             
         }

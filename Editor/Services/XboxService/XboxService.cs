@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Wireframe
 {
     [Experimental]
@@ -16,15 +18,15 @@ namespace Wireframe
             // Required for reflection
         }
 
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!Xbox.Enabled)
             {
-                reason = "Xbox is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

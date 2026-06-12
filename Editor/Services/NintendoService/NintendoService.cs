@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Wireframe
 {
     [Experimental]
@@ -11,27 +13,27 @@ namespace Wireframe
             // Needed for reflection
         }
 
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!NintendoSDK.Enabled)
             {
-                reason = "Nintendo SDK is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
             if (!NintendoSDK.Instance.IsInitialized)
             {
-                reason = "Nintendo SDK is not initialized";
+                reason = PreferencesLink("Nintendo SDK is not initialized", "Nintendo SDK has not been setup. Either something isn't set correctly or is failing to setup correctly.");
                 return false;
             }
 
             if (string.IsNullOrEmpty(NintendoSDK.UserName))
             {
-                reason = "Nintendo Developer username not set in Preferences";
+                reason = PreferencesLink("Nintendo Developer username not set", "Username is required to upload to Nintendo");
                 return false;
             }
-
-            reason = "";
+            
+            reason = null;
             return true;
         }
 

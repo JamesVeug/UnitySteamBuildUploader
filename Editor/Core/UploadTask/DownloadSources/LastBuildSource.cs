@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -48,17 +49,17 @@ namespace Wireframe
             return LastBuildUtil.LastBuildDirectory;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
+
             if (string.IsNullOrEmpty(LastBuildUtil.LastBuildDirectory))
             {
-                errors.Add("No last build directory found. Build your project first.");
+                errors.Add(new GUIContent("No last build directory found. Build your project first."));
             }
             else if (!Directory.Exists(LastBuildUtil.LastBuildDirectory))
             {
-                errors.Add($"Last build directory does not exist: {LastBuildUtil.LastBuildDirectory}");
+                errors.Add(new GUIContent($"Last build directory does not exist: {LastBuildUtil.LastBuildDirectory}"));
             }
         }
 

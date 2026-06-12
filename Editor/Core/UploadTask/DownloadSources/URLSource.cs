@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
+using UnityEngine;
 
 // TODO: Move requests to a wrapper
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -127,18 +128,18 @@ namespace Wireframe
             return m_sourcePath;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
+
             if (string.IsNullOrEmpty(m_url))
             {
-                errors.Add("URL not set");
+                errors.Add(new GUIContent("URL not set"));
             }
 
             if (string.IsNullOrEmpty(m_fileName))
             {
-                errors.Add("File name not set");
+                errors.Add(new GUIContent("File name not set"));
             }
         }
 

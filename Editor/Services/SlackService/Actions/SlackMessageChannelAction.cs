@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -96,37 +97,38 @@ namespace Wireframe
             return response.Successful;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-
-            if (!Slack.Enabled)
-            {
-                errors.Add("Slack is not enabled. Enable it in the settings.");
-            }
             
+            SlackService service = InternalUtils.GetService<SlackService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
+            {
+                errors.Add(serviceReason);
+            }
+
             if (m_app == null)
             {
-                errors.Add("Slack App is not set. Select a Slack App.");
+                errors.Add(new GUIContent("Slack App is not set."));
             }
             else if (string.IsNullOrEmpty(m_app.Token))
             {
-                errors.Add($"Slack App {m_app.Name} does not have a token set. Set the token in the Preferences!");
+                errors.Add(service.PreferencesLink($"Slack App {m_app.Name} does not have a token set.", ""));
             }
-            
+
             if (m_server == null)
             {
-                errors.Add("Server is not set. Select a Slack Server.");
+                errors.Add(new GUIContent("Server is not set."));
             }
-            
+
             if (m_channel == null)
             {
-                errors.Add("Channel is not set. Set the Channel ID.");
+                errors.Add(new GUIContent("Channel is not set."));
             }
-            
+
             if (string.IsNullOrEmpty(m_text))
             {
-                errors.Add("Text is not set. Set the text to send.");
+                errors.Add(new GUIContent("Text is not set."));
             }
         }
 

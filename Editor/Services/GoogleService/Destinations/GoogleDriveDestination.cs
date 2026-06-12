@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -142,27 +143,28 @@ namespace Wireframe
             }
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!InternalUtils.GetService<GoogleService>().IsReadyToStartBuild(out string serviceReason))
+            GoogleService service = InternalUtils.GetService<GoogleService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
             {
                 errors.Add(serviceReason);
             }
 
             if (m_app == null)
             {
-                errors.Add("Google App is not set. Select a Google App.");
+                errors.Add(new GUIContent("Google App is not set."));
             }
             else if (string.IsNullOrEmpty(m_app.Token))
             {
-                errors.Add($"Google App {m_app.Name} does not have an OAuth2 access token set. Set it in Preferences.");
+                errors.Add(service.PreferencesLink($"Google App {m_app.Name} does not have an OAuth2 access token set.", ""));
             }
 
             if (string.IsNullOrEmpty(m_fileNameFormat))
             {
-                errors.Add("File Name Format is not set.");
+                errors.Add(new GUIContent("File Name Format is not set."));
             }
         }
 

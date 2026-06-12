@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -54,9 +55,9 @@ namespace Wireframe
             m_context = null;
         }
         
-        public List<string> GetAllErrors()
+        public List<GUIContent> GetAllErrors()
         {
-            List<string> errors = new List<string>();
+            List<GUIContent> errors = new List<GUIContent>();
             errors.AddRange(GetSourceErrors());
             errors.AddRange(GetModifierErrors());
             errors.AddRange(GetDestinationErrors());
@@ -65,9 +66,9 @@ namespace Wireframe
             return errors;
         }
 
-        public List<string> GetAllWarnings()
+        public List<GUIContent> GetAllWarnings()
         {
-            List<string> warnings = new List<string>();
+            List<GUIContent> warnings = new List<GUIContent>();
             warnings.AddRange(GetSourceWarnings());
             warnings.AddRange(GetModifierWarnings());
             warnings.AddRange(GetDestinationWarnings());
@@ -76,9 +77,9 @@ namespace Wireframe
             return warnings;
         }
 
-        public List<string> GetSourceErrors()
+        public List<GUIContent> GetSourceErrors()
         {
-            List<string> errors = new List<string>();
+            List<GUIContent> errors = new List<GUIContent>();
             foreach (SourceData sourceData in m_buildSources)
             {
                 if (!sourceData.Enabled)
@@ -88,7 +89,7 @@ namespace Wireframe
 
                 if (sourceData.Source == null)
                 {
-                    errors.Add("Source not set");
+                    errors.Add(new GUIContent("Source not set"));
                     continue;
                 }
                 
@@ -98,19 +99,19 @@ namespace Wireframe
             return errors;
         }
         
-        public List<string> GetModifierErrors()
+        public List<GUIContent> GetModifierErrors()
         {
-            List<string> errors = new List<string>();
+            List<GUIContent> errors = new List<GUIContent>();
             foreach (ModifierData modifier in m_modifiers)
             {
                 if (!modifier.Enabled)
                 {
                     continue;
                 }
-                
+
                 if (modifier.ModifierType == null)
                 {
-                    errors.Add("Modifier type not set");
+                    errors.Add(new GUIContent("Modifier type not set"));
                     continue;
                 }
                 
@@ -120,19 +121,19 @@ namespace Wireframe
             return errors;
         }
         
-        public List<string> GetPostActionErrors()
+        public List<GUIContent> GetPostActionErrors()
         {
-            List<string> errors = new List<string>();
+            List<GUIContent> errors = new List<GUIContent>();
             foreach (UploadActionData action in m_postActions)
             {
                 if (action.WhenToExecute == UploadActionData.UploadCompleteStatus.Never)
                 {
                     continue;
                 }
-                
+
                 if (action.ActionType == null)
                 {
-                    errors.Add("Action type not set");
+                    errors.Add(new GUIContent("Action type not set"));
                     continue;
                 }
                 
@@ -142,9 +143,9 @@ namespace Wireframe
             return errors;
         }
         
-        public List<string> GetModifierWarnings()
+        public List<GUIContent> GetModifierWarnings()
         {
-            List<string> warnings = new List<string>();
+            List<GUIContent> warnings = new List<GUIContent>();
             foreach (ModifierData modifier in m_modifiers)
             {
                 if (!modifier.Enabled || modifier.ModifierType == null)
@@ -158,9 +159,9 @@ namespace Wireframe
             return warnings;
         }
         
-        public List<string> GetPostActionWarnings()
+        public List<GUIContent> GetPostActionWarnings()
         {
-            List<string> warnings = new List<string>();
+            List<GUIContent> warnings = new List<GUIContent>();
             foreach (UploadActionData action in m_postActions)
             {
                 if (action.WhenToExecute == UploadActionData.UploadCompleteStatus.Never || action.UploadAction == null)
@@ -174,9 +175,9 @@ namespace Wireframe
             return warnings;
         }
 
-        public List<string> GetDestinationErrors()
+        public List<GUIContent> GetDestinationErrors()
         {
-            List<string> errors = new List<string>();
+            List<GUIContent> errors = new List<GUIContent>();
             foreach (DestinationData destinationData in m_buildDestinations)
             {
                 if (!destinationData.Enabled)
@@ -186,7 +187,7 @@ namespace Wireframe
 
                 if (destinationData.Destination == null)
                 {
-                    errors.Add("Destination not set");
+                    errors.Add(new GUIContent("Destination not set"));
                     continue;
                 }
                 
@@ -209,9 +210,9 @@ namespace Wireframe
             return errors;
         }
 
-        public List<string> GetSourceWarnings()
+        public List<GUIContent> GetSourceWarnings()
         {
-            List<string> warnings = new List<string>();
+            List<GUIContent> warnings = new List<GUIContent>();
             foreach (SourceData sourceData in m_buildSources)
             {
                 if (sourceData.Enabled && sourceData.Source != null)
@@ -223,9 +224,9 @@ namespace Wireframe
             return warnings;
         }
 
-        public List<string> GetDestinationWarnings()
+        public List<GUIContent> GetDestinationWarnings()
         {
-            List<string> warnings = new List<string>();
+            List<GUIContent> warnings = new List<GUIContent>();
             foreach (DestinationData destinationData in m_buildDestinations)
             {
                 if (destinationData.Enabled && destinationData.Destination != null)
@@ -273,11 +274,11 @@ namespace Wireframe
                     return false;
                 }
 
-                List<string> errors = new List<string>();
+                List<GUIContent> errors = new List<GUIContent>();
                 source.Source.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
-                    reason = $"Source #{i+1}: " + string.Join(", ", errors);
+                    reason = $"Source #{i+1}: " + string.Join(", ", errors.ConvertAll(e => e.text));
                     return false;
                 }
                 
@@ -304,11 +305,11 @@ namespace Wireframe
                     return false;
                 }
 
-                List<string> errors = new List<string>();
+                List<GUIContent> errors = new List<GUIContent>();
                 destination.Destination.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
-                    reason = $"Destination #{i+1}: " + string.Join(", ", errors);
+                    reason = $"Destination #{i+1}: " + string.Join(", ", errors.ConvertAll(e => e.text));
                     return false;
                 }
                 
@@ -335,11 +336,11 @@ namespace Wireframe
                     return false;
                 }
 
-                List<string> errors = new List<string>();
+                List<GUIContent> errors = new List<GUIContent>();
                 modifier.Modifier.TryGetErrors(this, errors);
                 if (errors.Count > 0)
                 {
-                    reason = $"Modifier #{i+1}: " + string.Join(", ", errors);
+                    reason = $"Modifier #{i+1}: " + string.Join(", ", errors.ConvertAll(e => e.text));
                     return false;
                 }
             }
@@ -358,11 +359,11 @@ namespace Wireframe
                     return false;
                 }
 
-                List<string> errors = new List<string>();
+                List<GUIContent> errors = new List<GUIContent>();
                 action.UploadAction.TryGetErrors(errors);
                 if (errors.Count > 0)
                 {
-                    reason = $"Action #{i+1}: " + string.Join(", ", errors);
+                    reason = $"Action #{i+1}: " + string.Join(", ", errors.ConvertAll(e => e.text));
                     return false;
                 }
             }

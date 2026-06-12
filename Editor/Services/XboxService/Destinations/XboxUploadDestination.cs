@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -124,27 +125,30 @@ namespace Wireframe
             return zipPath;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-
-            if (!Xbox.Enabled)
-                errors.Add("Xbox is not enabled. Enable it in Edit → Preferences → Build Uploader → Services → Xbox.");
+            
+            XboxService service = InternalUtils.GetService<XboxService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
+            {
+                errors.Add(serviceReason);
+            }
 
             if (m_app == null)
             {
-                errors.Add("Xbox App is not set.");
+                errors.Add(new GUIContent("Xbox App is not set."));
             }
             else
             {
                 if (string.IsNullOrEmpty(m_app.ProductId))
-                    errors.Add("Xbox App has no Product ID. Set it in Project Settings → Build Uploader → Services → Xbox.");
+                    errors.Add(service.ProjectSettingsLink("Xbox App has no Product ID.", ""));
                 if (string.IsNullOrEmpty(m_app.TenantId))
-                    errors.Add("Xbox App has no Tenant ID. Set it in Project Settings → Build Uploader → Services → Xbox.");
+                    errors.Add(service.ProjectSettingsLink("Xbox App has no Tenant ID.", ""));
                 if (string.IsNullOrEmpty(m_app.ClientId))
-                    errors.Add("Xbox App has no Client ID. Set it in Project Settings → Build Uploader → Services → Xbox.");
+                    errors.Add(service.ProjectSettingsLink("Xbox App has no Client ID.", ""));
                 if (string.IsNullOrEmpty(m_app.ClientSecret))
-                    errors.Add($"Xbox App '{m_app.Name}' has no Client Secret. Set it in Edit → Preferences → Build Uploader → Services → Xbox.");
+                    errors.Add(service.PreferencesLink($"Xbox App '{m_app.Name}' has no Client Secret.", ""));
             }
         }
 

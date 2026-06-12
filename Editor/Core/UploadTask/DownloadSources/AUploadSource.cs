@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -87,7 +88,7 @@ namespace Wireframe
         /// </summary>
         /// <param name="warnings">Add to this list any warnings you need</param>
         /// <param name="ctx">Context for formatting strings such as {version}</param>
-        public virtual void TryGetWarnings(List<string> warnings)
+        public virtual void TryGetWarnings(List<GUIContent> warnings)
         {
             
         }
@@ -96,7 +97,7 @@ namespace Wireframe
         /// Executed during GUI and before an upload starts to check for any warnings in the configuration of this source
         /// </summary>
         /// <param name="errors">Errors found in this method</param>
-        public virtual void TryGetErrors(List<string> errors)
+        public virtual void TryGetErrors(List<GUIContent> errors)
         {
             
         }

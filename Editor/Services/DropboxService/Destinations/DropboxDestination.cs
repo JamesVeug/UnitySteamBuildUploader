@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -176,27 +177,28 @@ namespace Wireframe
             return $"Dropbox: {app} → {folder}";
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!InternalUtils.GetService<DropboxService>().IsReadyToStartBuild(out string serviceReason))
+            DropboxService service = InternalUtils.GetService<DropboxService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
             {
                 errors.Add(serviceReason);
             }
 
             if (m_app == null)
             {
-                errors.Add("Dropbox App is not set. Select a Dropbox App.");
+                errors.Add(new GUIContent("Dropbox App is not set."));
             }
             else if (string.IsNullOrEmpty(m_app.Token))
             {
-                errors.Add($"Dropbox App {m_app.Name} does not have an access token set. Set it in Preferences.");
+                errors.Add(service.PreferencesLink($"Dropbox App {m_app.Name} does not have an access token set.", ""));
             }
 
             if (string.IsNullOrEmpty(m_fileNameFormat))
             {
-                errors.Add("File Name Format is not set.");
+                errors.Add(new GUIContent("File Name Format is not set."));
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace Wireframe
+﻿using UnityEngine;
+
+namespace Wireframe
 {
     /// <summary>
     /// Used by reflection
@@ -13,34 +15,34 @@
             // Needed for reflection
         }
         
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!UnityCloud.Enabled)
             {
-                reason = "Unity Cloud is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
             
             if (string.IsNullOrEmpty(UnityCloud.Instance.Organization))
             {
-                reason = "Organization is not set in Preferences";
+                reason = PreferencesLink("Organization is not set", "Required to connect to Unity Cloud.");
                 return false;
             }
             
             if (string.IsNullOrEmpty(UnityCloud.Instance.Project))
             {
-                reason = "Project is not set in Preferences";
+                reason = PreferencesLink("Unity Project is not set", "Required to connect to Unity Cloud.");
                 return false;
             }
             
             if (string.IsNullOrEmpty(UnityCloud.Instance.Secret))
             {
-                reason = "Secret is not set in Preferences";
+                reason = PreferencesLink("Secret is not set", "Required to connect to Unity Cloud.");
                 return false;
             }
             
             
-            reason = "";
+            reason = null;
             return true;
         }
 

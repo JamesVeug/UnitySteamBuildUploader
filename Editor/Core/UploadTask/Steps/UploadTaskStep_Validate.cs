@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditorInternal;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -62,12 +63,12 @@ namespace Wireframe
                 Directory.CreateDirectory(cacheFolderPath);
                 uploadTask.CachedLocations[i] = cacheFolderPath;
                 
-                List<string> errors = config.GetAllErrors();
+                List<GUIContent> errors = config.GetAllErrors();
                 if (errors.Count > 0)
                 {
-                    foreach (string error in errors)
+                    foreach (GUIContent error in errors)
                     {
-                        result.SetFailed(error);
+                        result.SetFailed(string.IsNullOrEmpty(error.tooltip) ? error.text : error.text + ": " + error.tooltip);
                         valid = false;
                     }
                 }
@@ -76,12 +77,12 @@ namespace Wireframe
                     result.AddLog("No errors found in config: " + config.GUID);
                 }
                 
-                List<string> warnings = config.GetAllWarnings();
+                List<GUIContent> warnings = config.GetAllWarnings();
                 if (warnings.Count > 0)
                 {
-                    foreach (string warning in warnings)
+                    foreach (GUIContent warning in warnings)
                     {
-                        result.AddWarning(warning);
+                        result.AddWarning(warning.text + ": " + warning.tooltip);
                     }
                 }
             }
@@ -103,11 +104,11 @@ namespace Wireframe
                     continue;
                 }
 
-                List<string> errors = new List<string>();
+                List<GUIContent> errors = new List<GUIContent>();
                 action.UploadAction.TryGetErrors(errors);
-                foreach (string error in errors)
+                foreach (GUIContent error in errors)
                 {
-                    result.SetFailed(error);
+                    result.SetFailed(string.IsNullOrEmpty(error.tooltip) ? error.text : error.text + ": " + error.tooltip);
                     valid = false;
                 }
             }

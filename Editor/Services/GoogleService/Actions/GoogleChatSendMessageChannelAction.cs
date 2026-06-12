@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -64,27 +65,28 @@ namespace Wireframe
             return response.Successful;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!Google.Enabled)
+            GoogleService service = InternalUtils.GetService<GoogleService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
-                errors.Add("Google is not enabled. Enable it in the settings.");
+                errors.Add(reason);
             }
 
             if (m_space == null)
             {
-                errors.Add("Google Chat Space is not set. Select a Space.");
+                errors.Add(new GUIContent("Google Chat Space is not set."));
             }
             else if (string.IsNullOrEmpty(m_space.WebhookURL))
             {
-                errors.Add($"Google Chat Space {m_space.Name} does not have a Webhook URL set. Set it in Preferences.");
+                errors.Add(service.PreferencesLink($"Google Chat Space {m_space.Name} does not have a Webhook URL set.", ""));
             }
 
             if (string.IsNullOrEmpty(m_text))
             {
-                errors.Add("Text is not set. Set the text to send.");
+                errors.Add(new GUIContent("Text is not set."));
             }
         }
 

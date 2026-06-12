@@ -1,9 +1,14 @@
+using UnityEngine;
+
 namespace Wireframe
 {
     [Experimental]
     internal partial class AppleService : AService
     {
+        public static AppleService Instance => InternalUtils.GetService<AppleService>();
+        
         public override string ServiceName => "Apple";
+        public GUIContent NotRunningMacUI => new GUIContent("You are not running MacOS", "Apple uploads via xcrun altool which requires macOS. You are running " + System.Environment.OSVersion.Platform);
 
         public override string[] SearchKeywords => new string[]
         {
@@ -15,21 +20,21 @@ namespace Wireframe
             // Required for reflection
         }
 
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!Apple.Enabled)
             {
-                reason = "Apple is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
             if (!Apple.IsRunningOnMac)
             {
-                reason = "Apple uploads via xcrun altool which requires macOS. You are running " + System.Environment.OSVersion.Platform;
+                reason = NotRunningMacUI;
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

@@ -1,4 +1,6 @@
-﻿namespace Wireframe
+﻿using UnityEngine;
+
+namespace Wireframe
 {
     internal partial class GithubService : AService
     {
@@ -10,21 +12,21 @@
             // Needed for reflection
         }
         
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!Github.Enabled)
             {
-                reason = "Github is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
             if (string.IsNullOrEmpty(Github.Token))
             {
-                reason = "Github Token credentials are not set in Preferences";
+                reason = PreferencesLink("Github Token credentials is not set", "Token is required to authenticate with Github");
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

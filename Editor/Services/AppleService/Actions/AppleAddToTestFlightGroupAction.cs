@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -68,32 +69,32 @@ namespace Wireframe
             return allSucceeded;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
             if (!Apple.Enabled)
             {
-                errors.Add("Apple is not enabled. Enable it in Preferences -> Build Uploader -> Services -> Apple.");
+                errors.Add(AppleService.Instance.DisabledServiceGUI);
             }
 
             if (m_apiKey == null)
             {
-                errors.Add("API Key is not set.");
+                errors.Add(AppleService.Instance.PreferencesLink("API Key is not set.", ""));
             }
             else if (string.IsNullOrEmpty(m_apiKey.PrivateKeyPath))
             {
-                errors.Add($"API Key '{m_apiKey.Name}' has no .p8 file path. Set it in Preferences.");
+                errors.Add(AppleService.Instance.PreferencesLink($"API Key '{m_apiKey.Name}' has no .p8 file path.", ""));
             }
 
             if (m_app == null)
             {
-                errors.Add("App is not set.");
+                errors.Add(AppleService.Instance.ProjectSettingsLink("App is not set.", ""));
             }
 
             if (m_betaGroups == null || m_betaGroups.Count == 0)
             {
-                errors.Add("No beta groups selected.");
+                errors.Add(new GUIContent("No beta groups selected."));
             }
             else
             {
@@ -101,14 +102,14 @@ namespace Wireframe
                 {
                     if (group == null || string.IsNullOrEmpty(group.BetaGroupID))
                     {
-                        errors.Add($"Beta group '{group?.Name}' has no Beta Group ID.");
+                        errors.Add(AppleService.Instance.ProjectSettingsLink($"Beta group '{group?.Name}' has no Beta Group ID.", ""));
                     }
                 }
             }
 
             if (string.IsNullOrEmpty(m_buildIdFormat))
             {
-                errors.Add("Build ID format is empty.");
+                errors.Add(new GUIContent("Build ID format is empty."));
             }
         }
 

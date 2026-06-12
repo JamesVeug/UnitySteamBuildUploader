@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -12,22 +13,21 @@ namespace Wireframe
             // Needed for reflection
         }
 
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!EpicGames.Enabled)
             {
-                reason = "Epic is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
             if (string.IsNullOrEmpty(EpicGames.SDKPath))
             {
-                reason = "Epic SDK Path is not set in Preferences";
+                reason = PreferencesLink("EpicGames SDK Path is not set", "SDKPath is required to use the command line");
                 return false;
             }
 
-            reason = string.Empty;
-            
+            reason = null;
             return true;
         }
 

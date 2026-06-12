@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -99,48 +100,44 @@ namespace Wireframe
             return success;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
-            if (!InternalUtils.GetService<GithubService>().IsReadyToStartBuild(out string reason))
+
+            GithubService service = InternalUtils.GetService<GithubService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
                 errors.Add(reason);
             }
-            
-            if (string.IsNullOrEmpty(Github.Token))
-            {
-                errors.Add("Github Token is not set in Preferences");
-            }
-            
+
             if (string.IsNullOrEmpty(m_owner))
             {
-                errors.Add("Owner is not set");
+                errors.Add(new GUIContent("Owner is not set"));
             }
-            
+
             if (string.IsNullOrEmpty(m_repo))
             {
-                errors.Add("Repo is not set");
+                errors.Add(new GUIContent("Repo is not set"));
             }
-            
+
             if (string.IsNullOrEmpty(m_releaseName))
             {
-                errors.Add("Release Name is not set");
+                errors.Add(new GUIContent("Release Name is not set"));
             }
-            
+
             if (string.IsNullOrEmpty(m_tagName))
             {
-                errors.Add("Tag Name is not set");
+                errors.Add(new GUIContent("Tag Name is not set"));
             }
-            
+
             if (string.IsNullOrEmpty(m_target))
             {
-                errors.Add("Target is not set");
+                errors.Add(new GUIContent("Target is not set"));
             }
-            
+
             if (string.IsNullOrEmpty(m_descriptionFormat))
             {
-                errors.Add("Description Format is not set");
+                errors.Add(new GUIContent("Description Format is not set"));
             }
         }
 

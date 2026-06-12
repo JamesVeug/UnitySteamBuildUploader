@@ -1,8 +1,12 @@
+using UnityEngine;
+
 namespace Wireframe
 {
     [Experimental]
     internal partial class EmailService : AService
     {
+        public static EmailService Instance => InternalUtils.GetService<EmailService>();
+
         public override string ServiceName => "Email";
         public override string[] SearchKeywords => new string[]{"email", "mail", "smtp", "send mail", "messaging"};
 
@@ -11,22 +15,22 @@ namespace Wireframe
             // Needed for reflection
         }
 
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!Email.Enabled)
             {
-                reason = "Email is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
             EmailConfig config = EmailUIUtils.GetConfig(false);
             if (config == null || config.accounts == null || config.accounts.Count == 0)
             {
-                reason = "Email has no accounts configured. Add one in Project Settings -> Build Uploader -> Services -> Email.";
+                reason = ProjectSettingsLink("No Email accounts", "Email accounts are used to send emails to people");
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

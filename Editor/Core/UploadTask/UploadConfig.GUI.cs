@@ -119,19 +119,19 @@ namespace Wireframe
 
                     if (Enabled)
                     {
-                        List<string> sourceErrors = GetSourceErrors();
+                        List<GUIContent> sourceErrors = GetSourceErrors();
                         if (sourceErrors.Count > 0)
                         {
-                            foreach (string error in sourceErrors)
+                            foreach (GUIContent error in sourceErrors)
                             {
                                 DrawError(error);
                             }
                         }
 
-                        List<string> sourceWarnings = GetSourceWarnings();
+                        List<GUIContent> sourceWarnings = GetSourceWarnings();
                         if (sourceWarnings.Count > 0)
                         {
-                            foreach (string warning in sourceWarnings)
+                            foreach (GUIContent warning in sourceWarnings)
                             {
                                 DrawWarning(warning);
                             }
@@ -150,19 +150,19 @@ namespace Wireframe
 
                     if (Enabled)
                     {
-                        List<string> modifierErrors = GetModifierErrors();
+                        List<GUIContent> modifierErrors = GetModifierErrors();
                         if (modifierErrors.Count > 0)
                         {
-                            foreach (string error in modifierErrors)
+                            foreach (GUIContent error in modifierErrors)
                             {
                                 DrawError(error);
                             }
                         }
 
-                        List<string> modifierWarnings = GetModifierWarnings();
+                        List<GUIContent> modifierWarnings = GetModifierWarnings();
                         if (modifierWarnings.Count > 0)
                         {
-                            foreach (string warning in modifierWarnings)
+                            foreach (GUIContent warning in modifierWarnings)
                             {
                                 DrawWarning(warning);
                             }
@@ -207,19 +207,19 @@ namespace Wireframe
 
                     if (Enabled)
                     {
-                        List<string> destinationErrors = GetDestinationErrors();
+                        List<GUIContent> destinationErrors = GetDestinationErrors();
                         if (destinationErrors.Count > 0)
                         {
-                            foreach (string error in destinationErrors)
+                            foreach (GUIContent error in destinationErrors)
                             {
                                 DrawError(error);
                             }
                         }
 
-                        List<string> destinationWarnings = GetDestinationWarnings();
+                        List<GUIContent> destinationWarnings = GetDestinationWarnings();
                         if (destinationWarnings.Count > 0)
                         {
-                            foreach (string warning in destinationWarnings)
+                            foreach (GUIContent warning in destinationWarnings)
                             {
                                 DrawWarning(warning);
                             }
@@ -231,19 +231,19 @@ namespace Wireframe
                 {
                     using (new EditorGUILayout.VerticalScope())
                     {
-                        List<string> modifierErrors = GetPostActionErrors();
+                        List<GUIContent> modifierErrors = GetPostActionErrors();
                         if (modifierErrors.Count > 0)
                         {
-                            foreach (string error in modifierErrors)
+                            foreach (GUIContent error in modifierErrors)
                             {
                                 DrawError(error);
                             }
                         }
 
-                        List<string> modifierWarnings = GetPostActionWarnings();
+                        List<GUIContent> modifierWarnings = GetPostActionWarnings();
                         if (modifierWarnings.Count > 0)
                         {
-                            foreach (string warning in modifierWarnings)
+                            foreach (GUIContent warning in modifierWarnings)
                             {
                                 DrawWarning(warning);
                             }
@@ -253,27 +253,46 @@ namespace Wireframe
             }
         }
 
-        private static void DrawWarning(string warning)
+        private static void DrawWarning(GUIContent content)
         {
-            using (new EditorGUILayout.HorizontalScope())
+            Color color = GUI.color;
+            GUI.color = Color.yellow;
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
             {
-                GUILayout.Label(Utils.WarningIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
-                Color color = GUI.color;
-                GUI.color = Color.yellow;
-                GUILayout.Label("Warning: " + warning, EditorStyles.helpBox);
-                GUI.color = color;
+                GUIContent iconContent = new GUIContent(Utils.WarningIcon, "Warning: " + content.tooltip);
+                GUILayout.Label(iconContent, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
+                GUILayout.Label(content);
+                DrawSettingsLinkButton(content, color);
             }
+            GUI.color = color;
         }
 
-        private static void DrawError(string error)
+        private static void DrawError(GUIContent content)
         {
-            using (new EditorGUILayout.HorizontalScope())
+            Color color = GUI.color;
+            GUI.color = Color.red;
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
             {
-                GUILayout.Label(Utils.ErrorIcon, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
-                Color color = GUI.color;
-                GUI.color = Color.red;
-                GUILayout.Label("Error: " + error, EditorStyles.helpBox);
-                GUI.color = color;
+                GUIContent iconContent = new GUIContent(Utils.ErrorIcon, "Error: " + content.tooltip);
+                GUILayout.Label(iconContent, EditorStyles.label, GUILayout.Width(15), GUILayout.Height(15));
+                GUILayout.Label(content);
+                DrawSettingsLinkButton(content, color);
+            }
+            GUI.color = color;
+        }
+
+        private static void DrawSettingsLinkButton(GUIContent content, Color originalColor)
+        {
+            if (content is SettingsLinkGUIContent settingsLink)
+            {
+                GUILayout.FlexibleSpace();
+                Color tint = GUI.color;
+                GUI.color = originalColor;
+                if (GUILayout.Button(settingsLink.ButtonText, GUILayout.ExpandWidth(false)))
+                {
+                    settingsLink.OpenSettings();
+                }
+                GUI.color = tint;
             }
         }
 
@@ -395,16 +414,16 @@ namespace Wireframe
                                 continue;
                             }
                                     
-                            List<string> errors = new List<string>();
+                            List<GUIContent> errors = new List<GUIContent>();
                             modifer.Modifier.TryGetErrors(source.Source, errors);
-                            foreach (string warning in errors)
+                            foreach (GUIContent warning in errors)
                             {
                                 DrawError(warning);
                             }
                                     
-                            List<string> warnings = new List<string>();
+                            List<GUIContent> warnings = new List<GUIContent>();
                             modifer.Modifier.TryGetWarnings(source.Source, warnings);
-                            foreach (string warning in warnings)
+                            foreach (GUIContent warning in warnings)
                             {
                                 DrawWarning(warning);
                             }
@@ -431,23 +450,23 @@ namespace Wireframe
                 {
                     if (source.Source != null)
                     {
-                        List<string> errors = new List<string>();
+                        List<GUIContent> errors = new List<GUIContent>();
                         source.Source.TryGetErrors(errors);
-                        foreach (string error in errors)
+                        foreach (GUIContent error in errors)
                         {
                             DrawError(error);
                         }
                             
-                        List<string> warnings = new List<string>();
+                        List<GUIContent> warnings = new List<GUIContent>();
                         source.Source.TryGetWarnings(warnings);
-                        foreach (string warning in warnings)
+                        foreach (GUIContent warning in warnings)
                         {
                             DrawWarning(warning);
                         }
                     }
                     else
                     {
-                        DrawError("No source selected");
+                        DrawError(new GUIContent("No source selected"));
                     }
                 }
                         
@@ -532,16 +551,16 @@ namespace Wireframe
 
                     if (modifiers.Enabled)
                     {
-                        List<string> errors = new List<string>();
+                        List<GUIContent> errors = new List<GUIContent>();
                         modifiers.Modifier.TryGetErrors(this, errors);
-                        foreach (string error in errors)
+                        foreach (GUIContent error in errors)
                         {
                             DrawError(error);
                         }
 
-                        List<string> warnings = new List<string>();
+                        List<GUIContent> warnings = new List<GUIContent>();
                         modifiers.Modifier.TryGetWarnings(this, warnings);
-                        foreach (string warning in warnings)
+                        foreach (GUIContent warning in warnings)
                         {
                             DrawWarning(warning);
                         }
@@ -549,7 +568,7 @@ namespace Wireframe
                 }
                 else if (modifiers.Enabled)
                 {
-                    DrawError("No modifier selected");
+                    DrawError(new GUIContent("No modifier selected"));
                 }
                         
                 GUILayout.Space(10);
@@ -627,14 +646,14 @@ namespace Wireframe
 
                         if (destinationData.Enabled)
                         {
-                            List<string> errors = new List<string>();
+                            List<GUIContent> errors = new List<GUIContent>();
                             destinationData.Destination.TryGetErrors(errors);
-                            foreach (string error in errors)
+                            foreach (GUIContent error in errors)
                             {
                                 DrawError(error);
                             }
 
-                            List<string> warnings = new List<string>();
+                            List<GUIContent> warnings = new List<GUIContent>();
                             destinationData.Destination.TryGetWarnings(warnings, m_context);
                             foreach (ModifierData modifier in m_modifiers)
                             {
@@ -646,7 +665,7 @@ namespace Wireframe
                                 modifier.Modifier.TryGetWarnings(destinationData.Destination, warnings);
                             }
 
-                            foreach (string warning in warnings)
+                            foreach (GUIContent warning in warnings)
                             {
                                 DrawWarning(warning);
                             }
@@ -655,7 +674,7 @@ namespace Wireframe
                 }
                 else if(destinationData.Enabled)
                 {
-                    DrawError("No destination selected");
+                    DrawError(new GUIContent("No destination selected"));
                 }
                         
                 GUILayout.Space(10);
@@ -731,16 +750,16 @@ namespace Wireframe
 
                             if (actionData.WhenToExecute != UploadActionData.UploadCompleteStatus.Never)
                             {
-                                List<string> errors = new List<string>();
+                                List<GUIContent> errors = new List<GUIContent>();
                                 actionData.UploadAction.TryGetErrors(errors);
-                                foreach (string error in errors)
+                                foreach (GUIContent error in errors)
                                 {
                                     DrawError(error);
                                 }
 
-                                List<string> warnings = new List<string>();
+                                List<GUIContent> warnings = new List<GUIContent>();
                                 actionData.UploadAction.TryGetWarnings(warnings);
-                                foreach (string warning in warnings)
+                                foreach (GUIContent warning in warnings)
                                 {
                                     DrawWarning(warning);
                                 }

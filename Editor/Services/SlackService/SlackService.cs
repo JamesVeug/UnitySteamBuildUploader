@@ -1,4 +1,6 @@
-﻿namespace Wireframe
+﻿using UnityEngine;
+
+namespace Wireframe
 {
     internal partial class SlackService : AService
     {
@@ -10,15 +12,15 @@
             // Needed for reflection
         }
         
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!Slack.Enabled)
             {
-                reason = "Slack is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

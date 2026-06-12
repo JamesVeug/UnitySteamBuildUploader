@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -39,12 +40,12 @@ namespace Wireframe
             m_removeCompressedFile = removeCompressedFile;
         }
 
-        public override void TryGetErrors(UploadConfig config, List<string> errors)
+        public override void TryGetErrors(UploadConfig config, List<GUIContent> errors)
         {
             base.TryGetErrors(config, errors);
             if (string.IsNullOrEmpty(m_filePath))
             {
-                errors.Add("No file path set to decompress");
+                errors.Add(new GUIContent("No file path set to decompress"));
             }
         }
 

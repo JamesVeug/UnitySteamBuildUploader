@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Wireframe
 {
     [Experimental]
@@ -11,15 +13,15 @@ namespace Wireframe
             // Needed for reflection
         }
 
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!Google.Enabled)
             {
-                reason = "Google is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

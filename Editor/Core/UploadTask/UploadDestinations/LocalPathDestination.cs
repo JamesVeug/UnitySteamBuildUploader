@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -126,36 +127,36 @@ namespace Wireframe
             return true;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
+
             if (string.IsNullOrEmpty(m_localPath))
             {
-                errors.Add("No local path selected");
+                errors.Add(new GUIContent("No local path selected"));
             }
             else if (Utils.PathContainsInvalidCharacters(FullPath()))
             {
-                errors.Add("Path contains invalid characters");
+                errors.Add(new GUIContent("Path contains invalid characters"));
             }
 
             if (m_zipContent)
             {
                 if (string.IsNullOrEmpty(m_zippedFilesName))
                 {
-                    errors.Add("No Zipped Name specified");
+                    errors.Add(new GUIContent("No Zipped Name specified"));
                 }
             }
         }
 
-        public override void TryGetWarnings(List<string> warnings, Context ctx)
+        public override void TryGetWarnings(List<GUIContent> warnings, Context ctx)
         {
             base.TryGetWarnings(warnings, ctx);
 
             string fullPath = FullPath();
             if (!Utils.PathExists(fullPath))
             {
-                warnings.Add("Path does not exist but may be created during upload: " + fullPath);
+                warnings.Add(new GUIContent("Path does not exist", "Path does not exist but may be created during upload: " + fullPath));
             }
         }
 

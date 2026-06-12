@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -37,18 +38,19 @@ namespace Wireframe
             m_flags = flags;
         }
 
-        public override void TryGetErrors(UploadConfig config, List<string> errors)
+        public override void TryGetErrors(UploadConfig config, List<GUIContent> errors)
         {
             base.TryGetErrors(config, errors);
-            
-            if (!InternalUtils.GetService<SteamworksService>().IsReadyToStartBuild(out string reason))
+
+            SteamworksService service = InternalUtils.GetService<SteamworksService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
                 errors.Add(reason);
             }
-            
+
             if (m_app == null)
             {
-                errors.Add("No Steam App selected");
+                errors.Add(new GUIContent("No Steam App selected"));
             }
         }
 
@@ -88,11 +90,11 @@ namespace Wireframe
             return result;
         }
 
-        public override void TryGetWarnings(AUploadDestination destination, List<string> warnings)
+        public override void TryGetWarnings(AUploadDestination destination, List<GUIContent> warnings)
         {
             if (!(destination is SteamUploadDestination) && !(destination is NoUploadDestination))
             {
-                warnings.Add("Steam DRM is set but the build is destined for a non-steam location. The build won't be playable!");
+                warnings.Add(new GUIContent("No Steam destination, Steam DRM is set but the build is destined for a non-steam location. The build won't be playable!"));
             }
         }
 

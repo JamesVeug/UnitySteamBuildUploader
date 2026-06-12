@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -94,11 +95,11 @@ namespace Wireframe
         /// </summary>
         /// <param name="warnings">Add to this list any warnings you need</param>
         /// <param name="ctx">Context for formatting strings such as {version}</param>
-        public virtual void TryGetWarnings(List<string> warnings, Context ctx)
+        public virtual void TryGetWarnings(List<GUIContent> warnings, Context ctx)
         {
             if (GetType().GetCustomAttribute(typeof(ExperimentalAttribute)) != null)
             {
-                warnings.Add($"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues");
+                warnings.Add(new GUIContent("Experimental", $"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues"));
             }
         }
 
@@ -106,7 +107,7 @@ namespace Wireframe
         /// Executed during GUI and before an upload starts to check for any warnings in the configuration of this source
         /// </summary>
         /// <param name="errors">Errors found in this method</param>
-        public virtual void TryGetErrors(List<string> errors)
+        public virtual void TryGetErrors(List<GUIContent> errors)
         {
             
         }

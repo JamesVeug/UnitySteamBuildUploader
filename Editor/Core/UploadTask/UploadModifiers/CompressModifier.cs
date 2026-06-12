@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -39,12 +40,12 @@ namespace Wireframe
             m_removeContentAfterCompress = removeContentAfterCompress;
         }
 
-        public override void TryGetErrors(UploadConfig config, List<string> errors)
+        public override void TryGetErrors(UploadConfig config, List<GUIContent> errors)
         {
             base.TryGetErrors(config, errors);
             if (string.IsNullOrEmpty(m_compressedFileName))
             {
-                errors.Add("No compressed file name set");
+                errors.Add(new GUIContent("No compressed file name set"));
             }
         }
 

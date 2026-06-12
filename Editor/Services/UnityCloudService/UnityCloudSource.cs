@@ -126,18 +126,19 @@ namespace Wireframe
             return sourceFilePath;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
-            if (!InternalUtils.GetService<UnityCloudService>().IsReadyToStartBuild(out string reason))
+
+            UnityCloudService service = InternalUtils.GetService<UnityCloudService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
                 errors.Add(reason);
             }
-            
+
             if (sourceBuild == null)
             {
-                errors.Add("No build selected");
+                errors.Add(new GUIContent("No build selected"));
             }
         }
 

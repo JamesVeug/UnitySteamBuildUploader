@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -166,45 +167,46 @@ namespace Wireframe
             }
         }
 
-        public override void TryGetWarnings(List<string> warnings, Context ctx)
+        public override void TryGetWarnings(List<GUIContent> warnings, Context ctx)
         {
             base.TryGetWarnings(warnings, ctx);
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!InternalUtils.GetService<NintendoService>().IsReadyToStartBuild(out string serviceReason))
+            NintendoService service = InternalUtils.GetService<NintendoService>();
+            if (!service.IsReadyToStartBuild(out GUIContent serviceReason))
             {
                 errors.Add(serviceReason);
             }
 
             if (m_app == null)
             {
-                errors.Add("No Title selected");
+                errors.Add(new GUIContent("No Title selected"));
             }
             else
             {
                 if (string.IsNullOrEmpty(m_app.TitleID))
                 {
-                    errors.Add($"Nintendo Title '{m_app.Name}' does not have a Title ID set.");
+                    errors.Add(service.ProjectSettingsLink($"Nintendo App '{m_app.Name}' does not have a Title ID set.", ""));
                 }
 
                 if (string.IsNullOrEmpty(m_app.ApplicationID))
                 {
-                    errors.Add($"Nintendo Title '{m_app.Name}' does not have an Application ID set.");
+                    errors.Add(service.ProjectSettingsLink($"Nintendo App '{m_app.Name}' does not have an Application ID set.", ""));
                 }
             }
 
             if (m_destinationBranch == null)
             {
-                errors.Add("No Branch selected");
+                errors.Add(new GUIContent("No Branch selected"));
             }
 
             if (string.IsNullOrEmpty(m_descriptionFormat))
             {
-                errors.Add("No build description specified.");
+                errors.Add(new GUIContent("No build description specified."));
             }
         }
     }

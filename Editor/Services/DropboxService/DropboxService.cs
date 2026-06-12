@@ -1,8 +1,12 @@
+using UnityEngine;
+
 namespace Wireframe
 {
     [Experimental]
     internal partial class DropboxService : AService
     {
+        public static DropboxService Instance => InternalUtils.GetService<DropboxService>();
+
         public override string ServiceName => "Dropbox";
         public override string[] SearchKeywords => new string[] { "dropbox", "upload", "cloud", "storage" };
 
@@ -11,15 +15,15 @@ namespace Wireframe
             // Needed for reflection
         }
 
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!Dropbox.Enabled)
             {
-                reason = "Dropbox is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

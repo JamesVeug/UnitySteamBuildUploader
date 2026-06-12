@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -9,9 +10,23 @@ namespace Wireframe
     {
         public abstract string ServiceName { get; }
         public abstract string[] SearchKeywords { get; }
+        public SettingsLinkGUIContent DisabledServiceGUI => PreferencesLink($"{ServiceName} is not enabled", $"All {ServiceName} services are disabled until enabled.");
         internal virtual WindowTab WindowTabType => null;
-        public abstract bool IsReadyToStartBuild(out string reason);
+        public abstract bool IsReadyToStartBuild(out GUIContent reason);
         public abstract bool IsProjectSettingsSetup();
+
+        public virtual string PreferencesPath => "Preferences/Build Uploader/Services/" + ServiceName;
+        public virtual string ProjectSettingsPath => "Project/Build Uploader/Services/" + ServiceName;
+
+        public SettingsLinkGUIContent PreferencesLink(string text, string tooltip)
+        {
+            return new SettingsLinkGUIContent(text, tooltip, PreferencesPath, SettingsScope.User);
+        }
+
+        public SettingsLinkGUIContent ProjectSettingsLink(string text, string tooltip)
+        {
+            return new SettingsLinkGUIContent(text, tooltip, ProjectSettingsPath, SettingsScope.Project);
+        }
 
         public virtual void PreferencesGUI()
         {

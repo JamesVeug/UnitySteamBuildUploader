@@ -110,14 +110,14 @@ namespace Wireframe
             return m_finalSourcePath;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
+
             string path = GetFullPath();
             if (!File.Exists(path) && !Directory.Exists(path))
             {
-                errors.Add("Path does not exist");
+                errors.Add(new GUIContent("Path does not exist"));
             }
         }
 

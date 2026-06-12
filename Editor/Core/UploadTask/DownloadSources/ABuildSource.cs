@@ -71,7 +71,7 @@ namespace Wireframe
             // Start build
             if (m_buildConfigToApply == null)
             {
-                stepResult.SetFailed("No Build selected. Select one to use.");
+                stepResult.SetFailed("No Build selected.");
                 token.Cancel();
                 return false;
             }
@@ -327,13 +327,13 @@ namespace Wireframe
             return m_filePath;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-            
+
             if (!ValidConfig(out string reason))
             {
-                errors.Add(reason);
+                errors.Add(new GUIContent(reason));
             }
             else
             {
@@ -357,7 +357,7 @@ namespace Wireframe
                             
                             if (otherBuildSource.CompareBuildConfig(this))
                             {
-                                errors.Add($"Build '{m_BuildConfig.GetBuildName}' is already used in another active Upload Task.");
+                                errors.Add(new GUIContent($"Build '{m_BuildConfig.GetBuildName}' is already used in another active Upload Task."));
                                 goto exitLoop;
                             }
                         }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -112,50 +113,51 @@ namespace Wireframe
             return formatted;
         }
 
-        public override void TryGetErrors(List<string> errors)
+        public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
 
-            if (!Email.Enabled)
+            EmailService service = InternalUtils.GetService<EmailService>();
+            if (!service.IsReadyToStartBuild(out GUIContent reason))
             {
-                errors.Add("Email is not enabled. Enable it in the Preferences.");
+                errors.Add(reason);
             }
 
             if (m_account == null)
             {
-                errors.Add("Email Account is not set. Select an Account.");
+                errors.Add(new GUIContent("Email Account is not set."));
             }
             else
             {
                 if (string.IsNullOrEmpty(m_account.Host))
                 {
-                    errors.Add($"Email Account '{m_account.Name}' has no SMTP Host configured. Set it under Project Settings -> Build Uploader -> Services -> Email.");
+                    errors.Add(service.ProjectSettingsLink($"Email Account '{m_account.Name}' has no SMTP Host configured.", ""));
                 }
 
                 if (string.IsNullOrEmpty(m_account.FromEmail))
                 {
-                    errors.Add($"Email Account '{m_account.Name}' has no From Email configured. Set it under Project Settings -> Build Uploader -> Services -> Email.");
+                    errors.Add(service.ProjectSettingsLink($"Email Account '{m_account.Name}' has no From Email configured.", ""));
                 }
 
                 if (string.IsNullOrEmpty(m_account.CredentialEmail))
                 {
-                    errors.Add($"Email Account '{m_account.Name}' has no Username set. Set it under Preferences -> Build Uploader -> Services -> Email.");
+                    errors.Add(service.PreferencesLink($"Email Account '{m_account.Name}' has no Username set.", ""));
                 }
 
                 if (string.IsNullOrEmpty(m_account.CredentialPassword))
                 {
-                    errors.Add($"Email Account '{m_account.Name}' has no Password set. Set it under Preferences -> Build Uploader -> Services -> Email.");
+                    errors.Add(service.ProjectSettingsLink($"Email Account '{m_account.Name}' has no Password set.", ""));
                 }
             }
 
             if (string.IsNullOrEmpty(m_to))
             {
-                errors.Add("To is not set. Set a recipient email address.");
+                errors.Add(new GUIContent("To is not set."));
             }
 
             if (string.IsNullOrEmpty(m_subject))
             {
-                errors.Add("Subject is not set. Set a subject for the email.");
+                errors.Add(new GUIContent("Subject is not set."));
             }
         }
 

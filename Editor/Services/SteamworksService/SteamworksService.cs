@@ -1,4 +1,6 @@
-﻿namespace Wireframe
+﻿using UnityEngine;
+
+namespace Wireframe
 {
     /// <summary>
     /// Used by reflection
@@ -13,28 +15,28 @@
             // Needed for reflection
         }
         
-        public override bool IsReadyToStartBuild(out string reason)
+        public override bool IsReadyToStartBuild(out GUIContent reason)
         {
             if (!SteamSDK.Enabled)
             {
-                reason = "Steam SDK is not enabled in Preferences";
+                reason = DisabledServiceGUI;
                 return false;
             }
 
             
             if (!SteamSDK.Instance.IsInitialized)
             {
-                reason = "Steam SDK is not initialized";
+                reason = PreferencesLink("Steam SDK is not initialized", "Steam SDK has not been setup. Either something isn't set correctly or is failing to setup correctly.");
                 return false;
             }
 
             if (string.IsNullOrEmpty(SteamSDK.UserName))
             {
-                reason = "Steam Username not set in Preferences";
+                reason = PreferencesLink("Steam Username not set", "No Username has been defined in order to begin using Steam");
                 return false;
             }
 
-            reason = "";
+            reason = null;
             return true;
         }
 

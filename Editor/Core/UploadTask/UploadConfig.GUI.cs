@@ -226,6 +226,30 @@ namespace Wireframe
                         }
                     }
                 }
+
+                if (Enabled && m_postActions.Count > 0)
+                {
+                    using (new EditorGUILayout.VerticalScope())
+                    {
+                        List<string> modifierErrors = GetPostActionErrors();
+                        if (modifierErrors.Count > 0)
+                        {
+                            foreach (string error in modifierErrors)
+                            {
+                                DrawError(error);
+                            }
+                        }
+
+                        List<string> modifierWarnings = GetPostActionWarnings();
+                        if (modifierWarnings.Count > 0)
+                        {
+                            foreach (string warning in modifierWarnings)
+                            {
+                                DrawWarning(warning);
+                            }
+                        }
+                    }
+                }
             }
         }
 

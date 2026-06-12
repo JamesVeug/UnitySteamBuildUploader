@@ -739,7 +739,7 @@ namespace Wireframe
 
             using (new GUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("Add New Acton"))
+                if (GUILayout.Button("Add New Action"))
                 {
                     AddPostAction(new UploadActionData()
                     {

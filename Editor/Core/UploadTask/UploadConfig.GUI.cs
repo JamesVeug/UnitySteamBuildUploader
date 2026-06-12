@@ -716,17 +716,6 @@ namespace Wireframe
 
                                 List<string> warnings = new List<string>();
                                 actionData.UploadAction.TryGetWarnings(warnings);
-                                foreach (UploadActionData action in m_postActions)
-                                {
-                                    if (action.UploadAction == null || action.WhenToExecute ==
-                                        UploadActionData.UploadCompleteStatus.Never)
-                                    {
-                                        continue;
-                                    }
-
-                                    action.UploadAction.TryGetWarnings(warnings);
-                                }
-
                                 foreach (string warning in warnings)
                                 {
                                     DrawWarning(warning);

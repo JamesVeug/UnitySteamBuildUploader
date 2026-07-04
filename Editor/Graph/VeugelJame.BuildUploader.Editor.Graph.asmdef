@@ -1,0 +1,22 @@
+{
+    "name": "VeugelJame.BuildUploader.Editor.Graph",
+    "rootNamespace": "Wireframe",
+    "references": [
+        "VeugelJame.BuildUploader.Editor",
+        "Unity.GraphToolkit.Editor",
+        "Unity.GraphToolkit.Common.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

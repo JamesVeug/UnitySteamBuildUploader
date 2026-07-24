@@ -53,6 +53,11 @@ namespace Wireframe
             }
         }
 
+        public void SetDescriptionFormat(string format)
+        {
+            m_descriptionFormat = format;
+        }
+
         public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
             string filePath = m_context.FormatString(m_taskContentsFolder);

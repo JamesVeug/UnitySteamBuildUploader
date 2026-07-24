@@ -91,6 +91,11 @@ namespace Wireframe
             m_appFileName = appFilePath;
         }
 
+        public void SetDescriptionFormat(string format)
+        {
+            m_descriptionFormat = format;
+        }
+
         public override async Task<bool> Prepare(string taskGUID, int configIndex, int destinationIndex,
             string taskContentsFolder, UploadTaskReport.StepResult result)
         {

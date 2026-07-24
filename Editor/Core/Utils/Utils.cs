@@ -29,6 +29,11 @@ namespace Wireframe
             foreach (string guid in guids)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!path.EndsWith("VeugelJame.BuildUploader.Editor.asmdef", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+                
                 string parentFolder = Path.GetDirectoryName(Path.GetDirectoryName(path));
                 return parentFolder;
             }
@@ -53,7 +58,7 @@ namespace Wireframe
                 return texture;
             }
 
-            Debug.LogWarning($"Could not find icon at path: {iconPath}");
+            Debug.LogWarning($"Could not find icon at path: {path}");
             return null;
         }
 

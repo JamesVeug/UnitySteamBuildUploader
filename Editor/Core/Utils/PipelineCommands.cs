@@ -32,6 +32,7 @@ namespace Wireframe
             [CliArg("destination_types", "Lists all registered AUploadDestination subclasses")] bool showDestinationTypes = false,
             [CliArg("action_types", "Lists all registered AUploadAction subclasses (pre/post-upload actions)")] bool showActionTypes = false,
             [CliArg("reports", "Lists saved UploadTaskReport files. 'all' for every report, or UploadProfile GUIDs/names to filter. Comma- or space-separated.")] string reports = null,
+            [CliArg("cache_summary", "Summarizes the Build Uploader cache folder: full path, size, cached builds and saved reports")] bool cacheSummary = false,
 
             // Inspection
             [CliArg("verify_profiles", "UploadProfile GUIDs or names to verify, or 'all'. Comma- or space-separated.")] string verifyProfiles = null,
@@ -95,6 +96,11 @@ namespace Wireframe
             if (profilesToReport.Count > 0)
             {
                 result["reports"] = ListReports(profilesToReport);
+            }
+
+            if (cacheSummary)
+            {
+                result["cache_summary"] = CacheSummary();
             }
 
             // Inspection
@@ -202,7 +208,7 @@ namespace Wireframe
             if (result.Count == 0)
             {
                 result["usage"] = "No operation requested. Pass one of: --profiles, --active_tasks, --source_types, " +
-                                  "--modifier_types, --destination_types, --action_types, --reports, --verify_profiles, " +
+                                  "--modifier_types, --destination_types, --action_types, --reports, --cache_summary, --verify_profiles, " +
                                   "--verify_tasks, --summarize_profiles, --summarize_tasks, --open_tasks, --start_tasks, " +
                                   "--dry_run_tasks, --cancel_tasks, --clone_profiles, --clone_tasks, " +
                                   "--delete_profiles, --delete_tasks, --clear_cache, --export_wiki";
@@ -524,6 +530,122 @@ namespace Wireframe
             }
 
             return found;
+        }
+
+        /// <summary>
+        /// Walks the cache folder to report what is actually sitting on disk. A cached build is one config's
+        /// staged output, so a task that ran three configs leaves three of them behind. The report counts
+        /// come from parsing each file, so a malformed report is counted in 'reports' but not in the
+        /// successful/failed split.
+        /// </summary>
+        private static CacheSummaryResult CacheSummary()
+        {
+            CacheSummaryResult result = new CacheSummaryResult();
+            result.path = Path.GetFullPath(Preferences.CacheFolderPath);
+            result.reportsPath = Path.GetFullPath(WindowUploadTab.UploadReportSaveDirectory);
+            result.defaultPath = Path.GetFullPath(Preferences.DefaultCacheFolder);
+            result.isDefaultPath = string.Equals(result.path, result.defaultPath, StringComparison.OrdinalIgnoreCase);
+            result.size = EditorUtility.FormatBytes(0);
+
+            // A build that dies at the cache step is usually out of disk, so the free space matters more
+            // than the size already used.
+            string cacheRoot = Path.GetPathRoot(result.path);
+            try
+            {
+                DriveInfo drive = new DriveInfo(cacheRoot);
+                result.driveFreeSpaceBytes = drive.AvailableFreeSpace;
+                result.driveFreeSpace = EditorUtility.FormatBytes(result.driveFreeSpaceBytes);
+            }
+            catch (Exception e)
+            {
+                result.driveFreeSpace = $"<unavailable: {e.GetType().Name}>";
+            }
+
+            string projectRoot = Path.GetPathRoot(Path.GetFullPath(Application.dataPath));
+            result.sameDriveAsProject = string.Equals(cacheRoot, projectRoot, StringComparison.OrdinalIgnoreCase);
+
+            result.exists = Directory.Exists(result.path);
+            if (result.exists)
+            {
+                foreach (string file in Directory.EnumerateFiles(result.path, "*", SearchOption.AllDirectories))
+                {
+                    result.sizeBytes += new FileInfo(file).Length;
+                    result.files++;
+                }
+
+                result.size = EditorUtility.FormatBytes(result.sizeBytes);
+
+                string uploadTasksPath = Path.Combine(result.path, "UploadTasks");
+                if (Directory.Exists(uploadTasksPath))
+                {
+                    DateTime oldestBuild = DateTime.MaxValue;
+                    DateTime newestBuild = DateTime.MinValue;
+
+                    string[] taskFolders = Directory.GetDirectories(uploadTasksPath);
+                    result.cachedTasks = taskFolders.Length;
+                    foreach (string taskFolder in taskFolders)
+                    {
+                        foreach (string buildFolder in Directory.GetDirectories(taskFolder))
+                        {
+                            result.builds++;
+
+                            DateTime written = Directory.GetLastWriteTimeUtc(buildFolder);
+                            if (written < oldestBuild)
+                            {
+                                oldestBuild = written;
+                            }
+
+                            if (written > newestBuild)
+                            {
+                                newestBuild = written;
+                            }
+                        }
+                    }
+
+                    if (result.builds > 0)
+                    {
+                        result.oldestBuild = oldestBuild.ToString("u");
+                        result.newestBuild = newestBuild.ToString("u");
+                    }
+                }
+            }
+
+            if (Directory.Exists(result.reportsPath))
+            {
+                result.reports = Directory.GetFiles(result.reportsPath, "*.txt", SearchOption.AllDirectories).Length;
+            }
+
+            DateTime oldestReport = DateTime.MaxValue;
+            DateTime newestReport = DateTime.MinValue;
+            foreach (KeyValuePair<string, UploadTaskReport> saved in LoadSavedReports())
+            {
+                if (saved.Value.Successful)
+                {
+                    result.reportsSuccessful++;
+                }
+                else
+                {
+                    result.reportsFailed++;
+                }
+
+                if (saved.Value.StartTime < oldestReport)
+                {
+                    oldestReport = saved.Value.StartTime;
+                }
+
+                if (saved.Value.StartTime > newestReport)
+                {
+                    newestReport = saved.Value.StartTime;
+                }
+            }
+
+            if (result.reportsSuccessful + result.reportsFailed > 0)
+            {
+                result.oldestReport = oldestReport.ToString("u");
+                result.newestReport = newestReport.ToString("u");
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -1115,6 +1237,30 @@ namespace Wireframe
             public string name;
             public string type;
             public string description;
+        }
+
+        private class CacheSummaryResult
+        {
+            public string path;
+            public bool exists;
+            public bool isDefaultPath;
+            public string defaultPath;
+            public string size;
+            public long sizeBytes;
+            public int files;
+            public int builds;
+            public int cachedTasks;
+            public string oldestBuild;
+            public string newestBuild;
+            public string driveFreeSpace;
+            public long driveFreeSpaceBytes;
+            public bool sameDriveAsProject;
+            public string reportsPath;
+            public int reports;
+            public int reportsSuccessful;
+            public int reportsFailed;
+            public string oldestReport;
+            public string newestReport;
         }
 
         private class ReportResult

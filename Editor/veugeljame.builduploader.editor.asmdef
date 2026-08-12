@@ -2,7 +2,8 @@
     "name": "VeugelJame.BuildUploader.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:4c800362d85ec4145b19593ffacc0990"
+        "GUID:4c800362d85ec4145b19593ffacc0990",
+        "Unity.Pipeline"
     ],
     "includePlatforms": [
         "Editor"
@@ -15,6 +16,12 @@
     "defineConstraints": [
         "UNITY_EDITOR"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.pipeline",
+            "expression": "0.0.0",
+            "define": "BUILD_UPLOADER_PIPELINE"
+        }
+    ],
     "noEngineReferences": false
 }

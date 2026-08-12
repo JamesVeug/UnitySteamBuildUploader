@@ -33,6 +33,7 @@ namespace Wireframe
         public bool IsComplete { get; private set; }
         public bool HasStarted { get; private set; }
         public bool IsSuccessful { get; private set; }
+        public bool IsCancelled { get; private set; }
         public float PercentComplete { get; private set; }
         public AUploadTask_Step.StepType CurrentStepType { get; private set; }
         public AUploadTask_Step CurrentStep { get; private set; }
@@ -53,6 +54,7 @@ namespace Wireframe
         private string m_uploadDescription;
         private string m_guid;
         private AUploadTask_Step[] m_currentSteps;
+        private CancellationTokenSource m_cancellationToken;
 
         public UploadTask(UploadProfile uploadProfile) : 
             this(uploadProfile.ProfileName, uploadProfile.UploadConfigs, uploadProfile.Actions)
@@ -207,11 +209,26 @@ namespace Wireframe
             return default(T);
         }
 
+        /// <summary>
+        /// Request the task stop. Steps check the token between operations, so an upload already in flight
+        /// finishes before the task gives up.
+        /// </summary>
+        public void Cancel()
+        {
+            IsCancelled = true;
+            m_cancellationToken?.Cancel();
+        }
+
         private async Task Execute(AUploadTask_Step[] steps)
         {
             // Do upload steps
             IsSuccessful = true;
-            CancellationTokenSource token = new CancellationTokenSource();
+            CancellationTokenSource token = m_cancellationToken = new CancellationTokenSource();
+            if (IsCancelled)
+            {
+                token.Cancel();
+            }
+
             for (int i = 0; i < steps.Length; i++)
             {
                 AUploadTask_Step step = steps[i];

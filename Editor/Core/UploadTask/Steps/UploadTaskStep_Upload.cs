@@ -31,10 +31,17 @@ namespace Wireframe
                 {
                     continue;
                 }
-                
+
+                if (token.IsCancellationRequested)
+                {
+                    UploadTaskReport.StepResult cancelled = report.NewReport(Type);
+                    cancelled.SetSkipped($"Skipping upload of Config {i + 1} because the task was cancelled");
+                    continue;
+                }
+
                 List<UploadConfig.DestinationData> destinations = buildConfigs[i].Destinations.Where(a=>a.Enabled).ToList();
 
-                Task<bool> upload = Upload(uploadTask, i, destinations, report);
+                Task<bool> upload = Upload(uploadTask, i, destinations, report, token);
                 uploads.Add(new Tuple<List<UploadConfig.DestinationData>, Task<bool>>(destinations, upload));
             }
             
@@ -67,8 +74,9 @@ namespace Wireframe
         }
 
         private async Task<bool> Upload(UploadTask uploadTask, int configIndex,
-            List<UploadConfig.DestinationData> destinations, 
-            UploadTaskReport report)
+            List<UploadConfig.DestinationData> destinations,
+            UploadTaskReport report,
+            CancellationTokenSource token)
         {
             UploadConfig config = uploadTask.UploadConfigs[configIndex];
             int uploadID = ProgressUtils.Start(Type.ToString(), $"Uploading Config {configIndex + 1}");
@@ -89,6 +97,12 @@ namespace Wireframe
                 if (!destinationData.Enabled)
                 {
                     result.SetSkipped("Skipping upload because it's disabled");
+                    continue;
+                }
+
+                if (token.IsCancellationRequested)
+                {
+                    result.SetSkipped("Skipping upload because the task was cancelled");
                     continue;
                 }
 
@@ -166,6 +180,12 @@ namespace Wireframe
                     if (!destination.Enabled)
                     {
                         result.SetSkipped("Skipping upload because it's disabled");
+                        continue;
+                    }
+
+                    if (uploadTask.IsCancelled)
+                    {
+                        result.SetSkipped("Skipping post upload because the task was cancelled");
                         continue;
                     }
 

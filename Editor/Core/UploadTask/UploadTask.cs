@@ -193,7 +193,40 @@ namespace Wireframe
             
             ProgressUtils.Remove(m_progressId);
             m_report.Complete();
+            await SaveReport();
             OnComplete?.Invoke(m_report);
+        }
+
+        /// <summary>
+        /// Write the report next to the cached builds so it outlives the editor session. Every entry point -
+        /// the Upload window, the CLI, batch mode - goes through StartAsync, so saving here is what makes a
+        /// run show up in the Upload Tasks window no matter how it was started.
+        /// </summary>
+        private async Task SaveReport()
+        {
+            if (!Preferences.AutoSaveReportToCacheFolder)
+            {
+                return;
+            }
+
+            string guids = string.Join("_", m_uploadConfigs.Select(x => x.GUID));
+            string fileName = $"UploadReport_{guids}_{m_report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
+            string reportPath = Path.Combine(WindowUploadTab.UploadReportSaveDirectory, fileName);
+            try
+            {
+                if (!Directory.Exists(WindowUploadTab.UploadReportSaveDirectory))
+                {
+                    Directory.CreateDirectory(WindowUploadTab.UploadReportSaveDirectory);
+                }
+
+                Debug.Log($"[BuildUploader] Writing upload task report to {reportPath}");
+                await IOUtils.WriteAllTextAsync(reportPath, m_report.GetReport());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[BuildUploader] Failed to write report to {reportPath}");
+                Debug.LogException(e);
+            }
         }
 
         private T GetStep<T>()

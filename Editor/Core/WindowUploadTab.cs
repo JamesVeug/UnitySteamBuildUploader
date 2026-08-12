@@ -665,8 +665,6 @@ namespace Wireframe
             uploadTask.SetBuildDescription(description);
             UploadTask.AllTasks.Add(uploadTask);
             
-            string guids = string.Join("_", m_currentUploadProfile.UploadConfigs.Select(x => x.GUID));
-            
             // Start task
             Debug.Log("[BuildUploader] Upload Task started.... Grab a coffee... this could take a while.");
             if (Preferences.AutoFocusNewUploadTask)
@@ -687,29 +685,9 @@ namespace Wireframe
                 UploaderWindow.Repaint();
             }
 
-            // Write report to a txt file
+            // The report is written to disk by UploadTask itself, so every entry point records a run.
             UploadTaskReport report = uploadTask.Report;
             string taskReport = report.GetReport();
-            if (Preferences.AutoSaveReportToCacheFolder)
-            {
-                string fileName = $"UploadReport_{guids}_{report.StartTime:yyyy-MM-dd_HH-mm-ss}.txt";
-                string reportPath = Path.Combine(UploadReportSaveDirectory, fileName);
-                try
-                {
-                    if (!Directory.Exists(UploadReportSaveDirectory))
-                    {
-                        Directory.CreateDirectory(UploadReportSaveDirectory);
-                    }
-                    
-                    Debug.Log($"[BuildUploader] Writing upload task report to {reportPath}");
-                    await IOUtils.WriteAllTextAsync(reportPath, taskReport);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"[BuildUploader] Failed to write report to {reportPath}");
-                    Debug.LogException(e);
-                }
-            }
 
             // Report back to the user
             if (report.Successful)

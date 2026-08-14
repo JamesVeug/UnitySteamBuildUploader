@@ -103,6 +103,11 @@ A lot of effort has been put into this package for others to freely use. Any kin
 - 💬 Report bug reports or suggestions improvements: [Github Issues](https://github.com/JamesVeug/UnitySteamBuildUploader/issues)
 - 🔗 Share the package with your friends and colleagues
 
+### Supporters
+
+- [Nementic Games](https://store.steampowered.com/developer/nementic/)
+- [Classy Games](https://store.steampowered.com/developer/classygames)
+
 ## License 🪪
 Creative Commons - CC0 1.0 Universal
 

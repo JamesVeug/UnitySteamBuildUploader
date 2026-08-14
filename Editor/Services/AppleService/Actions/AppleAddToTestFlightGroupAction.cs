@@ -72,7 +72,7 @@ namespace Wireframe
         public override void TryGetErrors(List<GUIContent> errors)
         {
             base.TryGetErrors(errors);
-
+            
             if (!Apple.Enabled)
             {
                 errors.Add(AppleService.Instance.DisabledServiceGUI);
@@ -111,6 +111,7 @@ namespace Wireframe
             {
                 errors.Add(new GUIContent("Build ID format is empty."));
             }
+#endif
         }
 
         public override Dictionary<string, object> Serialize()

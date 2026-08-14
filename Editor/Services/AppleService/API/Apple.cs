@@ -178,12 +178,14 @@ namespace Wireframe
                 return null;
             }
 
-            if (dataObj is not List<object> data || data.Count <= 0)
+            List<object> data = dataObj as List<object>;
+            if (data == null || data.Count <= 0)
             {
                 return null;
             }
 
-            if (data[0] is not Dictionary<string, object> first)
+            Dictionary<string, object> first = data[0] as Dictionary<string, object>;
+            if (first == null)
             {
                 return null;
             }

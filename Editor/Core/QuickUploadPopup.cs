@@ -21,7 +21,7 @@ namespace Wireframe
             
             int width = 300;
             int height = 300;
-            Vector2 center = EditorGUIUtility.GetMainWindowPosition().center;
+            Vector2 center = new Vector2(Screen.currentResolution.width * 0.5f, Screen.currentResolution.height * 0.5f);
             window.position = new Rect(
                 center.x - width/2f,
                 center.y - height/2f,

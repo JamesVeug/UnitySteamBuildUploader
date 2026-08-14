@@ -48,40 +48,44 @@ namespace Wireframe
             const int maximum = 30;
             int ignored = 0;
             List<string> commandKeys = new List<string>(maximum);
-            List<Command> commands = new List<Command>(maximum);
-            foreach (Command command in ctx.LocalCommands.Where(a=>a.Key.Length > 2))
+            List<string> commandValues = new List<string>(maximum);
+            foreach (Command command in ctx.LocalCommands.Concat(Context.FormatToCommand.Values).OrderBy(a=>a.Key))
             {
-                commands.Add(command);
-                commandKeys.Add(command.Key);
-            }
-            
-            foreach (Command command in Context.FormatToCommand.Values.OrderBy(a=>a.Key))
-            {
-                if (command.Key.Length <= 2 || commandKeys.Contains(command.Key))
+                string key = command.Key;
+                if (key.Length <= 2 || commandKeys.Contains(key))
                 {
                     continue;
                 }
                 
-                if (commands.Count >= maximum)
+                if (commandKeys.Count >= maximum)
                 {
                     ignored++;
                     continue;
                 }
                 
-                commands.Add(command);
-                commandKeys.Add(command.Key);
+                string value = ctx.FormatString(key);
+                if (Preferences.ToolTipsHideBlackValuesToggle && (string.IsNullOrEmpty(value) || value == "???"))
+                {
+                    ignored++;
+                    continue;
+                }
+                
+                commandKeys.Add(key);
+                commandValues.Add(value);
             }
-            commands.Sort();
-            
-            
-            foreach (Command command in commands)
+            commandValues.Sort();
+
+
+            for (int i = 0; i < commandKeys.Count; i++)
             {
-                tooltipBuilder.Append(command.Key);
+                string Key = commandKeys[i];
+                string Value = commandValues[i];
+                tooltipBuilder.Append(Key);
                 tooltipBuilder.Append(" - ");
-                tooltipBuilder.AppendLine(ctx.FormatString(command.Key));
+                tooltipBuilder.AppendLine(SingleLinePreview(Value));
             }
 
-            if (commands.Count >= maximum)
+            if (commandValues.Count >= maximum)
             {
                 tooltipBuilder.AppendLine($"+{ignored} more...");
                 tooltipBuilder.AppendLine();
@@ -89,6 +93,38 @@ namespace Wireframe
             }
             
             return tooltipBuilder.ToString();
+        }
+
+        private static string SingleLinePreview(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            const int maximumLength = 60;
+
+            StringBuilder builder = new StringBuilder(Math.Min(value.Length, maximumLength));
+            bool lastWasWhitespace = false;
+            foreach (char c in value)
+            {
+                bool isWhitespace = char.IsWhiteSpace(c);
+                if (isWhitespace && lastWasWhitespace)
+                {
+                    continue;
+                }
+
+                builder.Append(isWhitespace ? ' ' : c);
+                lastWasWhitespace = isWhitespace;
+
+                if (builder.Length >= maximumLength)
+                {
+                    builder.Append("...");
+                    break;
+                }
+            }
+
+            return builder.ToString();
         }
 
         public static bool FormatStringTextField(ref string text, ref bool pressed, Context ctx, GUILayoutOption textFieldOption)

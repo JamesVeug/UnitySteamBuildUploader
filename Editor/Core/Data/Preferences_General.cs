@@ -204,6 +204,21 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(
+                    new GUIContent("Hide black formatted text keys", 
+                        "If enabled, tool tips on the \"F\" button will not show keys that are blank to '???'"),
+                    GUILayout.Width(200));
+
+                bool hideBlackToolTips = Preferences.ToolTipsHideBlackValuesToggle;
+                bool newHideBlackToolTips = EditorGUILayout.Toggle(hideBlackToolTips);
+                if (newHideBlackToolTips != Preferences.ToolTipsHideBlackValuesToggle)
+                {
+                    Preferences.ToolTipsHideBlackValuesToggle = newHideBlackToolTips;
+                }
+            }
+            
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
                     new GUIContent("Show upload confirmation window", 
                         "If enabled, a popup window will appear indicating if the upload was successful and if not why not."), 
                     GUILayout.Width(200));

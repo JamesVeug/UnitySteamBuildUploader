@@ -39,6 +39,12 @@ namespace Wireframe
             set => EditorPrefs.SetBool("BuildUploader_DefaultShowFormattedTextToggle", value);
         }
         
+        public static bool ToolTipsHideBlackValuesToggle
+        {
+            get => EditorPrefs.GetBool("BuildUploader_ToolTipsHideBlackValuesToggle", false);
+            set => EditorPrefs.SetBool("BuildUploader_ToolTipsHideBlackValuesToggle", value);
+        }
+        
         public static bool AutoSaveReportToCacheFolder
         {
             get => EditorPrefs.GetBool("BuildUploader_AutoSaveReportToCacheFolder", false);

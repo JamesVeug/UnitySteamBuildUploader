@@ -10,7 +10,7 @@ namespace Wireframe
 {
     internal class BuildUploaderTaskWindow : EditorWindow
     {
-        [MenuItem("Window/Build Uploader/Open Upload Tasks Window", priority = -99)]
+        [MenuItem("Window/Build Uploader/Open Upload Tasks Window")]
         public static void ShowWindow()
         {
             FocusTask(null);

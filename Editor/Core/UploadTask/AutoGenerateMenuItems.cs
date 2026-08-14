@@ -62,7 +62,7 @@ namespace Wireframe
                 
                 var data = profiles[i];
                 string menuitemName = $"Window/Build Uploader/Quick Upload/{totalDone}. {data.ProfileName}";
-                sb.AppendLine($"        [UnityEditor.MenuItem(\"{menuitemName}\", false, 1000)]");
+                sb.AppendLine($"        [UnityEditor.MenuItem(\"{menuitemName}\")]");
                 sb.AppendLine($"        public static void BuildUploader_QuickUpload_{data.GUID}()");
                 sb.AppendLine($"        {{");
                 sb.AppendLine($"            AutoGenerateMenuItems.BeginUploadingProfile(\"{data.GUID}\", \"{data.ProfileName}\");");

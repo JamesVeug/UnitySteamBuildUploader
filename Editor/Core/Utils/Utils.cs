@@ -22,6 +22,7 @@ namespace Wireframe
         }
 
         internal static string s_packagePath = FindPackagePath();
+        private static string s_packageVersion;
 
         private static string FindPackagePath()
         {
@@ -40,6 +41,38 @@ namespace Wireframe
 
             Debug.LogError("Could not find package path for com.veugeljame.builduploader");
             return "";
+        }
+
+
+        public static string PackageVersion
+        {
+            get
+            {
+                if (s_packageVersion != null)
+                {
+                    return s_packageVersion;
+                }
+
+                s_packageVersion = "";
+                try
+                {
+                    string path = Path.Combine(s_packagePath, "package.json");
+                    if (File.Exists(path))
+                    {
+                        var data = JSON.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(path));
+                        if (data != null && data.TryGetValue("version", out object version) && version != null)
+                        {
+                            s_packageVersion = version.ToString();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Could not read version from package.json: {e.Message}");
+                }
+
+                return s_packageVersion;
+            }
         }
 
         private static Dictionary<string, Texture2D> s_Icons = new Dictionary<string, Texture2D>();

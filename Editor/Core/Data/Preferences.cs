@@ -14,7 +14,36 @@ namespace Wireframe
             Successful,
             Failed,
         }
-        
+
+        public enum WelcomeWindowPopup
+        {
+            OnStartup,
+            WhenUpdated,
+            Never,
+        }
+
+        /// <summary>
+        /// Display names for WelcomeWindowPopup. Must stay in the same order as the enum.
+        /// </summary>
+        internal static readonly string[] WelcomeWindowPopupOptions = { "On startup", "When updated", "Never" };
+
+        internal const string WelcomeWindowPopupTooltip = "When the Welcome window should open on its own.\n\n" +
+                                                          "On startup: Every time the Unity Editor opens this project.\n" +
+                                                          "When updated: Only after the Build Uploader has been updated to a new version.\n" +
+                                                          "Never: Only when opened from Window->Build Uploader->Welcome.";
+
+        public static WelcomeWindowPopup ShowWelcomeWindow
+        {
+            get => (WelcomeWindowPopup)ProjectEditorPrefs.GetInt("BuildUploader_ShowWelcomeWindow", (int)WelcomeWindowPopup.WhenUpdated);
+            set => ProjectEditorPrefs.SetInt("BuildUploader_ShowWelcomeWindow", (int)value);
+        }
+
+        public static string LastSeenWelcomeVersion
+        {
+            get => ProjectEditorPrefs.GetString("BuildUploader_LastSeenWelcomeVersion", "");
+            set => ProjectEditorPrefs.SetString("BuildUploader_LastSeenWelcomeVersion", value);
+        }
+
         public static bool DeleteCacheAfterUpload
         {
             get => EditorPrefs.GetBool("BuildUploader_DeleteCacheAfterBuild", true);

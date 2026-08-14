@@ -169,7 +169,22 @@ namespace Wireframe
             
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("UI", EditorStyles.boldLabel);
-            
+
+            using (new GUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent("Show Welcome window", Preferences.WelcomeWindowPopupTooltip),
+                    GUILayout.Width(200));
+
+                int showWelcome = (int)Preferences.ShowWelcomeWindow;
+                int newShowWelcome = EditorGUILayout.Popup(showWelcome, Preferences.WelcomeWindowPopupOptions);
+                if (newShowWelcome != showWelcome)
+                {
+                    Preferences.ShowWelcomeWindow = (Preferences.WelcomeWindowPopup)newShowWelcome;
+                    Preferences.LastSeenWelcomeVersion = Utils.PackageVersion;
+                }
+            }
+
             using (new GUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField(

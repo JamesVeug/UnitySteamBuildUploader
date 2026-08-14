@@ -73,7 +73,6 @@ namespace Wireframe
                 commandKeys.Add(key);
                 commandValues.Add(value);
             }
-            commandValues.Sort();
 
 
             for (int i = 0; i < commandKeys.Count; i++)

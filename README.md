@@ -22,6 +22,7 @@
   - Unity 2020 and 2019
     - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
 - Advanced GUI and non-GUI support (CI/CD)
+  - Drive a running Editor from a terminal, CI or an AI agent with Unity's `unity command` CLI
 - Create multiple builds using Build Configs or Unity's Build Profiles.
   - Windows, Mac, Linux, Webgl (Others loosely supported via Unity's Build Profiles)
 - Services
@@ -49,11 +50,82 @@
 - Open Source
 
 
+## Unity CLI (`unity command`) 🖥️
+
+If you have Unity's [Pipeline package](https://github.com/Unity-Technologies/com.unity.pipeline) (`com.unity.pipeline`) installed, the Build Uploader registers a `build_uploader` command that lets you drive an **already-open Editor** from a terminal, a CI script or an AI agent — no `-batchmode` restart needed.
+
+```bash
+unity command build_uploader --profiles true
+```
+
+The package is completely optional. If `com.unity.pipeline` is not installed nothing changes, and the command simply isn't there.
+
+Everything is exposed through the single `build_uploader` command, with one argument per operation. Arguments that take profiles accept a GUID *or* a profile name, arguments that take tasks accept a task GUID, and all of them accept `all` — values can be comma- or space-separated.
+
+**Look at what's there**
+
+| Argument | Does |
+|---|---|
+| `--profiles` | Lists every upload profile (name and GUID) |
+| `--active_tasks` | Lists uploads that are currently running or queued |
+| `--source_types` / `--modifier_types` / `--destination_types` / `--action_types` | Lists everything you can pick in the GUI, with its description |
+| `--reports` | Lists saved upload reports — `all`, or filtered by profile |
+| `--cache_summary` | Cache folder path, size, free disk space, cached builds and saved reports |
+
+**Check it before you run it**
+
+| Argument | Does |
+|---|---|
+| `--verify_profiles` | Runs the same validation the Validation step runs — errors and warnings, without fetching a source or contacting a service |
+| `--summarize_profiles` | Prints each profile's sources, modifiers, destinations and actions |
+| `--verify_tasks` / `--summarize_tasks` | Pass/fail and per-step progress for a past or running upload |
+| `--open_tasks` | Prints a task's full report. Add `--errors_only` for just the failed steps |
+
+**Run it**
+
+| Argument | Does |
+|---|---|
+| `--start_tasks` | Runs the full pipeline for a profile |
+| `--dry_run_tasks` | Runs everything with every destination swapped for *Nowhere*, so nothing is uploaded |
+| `--cancel_tasks` | Cancels a running upload |
+
+Uploads start asynchronously so the Editor stays responsive — poll `--active_tasks` and then read the result with `--summarize_tasks` or `--open_tasks`.
+
+**Maintain it**
+
+| Argument | Does |
+|---|---|
+| `--clone_profiles` | Duplicates a profile. Add `--new_name` to name the copy |
+| `--clone_tasks` | Re-runs a task from this Editor session with its exact config |
+| `--delete_profiles` / `--delete_tasks` | Deletes a profile, or a task's saved report and cached build |
+| `--clear_cache` | Empties the cache folder, keeping your saved reports |
+
+Anything that deletes needs `--confirm` as well, otherwise it is refused:
+
+```bash
+unity command build_uploader --clear_cache true --confirm true
+```
+
+A typical agent or CI flow is: verify, dry run, then upload.
+
+```bash
+unity command build_uploader --verify_profiles "Release Build"
+unity command build_uploader --dry_run_tasks "Release Build"
+unity command build_uploader --start_tasks "Release Build"
+unity command build_uploader --active_tasks true
+```
+
+Full argument reference: [CLI](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/CLI).
+
+Prefer a fully headless run with no Editor open? See [Starting a BuildTask without UI](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/Starting-a-BuildTask-without-UI).
+
+
 ## Wiki
 - Home: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki
 - How to Install: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/How-to-Install
 - How to Setup: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/How-to-Setup
 - How does it Work: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki#how-does-it-work
+- CLI (`unity command`): https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/CLI
 
 
 ## Links 

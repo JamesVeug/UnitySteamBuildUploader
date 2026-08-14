@@ -64,6 +64,18 @@ namespace Wireframe
         public const string DROPBOX_FOLDER_NAME_KEY = "{dropboxFolderName}";
         public const string DROPBOX_SHARE_LINK_KEY = "{dropboxShareLink}";
 
+        // Git
+        public const string GIT_BRANCH_KEY = "{gitBranch}";
+        public const string GIT_COMMIT_KEY = "{gitCommit}";
+        public const string GIT_COMMIT_SHORT_KEY = "{gitCommitShort}";
+        public const string GIT_COMMIT_MESSAGE_KEY = "{gitCommitMessage}";
+        public const string GIT_COMMIT_MESSAGE_SUBJECT_KEY = "{gitCommitMessageSubject}";
+        public const string GIT_COMMIT_MESSAGE_BODY_KEY = "{gitCommitMessageBody}";
+        public const string GIT_COMMIT_AUTHOR_KEY = "{gitCommitAuthor}";
+        public const string GIT_COMMIT_AUTHOR_EMAIL_KEY = "{gitCommitAuthorEmail}";
+        public const string GIT_COMMIT_DATE_KEY = "{gitCommitDate}";
+        public const string GIT_TAG_KEY = "{gitTag}";
+
         // Version
         public const string VERSION_KEY = "{version}";
         public const string VERSION_MAJOR_KEY = "{versionMajor}";
@@ -137,6 +149,18 @@ namespace Wireframe
             AddS(DROPBOX_FOLDER_NAME_KEY, null, "The name of the Dropbox folder receiving the upload.");
             AddS(DROPBOX_SHARE_LINK_KEY, null, "The public shared link created for the most recent Dropbox upload (if enabled).");
 
+            // Git
+            AddS(GIT_BRANCH_KEY, ()=> GitValue(a => a.Branch), "The git branch the project is currently on. eg: main. Reads HEAD when the repository is in a detached head state.", true);
+            AddS(GIT_COMMIT_KEY, ()=> GitValue(a => a.Commit), "The full hash of the commit the project is currently on.", true);
+            AddS(GIT_COMMIT_SHORT_KEY, ()=> GitValue(a => a.CommitShort), "The shortened hash of the commit the project is currently on. eg: 3f2a91c", true);
+            AddS(GIT_COMMIT_MESSAGE_KEY, ()=> GitValue(a => a.CommitMessage), "The whole message of the commit the project is currently on - both the subject and the body.", true);
+            AddS(GIT_COMMIT_MESSAGE_SUBJECT_KEY, ()=> GitValue(a => a.CommitMessageSubject), "The first line of the message of the commit the project is currently on. Always a single line.", true);
+            AddS(GIT_COMMIT_MESSAGE_BODY_KEY, ()=> GitValue(a => a.CommitMessageBody), "Everything after the first line of the message of the commit the project is currently on. Empty for a single line commit message, and can span multiple lines otherwise.", true);
+            AddS(GIT_COMMIT_AUTHOR_KEY, ()=> GitValue(a => a.CommitAuthor), "The name of the author of the commit the project is currently on.", true);
+            AddS(GIT_COMMIT_AUTHOR_EMAIL_KEY, ()=> GitValue(a => a.CommitAuthorEmail), "The email address of the author of the commit the project is currently on.", true);
+            AddS(GIT_COMMIT_DATE_KEY, ()=> GitValue(a => a.CommitDate), "The date the commit the project is currently on was authored, in the format YYYY-MM-DD.", true);
+            AddS(GIT_TAG_KEY, ()=> GitValue(a => a.Tag), "The most recent git tag reachable from the current commit. eg: v1.4.2. Empty when the repository has no tags.", true);
+
             // Versions
             AddS(VERSION_KEY, ()=> Application.version, "The version of your project as specified in Player Settings.");
             AddS(VERSION_MAJOR_KEY, ()=> Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Major), "The version of your project as specified in Player Settings but only the major segment. eg: a1 from a1.2.3-beta1");
@@ -149,6 +173,11 @@ namespace Wireframe
             AddS(VERSION_MINOR_SEM_KEY, ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Minor)), "The minor segment of the version of your project as specified in Player Settings but with only numbers. eg: 2 from a1.2.3-beta1");
             AddS(VERSION_PATCH_SEM_KEY, ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Patch)), "The patch segment of the version of your project as specified in Player Settings but with only numbers. eg: 3 from a1.2.3-beta1");
             AddS(VERSION_REVISION_SEM_KEY, ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Revision)), "The revision segment of the version of your project as specified in Player Settings but with only numbers. eg: 1 from a1.2.3-beta1");
+        }
+
+        private static string GitValue(Func<Git.GitSnapshot, string> selector)
+        {
+            return Git.Enabled ? selector(Git.GetSnapshot()) : "<GitDisabled>";
         }
 
         private static void AddS(string key, Func<string> formatter, string tooltip, bool canBeCached = false)

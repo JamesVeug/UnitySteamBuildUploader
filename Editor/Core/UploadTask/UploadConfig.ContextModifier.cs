@@ -95,6 +95,7 @@ namespace Wireframe
             {
                 if (actionData.WhenToExecute != UploadActionData.UploadCompleteStatus.Never && actionData.UploadAction != null)
                 {
+                    actionData.UploadAction.Context.SetParent(m_context);
                     actionData.UploadAction.Context.CacheCallbacks();
                 }
             }

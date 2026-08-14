@@ -389,6 +389,14 @@ namespace Wireframe
                     await destination.Destination.CleanUp(result);
                 }
             }
+
+            foreach (UploadActionData action in m_postActions)
+            {
+                if (action.WhenToExecute != UploadActionData.UploadCompleteStatus.Never && action.UploadAction != null)
+                {
+                    await action.UploadAction.CleanUp(result);
+                }
+            }
         }
 
         public void AddSource(SourceData source)

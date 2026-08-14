@@ -23,7 +23,7 @@ namespace Wireframe
         {
             int preActionID = ProgressUtils.Start("Pre Upload Actions", "Executing Pre Upload Actions...");
 
-            await uploadTask.ExecuteActions(uploadTask.IsSuccessful, UploadConfig.UploadActionData.UploadTrigger.OnTaskStarted);
+            await uploadTask.ExecuteTaskActions(uploadTask.IsSuccessful, UploadConfig.UploadActionData.UploadTrigger.OnTaskStarted);
             
             ProgressUtils.Remove(preActionID);
             return true;

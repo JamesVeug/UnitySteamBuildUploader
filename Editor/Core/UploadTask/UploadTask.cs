@@ -316,22 +316,35 @@ namespace Wireframe
 
                 if (step.FireActions)
                 {
-                    await ExecuteActions(stepSuccessful, UploadConfig.UploadActionData.UploadTrigger.AfterEachStepCompletes);
+                    await ExecuteTaskActions(stepSuccessful, UploadConfig.UploadActionData.UploadTrigger.AfterEachStepCompletes);
                 }
             }
         }
 
-        public async Task<bool> ExecuteActions(bool valid, 
+        public async Task<bool> ExecuteTaskActions(bool valid,
             UploadConfig.UploadActionData.UploadTrigger trigger)
         {
+            return await ExecuteActions(valid, trigger, m_actions, "Post Upload Action");
+        }
+
+        public async Task<bool> ExecuteActions(bool valid, 
+            UploadConfig.UploadActionData.UploadTrigger? trigger,
+            List<UploadConfig.UploadActionData> allActions, string title)
+        {
             UploadTaskReport.StepResult startLog = m_report.NewReport(CurrentStepType);
-            startLog.AddLog("Execute Actions with trigger " + trigger + " successful " + valid);
+            if (trigger.HasValue)
+            {
+                startLog.AddLog($"Execute {title} with trigger {trigger.Value} successful {valid}");
+            }
+            else
+            {
+                startLog.AddLog($"Execute {title} with successful {valid}");
+            }
             startLog.SetPercentComplete(1f);
             
-            List<UploadConfig.UploadActionData> allActions = m_actions;
             UploadTaskReport.StepResult[] results = m_report.NewReports(CurrentStepType, allActions.Count);
             
-            int postActionID = ProgressUtils.Start("Post Upload Actions", "Executing Post Upload Actions...");
+            int postActionID = ProgressUtils.Start(title, $"Executing {title}...");
             int actionsRun = 0;
             
             for (int i = 0; i < allActions.Count; i++)
@@ -340,13 +353,13 @@ namespace Wireframe
                 UploadConfig.UploadActionData actionData = allActions[i];
                 if (actionData == null || actionData.UploadAction == null)
                 {
-                    result.SetSkipped($"Skipping post upload action {i+1} because it's null");
+                    result.SetSkipped($"Skipping {title} {i+1} because it's null");
                     continue;
                 }
 
-                if (!actionData.Triggers.Contains(trigger))
+                if (trigger.HasValue && !actionData.Triggers.Contains(trigger.Value))
                 {
-                    result.SetSkipped($"Skipping post upload action {i+1} because it doesn't match the trigger. Trigger: {trigger}");
+                    result.SetSkipped($"Skipping {title} {i+1} because it doesn't match the trigger. Trigger: {trigger.Value}");
                     continue;
                 }
 
@@ -355,17 +368,17 @@ namespace Wireframe
                     (status == UploadConfig.UploadActionData.UploadCompleteStatus.IfSuccessful && !valid) ||
                     (status == UploadConfig.UploadActionData.UploadCompleteStatus.IfFailed && valid))
                 {
-                    result.SetSkipped($"Skipping post upload action {i+1} because it doesn't match the current status. Status: {status}. Successful: {valid}");
+                    result.SetSkipped($"Skipping {title} {i+1} because it doesn't match the current status. Status: {status}. Successful: {valid}");
                     continue;
                 }
 
-                result.AddLog($"Executing post upload action: {i+1}");
+                result.AddLog($"Executing {title}: {i+1}");
 
                 actionsRun++;
                 bool prepared = await actionData.UploadAction.Prepare(result);
                 if (!prepared)
                 {
-                    result.AddError($"Failed to prepare post upload action: {actionData.UploadAction.GetType().Name}");
+                    result.AddError($"Failed to prepare {title}: {actionData.UploadAction.GetType().Name}");
                     result.SetPercentComplete(1f);
                     continue;
                 }

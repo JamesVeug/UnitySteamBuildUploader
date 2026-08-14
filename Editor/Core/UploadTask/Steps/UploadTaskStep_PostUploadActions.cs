@@ -25,7 +25,7 @@ namespace Wireframe
         {
             int postUpload = ProgressUtils.Start("Post Upload Actions", "Executing Post Upload Actions...");
             
-            await uploadTask.ExecuteActions(uploadTask.IsSuccessful, UploadConfig.UploadActionData.UploadTrigger.OnTaskFinished);
+            await uploadTask.ExecuteTaskActions(uploadTask.IsSuccessful, UploadConfig.UploadActionData.UploadTrigger.OnTaskFinished);
             
             ProgressUtils.Remove(postUpload);
             return true;

@@ -40,8 +40,9 @@ namespace Wireframe
                 }
 
                 List<UploadConfig.DestinationData> destinations = buildConfigs[i].Destinations.Where(a=>a.Enabled).ToList();
+                List<UploadConfig.UploadActionData> actions = buildConfigs[i].PostActions.Where(a=>a.WhenToExecute != UploadConfig.UploadActionData.UploadCompleteStatus.Never).ToList();
 
-                Task<bool> upload = Upload(uploadTask, i, destinations, report, token);
+                Task<bool> upload = Upload(uploadTask, i, destinations, actions, report, token);
                 uploads.Add(new Tuple<List<UploadConfig.DestinationData>, Task<bool>>(destinations, upload));
             }
             
@@ -74,6 +75,19 @@ namespace Wireframe
         }
 
         private async Task<bool> Upload(UploadTask uploadTask, int configIndex,
+            List<UploadConfig.DestinationData> destinations,
+            List<UploadConfig.UploadActionData> actions,
+            UploadTaskReport report,
+            CancellationTokenSource token)
+        {
+            bool success = await ExecuteDestinations(uploadTask, configIndex, destinations, report, token);
+
+            await uploadTask.ExecuteActions(success, null, actions, $"Post Config {configIndex} Action");
+
+            return success;
+        }
+        
+        private async Task<bool> ExecuteDestinations(UploadTask uploadTask, int configIndex,
             List<UploadConfig.DestinationData> destinations,
             UploadTaskReport report,
             CancellationTokenSource token)

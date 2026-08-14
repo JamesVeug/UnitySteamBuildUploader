@@ -1,5 +1,10 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
+
+#if !UNITY_6000_7_OR_NEWER
+using System;
+#else
+using System.Linq;
+#endif
 
 namespace Wireframe
 {   

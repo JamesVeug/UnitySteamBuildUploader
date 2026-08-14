@@ -17,7 +17,7 @@
 ## Key Points 💡
 - Windows, Mac, Linux support
 - Unity Supported (Light and Dark)
-  - Unity 6000.1-5
+  - Unity 6000.1-7
   - Unity 202x
   - Unity 2020 and 2019
     - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
@@ -30,15 +30,35 @@
     - Uploading a build to any branch or depots
     - DRM wrap (anti-piracy)
   - Itch.io
-    - Uploading a build
+    - Upload a build
   - Epic Games
     - Upload builds to specific artifacts
+  - Google (Experimental)
+    - Upload builds to Google Drive
+    - Upload builds to Google Play
+    - Send message to Google Chat
+  - Apple (Unity 2022 and up) (Experimental)
+    - Upload builds to Apple
+    - Add build to Test Flight
+  - Dropbox (Experimental)
+    - Upload a build
+  - Playstation (Experimental)
+    - Upload a build
+  - Xbox (Experimental)
+    - Upload a build
+  - Nintendo (Experimental)
+    - Upload a build
+  - Git
+    - Format text according to current git state 
+    - Create and push Tags
   - Github
     - Upload a new Release
   - Discord
     - Send message to a channel
   - Slack
     - Send message to a channel
+  - Email
+    - Send customized emails
   - Unity Cloud Build
     - View, download and start builds
 - Safely modify builds before uploading

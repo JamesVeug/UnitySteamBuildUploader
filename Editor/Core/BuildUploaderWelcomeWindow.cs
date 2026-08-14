@@ -88,7 +88,7 @@ namespace Wireframe {
             
             bool allComplete = oneServiceReadyToBuild && oneServiceProjectSettingsSetup && oneUploadProfileSetup;
             
-            bool show = EditorPrefs.GetBool("BuildUploader_showHowToSetup", true);
+            bool show = EditorPrefs.GetBool("BuildUploader_showHowToSetup", !allComplete);
             bool newShow = EditorGUILayout.Foldout(show, new GUIContent("Setup checklist", SuccessIcon(allComplete, true)), sectionFoldoutStyle);
             if (newShow != show)
             {

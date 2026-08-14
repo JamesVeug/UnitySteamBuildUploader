@@ -1,14 +1,20 @@
 {
     "name": "veugeljame.builduploader.editor.services.apple",
-    "references": [],
-    "includePlatforms": [],
+    "rootNamespace": "",
+    "references": [
+        "GUID:e02a14ac71925b840aa054b2af0d6d18"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "UNITY_2022_3_OR_NEWER "
+        "UNITY_2022_3_OR_NEWER ",
+        "UNITY_EDITOR"
     ],
     "versionDefines": [],
     "noEngineReferences": false

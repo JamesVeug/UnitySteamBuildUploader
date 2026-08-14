@@ -111,7 +111,6 @@ namespace Wireframe
             {
                 errors.Add(new GUIContent("Build ID format is empty."));
             }
-#endif
         }
 
         public override Dictionary<string, object> Serialize()

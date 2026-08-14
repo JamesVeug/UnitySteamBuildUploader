@@ -1,9 +1,9 @@
 {
     "name": "VeugelJame.BuildUploader.Editor",
+    "rootNamespace": "",
     "references": [
         "GUID:4c800362d85ec4145b19593ffacc0990",
-        "Unity.Pipeline",
-        "GUID:fe1d77eb5a4c3ab48a2175b47cf452fd"
+        "GUID:71e9815631ba2574b92564e93b8efc9c"
     ],
     "includePlatforms": [
         "Editor"

@@ -19,7 +19,9 @@ namespace Wireframe
         // The name of the profile, used to identify it in the UI
         public string ProfileName;
         
+#pragma warning disable UAC1009
         [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         [SerializeField] public List<Dictionary<string, object>> PostUploads = new List<Dictionary<string, object>>();
+#pragma warning restore UAC1009
     }
 }

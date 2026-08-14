@@ -18,8 +18,10 @@ namespace Wireframe
         // The name of the profile, used to identify it in the UI
         public string ProfileName;
         
+#pragma warning disable UAC1009
         [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         [SerializeField] public List<Dictionary<string, object>> Actions = new List<Dictionary<string, object>>();
+#pragma warning restore UAC1009
 
         public UploadProfile ToUploadProfile()
         {
@@ -109,11 +111,13 @@ namespace Wireframe
     }
     
     [Serializable, Obsolete("Deprecated in v3.0.0. Use UploadProfileData instead")]
+#pragma warning disable UAC1009
     internal class UploadTabData
     {
         [SerializeField] public List<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
         [SerializeField] public List<Dictionary<string, object>> PostUploads = new List<Dictionary<string, object>>();
     }
+#pragma warning restore UAC1009
     
     [Serializable]
     internal class OnlyVersion

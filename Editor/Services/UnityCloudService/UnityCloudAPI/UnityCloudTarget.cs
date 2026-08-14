@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -57,6 +58,9 @@ namespace Wireframe
       public string buildtargetid;
       public bool enabled;
       public LastBuilt lastBuilt;
-      public Dictionary<string, object> links;
+      
+#pragma warning restore UAC1009
+      [SerializeField] public Dictionary<string, object> links;
+#pragma warning restore UAC1009
    }
 }

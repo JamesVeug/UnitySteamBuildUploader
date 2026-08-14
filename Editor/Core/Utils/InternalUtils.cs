@@ -93,7 +93,7 @@ namespace Wireframe
             Type actionType = typeof(AUploadAction);
 
             // Slow but only done once per compilation
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly assembly in AssemblyUtils.GetAssemblies())
             {
                 foreach (Type type in assembly.GetTypes())
                 {

@@ -44,6 +44,7 @@ namespace Wireframe
 		// #####################
 		// #####################
 
+		[Serializable]
 		public class ArtifactChangeAuthor
 		{
 			public string fullName;

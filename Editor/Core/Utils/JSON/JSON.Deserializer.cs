@@ -315,9 +315,10 @@ namespace Wireframe
             private static int FindClosingBracket(string text, int startIndexInclusive)
             {
                 int endIndex = -1;
-                
+
                 int d = 1;
-                for(int i = startIndexInclusive + 1; i < text.Length && d > 0; i++)
+                // Starting on the given index and not after it or an empty object '{}' never finds its closing bracket.
+                for(int i = startIndexInclusive; i < text.Length && d > 0; i++)
                 {
                     if (text[i] == '{' || text[i] == '[')
                     {

@@ -89,6 +89,10 @@ namespace Wireframe
 
         private void OnGUI()
         {
+            // Pump format-string autocomplete dropdowns: input at the very start, overlay at the
+            // very end (outside all layout scopes) so it isn't clipped by any scroll view.
+            FormatStringFieldDropdowns.BeginHost(this);
+
             InitializeTabs();
 
             if (!currentTab.Enabled)
@@ -106,6 +110,8 @@ namespace Wireframe
             {
                 CurrentTab.OnGUI();
             }
+
+            FormatStringFieldDropdowns.EndHost(this);
         }
 
         private void DrawTabs()

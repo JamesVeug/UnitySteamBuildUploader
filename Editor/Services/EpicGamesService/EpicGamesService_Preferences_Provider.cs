@@ -24,8 +24,10 @@ namespace Wireframe
         
         public override void OnGUI(string searchContext)
         {
+            FormatStringFieldDropdowns.BeginHost(this);
             base.OnGUI(searchContext);
             InternalUtils.AllServices().FirstOrDefault(a=>a is EpicGamesService)?.PreferencesGUI();
+            FormatStringFieldDropdowns.EndHost(this);
         }
     }
 }

@@ -47,6 +47,8 @@ namespace Wireframe
 
         void OnGUI()
         {
+            FormatStringFieldDropdowns.BeginHost(this);
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("Upload Profile:");
@@ -95,6 +97,8 @@ namespace Wireframe
                     Close();
                 }
             }
+
+            FormatStringFieldDropdowns.EndHost(this);
         }
 
         public void Upload()

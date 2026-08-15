@@ -40,11 +40,32 @@ namespace Wireframe
 
         public string OnGUI(string text, Context ctx, params GUILayoutOption[] options)
         {
-            HandleNavigationKeys();
+            return OnGUI(text, ctx, false, true, null, options);
+        }
+
+        /// <param name="singleLine">Draw a single-line TextField instead of a multi-line TextArea.</param>
+        /// <param name="armed">When false the field is drawn as a plain editable field with no
+        /// dropdown (used when the host doesn't pump HandleOverlayInput/DrawDropdown).</param>
+        public string OnGUI(string text, Context ctx, bool singleLine, bool armed, GUIStyle style, GUILayoutOption[] options)
+        {
+            if (armed)
+            {
+                HandleNavigationKeys();
+            }
 
             GUI.SetNextControlName(m_controlName);
-            string newText = EditorGUILayout.TextArea(text, options);
+            string newText = DrawField(text, singleLine, style, options);
             Rect textAreaRect = GUILayoutUtility.GetLastRect();
+
+            if (!armed)
+            {
+                if (IsOpen)
+                {
+                    Close();
+                }
+
+                return newText;
+            }
 
             if (m_pendingSelection != null)
             {
@@ -67,6 +88,21 @@ namespace Wireframe
             }
 
             return newText;
+        }
+
+        private static string DrawField(string text, bool singleLine, GUIStyle style, GUILayoutOption[] options)
+        {
+            options = options ?? Array.Empty<GUILayoutOption>();
+            if (style != null)
+            {
+                return singleLine
+                    ? EditorGUILayout.TextField(text, style, options)
+                    : EditorGUILayout.TextArea(text, style, options);
+            }
+
+            return singleLine
+                ? EditorGUILayout.TextField(text, options)
+                : EditorGUILayout.TextArea(text, options);
         }
 
         public void DrawDropdown()
@@ -192,6 +228,13 @@ namespace Wireframe
 
         private void UpdateSuggestions(string text, Context ctx, Rect textAreaRect)
         {
+            if (string.IsNullOrEmpty(text))
+            {
+                // No text (fields can hold a null string) means no '{' token to complete.
+                Close();
+                return;
+            }
+
             TextEditor editor = GetActiveTextEditor();
             int cursor = editor != null ? Mathf.Clamp(editor.cursorIndex, 0, text.Length) : text.Length;
 

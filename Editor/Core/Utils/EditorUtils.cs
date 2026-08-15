@@ -177,27 +177,36 @@ namespace Wireframe
                     GUI.FocusControl(null); // Deselect the text field so we can see the formatted text
                 }
 
-                using (new EditorGUI.DisabledScope(pressed))
+                if (pressed)
                 {
-                    string displayText = pressed ? ctx.FormatString(text) : text;
-                    string newText = "";
-                    
-                    if (textFieldOption == null)
+                    // Disabled formatted-preview: show the resolved value, not editable, no dropdown.
+                    using (new EditorGUI.DisabledScope(true))
                     {
-                        if(textField)
-                            newText = EditorGUILayout.TextField(displayText, style);
+                        string displayText = ctx.FormatString(text);
+                        if (textFieldOption == null)
+                        {
+                            if (textField)
+                                EditorGUILayout.TextField(displayText, style);
+                            else
+                                EditorGUILayout.TextArea(displayText, style);
+                        }
                         else
-                            newText = EditorGUILayout.TextArea(displayText, style);
+                        {
+                            if (textField)
+                                EditorGUILayout.TextField(displayText, style, textFieldOption);
+                            else
+                                EditorGUILayout.TextArea(displayText, style, textFieldOption);
+                        }
                     }
-                    else
-                    {
-                        if(textField)
-                            newText = EditorGUILayout.TextField(displayText, style, textFieldOption);
-                        else
-                            newText = EditorGUILayout.TextArea(displayText, style, textFieldOption);
-                    }
+                }
+                else
+                {
+                    // Editable: route through the autocomplete dropdown pool.
+                    int id = GUIUtility.GetControlID(FocusType.Keyboard);
+                    string newText = FormatStringFieldDropdowns.Draw(id, text, ctx, textField, style,
+                        textFieldOption == null ? Array.Empty<GUILayoutOption>() : new[] { textFieldOption });
 
-                    if (!pressed && newText != text)
+                    if (newText != text)
                     {
                         text = newText;
                         return true;

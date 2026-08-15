@@ -29,7 +29,9 @@ namespace Wireframe
 
         public override void OnGUI(string searchContext)
         {
+            FormatStringFieldDropdowns.BeginHost(this);
             BuildConfigsGUI();
+            FormatStringFieldDropdowns.EndHost(this);
         }
     }
 }

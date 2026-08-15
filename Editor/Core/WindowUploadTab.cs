@@ -31,7 +31,6 @@ namespace Wireframe
         private bool m_isDirty;
         private Vector2 m_descriptionScrollPosition;
         private bool m_descriptionFoldoutCollapsed;
-        private readonly FormatStringAutocompleteTextArea m_descriptionAutocomplete = new FormatStringAutocompleteTextArea("BuildDescriptionTextArea");
 
         public override void Initialize(BuildUploaderWindow uploaderWindow)
         {
@@ -66,8 +65,6 @@ namespace Wireframe
 
         public override void OnGUI()
         {
-            m_descriptionAutocomplete.HandleOverlayInput();
-
             Setup();
 
             using (new GUILayout.VerticalScope())
@@ -395,7 +392,7 @@ namespace Wireframe
 
                         // Also disabled while the description autocomplete dropdown is open so the
                         // button (which sits beneath the dropdown) doesn't show hover / press state.
-                        using (new EditorGUI.DisabledScope(!canUpload || m_descriptionAutocomplete.IsDropdownOpen))
+                        using (new EditorGUI.DisabledScope(!canUpload || FormatStringFieldDropdowns.IsDropdownOpen))
                         {
                             if (GUILayout.Button("Upload All", GUILayout.Height(100)))
                             {
@@ -418,10 +415,6 @@ namespace Wireframe
                     }
                 }
             }
-
-            // Drawn at the top level (outside all layout scopes / scroll views) so the
-            // description autocomplete dropdown isn't clipped by any surrounding scroll view.
-            m_descriptionAutocomplete.DrawDropdown();
         }
 
         private void DrawDescriptionTextArea()
@@ -459,7 +452,8 @@ namespace Wireframe
                     }
                     else
                     {
-                        m_buildDescription = m_descriptionAutocomplete.OnGUI(m_buildDescription, m_context, GUILayout.ExpandWidth(true));
+                        m_buildDescription = FormatStringFieldDropdowns.Draw(GUIUtility.GetControlID(FocusType.Keyboard),
+                            m_buildDescription, m_context, false, null, GUILayout.ExpandWidth(true));
                     }
                 }
                 else
@@ -480,7 +474,8 @@ namespace Wireframe
                 }
                 else
                 {
-                    m_buildDescription = m_descriptionAutocomplete.OnGUI(m_buildDescription, m_context, GUILayout.ExpandHeight(true));
+                    m_buildDescription = FormatStringFieldDropdowns.Draw(GUIUtility.GetControlID(FocusType.Keyboard),
+                        m_buildDescription, m_context, false, null, GUILayout.ExpandHeight(true));
                 }
                 GUILayout.EndScrollView();
             }

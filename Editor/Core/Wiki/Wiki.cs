@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
-using Unity.Pipeline.Commands;
 using UnityEditor;
 using UnityEngine;
+
+#if BUILD_UPLOADER_PIPELINE
+using System.Runtime.CompilerServices;
+using Unity.Pipeline.Commands;
+#endif
 
 namespace Wireframe
 {
@@ -143,9 +146,14 @@ namespace Wireframe
 
             File.WriteAllText(filePath, stringFormatWikiBuilder.ToString());
 
+#if BUILD_UPLOADER_PIPELINE
             WriteCLICommands();
+#else
+            Debug.LogError("com.unity.pipeline package not installed. Cannot export CLI commands");
+#endif
         }
 
+#if BUILD_UPLOADER_PIPELINE
         private class CommandData
         {
             public MethodInfo methodInfo;
@@ -193,7 +201,11 @@ namespace Wireframe
         {
             string filePath = Path.Combine(Application.dataPath, "../Wiki/CLI.md");
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(DefaultCLIPreamble());
+            sb.AppendLine("# Command Line Interface");
+            sb.AppendLine();
+            sb.AppendLine("Run Build Uploader operations from a terminal, a CI job or an AI agent.");
+            sb.AppendLine();
+            sb.AppendLine($"**The Unity CLI** drives an Editor that is *already open*, which makes it the one to use while you are working - and the one an agent should reach for. It requires Unity's [Pipeline package](https://github.com/Unity-Technologies/com.unity.pipeline) (`com.unity.pipeline`), which exposes the running Editor over a local HTTP server: install the `unity` CLI, run `unity pipeline install` in your project, then open it in the Editor. The package is completely optional - if it is not installed the `{PipelineCommands.COMMAND}` command simply is not registered and nothing else changes.");
             sb.AppendLine();
             sb.AppendLine(CLIHeader);
 
@@ -234,21 +246,7 @@ namespace Wireframe
 
             File.WriteAllText(filePath, sb.ToString());
         }
-
-        /// <summary>
-        /// Seeds CLI.md the first time it is exported. Only used when the file does not exist - after that
-        /// everything above the header is hand-authored and preserved.
-        /// </summary>
-        private static string DefaultCLIPreamble()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("# Command Line Interface");
-            sb.AppendLine();
-            sb.AppendLine("Run Build Uploader operations from a terminal, a CI job or an AI agent.");
-            sb.AppendLine();
-            sb.AppendLine($"**The Unity CLI** drives an Editor that is *already open*, which makes it the one to use while you are working - and the one an agent should reach for. It requires Unity's [Pipeline package](https://github.com/Unity-Technologies/com.unity.pipeline) (`com.unity.pipeline`), which exposes the running Editor over a local HTTP server: install the `unity` CLI, run `unity pipeline install` in your project, then open it in the Editor. The package is completely optional - if it is not installed the `{PipelineCommands.COMMAND}` command simply is not registered and nothing else changes.");
-            return sb.ToString();
-        }
+#endif
 
         /// <summary>
         /// Everything above the generated header is hand-authored and kept as-is. Creates the file seeded
@@ -296,7 +294,7 @@ namespace Wireframe
         private static List<Type> GetAllWikiTypes()
         {
             List<Type> types = new List<Type>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly assembly in AssemblyUtils.GetAssemblies())
             {
                 Type[] assemblyTypes;
                 try

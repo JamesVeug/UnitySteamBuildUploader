@@ -22,7 +22,10 @@ namespace Wireframe
     /// </summary>
     public static class PipelineCommands
     {
-        [CliCommand("build_uploader", "Build Uploader: inspect, verify, run and maintain upload profiles and tasks")]
+        public const string COMMAND = "build_uploader";
+        public const string COMMAND_DESCRIPTION = "Build Uploader: inspect, verify, run and maintain upload profiles and tasks";
+
+        [CliCommand(COMMAND, COMMAND_DESCRIPTION)]
         public static object Command(
             // Listing
             [CliArg("profiles", "Lists every UploadProfile asset (name and GUID)")] bool showProfiles = false,

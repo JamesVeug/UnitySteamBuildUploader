@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Unity.Pipeline.Commands;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,6 +14,9 @@ namespace Wireframe
 {
     internal class Wiki
     {
+        /// <summary>Everything from this header down in CLI.md is generated.</summary>
+        private const string CLIHeader = "## Commands";
+
         private class Data
         {
             public Type DataClass;
@@ -69,10 +73,7 @@ namespace Wireframe
             
             
             // Get every type matching the WikiSubPath
-            var types = typeof(Wiki).Assembly
-                .GetTypes()
-                .Where(t => t.IsDefined(typeof(WikiAttribute)))
-                .ToList();
+            List<Type> types = GetAllWikiTypes();
             types.Sort(SortTypesByWikiAttribute);
             
             foreach (var type in types)
@@ -97,30 +98,15 @@ namespace Wireframe
             foreach (Data data in allData)
             {
                 string mdFilePath = data.MDFilePath;
-                if (!File.Exists(mdFilePath))
+                if (!TryGetHandAuthoredPreamble(mdFilePath, data.StartOfHeader, "TODO", out string preamble))
                 {
-                    File.WriteAllText(mdFilePath, "TODO\n\n" + data.StartOfHeader + "\n\n");
-                }
-                string text = File.ReadAllText(mdFilePath);
-                
-                // Find the start of the header
-                int startIndex = text.IndexOf(data.StartOfHeader);
-                if (startIndex == -1)
-                {
-                    Debug.LogError($"Could not find header: {data.StartOfHeader} in {mdFilePath}");
                     continue;
                 }
 
-                while (text[startIndex] == '\n' || text[startIndex] == '\r')
-                {
-                    startIndex--;
-                }
-                
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine(text.Substring(0, startIndex));
+                sb.AppendLine(preamble);
                 sb.AppendLine();
-                sb.AppendLine();
-                
+
 
                 WikiAttribute dataWikiAttribute = (WikiAttribute)data.DataClass.GetCustomAttribute(typeof(WikiAttribute));
                 sb.AppendLine($"## {dataWikiAttribute.Name}");
@@ -154,8 +140,184 @@ namespace Wireframe
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             }
-            
+
             File.WriteAllText(filePath, stringFormatWikiBuilder.ToString());
+
+            WriteCLICommands();
+        }
+
+        private class CommandData
+        {
+            public MethodInfo methodInfo;
+            public CliCommandAttribute commandAttribute;
+            public CommandArg[] args;
+        }
+        
+        private class CommandArg
+        {
+            public CliArgAttribute CliArg;
+            public ParameterInfo Parameter;
+
+        }
+
+        private static List<CommandData> GetCommands()
+        {
+            var list = new List<CommandData>();
+            
+            IEnumerable<MethodInfo> methodInfos = typeof(PipelineCommands)
+                .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(a=>a.GetCustomAttribute<CliCommandAttribute>() != null);
+            foreach (MethodInfo methodInfo in methodInfos)
+            {
+                CliCommandAttribute commandAttribute = methodInfo.GetCustomAttribute<CliCommandAttribute>();
+                var parameters = methodInfo.GetParameters().Where(a=>a.GetCustomAttribute<CliArgAttribute>() != null);
+
+                CommandData commandData = new CommandData();
+                commandData.methodInfo = methodInfo;
+                commandData.commandAttribute = commandAttribute;
+                commandData.args = parameters.Select((a, b)=>
+                {
+                    return new CommandArg()
+                    {
+                        CliArg = a.GetCustomAttribute<CliArgAttribute>(),
+                        Parameter = a,
+                    };
+                }).ToArray();
+                list.Add(commandData);
+            }
+            
+            return list;
+        }
+
+        private static void WriteCLICommands()
+        {
+            string filePath = Path.Combine(Application.dataPath, "../Wiki/CLI.md");
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(DefaultCLIPreamble());
+            sb.AppendLine();
+            sb.AppendLine(CLIHeader);
+
+            // One table per group, groups and arguments both in declaration order.
+            bool isFirst = true;
+            foreach (CommandData group in GetCommands().OrderBy(a=>a.commandAttribute.Name))
+            {
+                if (isFirst)
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.AppendLine();
+                }
+                
+                sb.AppendLine("```");
+                sb.AppendLine($"unity command {group.commandAttribute.Name} --<argument> <value>");
+                sb.AppendLine("```");
+                sb.AppendLine();
+                sb.AppendLine("### Arguments");
+                
+                if (group.args.Length == 0)
+                {
+                    sb.AppendLine("No args");
+                    continue;
+                }
+                
+                sb.AppendLine("| Argument | Required | Type | Description |");
+                sb.AppendLine("| --- | --- | --- | --- |");
+                
+                foreach (CommandArg arg in group.args)
+                {
+                    sb.AppendLine($"| `{arg.CliArg.Name}` | {arg.CliArg.Required} | {arg.Parameter.ParameterType.Name} | {arg.CliArg.Description} |");
+                }
+            }
+
+            File.WriteAllText(filePath, sb.ToString());
+        }
+
+        /// <summary>
+        /// Seeds CLI.md the first time it is exported. Only used when the file does not exist - after that
+        /// everything above the header is hand-authored and preserved.
+        /// </summary>
+        private static string DefaultCLIPreamble()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("# Command Line Interface");
+            sb.AppendLine();
+            sb.AppendLine("Run Build Uploader operations from a terminal, a CI job or an AI agent.");
+            sb.AppendLine();
+            sb.AppendLine($"**The Unity CLI** drives an Editor that is *already open*, which makes it the one to use while you are working - and the one an agent should reach for. It requires Unity's [Pipeline package](https://github.com/Unity-Technologies/com.unity.pipeline) (`com.unity.pipeline`), which exposes the running Editor over a local HTTP server: install the `unity` CLI, run `unity pipeline install` in your project, then open it in the Editor. The package is completely optional - if it is not installed the `{PipelineCommands.COMMAND}` command simply is not registered and nothing else changes.");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Everything above the generated header is hand-authored and kept as-is. Creates the file seeded
+        /// with the default preamble when it is missing, and returns false - leaving the file untouched
+        /// rather than emptying it - when the header cannot be found.
+        /// </summary>
+        private static bool TryGetHandAuthoredPreamble(string filePath, string header, string defaultPreamble, out string preamble)
+        {
+            preamble = null;
+
+            string directory = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            if (!File.Exists(filePath))
+            {
+                File.WriteAllText(filePath, defaultPreamble + "\n\n" + header + "\n\n");
+            }
+
+            string text = File.ReadAllText(filePath);
+            int startIndex = text.IndexOf(header, StringComparison.Ordinal);
+            if (startIndex == -1)
+            {
+                Debug.LogError($"Could not find header: {header} in {filePath}");
+                return false;
+            }
+
+            // Trim the blank lines before the header - the generated text puts its own back, and keeping
+            // them would grow the gap by two lines on every export.
+            while (startIndex > 0 && (text[startIndex - 1] == '\n' || text[startIndex - 1] == '\r'))
+            {
+                startIndex--;
+            }
+
+            preamble = text.Substring(0, startIndex);
+            return true;
+        }
+
+        /// <summary>
+        /// Every [Wiki] type in the project, not just this assembly's - services with their own asmdef
+        /// (Apple, for one) would otherwise be missing from the exported pages.
+        /// </summary>
+        private static List<Type> GetAllWikiTypes()
+        {
+            List<Type> types = new List<Type>();
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] assemblyTypes;
+                try
+                {
+                    assemblyTypes = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    // An assembly we cannot fully load still tells us about the types that did load.
+                    assemblyTypes = e.Types.Where(t => t != null).ToArray();
+                }
+
+                foreach (Type type in assemblyTypes)
+                {
+                    if (type.IsDefined(typeof(WikiAttribute)))
+                    {
+                        types.Add(type);
+                    }
+                }
+            }
+
+            return types;
         }
 
         private static int SortTypesByWikiAttribute(Type a, Type b)

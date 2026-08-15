@@ -40,6 +40,18 @@ namespace Wireframe
             return newText;
         }
 
+        public static IEnumerable<Command> GetAllCommands(Context ctx)
+        {
+            HashSet<string> seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (Command command in ctx.LocalCommands.Concat(Context.FormatToCommand.Values).OrderBy(a => a.Key))
+            {
+                if (seenKeys.Add(command.Key))
+                {
+                    yield return command;
+                }
+            }
+        }
+
         public static string GetFormatStringTextFieldTooltip(Context ctx)
         {
             StringBuilder tooltipBuilder = new StringBuilder();
@@ -49,10 +61,10 @@ namespace Wireframe
             int ignored = 0;
             List<string> commandKeys = new List<string>(maximum);
             List<string> commandValues = new List<string>(maximum);
-            foreach (Command command in ctx.LocalCommands.Concat(Context.FormatToCommand.Values).OrderBy(a=>a.Key))
+            foreach (Command command in GetAllCommands(ctx))
             {
                 string key = command.Key;
-                if (key.Length <= 2 || commandKeys.Contains(key))
+                if (key.Length <= 2)
                 {
                     continue;
                 }

@@ -252,8 +252,9 @@ namespace Wireframe {
             bool oneServiceReadyToBuild = statuses.Any(a => a.ReadyToBuild);
             bool oneServiceProjectSettingsSetup = statuses.Any(a => a.ReadyToBuild && a.ProjectSettingsSetup);
             bool oneUploadProfileSetup = UploadProfilesExist();
+            bool rootPathSetup = !string.IsNullOrEmpty(Preferences.RootPath);
 
-            bool allComplete = oneServiceReadyToBuild && oneServiceProjectSettingsSetup && oneUploadProfileSetup;
+            bool allComplete = rootPathSetup && oneServiceReadyToBuild && oneServiceProjectSettingsSetup && oneUploadProfileSetup;
 
             bool show = EditorPrefs.GetBool("BuildUploader_showHowToSetup", !allComplete);
             bool newShow = EditorGUILayout.Foldout(show, new GUIContent("Setup checklist", SuccessIcon(allComplete, true)), sectionFoldoutStyle);
@@ -274,6 +275,11 @@ namespace Wireframe {
                     using (new EditorGUILayout.VerticalScope(indentStyle))
                     {
                         GUILayout.Label($"\nBuild Uploader -> General");
+                        string rootPathText = "Set the Root Path all of your sources and destinations start from";
+                        DrawCheckList(rootPathText,
+                            $"C:/SomeFolder/Builds/{Context.VERSION_KEY}", rootPathSetup,
+                            new SettingsLinkGUIContent(rootPathText, "", "Preferences/Build Uploader/General", SettingsScope.User));
+
                         string cacheText = "Change Cached Builds to a smaller path. eg: C:/CachedBuilds";
                         DrawCheckList(cacheText,
                             null, !Preferences.CacheFolderPath.Equals(Preferences.DefaultCacheFolder),

@@ -116,6 +116,12 @@ namespace Wireframe
             set => ProjectEditorPrefs.SetString("BuildUploader_CacheFolderPath", value);
         }
         
+        public static string RootPath
+        {
+            get => ProjectEditorPrefs.GetString("BuildUploader_RootPath", "");
+            set => ProjectEditorPrefs.SetString("BuildUploader_RootPath", value);
+        }
+
         public static bool UseLocalDestinationIfAvailable
         {
             get => ProjectEditorPrefs.GetBool("BuildUploader_UseLocalDestinationIfAvailable", true);

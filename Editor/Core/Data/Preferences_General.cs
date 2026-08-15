@@ -7,6 +7,9 @@ namespace Wireframe
 {
     public class PreferencesSettings : SettingsProvider
     {
+        private readonly Context m_context = new Context();
+        private bool m_showFormattedRootPath = Preferences.DefaultShowFormattedTextToggle;
+
         [SettingsProvider]
         public static SettingsProvider CreateGeneralPreferencesProvider()
         {
@@ -31,6 +34,19 @@ namespace Wireframe
         {
             base.OnGUI(searchContext);
             GUILayout.Label("Preferences for the Build Uploader that exists per user and not shared.", EditorStyles.wordWrappedLabel);
+
+            GUILayout.Space(20);
+            EditorGUILayout.LabelField(new GUIContent("Root Path",
+                    "A path that every source and destination can start from so they don't all have to repeat it."),
+                EditorStyles.boldLabel);
+            GUILayout.Label($"Use it with {Context.ROOT_PATH_KEY} in any path, or by setting a sources Path Type to Relative To Root Path. " +
+                            $"eg: C:/SomeFolder/Builds/{Context.VERSION_KEY}", EditorStyles.wordWrappedLabel);
+
+            string rootPath = Preferences.RootPath;
+            if (CustomFolderPathTextField.OnGUI("Select Root Path", ref rootPath, ref m_showFormattedRootPath, m_context))
+            {
+                Preferences.RootPath = rootPath;
+            }
 
             GUILayout.Space(20);
             EditorGUILayout.LabelField(new GUIContent($"Cached Builds ({GetSizeOfCacheFolder()})",

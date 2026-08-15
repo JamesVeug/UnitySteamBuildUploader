@@ -16,6 +16,7 @@ namespace Wireframe
         public const string BUILD_TARGET_GROUP_KEY = "{buildTargetGroup}";
         public const string SCRIPTING_BACKEND_KEY = "{scriptingBackend}";
         public const string PROJECT_PATH_KEY = "{projectPath}";
+        public const string ROOT_PATH_KEY = "{rootPath}";
         public const string PERSISTENT_DATA_PATH_KEY = "{persistentDataPath}";
         public const string CACHE_FOLDER_KEY = "{cacheFolderPath}";
         public const string UNITY_VERSION_KEY = "{unityVersion}";
@@ -101,6 +102,7 @@ namespace Wireframe
             AddS(BUILD_TARGET_GROUP_KEY, ()=> BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget).ToString(), "The target group of the upcoming build as defined in Player Settings.");
             AddS(SCRIPTING_BACKEND_KEY, ()=> BuildUtils.ScriptingBackendDisplayName(BuildUtils.CurrentScriptingBackend()), "The scripting backend for the next build as defined in Player Settings.");
             AddS(PROJECT_PATH_KEY, ()=> Path.GetDirectoryName(Application.dataPath), "The path of your Unity Project contains the Assets folder.");
+            AddS(ROOT_PATH_KEY, RootPath, "The path every other path can start from as specified in Preferences. eg: C:/SomeFolder/Builds/{version}");
             AddS(PERSISTENT_DATA_PATH_KEY, ()=> Application.persistentDataPath, "The path of the Persistent Data folder");
             AddS(CACHE_FOLDER_KEY, ()=> Preferences.CacheFolderPath, "The path where all files and builds are stored when build uploader is working.");
             AddS(UNITY_VERSION_KEY, ()=> Application.unityVersion, "The version of Unity you are using.");
@@ -173,6 +175,12 @@ namespace Wireframe
             AddS(VERSION_MINOR_SEM_KEY, ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Minor)), "The minor segment of the version of your project as specified in Player Settings but with only numbers. eg: 2 from a1.2.3-beta1");
             AddS(VERSION_PATCH_SEM_KEY, ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Patch)), "The patch segment of the version of your project as specified in Player Settings but with only numbers. eg: 3 from a1.2.3-beta1");
             AddS(VERSION_REVISION_SEM_KEY, ()=> Utils.ToSemantic(Utils.VersionSegmentToString(Application.version, Utils.VersionSegment.Revision)), "The revision segment of the version of your project as specified in Player Settings but with only numbers. eg: 1 from a1.2.3-beta1");
+        }
+
+        internal static string RootPath()
+        {
+            // Strip out the key itself so a self referencing root path can not loop forever
+            return Utils.Replace(Preferences.RootPath, ROOT_PATH_KEY, "", StringComparison.OrdinalIgnoreCase);
         }
 
         private static string GitValue(Func<Git.GitSnapshot, string> selector)

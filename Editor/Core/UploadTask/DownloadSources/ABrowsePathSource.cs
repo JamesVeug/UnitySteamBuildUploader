@@ -19,6 +19,9 @@ namespace Wireframe
             
             [Wiki(nameof(PathToAssets), "Specify the path starting from the projects Assets folder.")]
             PathToAssets,
+
+            [Wiki(nameof(RelativeToRootPath), "Specify the path starting from the Root Path set in Preferences.")]
+            RelativeToRootPath,
         }
         
         [Wiki("Path", "The path to the file or folder to upload.")]
@@ -89,7 +92,8 @@ namespace Wireframe
                 return enteredPath;
             }
 
-            return Path.Combine(path, enteredPath);
+            // Trim so Path.Combine doesn't discard the sub path when the entered path starts with a separator
+            return Path.Combine(path, enteredPath.TrimStart('/', '\\'));
         }
 
         private string GetSubPath()
@@ -100,6 +104,8 @@ namespace Wireframe
                     return "";
                 case PathType.PathToAssets:
                     return Application.dataPath;
+                case PathType.RelativeToRootPath:
+                    return m_context.FormatString(Context.RootPath());
                 default:
                     throw new ArgumentOutOfRangeException();
             }

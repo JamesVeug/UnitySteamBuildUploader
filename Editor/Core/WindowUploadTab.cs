@@ -376,66 +376,9 @@ namespace Wireframe
                 GUILayout.Space(20);
 
                 // Description
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    if (CustomSettingsIcon.OnGUI())
-                    {
-                        ShowEditDescriptionMenu();
-                    }
-                    
-                    if (CustomFoldoutButton.OnGUI(m_descriptionFoldoutCollapsed))
-                    {
-                        m_descriptionFoldoutCollapsed = !m_descriptionFoldoutCollapsed;
-                    }
-                    
-                    
-                    GUIContent label = new GUIContent("Description", "A description of what's been uploaded." +
-                                                                           "\nDescription is included in some destinations such as Steamworks so keep it short." +
-                                                                           "\nGood practice is to include the version number and a short summary of the changes since the last build." +
-                                                                           "\nexample: v1.2.9 - Hotfix for missing player texture and balance changes.");
-                    GUILayout.Label(label, GUILayout.MaxWidth(100));
-                    
-                    GUIContent content = new GUIContent("F", EditorUtils.GetFormatStringTextFieldTooltip(m_context));
-                    m_showFormattedDescription = GUILayout.Toggle(m_showFormattedDescription, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
-                    if (m_descriptionFoldoutCollapsed)
-                    {
-                        if (m_showFormattedDescription)
-                        {
-                            using (new EditorGUI.DisabledScope(true))
-                            {
-                                string formattedDescription = m_context.FormatString(m_buildDescription);
-                                GUILayout.TextArea(formattedDescription, GUILayout.ExpandWidth(true));
-                            }
-                        }
-                        else
-                        {
-                            m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandWidth(true));
-                        }
-                    }
-                    else
-                    {
-                        GUILayout.FlexibleSpace();
-                    }
-                }
+                DrawDescriptionTextArea();
 
-                if(!m_descriptionFoldoutCollapsed){
-                    m_descriptionScrollPosition = GUILayout.BeginScrollView(m_descriptionScrollPosition, GUILayout.Height(100));
-                    if (m_showFormattedDescription)
-                    {
-                        using (new EditorGUI.DisabledScope(true))
-                        {
-                            string formattedDescription = m_context.FormatString(m_buildDescription);
-                            GUILayout.TextArea(formattedDescription, GUILayout.ExpandHeight(true));
-                        }
-                    }
-                    else
-                    {
-                        m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
-                    }
-                    GUILayout.EndScrollView();
-                }
-
-
+                // Draw Upload button
                 bool canUpload = CanStartUpload(out string reason);
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -469,6 +412,68 @@ namespace Wireframe
                         }
                     }
                 }
+            }
+        }
+        
+        private void DrawDescriptionTextArea()
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (CustomSettingsIcon.OnGUI())
+                {
+                    ShowEditDescriptionMenu();
+                }
+                    
+                if (CustomFoldoutButton.OnGUI(m_descriptionFoldoutCollapsed))
+                {
+                    m_descriptionFoldoutCollapsed = !m_descriptionFoldoutCollapsed;
+                }
+                    
+                    
+                GUIContent label = new GUIContent("Description", "A description of what's been uploaded." +
+                                                                 "\nDescription is included in some destinations such as Steamworks so keep it short." +
+                                                                 "\nGood practice is to include the version number and a short summary of the changes since the last build." +
+                                                                 "\nexample: v1.2.9 - Hotfix for missing player texture and balance changes.");
+                GUILayout.Label(label, GUILayout.MaxWidth(100));
+                    
+                GUIContent content = new GUIContent("F", EditorUtils.GetFormatStringTextFieldTooltip(m_context));
+                m_showFormattedDescription = GUILayout.Toggle(m_showFormattedDescription, content, "ToolbarButton", GUILayout.Width(20), GUILayout.Height(20));
+                if (m_descriptionFoldoutCollapsed)
+                {
+                    if (m_showFormattedDescription)
+                    {
+                        using (new EditorGUI.DisabledScope(true))
+                        {
+                            string formattedDescription = m_context.FormatString(m_buildDescription);
+                            GUILayout.TextArea(formattedDescription, GUILayout.ExpandWidth(true));
+                        }
+                    }
+                    else
+                    {
+                        m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandWidth(true));
+                    }
+                }
+                else
+                {
+                    GUILayout.FlexibleSpace();
+                }
+            }
+
+            if(!m_descriptionFoldoutCollapsed){
+                m_descriptionScrollPosition = GUILayout.BeginScrollView(m_descriptionScrollPosition, GUILayout.Height(100));
+                if (m_showFormattedDescription)
+                {
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        string formattedDescription = m_context.FormatString(m_buildDescription);
+                        GUILayout.TextArea(formattedDescription, GUILayout.ExpandHeight(true));
+                    }
+                }
+                else
+                {
+                    m_buildDescription = GUILayout.TextArea(m_buildDescription, GUILayout.ExpandHeight(true));
+                }
+                GUILayout.EndScrollView();
             }
         }
 

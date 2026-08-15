@@ -212,6 +212,7 @@ namespace Wireframe
                 
                 sb.AppendLine("```");
                 sb.AppendLine($"unity command {group.commandAttribute.Name} --<argument> <value>");
+                sb.AppendLine($"unity command {group.commandAttribute.Name} --<argument> <value1>,<value2>");
                 sb.AppendLine("```");
                 sb.AppendLine();
                 sb.AppendLine("### Arguments");

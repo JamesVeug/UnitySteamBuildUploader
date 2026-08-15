@@ -7,6 +7,7 @@ namespace Wireframe
     public partial class GitTagCommitAction
     {
         private bool m_showFormattedTag = Preferences.DefaultShowFormattedTextToggle;
+        private bool m_showFormattedRemote = Preferences.DefaultShowFormattedTextToggle;
 
         public override void OnGUICollapsed(ref bool isDirty, float maxWidth)
         {
@@ -44,7 +45,7 @@ namespace Wireframe
                 {
                     GUIContent label = new GUIContent("Remote:", "When pushing tag to git, this is the remote that is used.");
                     GUILayout.Label(label, GUILayout.Width(120));
-                    isDirty |= EditorUtils.FormatStringTextField(ref m_remote, ref m_showFormattedTag, m_context);
+                    isDirty |= EditorUtils.FormatStringTextField(ref m_remote, ref m_showFormattedRemote, m_context);
                 }
             }
         }

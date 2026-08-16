@@ -1,3 +1,63 @@
+# 3.3.0
+
+## Highlights
+- 8 new experimental Services - Mobile, Console, Git, Email, Dropbox
+- All reorderable lists have tooltips and placeholder exmaples text
+- Added auto-complete dropdown for string formats when typing in text fields  
+- Unity CLI support
+
+## What's new
+- Added new Experimental services
+  - Xbox
+  - Playstation
+  - Nintendo
+  - Git
+    - String formatting options
+    - Create and push Tag
+  - Apple (Unity 2022 and up)
+      - New Apple Destination
+      - New Testflight action
+  - Google
+      - New Google Drive destination
+      - New Google Play destination
+      - New Google Chat Action
+  - Dropbox
+  - Email
+- Added main menu options to quick upload (Unity 6000.3 and up - Right click next to play button)
+- Added Unity CLI support
+- Added auto-complete dropdown for string formats when typing in text fields
+- Added 12 new string formats
+  - {rootPath} The path every other path can start from as specified in Preferences. eg: C:/SomeFolder/Builds/{version}
+  - {gitBranch} The git branch the project is currently on. eg: main. Reads HEAD when the repository is in a detached head state.
+  - {gitCommit} The full hash of the commit the project is currently on.
+  - {gitCommitAuthor} The name of the author of the commit the project is currently on.
+  - {gitCommitAuthorEmail} The email address of the author of the commit the project is currently on.
+  - {gitCommitDate} The date the commit the project is currently on was authored, in the format YYYY-MM-DD.
+  - {gitCommitMessage} The whole message of the commit the project is currently on - both the subject and the body.
+  - {gitCommitMessageBody} Everything after the first line of the message of the commit the project is currently on. Empty for a single line commit message, and can span multiple lines otherwise.
+  - {gitCommitMessageSubject} The first line of the message of the commit the project is currently on. Always a single line.
+  - {gitCommitShort} The shortened hash of the commit the project is currently on. eg: 3f2a91c
+  - {gitTag} The most recent git tag reachable from the current commit. eg: v1.4.2. Empty when the repository has no tags.
+
+## What's Changed
+- Some warnings/errors have buttons taking you to preferences/settings to resolve them
+- Added missing set description setter for Itch.io destination
+- Upload tasks can now be cancelled
+- Added preference toggle to show/hide blank string formatting tooltips (Off by default)
+- Added supporters to Readme
+- Improved welcome window UX 
+
+## What's Fixed
+- Fixed config actions not executing
+- Fixed some steam logs showing username
+- Fixed some warnings showing twice
+- Fixed config actions not showing errors or warnings in the UI
+- Fixed batch scripts not producing task reports
+- Fixed string format tooltip double ups
+- Fixed JSON errors with empty objects (eg: no steamsdk depots)
+- Fixed Menu Items showing top of the list of Window list 
+
+
 # 3.2.2
 
 ## What's Fixed

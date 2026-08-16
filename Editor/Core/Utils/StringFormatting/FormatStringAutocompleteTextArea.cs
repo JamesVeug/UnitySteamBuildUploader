@@ -29,6 +29,7 @@ namespace Wireframe
         private Rect m_dropdownScreenRect;
         private Rect m_dropdownTopLevelRect;
         private bool m_swallowMouseUp;
+        private EditorWindow m_ownerWindow;
 
         private bool IsOpen => m_anchorIndex >= 0 && m_suggestions.Count > 0;
         public bool IsDropdownOpen => IsOpen;
@@ -50,6 +51,7 @@ namespace Wireframe
         {
             if (armed)
             {
+                TrackOwnerWindow();
                 HandleNavigationKeys();
             }
 
@@ -150,6 +152,26 @@ namespace Wireframe
             EditorGUI.DrawRect(new Rect(r.xMax - 1f, r.y, 1f, r.height), color);
         }
 
+        /// <summary>
+        /// Keyboard events only ever reach the focused window, so a key event arriving while this
+        /// field holds focus identifies the window the dropdown belongs to. Once known, the dropdown
+        /// closes the moment focus moves to another window - tabbing away leaves the field's own
+        /// focus check unchanged, so nothing else would ever take the overlay down.
+        /// </summary>
+        private void TrackOwnerWindow()
+        {
+            if (Event.current.isKey && GUI.GetNameOfFocusedControl() == m_controlName)
+            {
+                m_ownerWindow = EditorWindow.focusedWindow;
+            }
+
+            if (m_ownerWindow != null && EditorWindow.focusedWindow != m_ownerWindow)
+            {
+                m_ownerWindow = null;
+                Close();
+            }
+        }
+
         private void HandleNavigationKeys()
         {
             if (!IsOpen || GUI.GetNameOfFocusedControl() != m_controlName)
@@ -204,12 +226,21 @@ namespace Wireframe
                 return;
             }
 
-            if (e.type != EventType.MouseDown || e.button != 0)
+            if (e.type != EventType.MouseDown)
             {
                 return;
             }
 
             if (!m_dropdownTopLevelRect.Contains(e.mousePosition))
+            {
+                // Clicking anywhere else dismisses the dropdown. The event is left unused so the
+                // click still lands on whatever control it was aimed at, and a click back inside the
+                // text area simply reopens the dropdown on the next repaint.
+                Close();
+                return;
+            }
+
+            if (e.button != 0)
             {
                 return;
             }
@@ -321,6 +352,16 @@ namespace Wireframe
 
             GUI.FocusControl(m_controlName);
             return result;
+        }
+
+        /// <summary>
+        /// Dismisses the dropdown from outside the widget, for when the field that owns it is no
+        /// longer being drawn and so can no longer close itself.
+        /// </summary>
+        public void ForceClose()
+        {
+            m_ownerWindow = null;
+            Close();
         }
 
         private void Close()

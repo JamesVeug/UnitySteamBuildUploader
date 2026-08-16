@@ -45,11 +45,32 @@ namespace Wireframe
             HashSet<string> seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (Command command in ctx.LocalCommands.Concat(Context.FormatToCommand.Values).OrderBy(a => a.Key))
             {
-                if (seenKeys.Add(command.Key))
+                if (IsResolvableKey(command.Key) && seenKeys.Add(command.Key))
                 {
                     yield return command;
                 }
             }
+        }
+
+        /// <summary>
+        /// True when the key is a single '{name}' token that <see cref="Context.FormatString"/> can
+        /// actually resolve. Local commands take their key from a field the user is still typing
+        /// into, so they can be empty or hold nested braces (eg: "{#{buildNumber}}") - offering
+        /// those as autocomplete suggestions lets the user pick a key that can never resolve.
+        /// </summary>
+        public static bool IsResolvableKey(string key)
+        {
+            if (string.IsNullOrEmpty(key) || key.Length <= 2)
+            {
+                return false;
+            }
+
+            if (key[0] != '{' || key[key.Length - 1] != '}')
+            {
+                return false;
+            }
+
+            return key.IndexOf('{', 1) < 0 && key.IndexOf('}', 0, key.Length - 1) < 0;
         }
 
         public static string GetFormatStringTextFieldTooltip(Context ctx)
@@ -64,11 +85,6 @@ namespace Wireframe
             foreach (Command command in GetAllCommands(ctx))
             {
                 string key = command.Key;
-                if (key.Length <= 2)
-                {
-                    continue;
-                }
-                
                 if (commandKeys.Count >= maximum)
                 {
                     ignored++;

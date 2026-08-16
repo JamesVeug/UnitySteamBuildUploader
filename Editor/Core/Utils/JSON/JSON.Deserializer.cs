@@ -248,7 +248,7 @@ namespace Wireframe
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                     {
                         int startIndex = json.IndexOf("{") + 1;
-                        int endIndex = FindClosingBracket(json, startIndex);
+                        int endIndex = FindClosingBracket(json, startIndex - 1);
 
                         // "key": value,
                         // "key": value
@@ -260,22 +260,38 @@ namespace Wireframe
                         bool inString = false;
                         for (int i = startIndex; i < endIndex; i++)
                         {
-                            if (json[i] == '{' || json[i] == '[')
+                            char c = json[i];
+                            if (c == '\\')
+                            {
+                                i++;
+                                continue;
+                            }
+
+                            if (inString)
+                            {
+                                if (c == '"')
+                                {
+                                    inString = false;
+                                }
+                                continue;
+                            }
+                            else if (c == '"')
+                            {
+                                inString = true;
+                                continue;
+                            }
+
+                            if (c == '{' || c == '[')
                             {
                                 depth++;
                             }
 
-                            if (json[i] == '}' || json[i] == ']')
+                            if (c == '}' || c == ']')
                             {
                                 depth--;
                             }
 
-                            if (json[i] == '"' && i > 0 && json[i - 1] != '\\')
-                            {
-                                inString = !inString;
-                            }
-
-                            if (json[i] == ',' && depth == 0 && !inString)
+                            if (c == ',' && depth == 0)
                             {
                                 entryEnd = i;
                                 entries.Add(json.Substring(entryStart, entryEnd - entryStart).Trim());
@@ -283,7 +299,14 @@ namespace Wireframe
                             }
                         }
 
-                        entries.Add(json.Substring(entryStart, endIndex - entryStart + 1).Trim());
+                        if (entryStart == 1 && endIndex == 0)
+                        {
+                            // {}
+                        }
+                        else
+                        {
+                            entries.Add(json.Substring(entryStart, endIndex - entryStart + 1).Trim());
+                        }
                         entries.RemoveAll(string.IsNullOrEmpty);
 
 
@@ -314,25 +337,52 @@ namespace Wireframe
 
             private static int FindClosingBracket(string text, int startIndexInclusive)
             {
-                int endIndex = -1;
+                int depth = 1;
+                bool inString = false;
 
-                int d = 1;
-                // Starting on the given index and not after it or an empty object '{}' never finds its closing bracket.
-                for(int i = startIndexInclusive; i < text.Length && d > 0; i++)
+                for (int i = startIndexInclusive + 1; i < text.Length; i++)
                 {
-                    if (text[i] == '{' || text[i] == '[')
+                    char c = text[i];
+
+                    if (c == '\\')
                     {
-                        d++;
+                        i++;
+                        continue;
                     }
 
-                    if (text[i] == '}' || text[i] == ']')
+                    if (inString)
                     {
-                        d--;
-                        endIndex = i - 1;
+                        if (c == '"')
+                        {
+                            inString = false;
+                        }
+
+                        continue;
+                    }
+
+                    switch (c)
+                    {
+                        case '"':
+                            inString = true;
+                            break;
+
+                        case '{':
+                        case '[':
+                            depth++;
+                            break;
+
+                        case '}':
+                        case ']':
+                            depth--;
+                            if (depth == 0)
+                            {
+                                return i - 1;
+                            }
+                            break;
                     }
                 }
 
-                return endIndex;
+                return -1;
             }
 
             public static T ConvertType<T>(object data)

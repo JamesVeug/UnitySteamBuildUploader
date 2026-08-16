@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -17,18 +18,32 @@ namespace Wireframe
                 {
                     return "null";
                 }
+                else if (type == typeof(object))
+                {
+                    return TOJSON(o, o.GetType(), indents);
+                }
                 
                 if (type == typeof(string))
                 {
-                    string s = (string)o;
+                    string s = o.ToString();
                     s = s.Replace("\r", "\\r");
                     s = s.Replace("\n", "\\n");
+                    s = s.Replace("\t", "\\t");
                     s = s.Replace("\"", "\\\"");
                     return "\"" + s + "\"";
                 }
+                else if (type == typeof(char))
+                {
+                    return "\"" + o + "\"";
+                }
+                
                 if (type.IsPrimitive)
                 {
-                    return o.ToString().ToLowerInvariant();
+                    return Convert.ToString(o, CultureInfo.InvariantCulture).ToLowerInvariant();
+                }
+                else if (type == typeof(decimal))
+                {
+                    return o.ToString();
                 }
 
                 if (type.IsEnum)
@@ -40,26 +55,37 @@ namespace Wireframe
                 if(o is IList list)
                 {
                     StringBuilder sb = new StringBuilder();
-                    indents++;
                     sb.Append("[");
-                    sb.Append("\n");
-                    sb.Append(new string('\t', indents));
-                    
-                    for (var i = 0; i < list.Count; i++)
+                    if (list.Count > 0)
                     {
-                        var item = list[i];
-                        sb.Append(TOJSON(item, item.GetType(), indents));
-                        if (i < list.Count - 1)
-                        {
-                            sb.Append(",");
-                            sb.Append("\n");
-                            sb.Append(new string('\t', indents));
-                        }
-                    }
+                        indents++;
+                        sb.Append("\n");
+                        sb.Append(new string('\t', indents));
 
-                    indents--;
-                    sb.Append("\n");
-                    sb.Append(new string('\t', indents));
+                        for (var i = 0; i < list.Count; i++)
+                        {
+                            var item = list[i];
+                            if (item == null)
+                            {
+                                sb.Append("null");
+                            }
+                            else
+                            {
+                                sb.Append(TOJSON(item, item.GetType(), indents));
+                            }
+                            
+                            if (i < list.Count - 1)
+                            {
+                                sb.Append(",");
+                                sb.Append("\n");
+                                sb.Append(new string('\t', indents));
+                            }
+                        }
+
+                        indents--;
+                        sb.Append("\n");
+                        sb.Append(new string('\t', indents));
+                    }
                     sb.Append("]");
                     return sb.ToString();
                 }
@@ -67,28 +93,31 @@ namespace Wireframe
                 // Dictionary
                 if(o is IDictionary dict)
                 {
-                    indents++;
                     StringBuilder sb = new StringBuilder();
                     sb.Append("{");
-                    sb.Append("\n");
-                    sb.Append(new string('\t', indents));
-                    int count = dict.Count;
-                    foreach (DictionaryEntry entry in dict)
+                    if (dict.Count > 0)
                     {
-                        sb.Append(TOJSON(entry.Key, entry.Key?.GetType(), indents));
-                        sb.Append(": ");
-                        sb.Append(TOJSON(entry.Value, entry.Value?.GetType(), indents));
-                        if (--count > 0)
+                        indents++;
+                        sb.Append("\n");
+                        sb.Append(new string('\t', indents));
+                        int count = dict.Count;
+                        foreach (DictionaryEntry entry in dict)
                         {
-                            sb.Append(",");
-                            sb.Append("\n");
-                            sb.Append(new string('\t', indents));
+                            sb.Append(TOJSON(entry.Key, typeof(string), indents));
+                            sb.Append(": ");
+                            sb.Append(TOJSON(entry.Value, entry.Value?.GetType(), indents));
+                            if (--count > 0)
+                            {
+                                sb.Append(",");
+                                sb.Append("\n");
+                                sb.Append(new string('\t', indents));
+                            }
                         }
+                        sb.Append("\n");
+                        sb.Append(new string('\t', Mathf.Max(0, indents - 1)));
+                        indents--;
                     }
-                    sb.Append("\n");
-                    sb.Append(new string('\t', Mathf.Max(0, indents - 1)));
                     sb.Append("}");
-                    indents--;
                     return sb.ToString();
                 }
 

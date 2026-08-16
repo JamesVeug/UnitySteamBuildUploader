@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using UnityEngine;
 
@@ -17,6 +18,11 @@ namespace Wireframe
 
             public static object FromJSON(string json, Type type)
             {
+                if (json == null)
+                {
+                    return null;
+                }
+                
                 if (type == typeof(string))
                 {
                     if (json.Length > 1 && json[0] == '"' && json[json.Length - 1] == '"')
@@ -25,6 +31,7 @@ namespace Wireframe
                     }
                     json = json.Replace("\\r", "\r");
                     json = json.Replace("\\n", "\n");
+                    json = json.Replace("\\t", "\t");
                     json = json.Replace("\\\"", "\"");
                     return json;
                 }
@@ -38,67 +45,71 @@ namespace Wireframe
 
                     if (type == typeof(int))
                     {
-                        return int.Parse(json);
+                        return int.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(float))
                     {
-                        return float.Parse(json);
+                        return float.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(double))
                     {
-                        return double.Parse(json);
+                        return double.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(long))
                     {
-                        return long.Parse(json);
+                        return long.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(short))
                     {
-                        return short.Parse(json);
+                        return short.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(byte))
                     {
-                        return byte.Parse(json);
+                        return byte.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(char))
                     {
+                        if (json.Length == 3 && json[0] == '"' && json[2] == '"')
+                            return json[1]; // "a" -> a
                         return char.Parse(json);
                     }
 
                     if (type == typeof(decimal))
                     {
-                        return decimal.Parse(json);
+                        return decimal.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(uint))
                     {
-                        return uint.Parse(json);
+                        return uint.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(ulong))
                     {
-                        return ulong.Parse(json);
+                        return ulong.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(ushort))
                     {
-                        return ushort.Parse(json);
+                        return ushort.Parse(json, CultureInfo.InvariantCulture);
                     }
 
                     if (type == typeof(sbyte))
                     {
-                        return sbyte.Parse(json);
+                        return sbyte.Parse(json, CultureInfo.InvariantCulture);
                     }
                 }
                 
                 if(type.IsEnum)
                 {
+                    if(json.Length > 2 && json[0] == '"' && json[json.Length - 1] == '"')
+                        return Enum.Parse(type, json.Substring(1, json.Length - 2));
                     return Enum.Parse(type, json);
                 }
 
@@ -110,22 +121,22 @@ namespace Wireframe
                         return boolValue;
                     }
 
-                    if (long.TryParse(json, out long intValue))
+                    if (long.TryParse(json, NumberStyles.Integer, CultureInfo.InvariantCulture, out long intValue))
                     {
                         return intValue;
                     }
 
-                    if (float.TryParse(json, out float floatValue))
+                    if (float.TryParse(json, NumberStyles.Float, CultureInfo.InvariantCulture, out float floatValue))
                     {
                         return floatValue;
                     }
 
-                    if (json[0] == '"' && json[json.Length - 1] == '"')
+                    if (json.Length > 1 && json[0] == '"' && json[json.Length - 1] == '"')
                     {
                         return FromJSON(json, typeof(string));
                     }
 
-                    if (json == "null")
+                    if (json == "null" || json == "")
                     {
                         return null;
                     }
@@ -148,26 +159,6 @@ namespace Wireframe
                         return json;
                     }
 
-                    if (type == typeof(DateTime))
-                    {
-                        return DateTime.Parse(json);
-                    }
-
-                    if (type == typeof(DateTimeOffset))
-                    {
-                        return DateTimeOffset.Parse(json);
-                    }
-
-                    if (type == typeof(TimeSpan))
-                    {
-                        return TimeSpan.Parse(json);
-                    }
-
-                    if (type == typeof(Guid))
-                    {
-                        return Guid.Parse(json);
-                    }
-
                     if (type == typeof(Uri))
                     {
                         return new Uri(json);
@@ -183,18 +174,8 @@ namespace Wireframe
                         return Convert.FromBase64String(json);
                     }
 
-                    if (type == typeof(bool))
-                    {
-                        return bool.Parse(json);
-                    }
-
-                    if (type == typeof(int))
-                    {
-                        return int.Parse(json);
-                    }
-
                     // List
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+                    if (type.IsArray || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)))
                     {
                         int startIndex = json.IndexOf("[") + 1;
                         int endIndex = json.LastIndexOf("]");
@@ -208,22 +189,43 @@ namespace Wireframe
                         bool inString = false;
                         for (int i = startIndex; i < endIndex; i++)
                         {
-                            if (json[i] == '{' || json[i] == '[')
+                            char c = json[i];
+                            if (c == '\\')
+                            {
+                                i++;
+                                continue;
+                            }
+
+                            if (inString)
+                            {
+                                if (c == '"')
+                                {
+                                    inString = false;
+                                }
+                                continue;
+                            }
+                            else if (c == '"')
+                            {
+                                inString = true;
+                                continue;
+                            }
+                            
+                            if (c == '{' || c == '[')
                             {
                                 depth++;
                             }
 
-                            if (json[i] == '}' || json[i] == ']')
+                            if (c == '}' || c == ']')
                             {
                                 depth--;
                             }
 
-                            if (json[i] == '"' && i > 0 && json[i - 1] != '\\')
+                            if (c == '"')
                             {
-                                inString = !inString;
+                                inString = true;
                             }
                             
-                            if (json[i] == ',' && depth == 0 && !inString)
+                            if (c == ',' && depth == 0)
                             {
                                 entryEnd = i;
                                 listData.Add(json.Substring(entryStart, entryEnd - entryStart).Trim());
@@ -233,15 +235,28 @@ namespace Wireframe
 
                         listData.Add(json.Substring(entryStart, endIndex - entryStart).Trim());
                         listData.RemoveAll(string.IsNullOrEmpty);
-                        
-                        Type listType = type.GetGenericArguments()[0];
-                        IList list = (IList)Activator.CreateInstance(type);
-                        foreach (string item in listData)
-                        {
-                            list.Add(FromJSON(item, listType));
-                        }
 
-                        return list;
+                        if (type.IsArray)
+                        {
+                            Array list = (Array)Activator.CreateInstance(type, listData.Count);
+                            Type listType = type.GetElementType();
+                            for (int i = 0; i < listData.Count; i++)
+                            {
+                                string item = listData[i];
+                                list.SetValue(FromJSON(item, listType), i);
+                            }
+                            return list;
+                        }
+                        else
+                        {
+                            Type listType = type.GetGenericArguments()[0];
+                            IList list = (IList)Activator.CreateInstance(type);
+                            foreach (string item in listData)
+                            {
+                                list.Add(FromJSON(item, listType));
+                            }
+                            return list;
+                        }
                     }
 
                     // Dictionary
@@ -249,9 +264,6 @@ namespace Wireframe
                     {
                         int startIndex = json.IndexOf("{") + 1;
                         int endIndex = FindClosingBracket(json, startIndex - 1);
-
-                        // "key": value,
-                        // "key": value
 
                         List<string> entries = new List<string>();
                         int entryStart = startIndex;
@@ -317,9 +329,19 @@ namespace Wireframe
                         foreach (string entry in entries)
                         {
                             int colonIndex = entry.IndexOf(":");
-                            string key = entry.Substring(1, colonIndex - 2);
+                            int nextDoubleQuoteIndex = entry.IndexOf("\"", 1);
+                            if (nextDoubleQuoteIndex > colonIndex)
+                            {
+                                colonIndex = entry.IndexOf(":", nextDoubleQuoteIndex);
+                            }
+                            
+                            string key = entry.Substring(1, colonIndex - 1).Trim();
+                            key = key.Substring(0, key.Length - 1);
+                            
+                            object parsedKey = FromJSON(key, keyType);
                             string value = entry.Substring(colonIndex + 1).Trim();
-                            dict.Add(key, FromJSON(value, valueType));
+                            object parsedValue = FromJSON(value, valueType);
+                            dict.Add(parsedKey, parsedValue);
                         }
 
                         return dict;
@@ -329,6 +351,28 @@ namespace Wireframe
                     Dictionary<string, object> dataDict = FromJSON<Dictionary<string, object>>(json);
                     object convertedValue = ConvertType(dataDict, type);
                     return convertedValue;
+                }
+                else
+                {
+                    if (type == typeof(DateTime))
+                    {
+                        return DateTime.Parse(json, CultureInfo.InvariantCulture);
+                    }
+
+                    if (type == typeof(DateTimeOffset))
+                    {
+                        return DateTimeOffset.Parse(json, CultureInfo.InvariantCulture);
+                    }
+
+                    if (type == typeof(TimeSpan))
+                    {
+                        return TimeSpan.Parse(json, CultureInfo.InvariantCulture);
+                    }
+
+                    if (type == typeof(Guid))
+                    {
+                        return Guid.Parse(json);
+                    }
                 }
 
                 Debug.LogError("Type not supported: " + type.Name);
@@ -486,6 +530,22 @@ namespace Wireframe
                     foreach (object item in (List<object>)obj)
                     {
                         convertedList.Add(ConvertType(item, genericArgument));
+                    }
+
+                    return convertedList;
+                }
+                
+                // Array
+                if (type.IsArray)
+                {
+                    List<object> objects = (List<object>)obj;
+                    Array convertedList = (Array)Activator.CreateInstance(type, objects.Count);
+                    Type genericArgument = type.GetElementType();
+                    
+                    for (int i = 0; i < objects.Count; i++)
+                    {
+                        object item = objects[i];
+                        convertedList.SetValue(ConvertType(item, genericArgument), i);
                     }
 
                     return convertedList;

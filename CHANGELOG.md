@@ -5,6 +5,7 @@
 - All reorderable lists have tooltips and placeholder exmaples text
 - Added auto-complete dropdown for string formats when typing in text fields  
 - Unity CLI support
+- Non-english saving of data 
 
 ## What's new
 - Added new Experimental services
@@ -49,12 +50,12 @@
 
 ## What's Fixed
 - Fixed config actions not executing
+- Fixed lots of JSON errors (empty lists, non-english numbers and more)
 - Fixed some steam logs showing username
 - Fixed some warnings showing twice
 - Fixed config actions not showing errors or warnings in the UI
 - Fixed batch scripts not producing task reports
 - Fixed string format tooltip double ups
-- Fixed JSON errors with empty objects (eg: no steamsdk depots)
 - Fixed Menu Items showing top of the list of Window list 
 
 

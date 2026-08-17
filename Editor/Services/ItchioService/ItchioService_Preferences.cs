@@ -25,7 +25,7 @@ namespace Wireframe
                 Color temp = GUI.color;
                 GUI.color = Itchio.Instance.IsInitialized ? Color.green : Color.red;
                 GUILayout.Label(new GUIContent("Butler Path:",
-                        "The path a folder that contains Butler.exe. Build Uploader uses this to upload builds to Itch.io"), 
+                        "Path to the folder that contains the Butler executable. (Build Uploader uses this to upload builds to Itch.io)"), 
                     GUILayout.Width(105));
                 GUI.color = temp;
 

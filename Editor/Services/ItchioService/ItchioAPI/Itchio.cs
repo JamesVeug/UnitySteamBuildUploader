@@ -101,84 +101,41 @@ namespace Wireframe
 
         public async Task<bool> Upload(string pathToUpload, string user, string game, List<string> channels, string version, UploadTaskReport.StepResult stepResult)
         {
+            stepResult.AddLog("Waiting turn to upload to Itchio....");
             await m_lock.WaitAsync();
+            stepResult.AddLog("Uploading to Itchio....");
 
             try
             {
-                bool retry = true;
-                while (retry)
+                string path = m_SDKCMDPath;
+                string args = CreateUploadBuildItchioArguments(pathToUpload, user, game, version, channels);
+                ProcessUtils.ProcessResult result = await ProcessUtils.RunTask(stepResult, path, args);
+                if (result.IsSuccessful)
                 {
-                    retry = false;
-
-                    m_uploadProcess = new Process();
-                    m_uploadProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                    m_uploadProcess.StartInfo.CreateNoWindow = true;
-                    m_uploadProcess.StartInfo.UseShellExecute = false;
-                    m_uploadProcess.StartInfo.FileName = m_SDKCMDPath;
-                    m_uploadProcess.StartInfo.Arguments = CreateUploadBuildItchioArguments(pathToUpload, user, game, version, channels);
-                    m_uploadProcess.StartInfo.RedirectStandardError = true;
-                    m_uploadProcess.StartInfo.RedirectStandardOutput = true;
-                    m_uploadProcess.EnableRaisingEvents = true;
-
-                    try
+                    OutputResultArgs outputParsingResult = LogOutItchioResult(result.Output);
+                    if (outputParsingResult.successful)
                     {
-                        if (!m_uploadProcess.Start())
-                        {
-                            stepResult.SetFailed(
-                                "Could not start Itchio upload process. Is ItchioCMD installed or busy? Check the path in the preferences.");
-                            return false;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        stepResult.AddException(e);
-                        stepResult.SetFailed("Could not start Itchio upload process.\n" + e.Message);
-                        return false;
-                    }
-
-                    stepResult.AddLog("Uploading to Itchio....");
-                    Stopwatch stopwatch = Stopwatch.StartNew();
-                    string textDump = await m_uploadProcess.StandardOutput.ReadToEndAsync();
-                    stopwatch.Stop();
-                    stepResult.AddLog($"Itchio upload took {stopwatch.ElapsedMilliseconds}ms");
-
-                    var outputResults = await LogOutItchioResult(textDump);
-
-                    try
-                    {
-                        m_uploadProcess.WaitForExit();
-                    }
-                    catch (Exception e)
-                    {
-                        // ItchioCMD.exe doesn't like multiple instances of it running at the same time.
-                        stepResult.AddException(e);
-                    }
-
-                    m_uploadProcess.Close();
-
-
-                    if (!outputResults.successful)
-                    {
-                        stepResult.SetFailed("[Itchio] " + outputResults.errorText + "\n\n" + textDump);
-                        retry = outputResults.retry;
+                        stepResult.AddLog("[Itchio] Itch.io upload successful!");
+                        return true;
                     }
                     else
                     {
-                        stepResult.AddLog("[Itchio] Itchio upload successful!\n\n" + textDump);
+                        stepResult.AddError(outputParsingResult.errorText);
+                        stepResult.SetFailed("[Itchio] Failed to upload build to itch.io!");
+                        return false;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                stepResult.AddException(e);
-                stepResult.SetFailed("Could not upload to app");
+                else
+                {
+                    stepResult.SetFailed($"[Itchio] {result.Errors}");
+                }
             }
             finally
             {
                 m_lock.Release();
             }
 
-            return stepResult.Successful;
+            return false;
         }
 
         /// <summary>
@@ -205,14 +162,14 @@ namespace Wireframe
             "unauthorized"
         };
         
-        private Task<OutputResultArgs> LogOutItchioResult(string textDump)
+        private OutputResultArgs LogOutItchioResult(string textDump)
         {
             OutputResultArgs result = new OutputResultArgs();
             if (string.IsNullOrEmpty(textDump))
             {
                 result.errorText = "Itchio upload failed: No output from ItchioCMD. Does your username/game_id/channel_id have spaces?";
                 result.successful = false;
-                return Task.FromResult(result);
+                return result;
             }
             
             foreach (string failString in failStrings)
@@ -229,12 +186,12 @@ namespace Wireframe
                     string errorText = textDump.Substring(index, endLineIndex - index);
                     result.errorText = $"Itchio upload failed: {errorText}";
                     result.successful = false;
-                    return Task.FromResult(result);
+                    return result;
                 }
             }
 
             result.successful = true;
-            return Task.FromResult(result);
+            return result;
         }
 
         public void ShowConsole()

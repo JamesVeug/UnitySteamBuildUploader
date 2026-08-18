@@ -142,6 +142,6 @@ Use this package however you want - commercially or non-commercially.
 
 
 ## Created with AI
-AI has assisted by providing code suggestions.
+Claude AI has assisted by providing suggestions and creating services that would otherwise not be possible by myself.
 
-All suggestions have been reviewed and rewritten by a Senior Unity Developer to fit the package's requirements.
+All suggestions have been reviewed and rewritten by a professional Senior Unity Developer to fit the package's requirements.

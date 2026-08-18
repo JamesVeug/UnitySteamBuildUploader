@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Debug = UnityEngine.Debug;
 
 namespace Wireframe
 {
@@ -30,53 +33,82 @@ namespace Wireframe
                 return new ProcessResult(false, "", reason);
             }
         }
-        
-        public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result, string path, string args, params string[] hideText)
+
+        public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result, string path, string args,Dictionary<string,string> environment,
+            params string[] hideText)
         {
 #if UNITY_EDITOR_LINUX
-            string fileName = "/bin/bash";
-            string arguments = "-c \" chmod +x " + path + " " + args;
-#else
-            string fileName = path;
-            string arguments = args;
+
+            ProcessResult stepResult = await RunProcess(result, "/bin/bash",  "-c \"chmod +x " + path + "\"" ,new(), hideText);
+
+            if (!stepResult.IsSuccessful)
+            {
+                return  stepResult;
+            }
 #endif
-            
+
+            return await RunProcess(result, path, args,environment, hideText);
+        }
+        
+        public static async Task<ProcessResult> RunProcess(UploadTaskReport.StepResult result,string path, string args,Dictionary<string,string> environment, params string[] hideText)
+        {
             try
             {
-                using (Process process = new Process())
+                using Process process = new Process();
+                
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.FileName = path;
+                process.StartInfo.Arguments = args;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.EnableRaisingEvents = true;
+
+                if (environment != null)
                 {
-                    process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                    process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.FileName = fileName;
-                    process.StartInfo.Arguments = arguments;
-                    process.StartInfo.RedirectStandardError = true;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.EnableRaisingEvents = true;
-
-                    if (!process.Start())
+                    foreach (var keyValuePair in environment)
                     {
-                        string reason = "Could not start process. FileName or arguments are incorrect or the file is busy. Exit: " + process.ExitCode;
-                        result.SetFailed(reason);
-                        return ProcessResult.Failed(reason);
+                        process.StartInfo.EnvironmentVariables.Add(keyValuePair.Key, keyValuePair.Value);
                     }
-
-                    string output = await process.StandardOutput.ReadToEndAsync();
-                    output = output.HideText(hideText);
-                    
-                    string errors = await process.StandardError.ReadToEndAsync();
-                    errors = errors.HideText(hideText);
-
-                    process.WaitForExit();
-
-                    result.AddLog(output);
-                    if (!string.IsNullOrEmpty(errors))
-                    {
-                        result.AddError(errors);
-                    }
-
-                    return ProcessResult.Successful(output);
                 }
+                
+                StringBuilder output = new StringBuilder();
+                StringBuilder errors = new StringBuilder();
+                
+                process.OutputDataReceived += (_,e) =>
+                {
+                    if (e.Data == null) return;
+                    output.AppendLine(e.Data);
+                };
+
+                process.ErrorDataReceived += (_, e) =>
+                {
+                    if (e.Data == null) return;
+                    errors.AppendLine(e.Data);
+                };
+                
+                if (!process.Start())
+                {
+                    string reason = "Could not start process. FileName or arguments are incorrect or the file is busy. Exit: " + process.ExitCode;
+                    result.SetFailed(reason);
+                    return ProcessResult.Failed(reason);
+                }
+
+                process.BeginOutputReadLine();
+
+                process.BeginErrorReadLine();
+                
+                process.WaitForExit();
+
+                result.AddLog(output.ToString());
+                
+                if (!string.IsNullOrEmpty(errors.ToString()))
+                {
+                    result.AddError(errors.ToString());
+                }
+
+                return ProcessResult.Successful(output.ToString());
             }
             catch (Exception ex)
             {

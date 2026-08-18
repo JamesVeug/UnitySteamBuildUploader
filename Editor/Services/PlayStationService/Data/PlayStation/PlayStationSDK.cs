@@ -223,7 +223,7 @@ namespace Wireframe
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 string args = CreateUploadArguments(app, branch, appFilePath);
                 // Pass username + password through hideText so they never leak into the upload log.
-                var result = await ProcessUtils.RunTask(stepResult, m_publishingToolPath, args, UserName, Password);
+                var result = await ProcessUtils.RunTask(stepResult, m_publishingToolPath, args,new(), UserName, Password);
                 stopwatch.Stop();
                 stepResult.AddLog($"[PlayStation] Upload took {stopwatch.ElapsedMilliseconds}ms");
                 if (!result.IsSuccessful)

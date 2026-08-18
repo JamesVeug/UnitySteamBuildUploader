@@ -120,11 +120,22 @@ namespace Wireframe
             using (new GUILayout.HorizontalScope())
             {
                 GUIContent tooltip = new GUIContent("User Name:", "The ID of your user name. (e.g. https://jamesgamesbro.itch.io/my-game. use: 'jamesgamesbro').");
+                GUIContent tooltip2=  new GUIContent("API Key:", "The API Key to authenticate. Get it from https://itch.io/user/settings/api-keys ");
                 GUILayout.Label(tooltip, GUILayout.Width(100));
                 string newConfigName = EditorGUILayout.TextField(m_currentUser.Name);
+                GUILayout.Label(tooltip2, GUILayout.Width(100));
+                string newApikey = EditorGUILayout.PasswordField(m_currentUser.API_KEY);
                 if (newConfigName != m_currentUser.Name)
                 {
                     m_currentUser.Name = newConfigName;
+                    Save();
+                    ItchioUIUtils.UserPopup.Refresh();
+                    ItchioUIUtils.GamePopup.Refresh();
+                }
+
+                if (newApikey != m_currentUser.API_KEY)
+                {
+                    m_currentUser.API_KEY = newApikey;
                     Save();
                     ItchioUIUtils.UserPopup.Refresh();
                     ItchioUIUtils.GamePopup.Refresh();

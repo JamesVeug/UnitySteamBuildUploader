@@ -10,7 +10,7 @@ namespace Wireframe
         /// Example on how to execute this command with a CLI:
         /// "PATH/TO/UNITY/Unity.exe" -batchmode -quit -projectPath "PATH/TO/PROJECT" -executeMethod Wireframe.BatchModeUtil.Execute -uploadProfile "UPLOAD_PROFILE_GUID"
         /// If the terminal never exits then add -async and the terminal should persist until exiting but complete the task
-        /// For more see: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/Starting-a-BuildTask-without-UI
+        /// For more see: https://github.com/JamesVeug/UnityBuildUploader/wiki/Starting-a-BuildTask-without-UI
         /// </summary>
         public static void Execute()
         {

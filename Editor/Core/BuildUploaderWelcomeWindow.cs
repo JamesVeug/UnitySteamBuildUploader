@@ -644,7 +644,7 @@ namespace Wireframe {
             {
                 if (GUILayout.Button(new GUIContent("Documentation", Utils.LinkIcon)))
                 {
-                    Application.OpenURL("https://github.com/JamesVeug/UnitySteamBuildUploader/wiki");
+                    Application.OpenURL("https://github.com/JamesVeug/UnityBuildUploader/wiki");
                 }
                 
                 if (GUILayout.Button(new GUIContent("Discord", Utils.LinkIcon)))
@@ -654,12 +654,12 @@ namespace Wireframe {
                 
                 if (GUILayout.Button(new GUIContent("CLI/CI Docs", Utils.LinkIcon)))
                 {
-                    Application.OpenURL("https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/CLI");
+                    Application.OpenURL("https://github.com/JamesVeug/UnityBuildUploader/wiki/CLI");
                 }
 
                 if (GUILayout.Button(new GUIContent("Github", Utils.LinkIcon)))
                 {
-                    Application.OpenURL("https://github.com/JamesVeug/UnitySteamBuildUploader");
+                    Application.OpenURL("https://github.com/JamesVeug/UnityBuildUploader");
                 }
             }
 
@@ -672,7 +672,7 @@ namespace Wireframe {
                 
                 if (GUILayout.Button(new GUIContent("Report Bug / Suggest Feature", Utils.LinkIcon)))
                 {
-                    Application.OpenURL("https://github.com/JamesVeug/UnitySteamBuildUploader/issues");
+                    Application.OpenURL("https://github.com/JamesVeug/UnityBuildUploader/issues");
                 }
                 
                 if (GUILayout.Button(new GUIContent("Support Me", Utils.LinkIcon)))

@@ -21,7 +21,7 @@ namespace Wireframe
     [UploadSource("URL", "Download from URL...", true)]
     public partial class URLSource : AUploadSource
     {
-        [Wiki("URL", "The URL to download from: eg: https://github.com/JamesVeug/UnitySteamBuildUploader/raw/refs/heads/main/LargeIcon.png")]
+        [Wiki("URL", "The URL to download from: eg: https://github.com/JamesVeug/UnityBuildUploader/raw/refs/heads/main/LargeIcon.png")]
         private string m_url;
         
         [Wiki("File Name", "The fileName to download the contents as. eg: MyPicture.png")]

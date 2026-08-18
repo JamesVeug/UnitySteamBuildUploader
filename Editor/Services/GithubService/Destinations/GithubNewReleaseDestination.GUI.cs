@@ -89,7 +89,7 @@ namespace Wireframe
 
         public override string Summary()
         {
-            // https://github.com/JamesVeug/UnitySteamBuildUploader/releases/tag/v3.1.1
+            // https://github.com/JamesVeug/UnityBuildUploader/releases/tag/v3.1.1
             return $"https://github.com/{m_owner}/{m_repo}/releases/tag/{m_releaseName}";
         }
     }

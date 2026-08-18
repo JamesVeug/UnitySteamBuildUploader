@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/JamesVeug/UnitySteamBuildUploader/blob/main/Assets/LargeIcon.png?raw=true" alt="MAS Logo"></p>
+<p align="center"><img src="https://github.com/JamesVeug/UnityBuildUploader/blob/main/Assets/LargeIcon.png?raw=true" alt="MAS Logo"></p>
 
 <h1 align="center">Build Uploader</h1>
 
@@ -10,9 +10,9 @@
 
 <hr>
 
-[![LICENSE](https://img.shields.io/github/license/JamesVeug/UnitySteamBuildUploader)](LICENSE)
-[![STARS](https://img.shields.io/github/stars/JamesVeug/UnitySteamBuildUploader)](https://github.com/JamesVeug/UnitySteamBuildUploader)
-[![Github All Releases](https://img.shields.io/github/downloads/JamesVeug/UnitySteamBuildUploader/total.svg)]()
+[![LICENSE](https://img.shields.io/github/license/JamesVeug/UnityBuildUploader)](LICENSE)
+[![STARS](https://img.shields.io/github/stars/JamesVeug/UnityBuildUploader)](https://github.com/JamesVeug/UnityBuildUploader)
+[![Github All Releases](https://img.shields.io/github/downloads/JamesVeug/UnityBuildUploader/total.svg)]()
 
 ## Key Points 💡
 - Windows, Mac, Linux support
@@ -71,22 +71,22 @@
 
 
 Prefer a fully headless run with no Editor open? 
-- See [Starting a BuildTask without UI](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/Starting-a-BuildTask-without-UI).
-- Or Full argument reference: [CLI](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/CLI). 
+- See [Starting a BuildTask without UI](https://github.com/JamesVeug/UnityBuildUploader/wiki/Starting-a-BuildTask-without-UI).
+- Or Full argument reference: [CLI](https://github.com/JamesVeug/UnityBuildUploader/wiki/CLI). 
 
 
 ## Wiki
-- Home: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki
-- How to Install: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/How-to-Install
-- How to Setup: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/How-to-Setup
-- How does it Work: https://github.com/JamesVeug/UnitySteamBuildUploader/wiki#how-does-it-work
-- CLI (`unity command`): https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/CLI
+- Home: https://github.com/JamesVeug/UnityBuildUploader/wiki
+- How to Install: https://github.com/JamesVeug/UnityBuildUploader/wiki/How-to-Install
+- How to Setup: https://github.com/JamesVeug/UnityBuildUploader/wiki/How-to-Setup
+- How does it Work: https://github.com/JamesVeug/UnityBuildUploader/wiki#how-does-it-work
+- CLI (`unity command`): https://github.com/JamesVeug/UnityBuildUploader/wiki/CLI
 
 
 ## Links 
 - Support Me: https://buymeacoffee.com/jamesgamesnz
 - Discord: https://discord.gg/R2UjXB6pQ8
-- Github: https://github.com/JamesVeug/UnitySteamBuildUploader
+- Github: https://github.com/JamesVeug/UnityBuildUploader
 - Asset Store: https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907
 
 
@@ -96,12 +96,12 @@ This package does NOT distribute any personal information. Any information enter
 
 Keeping your credentials safe is important to me!
 
-If you discover any security related issues, please email me, message on discord or create an issue on [github.](https://github.com/JamesVeug/UnitySteamBuildUploader)
+If you discover any security related issues, please email me, message on discord or create an issue on [github.](https://github.com/JamesVeug/UnityBuildUploader)
 
 
 ## Reporting bugs / suggesting changes ❓
 
-If you find a bug or want to suggest a change, [create an issue on github](https://github.com/JamesVeug/UnitySteamBuildUploader/issues)
+If you find a bug or want to suggest a change, [create an issue on github](https://github.com/JamesVeug/UnityBuildUploader/issues)
 
 Include:
 - What the problem is
@@ -112,7 +112,7 @@ Include:
 
 
 ## How to Contribute 🔨
-- Fork the [repository](https://github.com/JamesVeug/UnitySteamBuildUploader)
+- Fork the [repository](https://github.com/JamesVeug/UnityBuildUploader)
 - Make your changes
 - Create a pull request to the `develop` branch
   - Include detailed description of the changes you made and why
@@ -124,10 +124,10 @@ Include:
 
 A lot of effort has been put into this package for others to freely use. Any kind of support is greatly appreciated and encourages further work!
 
-- ⭐ Star the [Github repository](https://github.com/JamesVeug/UnitySteamBuildUploader)
 - ✍️ Review on the [Asset Store](https://assetstore.unity.com/packages/tools/utilities/build-uploader-306907)
+- ⭐ Star the [Github repository](https://github.com/JamesVeug/UnityBuildUploader)
 - ☕ Buy me a coffee: [buymeacoffee](https://buymeacoffee.com/jamesgamesnz)
-- 💬 Report bug reports or suggestions improvements: [Github Issues](https://github.com/JamesVeug/UnitySteamBuildUploader/issues)
+- 💬 Report bug reports or suggestions improvements: [Github Issues](https://github.com/JamesVeug/UnityBuildUploader/issues)
 - 🔗 Share the package with your friends and colleagues
 
 ### Supporters

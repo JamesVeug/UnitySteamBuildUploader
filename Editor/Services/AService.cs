@@ -32,7 +32,7 @@ namespace Wireframe
         {
             if (GetType().GetCustomAttribute(typeof(ExperimentalAttribute)) != null)
             {
-                EditorGUILayout.HelpBox("This Service is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues", MessageType.Warning);
+                EditorGUILayout.HelpBox("This Service is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnityBuildUploader/issues", MessageType.Warning);
             }
         }
 
@@ -40,7 +40,7 @@ namespace Wireframe
         {
             if (GetType().GetCustomAttribute(typeof(ExperimentalAttribute)) != null)
             {
-                EditorGUILayout.HelpBox("This Service is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues", MessageType.Warning);
+                EditorGUILayout.HelpBox("This Service is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnityBuildUploader/issues", MessageType.Warning);
             }
         }
 

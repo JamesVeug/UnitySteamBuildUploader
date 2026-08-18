@@ -62,7 +62,7 @@ namespace Wireframe
         {
             if (GetType().GetCustomAttribute(typeof(ExperimentalAttribute)) != null)
             {
-                warnings.Add(new GUIContent("Experimental", $"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnitySteamBuildUploader/issues"));
+                warnings.Add(new GUIContent("Experimental", $"{GetType().Name} is Experimental and may contain bugs. Report any issues to: https://github.com/JamesVeug/UnityBuildUploader/issues"));
             }
         }
 

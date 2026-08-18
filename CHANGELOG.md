@@ -47,6 +47,7 @@
 - Added preference toggle to show/hide blank string formatting tooltips (Off by default)
 - Added supporters to Readme
 - Improved welcome window UX 
+- Git repository changed from `UnitySteamBuildUploader` to `UnityBuildUploader`
 
 ## What's Fixed
 - Fixed config actions not executing
@@ -94,7 +95,7 @@
 
 ## Highlights
 - Greatly reduced time to build and copy to a local destination
-- Better Batch script support - https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/Starting-a-BuildTask-without-UI
+- Better Batch script support - https://github.com/JamesVeug/UnityBuildUploader/wiki/Starting-a-BuildTask-without-UI
 - Can now make builds using Unity's internal Build Profile system
 
 ## What's new
@@ -325,14 +326,14 @@
   - Fixed uploading to multiple branches on Steam only appearing on 1
 - LocalPathDestination
   - Can now use string formatting to change the file name and path
-    - See [docs](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/StringFormatter) for all formats you can use
+    - See [docs](https://github.com/JamesVeug/UnityBuildUploader/wiki/StringFormatter) for all formats you can use
   - Fixed non-existent path showing as an error and now shows as a yellow warning
 - Preferences
   - Added toggle to toggle auto saving of build config changes
   - Added dropdown in preferences to change when confirmation popups show
   - Added dropdown in preferences to change when build task report shows
   - Added field in preferences to change what the default description is in the upload tab
-    - See [docs](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/StringFormatter) for all formats you can use
+    - See [docs](https://github.com/JamesVeug/UnityBuildUploader/wiki/StringFormatter) for all formats you can use
   - Now shows size of the cached builds folder
 
 # 2.3.0
@@ -367,7 +368,7 @@
   - Fixed LocalPathDestination requiring a file name when not compressing to a .zip
   - Minor UI improvements
   - Minor Logging improvements
-  - Basic [Wiki](https://github.com/JamesVeug/UnitySteamBuildUploader/wiki) support
+  - Basic [Wiki](https://github.com/JamesVeug/UnityBuildUploader/wiki) support
 - Sources
   - Each config can now have multiple Sources
   - Added `URLSource` to download files from online

@@ -61,7 +61,7 @@ namespace Wireframe
                 return false;
             }
 
-            url = $"https://github.com/JamesVeug/UnitySteamBuildUploader/wiki/{wikiAttribute.SubPath}#{wikiAttribute.Name}";
+            url = $"https://github.com/JamesVeug/UnityBuildUploader/wiki/{wikiAttribute.SubPath}#{wikiAttribute.Name}";
             return true;
         }
     }

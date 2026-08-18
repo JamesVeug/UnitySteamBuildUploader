@@ -119,7 +119,8 @@ namespace Wireframe
         {
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("Name:", GUILayout.Width(150));
+                GUIContent tooltip = new GUIContent("User Name:", "The ID of your user name. (e.g. https://jamesgamesbro.itch.io/my-game. use: 'jamesgamesbro').");
+                GUILayout.Label(tooltip, GUILayout.Width(100));
                 string newConfigName = EditorGUILayout.TextField(m_currentUser.Name);
                 if (newConfigName != m_currentUser.Name)
                 {

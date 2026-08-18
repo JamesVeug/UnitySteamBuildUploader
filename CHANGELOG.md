@@ -3,9 +3,11 @@
 ## Highlights
 - 8 new experimental Services - Mobile, Console, Git, Email, Dropbox
 - All reorderable lists have tooltips and placeholder exmaples text
-- Added auto-complete dropdown for string formats when typing in text fields  
+- Added auto-complete dropdown for string formats when typing in text fields
+- Git integration
 - Unity CLI support
-- Non-english saving of data 
+- Fixed non-english users unable to save data
+- Fixed itch.io uploading not working on Linux
 
 ## What's new
 - Added new Experimental services
@@ -51,6 +53,7 @@
 
 ## What's Fixed
 - Fixed config actions not executing
+- Fixed itch.io uploading not working on Linux
 - Fixed lots of JSON errors (empty lists, non-english numbers and more)
 - Fixed some steam logs showing username
 - Fixed some warnings showing twice

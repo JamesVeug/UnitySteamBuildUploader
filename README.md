@@ -4,7 +4,9 @@
 
 <p align="center">Unity Editor Tool For Making Builds, Uploading Them To Online Services And Notifying Chat Apps</p>
 
-<p align="center">Steamworks | Itch.io | Epic Games | Github | Discord | Slack</p>
+<p align="center">Steamworks | Itch.io | Epic Games | Google | Apple | Consoles | Dropbox | Github</p>
+
+<p align="center">Discord | Slack | Google Chat</p>
 
 <p align="center">Open Source | For Commercial Use</p>
 

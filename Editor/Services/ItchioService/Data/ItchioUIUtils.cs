@@ -136,11 +136,15 @@ namespace Wireframe
     internal class ItchioUser : DropdownElement
     {
         public int Id => ID;
+
+        public string APIKey => API_KEY;
+
         public string DisplayName => Name;
 
         public int ID;
         public string Name;
         public List<ItchioGameData> GameIds;
+        public string API_KEY;
         
         public ItchioUser()
         {

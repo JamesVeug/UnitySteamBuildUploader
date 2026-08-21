@@ -99,7 +99,7 @@ namespace Wireframe
             m_initialized = true;
         }
 
-        public async Task<bool> Upload(string pathToUpload, string user, string game, List<string> channels, string version, UploadTaskReport.StepResult stepResult)
+        public async Task<bool> Upload(string pathToUpload, string user, string game,string APIKEY, List<string> channels, string version, UploadTaskReport.StepResult stepResult)
         {
             stepResult.AddLog("Waiting turn to upload to Itchio....");
             await m_lock.WaitAsync();
@@ -109,7 +109,10 @@ namespace Wireframe
             {
                 string path = m_SDKCMDPath;
                 string args = CreateUploadBuildItchioArguments(pathToUpload, user, game, version, channels);
-                ProcessUtils.ProcessResult result = await ProcessUtils.RunTask(stepResult, path, args);
+                
+                Dictionary<string, string> environment = new Dictionary<string, string> { { "BUTLER_API_KEY", APIKEY } };
+
+                ProcessUtils.ProcessResult result = await ProcessUtils.RunTask(stepResult, path, args,environment);
                 if (result.IsSuccessful)
                 {
                     OutputResultArgs outputParsingResult = LogOutItchioResult(result.Output);
@@ -145,7 +148,7 @@ namespace Wireframe
         {
             // push "<pathToUpload>" <user>/<game>:<channel1>-<channel2>-<channel3> --userversion <version>
             string channelArg = string.Join("-", channels.Select(a=>a.ToLower()));
-            string arguments = $"push \"{pathToUpload}\" {user}/{game}:{channelArg} --userversion \"{version}\"";
+            string arguments = $"push \"{pathToUpload}\" {user}/{game}:{channelArg} --userversion \"{version}\" --json";
 
             return arguments;
         }

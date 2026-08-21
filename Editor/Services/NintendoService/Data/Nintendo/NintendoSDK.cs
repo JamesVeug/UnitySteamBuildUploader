@@ -211,7 +211,7 @@ namespace Wireframe
                 stepResult.AddLog("[Nintendo] Uploading to Nintendo Developer Center...");
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 string args = CreateUploadArguments(appFilePath);
-                var result = await ProcessUtils.RunTask(stepResult, m_authoringToolPath, args, UserName);
+                var result = await ProcessUtils.RunTask(stepResult, m_authoringToolPath, args,new(), UserName);
                 stopwatch.Stop();
                 stepResult.AddLog($"[Nintendo] Upload took {stopwatch.ElapsedMilliseconds}ms");
                 if (!result.IsSuccessful)

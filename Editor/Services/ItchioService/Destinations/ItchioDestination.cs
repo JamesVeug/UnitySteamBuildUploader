@@ -63,11 +63,12 @@ namespace Wireframe
             string filePath = m_context.FormatString(m_taskContentsFolder);
             string user = m_context.FormatString(m_user.Name);
             string game = m_context.FormatString(m_game.Name);
+            string apikey = m_context.FormatString(m_user.APIKey);
             string version = m_context.FormatString(m_descriptionFormat);
             List<string> channels = m_channels.ConvertAll((a)=>m_context.FormatString(a.Name));
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
-            bool success = await Itchio.Instance.Upload(filePath, user, game, channels, version, result);
+            bool success = await Itchio.Instance.Upload(filePath, user, game,apikey ,channels, version, result);
             ProgressUtils.Remove(processID);
             
             return success;

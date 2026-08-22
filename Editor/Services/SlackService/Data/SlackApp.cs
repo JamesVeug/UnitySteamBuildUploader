@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEditor;
 
 namespace Wireframe
 {
@@ -18,8 +17,8 @@ namespace Wireframe
 
             public string Token
             {
-                get => EditorPrefs.GetString("SlackAppToken_" + Name, "");
-                set => EditorPrefs.SetString("SlackAppToken_" + Name, value);
+                get => EncodedEditorPrefs.GetString($"SlackAppToken_{Name}", "");
+                set => EncodedEditorPrefs.SetString($"SlackAppToken_{Name}", value);
             }
 
             public string Name;

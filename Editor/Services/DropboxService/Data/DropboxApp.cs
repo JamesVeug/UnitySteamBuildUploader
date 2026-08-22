@@ -1,5 +1,4 @@
 using System;
-using UnityEditor;
 
 namespace Wireframe
 {
@@ -18,8 +17,8 @@ namespace Wireframe
 
             public string Token
             {
-                get => EditorPrefs.GetString("DropboxAppToken_" + Name, "");
-                set => EditorPrefs.SetString("DropboxAppToken_" + Name, value);
+                get => EncodedEditorPrefs.GetString($"DropboxAppToken_{Name}", "");
+                set => EncodedEditorPrefs.SetString($"DropboxAppToken_{Name}", value);
             }
 
             public string Name;

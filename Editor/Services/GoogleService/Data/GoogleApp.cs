@@ -1,5 +1,4 @@
 using System;
-using UnityEditor;
 
 namespace Wireframe
 {
@@ -18,8 +17,8 @@ namespace Wireframe
 
             public string Token
             {
-                get => EditorPrefs.GetString("GoogleAppToken_" + Name, "");
-                set => EditorPrefs.SetString("GoogleAppToken_" + Name, value);
+                get => EncodedEditorPrefs.GetString($"GoogleAppToken_{Name}", "");
+                set => EncodedEditorPrefs.SetString($"GoogleAppToken_{Name}", value);
             }
 
             public string Name;

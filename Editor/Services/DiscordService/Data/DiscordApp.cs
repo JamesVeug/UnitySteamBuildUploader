@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEditor;
 
 namespace Wireframe
 {
@@ -18,8 +17,8 @@ namespace Wireframe
 
             public string Token
             {
-                get => EditorPrefs.GetString("DiscordAppToken_" + Name, "");
-                set => EditorPrefs.SetString("DiscordAppToken_" + Name, value);
+                get => EncodedEditorPrefs.GetString($"DiscordAppToken_{Name}", "");
+                set => EncodedEditorPrefs.SetString($"DiscordAppToken_{Name}", value);
             }
 
             public string Name;

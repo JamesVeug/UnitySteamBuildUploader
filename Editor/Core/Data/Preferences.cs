@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 using UnityEditor;
 
 namespace Wireframe
 {
     public static class Preferences
     {
-        internal static readonly string DefaultCacheFolder = Application.persistentDataPath + "/BuildUploader/CachedBuilds";
+        internal static readonly string DefaultCacheFolder = Path.Combine(Application.persistentDataPath, "BuildUploader", "CachedBuilds");
 
         public enum ShowIf
         {
@@ -22,9 +23,6 @@ namespace Wireframe
             Never,
         }
 
-        /// <summary>
-        /// Display names for WelcomeWindowPopup. Must stay in the same order as the enum.
-        /// </summary>
         internal static readonly string[] WelcomeWindowPopupOptions = { "On startup", "When updated", "Never" };
 
         internal const string WelcomeWindowPopupTooltip = "When the Welcome window should open on its own.\n\n" +

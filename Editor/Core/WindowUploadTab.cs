@@ -597,6 +597,26 @@ namespace Wireframe
                             }
                         }
                     }
+
+                    if (actionData.UploadAction != null && actionData.WhenToExecute != UploadConfig.UploadActionData.UploadCompleteStatus.Never)
+                    {
+                        using (new GUILayout.VerticalScope())
+                        {
+                            List<GUIContent> errors = new List<GUIContent>();
+                            actionData.UploadAction.TryGetErrors(errors);
+                            foreach (GUIContent error in errors)
+                            {
+                                UploadConfig.DrawError(error);
+                            }
+
+                            List<GUIContent> warnings = new List<GUIContent>();
+                            actionData.UploadAction.TryGetWarnings(warnings);
+                            foreach (GUIContent warning in warnings)
+                            {
+                                UploadConfig.DrawWarning(warning);
+                            }
+                        }
+                    }
                 }
             }
         }

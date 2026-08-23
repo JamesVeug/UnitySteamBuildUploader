@@ -253,7 +253,7 @@ namespace Wireframe
             }
         }
 
-        private static void DrawWarning(GUIContent content)
+        public static void DrawWarning(GUIContent content)
         {
             Color color = GUI.color;
             GUI.color = Color.yellow;
@@ -267,7 +267,7 @@ namespace Wireframe
             GUI.color = color;
         }
 
-        private static void DrawError(GUIContent content)
+        public static void DrawError(GUIContent content)
         {
             Color color = GUI.color;
             GUI.color = Color.red;

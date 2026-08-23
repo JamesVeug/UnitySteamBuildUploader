@@ -42,8 +42,12 @@ namespace Wireframe
 
                 if (profile == null)
                 {
-                    Debug.Log($"No profile found with ID : {arguments[i]}");
-                    continue;
+                    profile = UploadProfile.FromProfileName(arguments[i]);
+                    if (profile == null)
+                    {
+                        Debug.Log($"No profile found with GUID or Name : {arguments[i]}");
+                        continue;
+                    }
                 }
 
                 startedATask = true;

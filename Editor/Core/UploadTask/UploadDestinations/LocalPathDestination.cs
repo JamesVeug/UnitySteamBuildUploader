@@ -160,7 +160,7 @@ namespace Wireframe
             string fullPath = FullPath();
             if (!Utils.PathExists(fullPath))
             {
-                warnings.Add(new GUIContent("Path does not exist", "Path does not exist but may be created during upload: " + fullPath));
+                warnings.Add(new GUIContent("Path does not exist and will be created", "Path does not exist but will be created during upload: " + fullPath));
             }
         }
 

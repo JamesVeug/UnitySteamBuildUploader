@@ -972,6 +972,14 @@ namespace Wireframe
                 uploadConfig.Context.SetParent(m_context);
             }
             
+            foreach (UploadConfig.UploadActionData action in loadedProfile.Actions)
+            {
+                if (action.UploadAction != null)
+                {
+                    action.UploadAction.Context.SetParent(m_context);
+                }
+            }
+            
             ProjectEditorPrefs.SetString("BuildUploader.LastSelectedUploadProfileGUID", metaData.GUID);
         }
 

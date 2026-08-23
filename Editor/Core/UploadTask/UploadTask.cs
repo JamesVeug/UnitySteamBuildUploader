@@ -482,7 +482,7 @@ namespace Wireframe
                 return;
             }
             
-            m_actions.Add(new UploadConfig.UploadActionData(action, whenToExecute, triggers));
+            AddAction(new UploadConfig.UploadActionData(action, whenToExecute, triggers));
         }
         
         public void AddAction(UploadConfig.UploadActionData action)
@@ -491,7 +491,7 @@ namespace Wireframe
             {
                 return;
             }
-            
+
             m_actions.Add(action);
         }
         
@@ -501,8 +501,11 @@ namespace Wireframe
             {
                 return;
             }
-            
-            m_actions.AddRange(actions.Where(a => a != null));
+
+            foreach (UploadConfig.UploadActionData action in actions)
+            {
+                AddAction(action);
+            }
         }
         
         public void SetBuildDescription(string description)
@@ -512,7 +515,7 @@ namespace Wireframe
         
         internal void SetReport(UploadTaskReport report)
         {
-            this.m_report = report;
+            m_report = report;
             m_guid = report.GUID;
             m_uploadName = report.Name;
             IsSuccessful = report.Successful;

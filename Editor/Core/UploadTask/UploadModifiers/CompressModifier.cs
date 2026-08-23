@@ -98,7 +98,10 @@ namespace Wireframe
                         if (filesAfterZip.Length == files.Length)
                         {
                             stepResult.AddLog("Deleting original directory: " + pathToCompress);
-                            Directory.Delete(pathToCompress, true);
+                            if (!await IOUtils.DeleteDirectory(pathToCompress, true, stepResult))
+                            {
+                                stepResult.SetFailed($"Unable to delete original directory: {pathToCompress}");
+                            }
                         }
                         else
                         {
@@ -112,7 +115,10 @@ namespace Wireframe
                                 else if (Directory.Exists(file))
                                 {
                                     stepResult.AddLog("Deleting original folder: " + file);
-                                    Directory.Delete(file, true);
+                                    if (!await IOUtils.DeleteDirectory(file, true, stepResult))
+                                    {
+                                        stepResult.SetFailed($"Unable to delete original folder: {pathToCompress}");
+                                    }
                                 }
                             }
                         }

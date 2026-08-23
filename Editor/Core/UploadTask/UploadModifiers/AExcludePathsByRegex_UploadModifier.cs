@@ -216,7 +216,11 @@ namespace Wireframe
                         if (Utils.IsPathADirectory(filePath))
                         {
                             stepResult.AddLog($"Removing directory {filePath} from regex: {regex.Regex} (recursive: {regex.Recursive})");
-                            Directory.Delete(filePath, regex.Recursive);
+                            if (!await IOUtils.DeleteDirectory(filePath, regex.Recursive, stepResult))
+                            {
+                                stepResult.SetFailed($"Could not delete directory: '{filePath}'");
+                                successful = false;
+                            }
                         }
                         else
                         {

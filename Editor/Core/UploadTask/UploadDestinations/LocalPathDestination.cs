@@ -83,7 +83,11 @@ namespace Wireframe
             if (Directory.Exists(fullPath))
             {
                 result.AddLog($"Deleting existing directory: {fullPath}");
-                Directory.Delete(fullPath, true);
+                if (!await IOUtils.DeleteDirectory(fullPath, true, result))
+                {
+                    result.SetFailed($"Unable to delete existing directory: {fullPath}");
+                    return false;
+                }
             }
             else if (File.Exists(fullPath))
             {

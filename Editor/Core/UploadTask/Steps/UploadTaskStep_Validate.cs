@@ -21,7 +21,7 @@ namespace Wireframe
         public override bool RequiresEverythingBeforeToSucceed => false;
         public override bool FireActions => false;
 
-        public override Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
+        public override async Task<bool> Run(UploadTask uploadTask, UploadTaskReport report,
             CancellationTokenSource token)
         {
             report.SetProcess(StepProcess.Intra);
@@ -57,7 +57,11 @@ namespace Wireframe
                     result.AddWarning($"Cached folder already exists: {cacheFolderPath}." +
                                       $"\nLikely it wasn't cleaned up properly in an older build." +
                                       $"\nDeleting now to avoid accidentally uploading the same build!");
-                    Directory.Delete(cacheFolderPath, true);
+                    if (!await IOUtils.DeleteDirectory(cacheFolderPath, true, result))
+                    {
+                        result.SetFailed($"Unable to clear cached folder: {cacheFolderPath}");
+                        valid = false;
+                    }
                 }
 
                 Directory.CreateDirectory(cacheFolderPath);
@@ -113,7 +117,7 @@ namespace Wireframe
                 }
             }
 
-            return Task.FromResult(valid);
+            return valid;
         }
 
         private bool GetFirstLocalDestination(UploadConfig config, out LocalPathDestination destination)

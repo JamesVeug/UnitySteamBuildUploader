@@ -51,7 +51,7 @@ namespace Wireframe
                     }
 
                     beginCleanupResult.AddLog("Deleting task contents: " + directory);
-                    Directory.Delete(directory, true);
+                    await IOUtils.DeleteDirectory(directory, true, beginCleanupResult);
                     uploadTask.CachedLocationNeedsCleaning[i] = false;
                 }
             }

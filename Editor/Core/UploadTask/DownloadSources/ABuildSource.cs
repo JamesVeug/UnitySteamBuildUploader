@@ -102,21 +102,9 @@ namespace Wireframe
                 if (m_CleanBuild && Directory.Exists(m_filePath))
                 {
                     // Clear the directory if it exists
-                    try
+                    stepResult.AddLog($"Clean build set and build already exists so deleting to make a fresh build: {m_filePath}");
+                    if (!await IOUtils.DeleteDirectory(m_filePath, true, stepResult))
                     {
-                        stepResult.AddLog($"Clean build set and build already exists so deleting to make a fresh build: {m_filePath}");
-                        Directory.Delete(m_filePath, true);
-                    }
-                    catch (DirectoryNotFoundException e)
-                    {
-                        stepResult.AddError($"Failed to clear build directory: {e.Message}");
-                        stepResult.SetFailed("Failed to clear build directory. Your folder path is likely too long. Try changing the cache directory in preferences!");
-                        token.Cancel();
-                        return false;
-                    }
-                    catch (Exception e)
-                    {
-                        stepResult.AddError($"Failed to clear build directory: {e.Message}");
                         stepResult.SetFailed("Failed to clear build directory. Check the console for more details.");
                         token.Cancel();
                         return false;

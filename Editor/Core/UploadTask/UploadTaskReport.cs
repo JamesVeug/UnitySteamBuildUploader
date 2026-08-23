@@ -151,6 +151,7 @@ namespace Wireframe
 
         public TimeSpan Duration => EndTime - StartTime;
         public bool Successful { get; private set; } = true;
+        public bool Cancelled { get; private set; } = false;
         
         public DateTime StartTime { get; private set; }
         public DateTime EndTime { get; private set; }
@@ -221,6 +222,11 @@ namespace Wireframe
             EndTime = DateTime.UtcNow;
         }
 
+        public void SetCancelled()
+        {
+            Cancelled = true;
+        }
+
         public string GetReport(bool ignoreEmptySteps = false)
         {
             StringBuilder sb = new StringBuilder();
@@ -231,6 +237,7 @@ namespace Wireframe
             sb.AppendLine("End Time: " + EndTime + " Local: " + EndTime.ToLocalTime()); // UTC
             sb.AppendLine("Duration: " + Duration);
             sb.AppendLine("Successful: " + Successful);
+            sb.AppendLine("Cancelled: " + Cancelled);
             
             
             StringBuilder stepTypeSb = new StringBuilder();
@@ -437,6 +444,13 @@ namespace Wireframe
                     if (bool.TryParse(line.Substring("Successful:".Length).Trim(), out bool successful))
                     {
                         report.Successful = successful;
+                    }
+                }
+                else if (line.StartsWith("Cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (bool.TryParse(line.Substring("Cancelled:".Length).Trim(), out bool successful))
+                    {
+                        report.Cancelled = successful;
                     }
                 }
             }

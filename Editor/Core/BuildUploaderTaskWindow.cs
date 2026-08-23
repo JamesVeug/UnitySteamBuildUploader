@@ -10,6 +10,12 @@ namespace Wireframe
 {
     internal class BuildUploaderTaskWindow : EditorWindow
     {
+        private class UploadTaskFileData
+        {
+            public UploadTask Task;
+            public string FullPath;
+        }
+        
         [MenuItem("Window/Build Uploader/Open Upload Tasks Window")]
         public static void ShowWindow()
         {
@@ -31,7 +37,7 @@ namespace Wireframe
         private GUIStyle m_titleStyle;
         private GUIStyle m_subTitleStyle;
         
-        private List<UploadTask> m_loadedTasks;
+        private List<UploadTaskFileData> m_loadedTasks;
         private Vector2 m_scrollPosition;
         private Vector2 m_reportErrorScrollPosition;
         private string m_OpenTaskGUID = "";
@@ -107,7 +113,7 @@ namespace Wireframe
                                     "Are you sure you want to delete all task reports?\n\nThis will delete them from the cache folder and can NOT be undone!", "Delete All", "No"))
                             {
                                 Directory.Delete(WindowUploadTab.UploadReportSaveDirectory, true);
-                                m_loadedTasks = new List<UploadTask>();
+                                m_loadedTasks = new List<UploadTaskFileData>();
                             }
                         });
 
@@ -118,19 +124,20 @@ namespace Wireframe
                 // Column headers
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUILayout.Label("Name", EditorStyles.boldLabel, GUILayout.Width(120));
+                    GUILayout.Label("Name", EditorStyles.boldLabel, GUILayout.Width(150));
                     GUILayout.Label("Started", EditorStyles.boldLabel);
                     GUILayout.Label("Step", EditorStyles.boldLabel, GUILayout.Width(100));
                     GUILayout.Label("Progress", EditorStyles.boldLabel, GUILayout.Width(170));
                     GUILayout.Label("State", EditorStyles.boldLabel, GUILayout.Width(90));
+                    GUILayout.Label("", EditorStyles.boldLabel, GUILayout.Width(20));
                 }
 
                 EditorGUILayout.Space(2);
 
-                var tasks = m_loadedTasks.Concat(UploadTask.AllTasks)
-                    .Where(a=>a.Report != null)
-                    .OrderBy(a=>a.Report.StartTime)
-                    .ToArray();
+                var tasks = m_loadedTasks.Concat(UploadTask.AllTasks.Select(a=>new UploadTaskFileData() { Task = a })
+                    .Where(a=>a.Task.Report != null && !m_loadedTasks.Any(b=>b.Task.GUID == a.Task.GUID))
+                    .OrderBy(a=>a.Task.Report.StartTime)
+                    ).ToArray();
                 if (tasks.Length == 0)
                 {
                     EditorGUILayout.HelpBox("No Task started this session. Use the Upload tab to begin uploading!", MessageType.Info);
@@ -141,20 +148,26 @@ namespace Wireframe
                 for (var i = 0; i < tasks.Length; i++)
                 {
                     // Derive state and color
-                    DrawTask(tasks[i]);
+                    DrawTask(tasks[i].Task, tasks[i]);
                 }
                 EditorGUILayout.EndScrollView();
             }
         }
 
-        private void DrawTask(UploadTask t)
+        private void DrawTask(UploadTask t, UploadTaskFileData data)
         {
             string stateText;
             Color stateColor;
+            bool canBeCancelled = !t.IsComplete && !t.IsCancelled;
 
             if (t.IsComplete)
             {
-                if (t.IsSuccessful)
+                if (t.IsCancelled)
+                {
+                    stateText = "Cancelled";
+                    stateColor = new Color(1f, 1f, 0); // yellow
+                }
+                else if (t.IsSuccessful)
                 {
                     stateText = "Success";
                     stateColor = new Color(0.22f, 0.7f, 0.3f); // green-ish
@@ -167,7 +180,12 @@ namespace Wireframe
             }
             else
             {
-                if (t.PercentComplete > 0f || t.CurrentSteps != null)
+                if (t.IsCancelled)
+                {
+                    stateText = "Cancelling";
+                    stateColor = new Color(0.7f, 0.7f, 0); // yellow-ish
+                }
+                else if (t.PercentComplete > 0f || t.CurrentSteps != null)
                 {
                     stateText = "In Progress";
                     stateColor = new Color(0.95f, 0.65f, 0.1f); // amber
@@ -195,21 +213,35 @@ namespace Wireframe
                     }
 
                     // GUID
-                    GUILayout.Label(t.UploadName, GUILayout.Width(100));
+                    GUILayout.Label(t.UploadName, GUILayout.Width(130));
 
                     // Description (flex)
+                    bool minimize = position.width < 750;
+                    TimeSpan timeSinceStarted = DateTime.UtcNow - t.Report.StartTime;
                     string duration = ""; 
                     if (t.IsComplete)
                     {
-                        duration += "Took: " + t.Report.Duration.CalculateShortTime();
+                        TimeSpan durationTime = t.Report.EndTime - t.Report.StartTime;
+                        duration = durationTime.CalculateShortTime();
+                        
+                        string startTime = timeSinceStarted.CalculateShortTime() + " ago";
+                        if(minimize)
+                            if(timeSinceStarted.TotalDays >= 1)
+                                GUILayout.Label(startTime);
+                            else
+                                GUILayout.Label(string.Format("Took: {0}", duration));
+                        else
+                            GUILayout.Label(string.Format("{0} (Took: {1})", startTime, duration));
                     }
                     else
                     {
-                        TimeSpan timeSoFar = DateTime.UtcNow - t.Report.StartTime;
-                        duration = "Duration: " + timeSoFar.CalculateShortTime();
-                    }
+                        duration = timeSinceStarted.CalculateShortTime();
                         
-                    GUILayout.Label(string.Format("{0} ({1})", t.Report.StartTime, duration));
+                        if(minimize)
+                            GUILayout.Label(duration);
+                        else
+                            GUILayout.Label(string.Format("Duration: {0}", duration));
+                    }
 
                     // Step
                     GUILayout.Label(stepLabel, GUILayout.Width(100));
@@ -222,8 +254,54 @@ namespace Wireframe
                     // State (colored)
                     var prev = GUI.color;
                     GUI.color = stateColor;
-                    GUILayout.Label(stateText, EditorStyles.boldLabel, GUILayout.Width(90));
+                    if (canBeCancelled)
+                    {
+                        if (GUILayout.Button(stateText, GUILayout.Width(90)))
+                        {
+                            CancelTask(t);
+                        }
+                    }
+                    else
+                    {
+                        GUILayout.Label(stateText, EditorStyles.boldLabel, GUILayout.Width(90));
+                    }
                     GUI.color = prev;
+                    
+                    // Options
+                    if (CustomSettingsIcon.OnGUI())
+                    {
+                        GenericMenu menu = new GenericMenu();
+                        if (!t.IsComplete && !t.IsCancelled)
+                        {
+                            menu.AddItem(new GUIContent("Cancel Task"), false, ()=>
+                            {
+                                CancelTask(t);
+                            });
+                        }
+
+                        string fullPath = data.FullPath;
+                        if (!string.IsNullOrEmpty(fullPath) && File.Exists(fullPath))
+                        {
+                            menu.AddItem(new GUIContent("Delete Report"), false, () =>
+                            {
+                                if (UnityEditor.EditorUtility.DisplayDialog("Delete Upload Task Report", "Are you sure you want to delete this upload task report?", "Delete", "No"))
+                                {
+                                    File.Delete(fullPath);
+                                    m_loadedTasks.Remove(data);
+                                }
+                            });
+                            
+                            menu.AddItem(new GUIContent("Go to Report"), false, () =>
+                            {
+                                UnityEditor.EditorUtility.RevealInFinder(fullPath);
+                            });
+                        }
+                        else
+                        {
+                            menu.AddDisabledItem(new GUIContent("Go to Report"), false);
+                        }
+                        menu.ShowAsContext();
+                    }
                 }
 
                 // Foldout details
@@ -383,6 +461,16 @@ namespace Wireframe
                 }
             }
         }
+        private static void CancelTask(UploadTask t)
+        {
+
+            if (EditorUtility.DisplayDialog("Cancel Task?",
+                    "You sure you want to stop this task?",
+                    "Cancel", "No"))
+            {
+                t.Cancel();
+            }
+        }
 
         public void ShowTask(UploadTask uploadTask)
         {
@@ -408,7 +496,7 @@ namespace Wireframe
             m_lastReportRead = DateTime.UtcNow;
             
             
-            m_loadedTasks = new List<UploadTask>();
+            m_loadedTasks = new List<UploadTaskFileData>();
             if (!Directory.Exists(WindowUploadTab.UploadReportSaveDirectory))
             {
                 return;
@@ -427,7 +515,11 @@ namespace Wireframe
 
                 UploadTask task = new UploadTask();
                 task.SetReport(report);
-                m_loadedTasks.Add(task);
+                
+                UploadTaskFileData data = new UploadTaskFileData();
+                data.Task = task;
+                data.FullPath = filePath;
+                m_loadedTasks.Add(data);
             }
         }
     }

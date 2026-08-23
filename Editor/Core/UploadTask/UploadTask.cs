@@ -189,7 +189,7 @@ namespace Wireframe
 
             IsComplete = true;
             PercentComplete = 1f;
-            IsSuccessful = m_report.Successful;
+            IsSuccessful = m_report.Successful && !IsCancelled;
             
             ProgressUtils.Remove(m_progressId);
             m_report.Complete();
@@ -248,8 +248,12 @@ namespace Wireframe
         /// </summary>
         public void Cancel()
         {
-            IsCancelled = true;
-            m_cancellationToken?.Cancel();
+            if (IsComplete)
+            {
+                return;
+            }
+            
+            m_cancellationToken?.Cancel(); // Calls OnCancelled which knock-on updates everything
         }
 
         private async Task Execute(AUploadTask_Step[] steps)
@@ -257,6 +261,7 @@ namespace Wireframe
             // Do upload steps
             IsSuccessful = true;
             CancellationTokenSource token = m_cancellationToken = new CancellationTokenSource();
+            token.Token.Register(OnCancelled);
             if (IsCancelled)
             {
                 token.Cancel();
@@ -319,6 +324,15 @@ namespace Wireframe
                     await ExecuteTaskActions(stepSuccessful, UploadConfig.UploadActionData.UploadTrigger.AfterEachStepCompletes);
                 }
             }
+        }
+        
+        private void OnCancelled()
+        {
+            if (IsCancelled)
+                return;
+            
+            IsCancelled = true;
+            m_report.SetCancelled();
         }
 
         public async Task<bool> ExecuteTaskActions(bool valid,
@@ -502,6 +516,7 @@ namespace Wireframe
             m_guid = report.GUID;
             m_uploadName = report.Name;
             IsSuccessful = report.Successful;
+            IsCancelled = report.Cancelled;
             IsComplete = true;
             PercentComplete = 1f;
         }

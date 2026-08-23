@@ -29,6 +29,7 @@
 - Added main menu options to quick upload (Unity 6000.3 and up - Right click next to play button)
 - Added Unity CLI support
 - Added auto-complete dropdown for string formats when typing in text fields
+- Added optional API Key option when uploading to itch.io
 - Added 12 new string formats
   - {rootPath} The path every other path can start from as specified in Preferences. eg: C:/SomeFolder/Builds/{version}
   - {gitBranch} The git branch the project is currently on. eg: main. Reads HEAD when the repository is in a detached head state.
@@ -46,6 +47,7 @@
 - Some warnings/errors have buttons taking you to preferences/settings to resolve them
 - Added missing set description setter for Itch.io destination
 - Upload tasks can now be cancelled
+- Added context menu to Upload Task window
 - Added preference toggle to show/hide blank string formatting tooltips (Off by default)
 - Added supporters to Readme
 - Improved welcome window UX 
@@ -60,7 +62,8 @@
 - Fixed config actions not showing errors or warnings in the UI
 - Fixed batch scripts not producing task reports
 - Fixed string format tooltip double ups
-- Fixed Menu Items showing top of the list of Window list 
+- Fixed Menu Items showing top of the list of Window list
+- Potential fix for some builds failing during modifying files due to other processes. 
 
 
 # 3.2.2

@@ -13,8 +13,10 @@
 <hr>
 
 [![LICENSE](https://img.shields.io/github/license/JamesVeug/UnityBuildUploader)](LICENSE)
+[![GitHub Issues Open](https://img.shields.io/github/issues/JamesVeug/UnityBuildUploader.svg?maxAge=2592000)]()
+[![GitHub Issues Closed](https://img.shields.io/github/issues-closed-raw/JamesVeug/UnityBuildUploader.svg?maxAge=2592000)]()
+[![Github Release Downloads](https://img.shields.io/github/downloads/JamesVeug/UnityBuildUploader/total.svg)]()
 [![STARS](https://img.shields.io/github/stars/JamesVeug/UnityBuildUploader)](https://github.com/JamesVeug/UnityBuildUploader)
-[![Github All Releases](https://img.shields.io/github/downloads/JamesVeug/UnityBuildUploader/total.svg)]()
 
 ## Key Points 💡
 - Windows, Mac, Linux support

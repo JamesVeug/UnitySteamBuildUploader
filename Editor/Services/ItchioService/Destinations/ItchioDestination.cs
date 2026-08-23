@@ -68,7 +68,7 @@ namespace Wireframe
             List<string> channels = m_channels.ConvertAll((a)=>m_context.FormatString(a.Name));
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
-            bool success = await Itchio.Instance.Upload(filePath, user, game,apikey ,channels, version, result);
+            bool success = await Itchio.Instance.Upload(filePath, user, game, apikey ,channels, version, result);
             ProgressUtils.Remove(processID);
             
             return success;

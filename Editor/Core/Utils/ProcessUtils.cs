@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Debug = UnityEngine.Debug;
 
 namespace Wireframe
@@ -33,82 +34,61 @@ namespace Wireframe
                 return new ProcessResult(false, "", reason);
             }
         }
-
-        public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result, string path, string args,Dictionary<string,string> environment,
-            params string[] hideText)
+        
+        public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result, string path, string args, Dictionary<string,string> environment, params string[] hideText)
         {
 #if UNITY_EDITOR_LINUX
-
-            ProcessResult stepResult = await RunProcess(result, "/bin/bash",  "-c \"chmod +x " + path + "\"" ,new(), hideText);
-
-            if (!stepResult.IsSuccessful)
-            {
-                return  stepResult;
-            }
+            string fileName = "/bin/bash";
+            string arguments = $"-c \" chmod +x {path} {args}";
+#else
+            string fileName = path;
+            string arguments = args;
 #endif
-
-            return await RunProcess(result, path, args,environment, hideText);
-        }
         
-        public static async Task<ProcessResult> RunProcess(UploadTaskReport.StepResult result,string path, string args,Dictionary<string,string> environment, params string[] hideText)
-        {
             try
             {
-                using Process process = new Process();
-                
-                process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.FileName = path;
-                process.StartInfo.Arguments = args;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.EnableRaisingEvents = true;
-
-                if (environment != null)
+                using (Process process = new Process())
                 {
-                    foreach (var keyValuePair in environment)
+                    process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.FileName = fileName;
+                    process.StartInfo.Arguments = arguments;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.EnableRaisingEvents = true;
+                
+                    if (environment != null)
                     {
-                        process.StartInfo.EnvironmentVariables.Add(keyValuePair.Key, keyValuePair.Value);
+                        foreach (var keyValuePair in environment)
+                        {
+                            process.StartInfo.EnvironmentVariables.Add(keyValuePair.Key, keyValuePair.Value);
+                        }
                     }
+            
+                    if (!process.Start())
+                    {
+                        string reason = "Could not start process. FileName or arguments are incorrect or the file is busy. Exit: " + process.ExitCode;
+                        result.SetFailed(reason);
+                        return ProcessResult.Failed(reason);
+                    }
+
+                    string output = await process.StandardOutput.ReadToEndAsync();
+                    Debug.Log(output);
+
+                    string errors = await process.StandardError.ReadToEndAsync();
+                    Debug.LogError(errors);
+                
+                    process.WaitForExit();
+                    
+                    result.AddLog(output);
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        result.AddError(errors);
+                    }
+
+                    return ProcessResult.Successful(output);
                 }
-                
-                StringBuilder output = new StringBuilder();
-                StringBuilder errors = new StringBuilder();
-                
-                process.OutputDataReceived += (_,e) =>
-                {
-                    if (e.Data == null) return;
-                    output.AppendLine(e.Data);
-                };
-
-                process.ErrorDataReceived += (_, e) =>
-                {
-                    if (e.Data == null) return;
-                    errors.AppendLine(e.Data);
-                };
-                
-                if (!process.Start())
-                {
-                    string reason = "Could not start process. FileName or arguments are incorrect or the file is busy. Exit: " + process.ExitCode;
-                    result.SetFailed(reason);
-                    return ProcessResult.Failed(reason);
-                }
-
-                process.BeginOutputReadLine();
-
-                process.BeginErrorReadLine();
-                
-                process.WaitForExit();
-
-                result.AddLog(output.ToString());
-                
-                if (!string.IsNullOrEmpty(errors.ToString()))
-                {
-                    result.AddError(errors.ToString());
-                }
-
-                return ProcessResult.Successful(output.ToString());
             }
             catch (Exception ex)
             {
@@ -117,14 +97,7 @@ namespace Wireframe
             }
         }
 
-        /// <summary>
-        /// Synchronous sibling of RunTask for callers that have no UploadTaskReport to log to and cannot await.
-        /// eg: the string formatter, whose commands are Func&lt;string&gt;.
-        /// A non-zero exit code is returned as a failure instead of throwing, since plenty of tools use it to
-        /// mean "nothing to report" (git describe --tags exits 128 in a repo with no tags).
-        /// </summary>
-        public static ProcessResult RunSync(string path, string args, string workingDirectory, int timeoutMs = 5000,
-            IDictionary<string, string> environment = null)
+        public static ProcessResult RunSync(string path, string args, string workingDirectory, int timeoutMs = 5000, Dictionary<string, string> environment = null)
         {
             try
             {

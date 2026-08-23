@@ -20,65 +20,13 @@ namespace Wireframe
             base.ProjectSettingsGUI();
             using (new GUILayout.VerticalScope("box"))
             {
-                // Current Config
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField("Users:", GUILayout.Width(100));
-
-                    if (ItchioUIUtils.UserPopup.DrawPopup(ref m_currentUser, m_context))
-                    {
-                        m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
-                    }
-
-                    if (GUILayout.Button("New", GUILayout.Width(100)))
-                    {
-                        ItchioUser config = new ItchioUser();
-                        List<ItchioUser> configs = ItchioUIUtils.GetItchioBuildData().Users;
-                        config.ID = configs.Count > 0 ? configs[configs.Count - 1].Id + 1 : 1;
-                        configs.Add(config);
-                        ItchioUIUtils.Save();
-                        ItchioUIUtils.UserPopup.Refresh();
-                        ItchioUIUtils.GamePopup.Refresh();
-                        m_currentUser = config;
-                        m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
-                    }
-
-                    if (m_currentUser != null)
-                    {
-                        if (GUILayout.Button("User Profile", GUILayout.Width(200)))
-                        {
-                            Application.OpenURL($"https://itch.io/profile/{m_currentUser.Name}");
-                        }
-                    }
-
-                    if (CustomSettingsIcon.OnGUI())
-                    {
-                        GenericMenu menu = new GenericMenu();
-                        menu.AddItem(new GUIContent("Delete User"), false, ()=>
-                        {
-                            if (m_currentUser != null)
-                            {
-                                if (EditorUtility.DisplayDialog("Delete User", 
-                                        "Are you sure you want to delete this user?", "Delete", "No"))
-                                {
-                                    List<ItchioUser> configs = ItchioUIUtils.GetItchioBuildData().Users;
-                                    configs.Remove(m_currentUser);
-                                    m_currentUser = null;
-                                    ItchioUIUtils.Save();
-                                    ItchioUIUtils.UserPopup.Refresh();
-                                    ItchioUIUtils.GamePopup.Refresh();
-                                }
-                            }
-                        });
-                        menu.ShowAsContext();
-                    }
-                }
+                DrawUserDropdown();
 
                 if (m_currentUser != null)
                 {
                     using (new GUILayout.VerticalScope())
                     {
-                        DrawUser();
+                        DrawUser(false);
                     }
                 
                     using (new GUILayout.VerticalScope())
@@ -99,6 +47,62 @@ namespace Wireframe
 
             }
         }
+        
+        private void DrawUserDropdown()
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("Users:", GUILayout.Width(100));
+
+                if (ItchioUIUtils.UserPopup.DrawPopup(ref m_currentUser, m_context))
+                {
+                    m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
+                }
+
+                if (GUILayout.Button("New", GUILayout.Width(100)))
+                {
+                    ItchioUser config = new ItchioUser();
+                    List<ItchioUser> configs = ItchioUIUtils.GetItchioBuildData().Users;
+                    config.ID = configs.Count > 0 ? configs[configs.Count - 1].Id + 1 : 1;
+                    configs.Add(config);
+                    ItchioUIUtils.Save();
+                    ItchioUIUtils.UserPopup.Refresh();
+                    ItchioUIUtils.GamePopup.Refresh();
+                    m_currentUser = config;
+                    m_gameList.Initialize(m_currentUser.GameIds, "Games", true, _ => { Save(); });
+                }
+
+                if (m_currentUser != null)
+                {
+                    if (GUILayout.Button("User Profile", GUILayout.Width(200)))
+                    {
+                        Application.OpenURL($"https://itch.io/profile/{m_currentUser.Name}");
+                    }
+                }
+
+                if (CustomSettingsIcon.OnGUI())
+                {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(new GUIContent("Delete User"), false, ()=>
+                    {
+                        if (m_currentUser != null)
+                        {
+                            if (EditorUtility.DisplayDialog("Delete User", 
+                                    "Are you sure you want to delete this user?", "Delete", "No"))
+                            {
+                                List<ItchioUser> configs = ItchioUIUtils.GetItchioBuildData().Users;
+                                configs.Remove(m_currentUser);
+                                m_currentUser = null;
+                                ItchioUIUtils.Save();
+                                ItchioUIUtils.UserPopup.Refresh();
+                                ItchioUIUtils.GamePopup.Refresh();
+                            }
+                        }
+                    });
+                    menu.ShowAsContext();
+                }
+            }
+        }
 
         private void DrawChannels()
         {
@@ -115,16 +119,13 @@ namespace Wireframe
             }
         }
 
-        public void DrawUser()
+        public void DrawUser(bool preferences)
         {
             using (new GUILayout.HorizontalScope())
             {
                 GUIContent tooltip = new GUIContent("User Name:", "The ID of your user name. (e.g. https://jamesgamesbro.itch.io/my-game. use: 'jamesgamesbro').");
-                GUIContent tooltip2=  new GUIContent("API Key:", "The API Key to authenticate. Get it from https://itch.io/user/settings/api-keys ");
                 GUILayout.Label(tooltip, GUILayout.Width(100));
                 string newConfigName = EditorGUILayout.TextField(m_currentUser.Name);
-                GUILayout.Label(tooltip2, GUILayout.Width(100));
-                string newApikey = EditorGUILayout.PasswordField(m_currentUser.API_KEY);
                 if (newConfigName != m_currentUser.Name)
                 {
                     m_currentUser.Name = newConfigName;
@@ -132,13 +133,25 @@ namespace Wireframe
                     ItchioUIUtils.UserPopup.Refresh();
                     ItchioUIUtils.GamePopup.Refresh();
                 }
+            }
 
-                if (newApikey != m_currentUser.API_KEY)
+            if (preferences)
+            {
+                using (new GUILayout.HorizontalScope())
                 {
-                    m_currentUser.API_KEY = newApikey;
-                    Save();
-                    ItchioUIUtils.UserPopup.Refresh();
-                    ItchioUIUtils.GamePopup.Refresh();
+                    string newAPIKey = PasswordField.Draw("API KEY:", "The API Key to authenticate", 105, m_currentUser.APIKey, labelIsRedIfEmpty:false);
+                    if (newAPIKey != m_currentUser.APIKey)
+                    {
+                        m_currentUser.APIKey = newAPIKey;
+                        Save();
+                        ItchioUIUtils.UserPopup.Refresh();
+                        ItchioUIUtils.GamePopup.Refresh();
+                    }
+
+                    if (GUILayout.Button("api-keys", GUILayout.Width(100)))
+                    {
+                        Application.OpenURL("https://itch.io/user/settings/api-keys");
+                    }
                 }
             }
         }

@@ -20,7 +20,7 @@ namespace Wireframe
                 if (labelLength > 0)
                 {
                     Color color = GUI.color;
-                    bool isRed = !labelIsRedIfEmpty || string.IsNullOrEmpty(password); 
+                    bool isRed = labelIsRedIfEmpty && string.IsNullOrEmpty(password); 
                     if (isRed)
                     {
                         GUI.color = Color.red;

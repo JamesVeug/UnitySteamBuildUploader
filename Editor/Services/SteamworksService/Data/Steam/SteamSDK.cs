@@ -269,7 +269,7 @@ namespace Wireframe
 					stepResult.AddLog("[Steam] Uploading to Steam...");
 					Stopwatch stopwatch = Stopwatch.StartNew();
 					string args = CreateUploadBuildSteamArguments(appFilePath, true);
-					var result = await ProcessUtils.RunTask(stepResult, m_steamCMDPath, args,new(), UserName);
+					var result = await ProcessUtils.RunTask(stepResult, m_steamCMDPath, args, null, UserName);
 					stopwatch.Stop();
 					stepResult.AddLog($"[Steam] Steam upload took {stopwatch.ElapsedMilliseconds}ms");
 					if (!result.IsSuccessful)
@@ -505,7 +505,7 @@ namespace Wireframe
 					stepResult.AddLog("[Steam] DRM'ing on Steam...");
 					Stopwatch stopwatch = Stopwatch.StartNew();
 					string args = CreateDRMWrapSteamArguments(true, steamGuardCode, appID, sourceExe, resultEXE, flags);
-					var result = await ProcessUtils.RunTask(stepResult, m_steamCMDPath, args,new(), UserName);
+					var result = await ProcessUtils.RunTask(stepResult, m_steamCMDPath, args, null, UserName);
 					stopwatch.Stop();
 					stepResult.AddLog($"[Steam] Steam DRM took {stopwatch.ElapsedMilliseconds}ms");
 

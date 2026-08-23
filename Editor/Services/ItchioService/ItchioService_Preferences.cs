@@ -18,7 +18,7 @@ namespace Wireframe
             }
         }
 
-        private static void Draw()
+        private void Draw()
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -60,6 +60,19 @@ namespace Wireframe
                 {
                     Itchio.ItchioSDKPath = newPath;
                     Itchio.Instance.Initialize();
+                }
+            }
+
+            using (new GUILayout.VerticalScope("box"))
+            {
+                DrawUserDropdown();
+
+                if (m_currentUser != null)
+                {
+                    using (new GUILayout.VerticalScope())
+                    {
+                        DrawUser(true);
+                    }
                 }
             }
         }

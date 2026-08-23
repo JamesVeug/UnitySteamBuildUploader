@@ -137,14 +137,18 @@ namespace Wireframe
     {
         public int Id => ID;
 
-        public string APIKey => API_KEY;
-
         public string DisplayName => Name;
+        
+        public string Token
+        {
+            get => EncodedEditorPrefs.GetString($"ItchioUserToken_{Name}", "");
+            set => EncodedEditorPrefs.SetString($"ItchioUserToken_{Name}", value);
+        }
 
         public int ID;
         public string Name;
+        public string APIKey;
         public List<ItchioGameData> GameIds;
-        public string API_KEY;
         
         public ItchioUser()
         {

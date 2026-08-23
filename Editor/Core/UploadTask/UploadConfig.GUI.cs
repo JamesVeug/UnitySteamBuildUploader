@@ -203,25 +203,26 @@ namespace Wireframe
                                 }
                             }
                         }
-                    }
 
-                    if (Enabled)
-                    {
-                        List<GUIContent> destinationErrors = GetDestinationErrors();
-                        if (destinationErrors.Count > 0)
+                        if (destinationData.Destination != null)
                         {
-                            foreach (GUIContent error in destinationErrors)
+                            List<GUIContent> logs = new List<GUIContent>();
+                            destinationData.Destination.TryGetErrors(logs);
+                            if (logs.Count > 0)
                             {
-                                DrawError(error);
+                                foreach (GUIContent error in logs)
+                                {
+                                    DrawError(error);
+                                }
                             }
-                        }
-
-                        List<GUIContent> destinationWarnings = GetDestinationWarnings();
-                        if (destinationWarnings.Count > 0)
-                        {
-                            foreach (GUIContent warning in destinationWarnings)
+                            logs.Clear();
+                            destinationData.Destination.TryGetWarnings(logs, m_context);
+                            if (logs.Count > 0)
                             {
-                                DrawWarning(warning);
+                                foreach (GUIContent warning in logs)
+                                {
+                                    DrawWarning(warning);
+                                }
                             }
                         }
                     }

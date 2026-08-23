@@ -52,14 +52,18 @@
 - Added supporters to Readme
 - Improved welcome window UX 
 - Git repository changed from `UnitySteamBuildUploader` to `UnityBuildUploader`
+- `Used with AI` declaration updated
+- Uploading via BatchMode now supports using the name of the Upload Profile
+- Can now create a BuildProfileSource using the name of a Build Profile
 
 ## What's Fixed
-- Fixed config actions not executing
 - Fixed itch.io uploading not working on Linux
+- Fixed config actions not executing
+- Fixed config actions not showing errors or warnings in the UI
+- Fixed post upload actions not showing formatted strings in UI
 - Fixed lots of JSON errors (empty lists, non-english numbers and more)
 - Fixed some steam logs showing username
 - Fixed some warnings showing twice
-- Fixed config actions not showing errors or warnings in the UI
 - Fixed batch scripts not producing task reports
 - Fixed string format tooltip double ups
 - Fixed Menu Items showing top of the list of Window list

@@ -25,11 +25,73 @@
   - Unity 202x
   - Unity 2020 and 2019
     - Requires package [com.unity.sharp-zip-lib](https://docs.unity3d.com/Packages/com.unity.sharp-zip-lib@1.3/manual/Installation.html)
-- Advanced GUI and non-GUI support (CI/CD)
-  - Drive a running Editor from a terminal, CI or an AI agent with Unity's `unity command` CLI
 - Create multiple builds using Build Configs or Unity's Build Profiles.
   - Windows, Mac, Linux, Webgl (Others loosely supported via Unity's Build Profiles)
-- Services
+- Tiny build size impact
+- For personal and commercial use
+- Open Source
+- Safely modify builds before uploading
+  - Remove files/folders
+  - Compress/Decompress files
+  - DRM wrap (anti-piracy)
+
+### Interface
+#### Simple and Advanced GUI support
+![alt text](https://i.imgur.com/X94RXLW.png "Build Uploader Window")
+
+#### Non-UI support
+```csharp
+[MenuItem("Test/Create new Task and Upload to Steam")]
+public static async Task StartTask()
+{
+    UploadConfig config = new UploadConfig();
+    
+    // Create a build using a custom Build Profile
+    config.AddSource(new BuildProfileSource("Windows Development"));
+    
+    // Build to this directory. {buildNumber} will be replaced with a locally stored incremental number
+    config.AddDestination(new LocalPathDestination("C:/MyBuilds/{buildNumber}"));
+    
+    // Upload to Steam
+    config.AddDestination(new SteamUploadDestination(1141030, "internal", 1141031));
+    
+    // Create task and execute to begin the upload
+    UploadTask task = new UploadTask("Upload to Steam", config);
+    task.SetBuildDescription("My first build!");
+    
+    await task.StartAsync();
+    Debug.Log("Upload complete. Success: " + task.Report.Successful);
+}
+```
+
+```csharp
+[MenuItem("Test/Upload Existing Profile")]
+public static async Task StartTask2()
+{
+    // Load existing Upload Profile that gets a file and uploads it
+    UploadProfile profile = UploadProfile.FromProfileName("Save Locally");
+    
+    // Create task and execute to begin the upload
+    UploadTask task = new UploadTask(profile);
+    
+    await task.StartAsync();
+    Debug.Log("Upload complete. Success: " + task.Report.Successful);
+}
+```
+
+#### Batch mode
+
+`"C:\Program Files\Unity\Hub\Editor\<Unity Version>\Editor\Unity.exe" -quit -nographics -batchmode -logFile logs.log -projectPath  "<Path To Your Unity Project>" -executeMethod Wireframe.BatchModeUtil.Execute 41cf5e`
+
+Replace `41cf5e` with the `GUID or `Name` of your Upload Profile
+
+#### **Unity's command CLI**
+
+`unity command build_uploader --start_tasks "41cf5e"`
+
+Replace `41cf5e` with the `GUID or `Name` of your Upload Profile
+
+### Services
   - Steamworks
     - Uploading a build to any branch or depots
     - DRM wrap (anti-piracy)
@@ -65,13 +127,6 @@
     - Send customized emails
   - Unity Cloud Build
     - View, download and start builds
-- Safely modify builds before uploading
-  - Remove files/folders
-  - Compress/Decompress files
-  - DRM wrap (anti-piracy)
-- Minimal build size impact
-- For personal and commercial use
-- Open Source
 
 
 Prefer a fully headless run with no Editor open? 

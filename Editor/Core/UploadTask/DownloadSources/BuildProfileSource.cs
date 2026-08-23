@@ -1,4 +1,5 @@
 ﻿#if UNITY_6000_0_OR_NEWER
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -20,6 +21,13 @@ namespace Wireframe
         public BuildProfileSource()
         {
             // Required for reflection
+        }
+        
+        public BuildProfileSource(string buildProfileName, bool cleanBuild = false)
+        {
+            var profile = BuildUtils.GetAllCustomBuildProfiles().FirstOrDefault(a=>a.name.Equals(buildProfileName, StringComparison.OrdinalIgnoreCase));
+            m_BuildConfig = new BuildProfileWrapper(profile, 0);
+            m_CleanBuild = cleanBuild;
         }
         
         public BuildProfileSource(BuildProfile buildProfile, bool cleanBuild = false)

@@ -16,10 +16,11 @@ namespace Wireframe
             isDirty |= SlackUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
 
             float width = maxWidth - (120 * 3);
+            string formattedText = m_context.FormatString(m_text);
+            string truncated = Utils.TruncateText(formattedText, width, "");
             using (new EditorGUI.DisabledScope(true))
             {
-                bool alwaysFormatted = true;
-                EditorUtils.FormatStringTextArea(ref m_text, ref alwaysFormatted, m_context, null, GUILayout.Width(width));
+                GUILayout.TextField(truncated, GUILayout.Width(width));
             }
         }
 

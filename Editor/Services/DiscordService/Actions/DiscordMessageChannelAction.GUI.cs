@@ -15,15 +15,11 @@ namespace Wireframe
             isDirty |= DiscordUIUtils.ChannelPopup.DrawPopup(m_server, ref m_channel, m_context, GUILayout.Width(120));
 
             float width = maxWidth - 375;
-            string truncated = Utils.TruncateText(m_text, width, "");
+            string formattedText = m_context.FormatString(m_text);
+            string truncated = Utils.TruncateText(formattedText, width, "");
             using (new EditorGUI.DisabledScope(true))
             {
-                var newText = GUILayout.TextArea(truncated, GUILayout.Width(width));
-                if (newText != m_text)
-                {
-                    m_text = newText;
-                    isDirty = true;
-                }
+                GUILayout.TextField(truncated, GUILayout.Width(width));
             }
         }
 

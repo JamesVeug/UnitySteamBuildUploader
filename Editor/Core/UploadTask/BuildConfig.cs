@@ -48,6 +48,11 @@ namespace Wireframe
         {
             
         }
+        
+        public bool TryGetErrors(ref List<GUIContent> errors)
+        {
+            return true;
+        }
 
         public void Clear()
         {

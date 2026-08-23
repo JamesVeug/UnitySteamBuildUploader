@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 namespace Wireframe
 {
@@ -19,5 +20,6 @@ namespace Wireframe
         BuildOptions GetBuildOptions();
         string GetFormattedProductName(Context ctx);
         bool ApplySettings(bool switchPlatform, Context context, UploadTaskReport.StepResult stepResult = null);
+        bool TryGetErrors(ref List<GUIContent> errors);
     }
 }

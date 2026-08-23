@@ -32,6 +32,17 @@ namespace Wireframe
         public string GetBuildName => Profile.name;
         public BuildTargetGroup GetTargetPlatform => BuildPipeline.GetBuildTargetGroup(GetTarget);
 
+        public bool TryGetErrors(ref List<GUIContent> errors)
+        {
+            if (profile == null)
+            {
+                errors.Add(new GUIContent("Build Profile is null"));
+                return false;
+            }
+            
+            return true;
+        }
+
         public List<string> GetSceneGUIDs
         {
             get

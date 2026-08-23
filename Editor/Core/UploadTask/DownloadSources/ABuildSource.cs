@@ -319,11 +319,7 @@ namespace Wireframe
         {
             base.TryGetErrors(errors);
 
-            if (!ValidConfig(out string reason))
-            {
-                errors.Add(new GUIContent(reason));
-            }
-            else
+            if (ValidConfig(ref errors))
             {
                 // Stop the user from starting multiple tasks with the same config
                 // This is because paths can be shared between configs and builds and can can break an active task
@@ -346,29 +342,32 @@ namespace Wireframe
                             if (otherBuildSource.CompareBuildConfig(this))
                             {
                                 errors.Add(new GUIContent($"Build '{m_BuildConfig.GetBuildName}' is already used in another active Upload Task."));
-                                goto exitLoop;
+                                return;
                             }
                         }
                     }
                 }
-                
-                exitLoop: ;
             }
         }
 
-        private bool ValidConfig(out string reason)
+        private bool ValidConfig(ref List<GUIContent> errors)
         {
             T config = m_BuildConfig;
             if(config == null)
             {
-                reason = "No BuildConfig selected.";
+                errors.Add(new GUIContent("No BuildConfig selected."));
+                return false;
+            }
+            
+            if (!config.TryGetErrors(ref errors))
+            {
                 return false;
             }
 
             // Check scene files exist
             if (config.GetSceneGUIDs.Count == 0)
             {
-                reason = "No scenes selected in BuildConfig.";
+                errors.Add(new GUIContent("No scenes selected"));
                 return false;
             }
             else
@@ -385,7 +384,7 @@ namespace Wireframe
 
                 if (invalidScenes.Count > 0)
                 {
-                    reason = $"Invalid scene guids: {string.Join(", ", invalidScenes)}";
+                    errors.Add(new GUIContent($"Invalid scene guids: {string.Join(", ", invalidScenes)}"));
                     return false;
                 }
             }
@@ -397,23 +396,22 @@ namespace Wireframe
             BuildPlatform buildPlatform = BuildUtils.GetBuildPlatform(targetGroup, target, subTarget);
             if (buildPlatform == null)
             {
-                reason = $"The selected target platform {target} ({targetGroup}) is not valid.";
+                errors.Add(new GUIContent($"The selected target platform {target} ({targetGroup}) is not valid."));
                 return false;
             }
             
             if (!buildPlatform.installed)
             {
-                reason = $"The selected target platform {buildPlatform.DisplayName} is not installed. Use Unity Hub to install the module.";
+                errors.Add(new GUIContent($"The selected target platform {buildPlatform.DisplayName} is not installed. Use Unity Hub to install the module."));
                 return false;
             }
             
             if (!buildPlatform.supported)
             {
-                reason = $"The selected target platform {buildPlatform.DisplayName} is not supported by Unity. Not installed or deprecated in this version of Unity?\nUse Unity Hub to install the module.";
+                errors.Add(new GUIContent($"The selected target platform {buildPlatform.DisplayName} is not supported by Unity. Not installed or deprecated in this version of Unity?\nUse Unity Hub to install the module."));
                 return false;
             }
             
-            reason = "";
             return true;
         }
 

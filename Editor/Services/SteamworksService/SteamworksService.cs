@@ -36,6 +36,23 @@ namespace Wireframe
                 return false;
             }
 
+            // GetDisplayStatus rather than CachedStatus so a machine with credentials already saved is not
+            // blocked just because nobody has pressed the button to verify them yet.
+            AuthStatus status = SteamSDK.GetDisplayStatus();
+            if (status == AuthStatus.RequiresLogin)
+            {
+                reason = PreferencesLink("Steam login required",
+                    "'" + SteamSDK.UserName + "' is not authorized on this machine. Press the login button to authorize it.", this);
+                return false;
+            }
+
+            if (status == AuthStatus.Unknown)
+            {
+                reason = PreferencesLink("Steam login not checked",
+                    "No saved login was found for '" + SteamSDK.UserName + "' on this machine. Press the button to check.", this);
+                return false;
+            }
+
             reason = null;
             return true;
         }

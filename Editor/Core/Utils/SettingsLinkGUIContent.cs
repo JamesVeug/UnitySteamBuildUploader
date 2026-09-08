@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Wireframe
@@ -13,12 +13,20 @@ namespace Wireframe
         public string SettingsPath { get; }
         public SettingsScope Scope { get; }
 
+        /// <summary>
+        /// Set when the reason for this message is that the user has to log in. Lets the error draw an
+        /// AuthStatusButton next to the settings button so it can be fixed without leaving the window.
+        /// </summary>
+        public IAuthenticatedService AuthService { get; }
+
         public string ButtonText => Scope == SettingsScope.User ? "Open Preferences" : "Open Project Settings";
 
-        public SettingsLinkGUIContent(string text, string tooltip, string settingsPath, SettingsScope scope) : base(text, tooltip)
+        public SettingsLinkGUIContent(string text, string tooltip, string settingsPath, SettingsScope scope,
+            IAuthenticatedService authService = null) : base(text, tooltip)
         {
             SettingsPath = settingsPath;
             Scope = scope;
+            AuthService = authService;
         }
 
         public void OpenSettings()

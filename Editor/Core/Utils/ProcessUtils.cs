@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,22 +16,33 @@ namespace Wireframe
             public readonly bool IsSuccessful;
             public readonly string Output;
             public readonly string Errors;
+            public readonly int ExitCode;
             
-            private ProcessResult(bool isSuccessful, string output, string errors)
+            private ProcessResult(bool isSuccessful, string output, string errors, int exitCode)
             {
                 IsSuccessful = isSuccessful;
                 Output = output;
                 Errors = errors;
+                ExitCode = exitCode;
             }
             
             public static ProcessResult Successful(string text)
             {
-                return new ProcessResult(true, text, "");
+                return new ProcessResult(true, text, "", 0);
             }
             
             public static ProcessResult Failed(string reason)
             {
-                return new ProcessResult(false, "", reason);
+                return new ProcessResult(false, "", reason, -1);
+            }
+            
+            /// <summary>
+            /// The process ran and told us it failed. Keeps whatever it wrote - some tools explain
+            /// themselves on stdout and still exit non-zero.
+            /// </summary>
+            public static ProcessResult Failed(string reason, string output, int exitCode)
+            {
+                return new ProcessResult(false, output, reason, exitCode);
             }
         }
         
@@ -97,7 +108,7 @@ namespace Wireframe
             }
         }
 
-        public static ProcessResult RunSync(string path, string args, string workingDirectory, int timeoutMs = 5000, Dictionary<string, string> environment = null)
+        public static ProcessResult RunSync(string path, string args, string workingDirectory, int timeoutMs = 5000, Dictionary<string, string> environment = null, bool closeStandardInput = false)
         {
             try
             {
@@ -111,6 +122,7 @@ namespace Wireframe
                     process.StartInfo.WorkingDirectory = workingDirectory ?? "";
                     process.StartInfo.RedirectStandardError = true;
                     process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardInput = closeStandardInput;
 
                     if (environment != null)
                     {
@@ -125,10 +137,36 @@ namespace Wireframe
                         return ProcessResult.Failed("Could not start process: " + path);
                     }
 
-                    // Only used for tiny outputs, so draining one stream then the other can't fill the
-                    // other's buffer and deadlock.
-                    string output = process.StandardOutput.ReadToEnd();
-                    string errors = process.StandardError.ReadToEnd();
+                    // Some tools (steamcmd) prompt on stdin when they need input. Closing it makes them
+                    // fail immediately with a parsable message instead of blocking until the timeout.
+                    if (closeStandardInput)
+                    {
+                        process.StandardInput.Close();
+                    }
+
+                    // Read both streams as they arrive. ReadToEnd on one of them would only return when the
+                    // process closes it, which never happens if the process hangs - the timeout below would
+                    // never be reached.
+                    StringBuilder outputBuilder = new StringBuilder();
+                    StringBuilder errorBuilder = new StringBuilder();
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            // Joined with a newline rather than AppendLine - callers parse tool
+                            // output that uses '\n' itself.
+                            lock (outputBuilder) outputBuilder.Append(e.Data).Append('\n');
+                        }
+                    };
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            lock (errorBuilder) errorBuilder.Append(e.Data).Append('\n');
+                        }
+                    };
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
 
                     if (!process.WaitForExit(timeoutMs))
                     {
@@ -136,11 +174,19 @@ namespace Wireframe
                         return ProcessResult.Failed($"Timed out after {timeoutMs}ms: {path} {args}");
                     }
 
+                    // Parameterless overload waits for the async readers to drain what is left.
+                    process.WaitForExit();
+
+                    string output;
+                    string errors;
+                    lock (outputBuilder) output = outputBuilder.ToString();
+                    lock (errorBuilder) errors = errorBuilder.ToString();
+
                     if (process.ExitCode != 0)
                     {
                         return ProcessResult.Failed(string.IsNullOrEmpty(errors)
                             ? $"Exited with code {process.ExitCode}: {path} {args}"
-                            : errors);
+                            : errors, output, process.ExitCode);
                     }
 
                     return ProcessResult.Successful(output);

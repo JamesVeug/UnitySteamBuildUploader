@@ -33,7 +33,18 @@ namespace Wireframe
 		public static string SteamSDKPath
 		{
 			get => ProjectEditorPrefs.GetString("steambuild_SDKPath");
-			set => ProjectEditorPrefs.SetString("steambuild_SDKPath", value);
+			set
+			{
+				if (SteamSDKPath == value)
+				{
+					return;
+				}
+
+				ProjectEditorPrefs.SetString("steambuild_SDKPath", value);
+
+				// A different SDK means a different SteamCMD with its own credential cache.
+				InvalidateLoginStatus();
+			}
 		}
 
 		
@@ -41,7 +52,17 @@ namespace Wireframe
 		public static string UserName
 		{
 			get => EncodedEditorPrefs.GetString(UserNameKey, "");
-			set => EncodedEditorPrefs.SetString(UserNameKey, value);
+			set
+			{
+				if (UserName == value)
+				{
+					return;
+				}
+
+				// Clear before writing - the status is stored against the username it was recorded for.
+				InvalidateLoginStatus();
+				EncodedEditorPrefs.SetString(UserNameKey, value);
+			}
 		}
 		
 		public static string SteamSDKEXEPath
@@ -345,6 +366,7 @@ namespace Wireframe
 
 			if (text.Contains("Invalid Password"))
 			{
+				CachedStatus = AuthStatus.RequiresLogin;
 				result.errorText = "Your computer is not authorized to upload to this Steam username.\nCheck the username is correct or Open the SteamCMD within preferences and login manually to authorize it and try again.";
 				return result;
 			}
@@ -370,6 +392,7 @@ namespace Wireframe
 
 			if (text.Contains($"Successfully finished AppID {appID}"))
 			{
+				CachedStatus = AuthStatus.Authorized;
 				result.successful = true;
 				return result;
 			}
@@ -411,6 +434,9 @@ namespace Wireframe
  
 				return result;
 			}
+
+			// Getting past the login check is the strongest evidence we have that the machine is authorized.
+			CachedStatus = AuthStatus.Authorized;
 
 			if (text.Contains("Rate Limit Exceeded"))
 			{
@@ -472,12 +498,12 @@ namespace Wireframe
 			return false;
 		}
 
-		public void ShowConsole()
+		public void ShowConsole(string arguments = "")
 		{
 			var process = new Process();
 			process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
 			process.StartInfo.FileName = m_steamCMDPath;
-			process.StartInfo.Arguments = "";
+			process.StartInfo.Arguments = arguments;
 			process.EnableRaisingEvents = true;
 			process.Start();
 		}

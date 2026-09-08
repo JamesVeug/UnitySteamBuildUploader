@@ -289,6 +289,11 @@ namespace Wireframe
                 GUILayout.FlexibleSpace();
                 Color tint = GUI.color;
                 GUI.color = originalColor;
+
+                // Logging in is usually the whole fix, so offer it here rather than making the user go
+                // to Preferences to press the same button.
+                AuthStatusButton.Draw(settingsLink.AuthService);
+
                 if (GUILayout.Button(settingsLink.ButtonText, GUILayout.ExpandWidth(false)))
                 {
                     settingsLink.OpenSettings();

@@ -47,7 +47,7 @@ namespace Wireframe
             }
         }
 
-        private static void DrawSteamworks()
+        private void DrawSteamworks()
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -95,7 +95,9 @@ namespace Wireframe
             // Steam username
             using (new GUILayout.HorizontalScope())
             {
-                SteamSDK.UserName = PasswordField.Draw("Steam Username:", "Your Steamworks username used to login", 105, SteamSDK.UserName, labelIsRedIfEmpty:true);
+                SteamSDK.UserName = PasswordField.Draw("Steam Username:", "Your Steamworks username used to login", 105, SteamSDK.UserName,
+                    labelIsRedIfEmpty:true, labelColor:AuthStatusButton.GetStatusColor(this));
+                AuthStatusButton.Draw(this);
             }
         }
     }

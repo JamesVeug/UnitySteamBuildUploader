@@ -1,0 +1,36 @@
+{
+  "jobs": [
+    {
+      "label": "2019.4",
+      "unity": "PATH_TO_2019_UNITY_EXECUTABLE",
+      "project": "PATH_TO_2019_COMPATIBLE_PROJECT",
+      "targets": [{"name": "Win64"}, {"name": "OSXUniversal"}, {"name": "Linux64"}]
+    },
+    {
+      "label": "2022.3",
+      "unity": "PATH_TO_2022_UNITY_EXECUTABLE",
+      "project": "PATH_TO_2022_COMPATIBLE_PROJECT",
+      "targets": [{"name": "Win64"}, {"name": "OSXUniversal"}, {"name": "Linux64"}]
+    },
+    {
+      "label": "6000.3",
+      "unity": "PATH_TO_6000_3_UNITY_EXECUTABLE",
+      "project": "PATH_TO_6000_3_PROJECT",
+      "targets": [
+        {"name": "Win64", "profile": "Assets/Settings/Build Profiles/Windows Test.asset"},
+        {"name": "OSXUniversal", "profile": "Assets/Settings/Build Profiles/macOS Test.asset"},
+        {"name": "Linux64", "profile": "Assets/Settings/Build Profiles/Linux Test.asset"}
+      ]
+    },
+    {
+      "label": "6000.7",
+      "unity": "PATH_TO_6000_7_UNITY_EXECUTABLE",
+      "project": "PATH_TO_6000_7_PROJECT",
+      "targets": [
+        {"name": "Win64", "profile": "Assets/Settings/Build Profiles/Windows Test.asset"},
+        {"name": "OSXUniversal", "profile": "Assets/Settings/Build Profiles/macOS Test.asset"},
+        {"name": "Linux64", "profile": "Assets/Settings/Build Profiles/Linux Test.asset"}
+      ]
+    }
+  ]
+}

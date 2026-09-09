@@ -1,0 +1,14 @@
+{
+  "name": "BuildUploader.UnitTest.Steam",
+  "references": [
+    "VeugelJame.BuildUploader.Editor",
+    "BuildUploader.UnitTest.Common"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false
+}

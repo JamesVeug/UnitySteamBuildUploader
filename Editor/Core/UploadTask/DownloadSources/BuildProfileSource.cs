@@ -59,7 +59,7 @@ namespace Wireframe
             profileOptions.buildProfile = m_BuildConfig.Profile;
             profileOptions.locationPathName = options.locationPathName;
             profileOptions.options = options.options;
-            BuildReport report = BuildPipeline.BuildPlayer(options);
+            BuildReport report = BuildPipeline.BuildPlayer(profileOptions);
             return report;
         }
 

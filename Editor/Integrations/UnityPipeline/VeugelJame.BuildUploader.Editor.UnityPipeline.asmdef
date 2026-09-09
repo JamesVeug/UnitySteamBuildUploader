@@ -1,0 +1,22 @@
+{
+    "name": "VeugelJame.BuildUploader.Editor.UnityPipeline",
+    "references": [
+        "VeugelJame.BuildUploader.Editor",
+        "VeugelJame.BuildUploader",
+        "Unity.Pipeline"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "BUILD_UPLOADER_PIPELINE"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.pipeline",
+            "expression": "0.0.0",
+            "define": "BUILD_UPLOADER_PIPELINE"
+        }
+    ]
+}

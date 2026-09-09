@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("veugeljame.builduploader.editor.services.apple")]
+[assembly: InternalsVisibleTo("VeugelJame.BuildUploader.Editor.UnityPipeline")]
 
 namespace Wireframe
 {

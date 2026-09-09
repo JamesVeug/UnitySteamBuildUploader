@@ -23,7 +23,7 @@ namespace Wireframe
         /// <summary>
         /// https://discord.com/developers/docs/resources/message#create-message-jsonform-params
         /// </summary>
-        public static async Task<bool> SendMessageToChannel(long channelID, string text, string token, bool isBot, List<Dictionary<string, object>> embeds = null, UploadTaskReport.StepResult result = null)
+        public static async Task<bool> SendMessageToChannel(long channelID, string text, string token, bool isBot, List<Dictionary<string, object>> embeds = null, UploadTaskReport.StepResult result = null, bool dryRun = false)
         {
             string url = $"https://discord.com/api/v10/channels/{channelID}/messages";
             Dictionary<string, object> messageData = new Dictionary<string, object>
@@ -34,6 +34,15 @@ namespace Wireframe
             if (embeds != null && embeds.Count > 0)
             {
                 messageData["embeds"] = embeds;
+            }
+
+            if (dryRun)
+            {
+                // Exercise the same payload serializer without constructing or sending a request.
+                string payload = JSON.SerializeObject(messageData);
+                result?.AddLog("Discord dry run: POST " + url);
+                result?.AddLog(payload);
+                return true;
             }
 
             using (RequestWrapper www = RequestWrapper.Post(url))

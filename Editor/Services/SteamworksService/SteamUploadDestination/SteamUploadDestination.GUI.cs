@@ -141,6 +141,11 @@ namespace Wireframe
         
         protected internal override void OnGUIExpanded(ref bool isDirty)
         {
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Preview Upload:", GUILayout.Width(120));
+                isDirty |= CustomToggle.DrawToggle(ref m_previewUpload);
+            }
             // Tools
             using (new GUILayout.HorizontalScope())
             {

@@ -27,6 +27,11 @@ namespace Wireframe
 
         protected internal override void OnGUIExpanded(ref bool isDirty)
         {
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Dry Run:", GUILayout.Width(120));
+                isDirty |= CustomToggle.DrawToggle(ref m_dryRun);
+            }
             if (GUILayout.Button("?", GUILayout.Width(20)))
             {
                 Application.OpenURL("https://itch.io/docs/butler/pushing.html");

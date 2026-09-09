@@ -99,7 +99,7 @@ namespace Wireframe
             m_initialized = true;
         }
 
-        public async Task<bool> Upload(string pathToUpload, string user, string game, List<string> channels, string version, string apiKey, UploadTaskReport.StepResult stepResult)
+        public async Task<bool> Upload(string pathToUpload, string user, string game, List<string> channels, string version, string apiKey, UploadTaskReport.StepResult stepResult, bool dryRun = false)
         {
             stepResult.AddLog("Waiting turn to upload to Itchio....");
             await m_lock.WaitAsync();
@@ -108,7 +108,7 @@ namespace Wireframe
             try
             {
                 string path = m_SDKCMDPath;
-                string args = CreateUploadBuildItchioArguments(pathToUpload, user, game, version, channels);
+                string args = CreateUploadBuildItchioArguments(pathToUpload, user, game, version, channels, dryRun);
                 
                 Dictionary<string, string> environment = null;
                 if (!string.IsNullOrEmpty(apiKey))
@@ -148,11 +148,16 @@ namespace Wireframe
         /// <summary>
         /// https://itch.io/docs/butler/pushing.html
         /// </summary>
-        private string CreateUploadBuildItchioArguments(string pathToUpload, string user, string game, string version, List<string> channels)
+        private string CreateUploadBuildItchioArguments(string pathToUpload, string user, string game, string version, List<string> channels, bool dryRun)
         {
             // push "<pathToUpload>" <user>/<game>:<channel1>-<channel2>-<channel3> --userversion <version>
             string channelArg = string.Join("-", channels.Select(a=>a.ToLower()));
             string arguments = $"push \"{pathToUpload}\" {user}/{game}:{channelArg} --userversion \"{version}\" --json";
+
+            if (dryRun)
+            {
+                arguments += " --dry-run";
+            }
 
             return arguments;
         }

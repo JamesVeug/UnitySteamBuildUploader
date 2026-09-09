@@ -21,6 +21,9 @@ namespace Wireframe
         [Wiki("Description Format", "What description to appear on Itchio attached to the build. Typically short and listed as the version eg: 'v1.0.0'")]
         private string m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
 
+        [Wiki("Dry Run", "Run Butler's validation and upload calculation without publishing a build.")]
+        private bool m_dryRun;
+
         public ItchioDestination() : base()
         {
             // Required for reflection
@@ -58,6 +61,11 @@ namespace Wireframe
             m_descriptionFormat = format;
         }
 
+        public void SetDryRun(bool dryRun)
+        {
+            m_dryRun = dryRun;
+        }
+
         public override async Task<bool> Upload(UploadTaskReport.StepResult result)
         {
             string filePath = m_context.FormatString(m_taskContentsFolder);
@@ -68,7 +76,7 @@ namespace Wireframe
             List<string> channels = m_channels.ConvertAll((a)=>m_context.FormatString(a.Name));
             
             int processID = ProgressUtils.Start("Itchio", "Uploading to Itchio");
-            bool success = await Itchio.Instance.Upload(filePath, user, game,channels, version, apikey, result);
+            bool success = await Itchio.Instance.Upload(filePath, user, game,channels, version, apikey, result, m_dryRun);
             ProgressUtils.Remove(processID);
             
             return success;
@@ -120,7 +128,8 @@ namespace Wireframe
                 ["user"] = m_user?.Id,
                 ["game"] = m_game?.Id,
                 ["channels"] = m_channels.Select(a=>a.Id).ToList(),
-                ["descriptionFormat"] = m_descriptionFormat
+                ["descriptionFormat"] = m_descriptionFormat,
+                ["dryRun"] = m_dryRun
             };
             return dict;
         }
@@ -153,6 +162,8 @@ namespace Wireframe
             {
                 m_descriptionFormat = Context.TASK_DESCRIPTION_KEY;
             }
+
+            m_dryRun = s.TryGetValue("dryRun", out object dryRun) && dryRun is bool value && value;
         }
     }
 }

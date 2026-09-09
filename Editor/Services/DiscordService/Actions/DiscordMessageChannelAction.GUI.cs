@@ -25,6 +25,11 @@ namespace Wireframe
 
         public override void OnGUIExpanded(ref bool isDirty)
         {
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Dry Run:", GUILayout.Width(120));
+                isDirty |= CustomToggle.DrawToggle(ref m_dryRun);
+            }
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("App:", GUILayout.Width(120));

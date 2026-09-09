@@ -44,6 +44,9 @@ namespace Wireframe
         [Wiki("Embeds", "A list of embeds to send with the message. This is optional and can be used to format the message nicely.", 5)]
         private List<Embed> m_embeds = new List<Embed>();
 
+        [Wiki("Dry Run", "Serialize and report the Discord request without sending it.", 6)]
+        private bool m_dryRun;
+
         public DiscordMessageChannelAction() : base()
         {
             // Required for reflection
@@ -57,12 +60,9 @@ namespace Wireframe
             };
         }
         
-        public void SetServer(long channel)
+        public void SetServer(long server)
         {
-            m_channel = new DiscordConfig.DiscordChannel()
-            {
-                ChannelID = channel
-            };
+            m_server = new DiscordConfig.DiscordServer(0, "Configured server", server);
         }
         
         public void SetChannel(long channel)
@@ -76,6 +76,11 @@ namespace Wireframe
         public void SetText(string text)
         {
             m_text = text;
+        }
+
+        public void SetDryRun(bool dryRun)
+        {
+            m_dryRun = dryRun;
         }
 
         public void AddEmbed(string title, string description, Color color)
@@ -129,7 +134,7 @@ namespace Wireframe
             }
             
             string text = m_context.FormatString(m_text);
-            return await Discord.SendMessageToChannel(m_channel.ChannelID, text, m_app.Token, m_app.IsBot, embeds, stepResult);
+            return await Discord.SendMessageToChannel(m_channel.ChannelID, text, m_app?.Token, m_app?.IsBot ?? true, embeds, stepResult, m_dryRun);
         }
 
         public override void TryGetErrors(List<GUIContent> errors)
@@ -137,21 +142,21 @@ namespace Wireframe
             base.TryGetErrors(errors);
 
             DiscordService service = InternalUtils.GetService<DiscordService>();
-            if (!service.IsReadyToStartBuild(out GUIContent reason))
+            if (!m_dryRun && !service.IsReadyToStartBuild(out GUIContent reason))
             {
                 errors.Add(reason);
             }
 
-            if (m_app == null)
+            if (!m_dryRun && m_app == null)
             {
                 errors.Add(new GUIContent("Discord App is not set."));
             }
-            else if (string.IsNullOrEmpty(m_app.Token))
+            else if (!m_dryRun && string.IsNullOrEmpty(m_app.Token))
             {
                 errors.Add(service.PreferencesLink($"Discord App {m_app.Name} does not have a token set.", ""));
             }
 
-            if (m_server == null)
+            if (!m_dryRun && m_server == null)
             {
                 errors.Add(new GUIContent("Server is not set."));
             }
@@ -174,7 +179,8 @@ namespace Wireframe
                 { "app", m_app?.Id ?? 0 },
                 { "serverId", m_server?.Id ?? 0 },
                 { "channelId", m_channel?.ChannelID ?? 0 },
-                { "text", m_text }
+                { "text", m_text },
+                { "dryRun", m_dryRun }
             };
             
             if (m_embeds != null && m_embeds.Count > 0)
@@ -230,10 +236,13 @@ namespace Wireframe
             {
                 m_text = textObj.ToString();
             }
+
+
             else
             {
                 m_text = string.Empty; // Default to empty string if not set
             }
+            m_dryRun = data.TryGetValue("dryRun", out object dryRunObj) && dryRunObj is bool dryRun && dryRun;
             
             if (data.TryGetValue("embeds", out object embedsObj) && embedsObj is List<object> embedsList)
             {

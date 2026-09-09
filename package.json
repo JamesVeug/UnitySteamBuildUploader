@@ -1,7 +1,7 @@
 {
   "displayName": "Build Uploader",
   "name": "com.veugeljame.builduploader",
-  "unity": "6000.3",
+  "unity": "2019.4",
   "description": "Open Source Editor tool that simplifies making and uploading builds to services such as Steam,Itchio,Epic Games then sending message to Discord or Slack.",
   "category": "Tool",
   "keywords": [

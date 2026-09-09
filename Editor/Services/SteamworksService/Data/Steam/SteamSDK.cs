@@ -498,39 +498,15 @@ namespace Wireframe
 			return false;
 		}
 
-		public void ShowConsole(string arguments = "")
+		public void Authenticate()
 		{
-			string path = m_steamCMDPath;
-			string args = $"login {UserName}";
-			
-#if UNITY_EDITOR_LINUX 
-            string fileName = "/bin/bash";
-            string arguments = $"-c \" chmod +x {path} {args}";
-#elif UNITY_EDITOR_OSX
-			string fullCommand = $"'{path}'";
-			if (!string.IsNullOrEmpty(args))
-				fullCommand += $" {args}";
-            
-			string fileName = "osascript";
-			string arguments = $"-e 'tell application \"Terminal\" to do script \"{fullCommand}\"'";
-#else
-            string fileName = path;
-            string arguments = args;
-#endif
-			
-			try
-			{
-				var process = new Process();
-				process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-				process.StartInfo.FileName = fileName;
-				process.StartInfo.Arguments = arguments;
-				process.EnableRaisingEvents = true;
-				process.Start();
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error launching SteamCMD: {ex.Message}");
-			}
+			string[] arguments = new[] { "+login", UserName };
+			ProcessUtils.ShowConsole(m_steamCMDPath, arguments);
+		}
+
+		public void ShowConsole()
+		{
+			ProcessUtils.ShowConsole(m_steamCMDPath, new string[0]);
 		}
 		
 		/// <summary>

@@ -175,12 +175,7 @@ namespace Wireframe
 
         public static void ShowConsole()
         {
-            var process = new Process();
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"/k \"{GetEXEPath()}\" -help"; // /k keeps the window open
-            process.EnableRaisingEvents = true;
-            process.Start();
+            ProcessUtils.ShowConsole(GetEXEPath(), "-help");
         }
 
         public static string GetEXEPath()

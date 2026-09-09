@@ -114,10 +114,26 @@ namespace Wireframe
         /// </summary>
         public static bool ComparePaths(string path1, string path2)
         {
-            return String.Compare(
-                Path.GetFullPath(path1).TrimEnd('\\'),
-                Path.GetFullPath(path2).TrimEnd('\\'),
-                StringComparison.InvariantCultureIgnoreCase) == 0;
+            string Normalize(string path)
+            {
+                string fullPath = Path.GetFullPath(path);
+                string root = Path.GetPathRoot(fullPath);
+                while (fullPath.Length > root.Length &&
+                       (fullPath[fullPath.Length - 1] == Path.DirectorySeparatorChar ||
+                        fullPath[fullPath.Length - 1] == Path.AltDirectorySeparatorChar))
+                {
+                    fullPath = fullPath.Substring(0, fullPath.Length - 1);
+                }
+                return fullPath;
+            }
+
+            // Unix volumes can be case-sensitive, including macOS APFS volumes.
+#if UNITY_EDITOR_WIN
+            const StringComparison comparison = StringComparison.OrdinalIgnoreCase;
+#else
+            const StringComparison comparison = StringComparison.Ordinal;
+#endif
+            return string.Equals(Normalize(path1), Normalize(path2), comparison);
         }
         
         public static bool CompareDirectories(string path1, string path2)
@@ -167,13 +183,8 @@ namespace Wireframe
                     }
                 }
                 
-                using (var sourceStream = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-                {
-                    using (var destinationStream = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-                    {
-                        await sourceStream.CopyToAsync(destinationStream);
-                    }
-                }
+                // Native copying preserves Unix executable permissions; copying stream bytes does not.
+                await Task.Run(() => File.Copy(source, destination, dupeFileHandling == FileExistHandling.Overwrite));
             }
             catch (Exception e)
             {

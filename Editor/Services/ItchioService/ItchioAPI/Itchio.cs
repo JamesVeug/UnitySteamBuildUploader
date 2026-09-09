@@ -203,17 +203,7 @@ namespace Wireframe
 
         public void ShowConsole()
         {
-            var process = new Process();
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-            process.StartInfo.FileName = "cmd.exe";
-#else
-            process.StartInfo.FileName = "/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal";
-#endif
-            process.StartInfo.UseShellExecute = true;
-            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(m_SDKCMDPath) ?? string.Empty;
-            process.StartInfo.Arguments = $"/k \"{m_SDKCMDPath}\"";  // /k keeps the terminal open, cd /d changes drive if needed
-            process.Start();
+            ProcessUtils.ShowConsole(m_SDKCMDPath, "--help");
         }
 
         private class OutputResultArgs

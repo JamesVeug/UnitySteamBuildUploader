@@ -34,7 +34,7 @@ namespace Wireframe
         /// Returns true when the current Unity Editor is running on macOS. Required for
         /// any upload step because xcrun altool ships with Xcode and is macOS-only.
         /// </summary>
-        public static bool IsRunningOnMac => Environment.OSVersion.Platform == PlatformID.MacOSX;
+        public static bool IsRunningOnMac => Application.platform == RuntimePlatform.OSXEditor;
 
         internal static string PlatformToAltoolType(ApplePlatform platform)
         {

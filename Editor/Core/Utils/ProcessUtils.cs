@@ -1,16 +1,112 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Debug = UnityEngine.Debug;
 
 namespace Wireframe
 {
     public static class ProcessUtils
     {
+        /// <summary>Opens an interactive terminal. Arguments are individual values, not shell code.</summary>
+        public static void ShowConsole(string path, params string[] arguments)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(path) || !File.Exists(path))
+                    throw new FileNotFoundException("Console executable was not found.", path);
+
+                string fullPath = Path.GetFullPath(path);
+                string directory = Path.GetDirectoryName(fullPath);
+                var startInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = false,
+                    WorkingDirectory = directory,
+                    WindowStyle = ProcessWindowStyle.Normal,
+                    CreateNoWindow = false
+                };
+#if UNITY_EDITOR_WIN
+                // Create a visible console when called from the Unity GUI process.
+                startInfo.UseShellExecute = true;
+                startInfo.FileName = Environment.GetEnvironmentVariable("ComSpec") ?? "cmd.exe";
+                startInfo.Arguments = "/d /s /k \"" + QuoteArgument(fullPath) + " " +
+                                      string.Join(" ", arguments.Select(QuoteArgument)) + "\"";
+#elif UNITY_EDITOR_OSX
+                string command = "cd " + QuoteShellArgument(directory) + " && " +
+                                 QuoteShellArgument(fullPath) + " " +
+                                 string.Join(" ", arguments.Select(QuoteShellArgument));
+                string script = "tell application \"Terminal\"\nactivate\ndo script \"" +
+                                command.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"\nend tell";
+                startInfo.FileName = "/usr/bin/osascript";
+                startInfo.Arguments = "-e " + QuoteArgument(script);
+#elif UNITY_EDITOR_LINUX
+                // These terminals all accept an executable and separate arguments after their separator.
+                string[] terminals = { "x-terminal-emulator", "gnome-terminal", "konsole", "xfce4-terminal", "xterm" };
+                foreach (string terminal in terminals)
+                {
+                    string executable = FindExecutable(terminal);
+                    if (executable == null) continue;
+                    startInfo.FileName = executable;
+                    string separator = terminal == "gnome-terminal" || terminal == "xfce4-terminal" ? "--" : "-e";
+                    // bash receives the SDK and its arguments as positional values, so shell characters
+                    // in a path or argument cannot become commands. Leave a shell open when it exits.
+                    startInfo.Arguments = separator + " /bin/bash -c " +
+                        QuoteArgument("\"$@\"; exec /bin/bash -i") + " builduploader " +
+                        QuoteArgument(fullPath) + " " + string.Join(" ", arguments.Select(QuoteArgument));
+                    break;
+                }
+                if (string.IsNullOrEmpty(startInfo.FileName))
+                    throw new InvalidOperationException("No supported terminal was found. Install x-terminal-emulator, gnome-terminal, konsole, xfce4-terminal or xterm.");
+#else
+                throw new PlatformNotSupportedException("Opening an SDK console is not supported on this editor platform.");
+#endif
+                using (Process process = Process.Start(startInfo))
+                {
+                    if (process == null) throw new InvalidOperationException("Could not start the SDK console.");
+                }
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+        }
+
+        // ProcessStartInfo.Arguments uses command-line quoting, not shell quoting.
+        internal static string QuoteArgument(string value)
+        {
+            var quoted = new StringBuilder("\"");
+            int backslashes = 0;
+            foreach (char character in value)
+            {
+                if (character == '\\')
+                {
+                    backslashes++;
+                    continue;
+                }
+                quoted.Append('\\', character == '"' ? backslashes * 2 + 1 : backslashes);
+                quoted.Append(character);
+                backslashes = 0;
+            }
+            quoted.Append('\\', backslashes * 2);
+            return quoted.Append('"').ToString();
+        }
+
+        private static string QuoteShellArgument(string value) => "'" + value.Replace("'", "'\"'\"'") + "'";
+
+        private static string FindExecutable(string name)
+        {
+            foreach (string directory in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator))
+            {
+                if (string.IsNullOrWhiteSpace(directory)) continue;
+                string candidate = Path.Combine(directory, name);
+                if (File.Exists(candidate)) return Path.GetFullPath(candidate);
+            }
+            return null;
+        }
+
         public readonly struct ProcessResult
         {
             public readonly bool IsSuccessful;
@@ -48,14 +144,7 @@ namespace Wireframe
         
         public static async Task<ProcessResult> RunTask(UploadTaskReport.StepResult result, string path, string args, Dictionary<string,string> environment, params string[] hideText)
         {
-#if UNITY_EDITOR_LINUX
-            string fileName = "/bin/bash";
-            string arguments = $"-c \" chmod +x {path} {args}";
-#else
-            string fileName = path;
-            string arguments = args;
-#endif
-        
+            hideText = hideText?.Where(value => !string.IsNullOrEmpty(value)).ToArray();
             try
             {
                 using (Process process = new Process())
@@ -63,8 +152,8 @@ namespace Wireframe
                     process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
                     process.StartInfo.CreateNoWindow = true;
                     process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.FileName = fileName;
-                    process.StartInfo.Arguments = arguments;
+                    process.StartInfo.FileName = path;
+                    process.StartInfo.Arguments = args;
                     process.StartInfo.RedirectStandardError = true;
                     process.StartInfo.RedirectStandardOutput = true;
                     process.EnableRaisingEvents = true;
@@ -73,29 +162,39 @@ namespace Wireframe
                     {
                         foreach (var keyValuePair in environment)
                         {
-                            process.StartInfo.EnvironmentVariables.Add(keyValuePair.Key, keyValuePair.Value);
+                            process.StartInfo.EnvironmentVariables[keyValuePair.Key] = keyValuePair.Value;
                         }
                     }
             
                     if (!process.Start())
                     {
-                        string reason = "Could not start process. FileName or arguments are incorrect or the file is busy. Exit: " + process.ExitCode;
-                        result.SetFailed(reason);
+                        string reason = "Could not start process: " + path;
+                        result?.SetFailed(reason);
                         return ProcessResult.Failed(reason);
                     }
 
-                    string output = await process.StandardOutput.ReadToEndAsync();
-                    Debug.Log(output);
-
-                    string errors = await process.StandardError.ReadToEndAsync();
-                    Debug.LogError(errors);
+                    // Drain both pipes concurrently so a full stderr pipe cannot block stdout.
+                    Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+                    Task<string> errorTask = process.StandardError.ReadToEndAsync();
+                    await Task.WhenAll(outputTask, errorTask);
+                    string output = outputTask.Result.HideText(hideText);
+                    string errors = errorTask.Result.HideText(hideText);
                 
                     process.WaitForExit();
                     
-                    result.AddLog(output);
+                    result?.AddLog(output);
                     if (!string.IsNullOrEmpty(errors))
                     {
-                        result.AddError(errors);
+                        result?.AddError(errors);
+                    }
+
+                    if (process.ExitCode != 0)
+                    {
+                        string reason = string.IsNullOrEmpty(errors)
+                            ? $"Process exited with code {process.ExitCode}: {path}"
+                            : errors;
+                        result?.SetFailed(reason);
+                        return ProcessResult.Failed(reason, output, process.ExitCode);
                     }
 
                     return ProcessResult.Successful(output);
@@ -103,7 +202,8 @@ namespace Wireframe
             }
             catch (Exception ex)
             {
-                result.AddException(ex, hideText);
+                result?.AddException(ex, hideText);
+                result?.SetFailed(ex.Message.HideText(hideText));
                 return ProcessResult.Failed(ex.Message.HideText(hideText));
             }
         }
